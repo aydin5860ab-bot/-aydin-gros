@@ -242,6 +242,20 @@ tr:hover td{background:var(--gray50)}
           <div class="dash-card-title">En Çok Satan Ürünler</div>
           <div id="dashBestSellers"></div>
         </div>
+        <div class="card">
+          <div class="dash-card-title">Son 7 Gün Ciro</div>
+          <div id="weeklyChart"></div>
+        </div>
+        <div class="card">
+          <div class="dash-card-title">Hızlı İşlemler</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn btn-primary" onclick="showPage('orders')" style="justify-content:flex-start">🛒 Siparişleri Gör</button>
+            <button class="btn btn-ghost" onclick="showPage('campaigns')" style="justify-content:flex-start">📅 Kampanya Ekle</button>
+            <button class="btn btn-ghost" onclick="showPage('invoices')" style="justify-content:flex-start">📄 Fatura Gir</button>
+            <button class="btn btn-ghost" onclick="showPage('stock')" style="justify-content:flex-start">📈 Stok Güncelle</button>
+            <a href="https://aydin-gros.vercel.app/" target="_blank" class="btn btn-success" style="justify-content:flex-start">🌐 Siteyi Gör</a>
+          </div>
+        </div>
         <div class="card dash-full">
           <div class="dash-card-title">Kritik Stok Uyarıları <a href="#" onclick="showPage('stock');return false" style="font-size:12px;color:var(--orange);font-weight:500;text-decoration:none">Stoka Git →</a></div>
           <div id="dashStockAlerts"></div>
@@ -292,6 +306,12 @@ tr:hover td{background:var(--gray50)}
           <option value="1">Hazırlanıyor</option>
           <option value="2">Yolda</option>
           <option value="3">Teslim Edildi</option>
+        </select>
+        <select id="orderDateFilter" onchange="renderOrders()">
+          <option value="">Tüm Tarihler</option>
+          <option value="today">Bugün</option>
+          <option value="week">Bu Hafta</option>
+          <option value="month">Bu Ay</option>
         </select>
       </div>
       <div class="table-wrap">
@@ -825,6 +845,7 @@ function renderDash(){
     top.map(([name,qty],i)=>`<div class="bestseller-row"><div class="bs-rank">${i+1}</div><div style="flex:1;font-size:13px;font-weight:500">${esc(name)}</div><div style="font-size:12px;color:var(--gray500)">${qty} adet</div></div>`).join(''):
     '<p style="color:var(--gray400);font-size:13px;text-align:center;padding:20px">Sipariş verisi yok</p>';
 
+  try{renderWeeklyChart();}catch(e){}
   const crit=[...outProds,...lowProds];
   document.getElementById('dashStockAlerts').innerHTML=crit.length?
     `<div style="overflow-x:auto"><table><thead><tr><th>Ürün</th><th>Kategori</th><th>Stok</th><th>Durum</th></tr></thead>
@@ -891,9 +912,14 @@ function renderOrders(){
   loadData();
   const q=(document.getElementById('orderSearch')?.value||'').toLowerCase();
   const sf=document.getElementById('orderStatusFilter')?.value;
+  const df=document.getElementById('orderDateFilter')?.value||'';
+  const now=new Date(); const tod=new Date(now.getFullYear(),now.getMonth(),now.getDate());
   const list=[...orders].reverse().filter(o=>{
-    if(q&&!(o.name||'').toLowerCase().includes(q)&&!(o.addr||'').toLowerCase().includes(q))return false;
+    if(q&&!(o.name||'').toLowerCase().includes(q)&&!(o.addr||'').toLowerCase().includes(q)&&!(o.no||'').toLowerCase().includes(q))return false;
     if(sf!==''&&sf!==undefined&&String(o.status||0)!==sf)return false;
+    if(df==='today'&&new Date(o.ts)<tod)return false;
+    if(df==='week'&&new Date(o.ts)<new Date(tod-6*86400000))return false;
+    if(df==='month'&&new Date(o.ts)<new Date(now.getFullYear(),now.getMonth(),1))return false;
     return true;
   });
   document.getElementById('orderCount').textContent=`${orders.length} sipariş`;
@@ -904,8 +930,8 @@ function renderOrders(){
   tbody.innerHTML=list.map((o)=>{
     const realIdx=orders.indexOf(o);
     return`<tr>
-    <td style="font-size:12px;color:var(--gray500)">${fmtDate(o.ts)}</td>
-    <td style="font-weight:600">${esc(o.name||'Misafir')}</td>
+    <td><div style="font-size:12px;color:var(--gray500)">${fmtDate(o.ts)}</div>${o.no?`<div style="font-size:10px;color:var(--orange);font-weight:600">${esc(o.no)}</div>`:''}</td>
+    <td style="font-weight:600">${esc(o.name||'Misafir')}${o.phone?`<div style="font-size:11px;color:var(--gray400);font-weight:400">${esc(o.phone)}</div>`:''}</td>
     <td style="font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(o.addr||'-')}</td>
     <td style="font-weight:700;color:var(--orange)">${fmtPrice(o.total)}</td>
     <td><select class="badge ${sCls[o.status||0]}" onchange="changeOrderStatus(${realIdx},this.value)" style="border:none;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;outline:none">
@@ -1096,6 +1122,7 @@ function renderInvHistory(){
     <td style="font-weight:700">${fmtPrice(inv.totalCost)}</td>
     <td><div style="display:flex;gap:4px">
       <button class="btn btn-ghost btn-xs" onclick="viewInvoice(${i})">👁️</button>
+      <button class="btn btn-ghost btn-xs" onclick="printInvoice(${i})">🖨️</button>
       <button class="btn btn-danger btn-xs" onclick="deleteInvoice(${i})">🗑️</button>
     </div></td>
   </tr>`).join('');
@@ -1314,8 +1341,88 @@ function nukeData(){
   setTimeout(()=>location.reload(),2000);
 }
 
+/* ── YENİ SİPARİŞ BİLDİRİMİ ────────────────────────────────────────── */
+let lastOrderCount = 0;
+function startOrderPolling(){
+  lastOrderCount = JSON.parse(localStorage.getItem('ag_orders')||'[]').length;
+  setInterval(()=>{
+    const current = JSON.parse(localStorage.getItem('ag_orders')||'[]');
+    if(current.length > lastOrderCount){
+      const diff = current.length - lastOrderCount;
+      lastOrderCount = current.length;
+      showNewOrderAlert(diff, current[current.length-1]);
+      loadData();
+      updateSidebarStockBadge();
+      // Dashboard açıksa yenile
+      if(document.getElementById('page-dash').classList.contains('active')) renderDash();
+      if(document.getElementById('page-orders').classList.contains('active')) renderOrders();
+    }
+  }, 15000);
+}
+function showNewOrderAlert(count, lastOrder){
+  const div=document.createElement('div');
+  div.style.cssText='position:fixed;top:20px;right:20px;background:#16A34A;color:#fff;border-radius:12px;padding:16px 20px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.2);max-width:300px;animation:slideIn .3s ease';
+  div.innerHTML=`<div style="font-weight:700;font-size:15px;margin-bottom:4px">🛒 ${count} Yeni Sipariş!</div>
+    <div style="font-size:12px;opacity:.9">${lastOrder?.name||'Misafir'} — ${fmtPrice(lastOrder?.total||0)}</div>
+    <button onclick="this.parentElement.remove();showPage('orders')" style="margin-top:10px;background:rgba(255,255,255,.2);border:none;color:#fff;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600">Siparişlere Git →</button>
+    <button onclick="this.parentElement.remove()" style="position:absolute;top:8px;right:8px;background:none;border:none;color:rgba(255,255,255,.7);cursor:pointer;font-size:16px">✕</button>`;
+  div.style.position='fixed';
+  document.body.appendChild(div);
+  setTimeout(()=>div.remove(), 8000);
+  try{ new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAA...').play(); }catch(e){}
+}
+
+/* ── HAFTALİK CİRO GRAFİĞİ ─────────────────────────────────────────── */
+function renderWeeklyChart(){
+  const days=['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
+  const now=new Date();
+  const weekData=Array(7).fill(0);
+  orders.forEach(o=>{
+    const d=new Date(o.ts);
+    const diff=Math.floor((now-d)/(1000*60*60*24));
+    if(diff<7) weekData[6-diff]+=(o.total||0);
+  });
+  const max=Math.max(...weekData,1);
+  const todayIdx=6;
+  const el=document.getElementById('weeklyChart');
+  if(!el)return;
+  el.innerHTML=`<div style="display:flex;align-items:flex-end;gap:8px;height:100px;padding:0 4px">
+    ${weekData.map((v,i)=>{
+      const h=Math.max(4,Math.round((v/max)*90));
+      const isToday=i===todayIdx;
+      return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="font-size:10px;color:var(--gray-500);font-weight:600">${v>0?fmtPrice(v).replace(' ₺',''):'—'}</div>
+        <div style="width:100%;height:${h}px;background:${isToday?'var(--orange)':'var(--orange-light)'};border-radius:4px 4px 0 0;transition:.3s"></div>
+        <div style="font-size:10px;color:${isToday?'var(--orange)':'var(--gray-400)'};font-weight:${isToday?700:400}">${days[(now.getDay()+6-todayIdx+i)%7]}</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+/* ── FATURA YAZDIR ───────────────────────────────────────────────────── */
+function printInvoice(idx){
+  const inv=invoices[idx];if(!inv)return;
+  const win=window.open('','_blank');
+  const rows=(inv.lines||[]).map(l=>{
+    const p=products.find(x=>x.id===l.pid);
+    return`<tr><td>${p?p.name:'(Silindi)'}</td><td>${l.qty}</td><td>${fmtPrice(l.cost)}</td><td>%${(l.margin||0).toFixed(1)}</td><td><strong>${fmtPrice(l.sell)}</strong></td></tr>`;
+  }).join('');
+  win.document.write(`<!DOCTYPE html><html><head><title>Fatura</title>
+    <style>body{font-family:sans-serif;padding:24px;max-width:700px;margin:0 auto}h2{color:#F97316}table{width:100%;border-collapse:collapse;margin-top:16px}th,td{padding:8px 12px;border:1px solid #e5e7eb;text-align:left}th{background:#f9fafb}tfoot td{font-weight:700;background:#fef3e9}@media print{button{display:none}}</style>
+    </head><body>
+    <h2>Aydın Gros — Fatura</h2>
+    <p style="color:#6b7280">${fmtDate(inv.ts)} | ${inv.note||'Not yok'}</p>
+    <table><thead><tr><th>Ürün</th><th>Miktar</th><th>Alış</th><th>Marj</th><th>Satış</th></tr></thead>
+    <tbody>${rows}</tbody>
+    <tfoot><tr><td colspan="4">Toplam Maliyet</td><td>${fmtPrice(inv.totalCost)}</td></tr></tfoot></table>
+    <br><button onclick="window.print()">🖨️ Yazdır</button>
+    </body></html>`);
+  win.document.close();
+}
+
 /* ── INIT ───────────────────────────────────────────────────────────── */
 try{loadData();}catch(e){console.error('loadData error:',e);}
+startOrderPolling();
 </script>
 </body>
 </html>

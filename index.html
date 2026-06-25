@@ -1430,7 +1430,7 @@ function renderSection(containerId, filterFn){
 }
 
 function renderAll(){
-  renderSection('featured-scroll', p=>p.feat);
+  renderSection('featured-scroll', p=>p.feat||p.featured);
   renderSection('manav-scroll', p=>p.cat==='manav');
   renderSection('temel-gida-scroll', p=>p.cat==='temel-gida');
   renderSection('sut-sarkuteri-scroll', p=>p.cat==='sut-sarkuteri');
@@ -1646,6 +1646,10 @@ function doCheckout(payMethod){
   msg+='─────────────────\nLütfen siparişimi onaylayın. Teşekkürler!';
   showOrderConfirm(orderNo, total, payLabel);
   window.open('https://wa.me/905444789461?text='+encodeURIComponent(msg),'_blank');
+  // Sepeti temizle
+  cart=[]; promoCode=null; discountPct=0; freeGift=null;
+  updateCartUI();
+  renderAll();
 }
 
 function showOrderConfirm(orderNo, total, payLabel){
