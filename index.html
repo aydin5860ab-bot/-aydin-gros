@@ -1263,7 +1263,7 @@
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    PRODUCTS DATA
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-const products = [
+const products = JSON.parse(localStorage.getItem('ag_products') || 'null') || [
   // MANAV
   {id:1,name:"Salkım Domates",unit:"1 kg",cat:"manav",price:24,old:null,badge:"TAZE GÜNLÜK",btype:"badge-green",img:"https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400",feat:true},
   {id:2,name:"Kıvırcık Salatalık",unit:"1 kg",cat:"manav",price:18,old:null,badge:"TAZE GÜNLÜK",btype:"badge-green",img:"https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=400",feat:true},
@@ -1332,6 +1332,7 @@ let cart = [];
 let promoCode = null;
 let discountPct = 0;
 let freeGift = null;
+let userCoords = null;
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    FAVORITES STATE
@@ -1346,14 +1347,59 @@ function catLabel(c){
   return m[c]||c;
 }
 
+function getProductStock(pid){
+  const s=JSON.parse(localStorage.getItem('ag_stock')||'{}');
+  return s[pid]||{qty:999,min:5};
+}
+
+function getActiveCampaignDiscount(p){
+  const campaigns=JSON.parse(localStorage.getItem('ag_campaigns')||'[]');
+  const now=new Date();
+  for(const c of campaigns){
+    if(!c.active)continue;
+    if(c.start&&new Date(c.start)>now)continue;
+    if(c.end&&new Date(c.end)<now)continue;
+    if(c.type!=='pct'&&c.type!=='fixed')continue;
+    if(c.target==='all') return c;
+    if(c.target==='cat'&&c.targetCat===p.cat) return c;
+    if(c.target==='prod'&&(c.targetProd===p.name||c.targetProd===String(p.id))) return c;
+  }
+  return null;
+}
+
 function makeCard(p){
   const inCart = cart.find(i=>i.id===p.id);
   const qty = inCart ? inCart.quantity : 0;
-  const badge = p.badge ? `<div class="pcard-badge ${p.btype}">${p.badge}</div>` : '';
-  const oldP = p.old ? `<span class="pcard-old">₺${p.old.toFixed(2)}</span>` : '';
-  const addBlock = qty === 0
-    ? `<button class="pcard-add-btn" onclick="addToCart(${p.id})">+ Ekle</button>`
-    : `<div class="pcard-qty"><button class="pcard-qty-btn" onclick="changeQty(${p.id},-1)">−</button><span class="pcard-qty-num">${qty}</span><button class="pcard-qty-btn" onclick="changeQty(${p.id},1)">+</button></div>`;
+
+  // Stok kontrolü
+  const stockInfo = getProductStock(p.id);
+  const isOutOfStock = stockInfo.qty <= 0;
+
+  // Kampanya indirimi
+  const activeCamp = getActiveCampaignDiscount(p);
+  let displayPrice = p.price;
+  let campBadgeHtml = '';
+  if(activeCamp && !isOutOfStock){
+    if(activeCamp.type==='pct'){
+      displayPrice = p.price*(1-activeCamp.discount/100);
+      campBadgeHtml = `<div class="pcard-badge badge-red">-%${activeCamp.discount}</div>`;
+    } else if(activeCamp.type==='fixed'){
+      displayPrice = Math.max(0, p.price - activeCamp.discount);
+      campBadgeHtml = `<div class="pcard-badge badge-red">-${activeCamp.discount}₺</div>`;
+    }
+  }
+
+  const stockBadgeHtml = isOutOfStock ? `<div class="pcard-badge badge-red">Tükendi</div>` : '';
+  const badge = stockBadgeHtml || campBadgeHtml || (p.badge ? `<div class="pcard-badge ${p.btype||''}">${p.badge}</div>` : '');
+  const oldP = (activeCamp && !isOutOfStock)
+    ? `<span class="pcard-old">₺${p.price.toFixed(2)}</span>`
+    : (p.old ? `<span class="pcard-old">₺${p.old.toFixed(2)}</span>` : '');
+
+  const addBlock = isOutOfStock
+    ? `<button class="pcard-add-btn" style="background:#9CA3AF;cursor:not-allowed" disabled>Tükendi</button>`
+    : qty === 0
+      ? `<button class="pcard-add-btn" onclick="addToCart(${p.id})">+ Ekle</button>`
+      : `<div class="pcard-qty"><button class="pcard-qty-btn" onclick="changeQty(${p.id},-1)">−</button><span class="pcard-qty-num">${qty}</span><button class="pcard-qty-btn" onclick="changeQty(${p.id},1)">+</button></div>`;
 
   return `
     <div class="pcard" id="pcard-${p.id}">
@@ -1365,7 +1411,7 @@ function makeCard(p){
         <div class="pcard-name">${p.name}</div>
         <div class="pcard-unit">${p.unit}</div>
         <div class="pcard-price-row">
-          <span class="pcard-price">₺${p.price.toFixed(2)}</span>
+          <span class="pcard-price">₺${displayPrice.toFixed(2)}</span>
           ${oldP}
         </div>
         <div class="pcard-footer">
@@ -1507,16 +1553,20 @@ function toggleCart(){
 function applyPromo(){
   const code = document.getElementById('promoInput').value.trim().toUpperCase();
   const msg = document.getElementById('promoMsg');
-  const promos = {
-    'AYDIN5': {pct:5,gift:null,text:'%5 İNDİRİM UYGULANDII!',color:'var(--green)'},
+  const basePromos = {
+    'AYDIN5': {pct:5,gift:null,text:'%5 İNDİRİM UYGULANDI!',color:'var(--green)'},
     'AYDIN10': {pct:10,gift:null,text:'%10 İNDİRİM UYGULANDI!',color:'var(--green)'},
     'EKMEK': {pct:0,gift:'Sıcak Somun Ekmek (Hediye)',text:'HEDİYE EKMEK UYGULANDI!',color:'var(--green)'},
     'HEDIYE': {pct:0,gift:'Ülker Çikolatalı Gofret (Hediye)',text:'HEDİYE ÇİKOLATA UYGULANDI!',color:'var(--green)'},
     'CIKO': {pct:0,gift:'Ülker Çikolatalı Gofret (Hediye)',text:'HEDİYE ÇİKOLATA UYGULANDI!',color:'var(--green)'},
     'BEDAVA': {pct:0,gift:'Ücretsiz Adrese Teslimat',text:'ÜCRETSİZ KARGO UYGULANDI!',color:'var(--green)'},
   };
-  if(promos[code]){
-    const p=promos[code]; promoCode=code; discountPct=p.pct; freeGift=p.gift;
+  const adminRaw = JSON.parse(localStorage.getItem('ag_promos')||'null')||{};
+  const adminPromos = {};
+  Object.entries(adminRaw).forEach(([k,v])=>{ adminPromos[k]={pct:v.pct,gift:v.gift,text:v.text,color:'var(--green)'}; });
+  const allPromos = {...basePromos, ...adminPromos};
+  if(allPromos[code]){
+    const p=allPromos[code]; promoCode=code; discountPct=p.pct; freeGift=p.gift;
     msg.textContent=p.text; msg.style.color=p.color;
   } else {
     msg.textContent='GEÇERSİZ KUPON KODU.'; msg.style.color='var(--red)';
@@ -1535,8 +1585,10 @@ function saveOrder(orderNo, phone, items, total){
   const orders=JSON.parse(localStorage.getItem('ag_orders')||'[]');
   orders.push({
     no: orderNo,
+    name: currentUser?.name || '',
     phone: phone.replace(/\D/g,''),
-    items: items.map(i=>({name:i.name,qty:i.quantity,price:i.price})),
+    addr: localStorage.getItem('ag_addr')||'Belirtilmedi',
+    items: items.map(i=>({name:i.name,quantity:i.quantity,qty:i.quantity,price:i.price})),
     total: total,
     ts: Date.now(),
     status: 0
@@ -1547,6 +1599,15 @@ function saveOrder(orderNo, phone, items, total){
 /* ── PAYMENT MODAL ── */
 function openPayModal(){
   if(cart.length===0){ showToast('Sepetiniz boş!'); return; }
+  // Arka planda konum almaya başla
+  userCoords = null;
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(
+      pos => { userCoords = pos.coords; },
+      () => { userCoords = null; },
+      { timeout: 8000, maximumAge: 60000 }
+    );
+  }
   const subtotal=cart.reduce((s,i)=>s+(i.price*i.quantity),0);
   const discount=subtotal*(discountPct/100);
   const total=subtotal-discount;
@@ -1570,7 +1631,12 @@ function doCheckout(payMethod){
   let msg='Merhaba Aydın Gros! Web sitenizden sipariş oluşturmak istiyorum:\n\n';
   msg+=`📦 SİPARİŞ NO: ${orderNo}\n`;
   msg+=`💳 ÖDEME: ${payLabel}\n`;
-  msg+=`📍 TESLİMAT: ${addr}\n\n`;
+  msg+=`📍 TESLİMAT: ${addr}\n`;
+  if(userCoords){
+    const lat=userCoords.latitude.toFixed(6), lng=userCoords.longitude.toFixed(6);
+    msg+=`🗺️ CANLI KONUM: https://maps.google.com/maps?q=${lat},${lng}\n`;
+  }
+  msg+='\n';
   msg+='SİPARİŞ LİSTEM:\n';
   cart.forEach((i,n)=>{ msg+=`${n+1}. ${i.name} (${i.unit}) × ${i.quantity} → ₺${(i.price*i.quantity).toFixed(2)}\n`; });
   msg+='\n─────────────────\n';
@@ -2078,7 +2144,28 @@ function toggleWaChat(){
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    INIT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function applyAdminSettings(){
+  const s = JSON.parse(localStorage.getItem('ag_settings')||'null');
+  if(!s) return;
+  // Duyuru bandını güncelle
+  if(s.announcements){
+    const lines = s.announcements.split('\n').filter(Boolean);
+    if(lines.length){
+      const doubled = [...lines, ...lines];
+      const track = document.querySelector('.ann .track');
+      if(track) track.innerHTML = doubled.map(l=>`<span>${l}</span>`).join('');
+    }
+  }
+  // WA numarasını güncelle (tüm wa.me linkleri)
+  if(s.waNumber){
+    document.querySelectorAll('a[href*="wa.me/"]').forEach(a=>{
+      a.href = a.href.replace(/wa\.me\/\d+/, 'wa.me/'+s.waNumber);
+    });
+  }
+}
+
 window.addEventListener('load',()=>{
+  applyAdminSettings();
   renderAll();
   drawWheel();
   resetHeroTimer();

@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aydın Gros – Yönetim Paneli</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --orange:#F97316;--orange-light:#FEF3E9;--orange-dark:#EA6C10;
+  --green:#16A34A;--green-light:#DCFCE7;
+  --red:#DC2626;--red-light:#FEE2E2;
+  --yellow:#D97706;--yellow-light:#FEF3C7;
+  --navy:#1C1917;--navy2:#292524;
+  --gray50:#F9FAFB;--gray100:#F3F4F6;--gray200:#E5E7EB;--gray300:#D1D5DB;
+  --gray400:#9CA3AF;--gray500:#6B7280;--gray600:#4B5563;--gray700:#374151;
+  --white:#FFFFFF;
+  --sidebar-w:240px;
+  --radius:10px;--radius-sm:6px;
+  --shadow:0 2px 8px rgba(0,0,0,.08);--shadow-md:0 4px 16px rgba(0,0,0,.12);
+}
+body{font-family:'Inter',sans-serif;background:var(--gray50);color:var(--gray700);min-height:100vh}
+h1,h2,h3,h4{font-family:'Outfit',sans-serif}
+
+/* LOGIN */
+#loginScreen{position:fixed;inset:0;background:linear-gradient(135deg,var(--navy) 0%,#3C2A1A 100%);display:flex;align-items:center;justify-content:center;z-index:999}
+.login-box{background:var(--white);border-radius:16px;padding:48px 40px;width:380px;box-shadow:0 24px 64px rgba(0,0,0,.3)}
+.login-logo{text-align:center;margin-bottom:32px}
+.login-logo span{font-family:'Outfit',sans-serif;font-size:26px;font-weight:800;color:var(--navy)}
+.login-logo span em{color:var(--orange);font-style:normal}
+.login-logo p{color:var(--gray500);font-size:13px;margin-top:4px}
+.login-box label{display:block;font-size:13px;font-weight:600;color:var(--gray700);margin-bottom:6px}
+.login-box input{width:100%;padding:10px 14px;border:2px solid var(--gray200);border-radius:var(--radius-sm);font-size:14px;outline:none;transition:.2s;margin-bottom:16px}
+.login-box input:focus{border-color:var(--orange)}
+.login-btn{width:100%;padding:12px;background:var(--orange);color:var(--white);border:none;border-radius:var(--radius-sm);font-size:15px;font-weight:700;font-family:'Outfit',sans-serif;cursor:pointer;transition:.2s}
+.login-btn:hover{background:var(--orange-dark)}
+#loginErr{color:var(--red);font-size:13px;margin-top:8px;text-align:center;display:none}
+
+/* LAYOUT */
+#appWrap{display:none;min-height:100vh}
+.sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--navy);display:flex;flex-direction:column;z-index:100;overflow-y:auto}
+.sidebar-logo{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-logo span{font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;color:var(--white)}
+.sidebar-logo span em{color:var(--orange);font-style:normal}
+.sidebar-logo p{color:rgba(255,255,255,.5);font-size:11px;margin-top:2px}
+nav{flex:1;padding:16px 12px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-sm);color:rgba(255,255,255,.65);font-size:14px;font-weight:500;cursor:pointer;transition:.15s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:rgba(255,255,255,.08);color:var(--white)}
+.nav-item.active{background:var(--orange);color:var(--white)}
+.nav-item .icon{font-size:16px;width:20px;text-align:center}
+.sidebar-footer{padding:16px;border-top:1px solid rgba(255,255,255,.1)}
+.logout-btn{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.5);font-size:13px;cursor:pointer;background:none;border:none;width:100%;padding:8px}
+.logout-btn:hover{color:var(--white)}
+
+.main{margin-left:var(--sidebar-w);padding:24px;min-height:100vh}
+.page{display:none}
+.page.active{display:block}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.page-title{font-size:22px;font-weight:800;color:var(--navy)}
+.page-subtitle{font-size:13px;color:var(--gray500);margin-top:2px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:.15s;font-family:'Inter',sans-serif;text-decoration:none}
+.btn-primary{background:var(--orange);color:var(--white)}
+.btn-primary:hover{background:var(--orange-dark)}
+.btn-success{background:var(--green);color:var(--white)}
+.btn-success:hover{background:#15803D}
+.btn-danger{background:var(--red);color:var(--white)}
+.btn-danger:hover{background:#B91C1C}
+.btn-ghost{background:var(--gray100);color:var(--gray700)}
+.btn-ghost:hover{background:var(--gray200)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-xs{padding:3px 8px;font-size:11px}
+
+/* CARDS */
+.card{background:var(--white);border-radius:var(--radius);border:1px solid var(--gray200);padding:20px;box-shadow:var(--shadow)}
+
+/* STAT CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--gray200);padding:20px;box-shadow:var(--shadow)}
+.stat-icon{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:12px}
+.stat-icon.orange{background:var(--orange-light);color:var(--orange)}
+.stat-icon.green{background:var(--green-light);color:var(--green)}
+.stat-icon.blue{background:#EFF6FF;color:#2563EB}
+.stat-icon.purple{background:#F5F3FF;color:#7C3AED}
+.stat-icon.red{background:var(--red-light);color:var(--red)}
+.stat-icon.yellow{background:var(--yellow-light);color:var(--yellow)}
+.stat-val{font-family:'Outfit',sans-serif;font-size:26px;font-weight:800;color:var(--navy)}
+.stat-label{font-size:12px;color:var(--gray500);margin-top:2px}
+
+/* TABLES */
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--gray200);background:var(--white)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--gray50);padding:10px 14px;text-align:left;font-weight:600;color:var(--gray600);border-bottom:1px solid var(--gray200);white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid var(--gray100);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--gray50)}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-green{background:var(--green-light);color:var(--green)}
+.badge-red{background:var(--red-light);color:var(--red)}
+.badge-yellow{background:var(--yellow-light);color:var(--yellow)}
+.badge-orange{background:var(--orange-light);color:var(--orange)}
+.badge-blue{background:#EFF6FF;color:#2563EB}
+.badge-gray{background:var(--gray100);color:var(--gray600)}
+
+/* FORMS */
+.form-row{display:grid;gap:14px;margin-bottom:14px}
+.form-row.cols2{grid-template-columns:1fr 1fr}
+.form-row.cols3{grid-template-columns:1fr 1fr 1fr}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--gray600);margin-bottom:5px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:8px 12px;border:1.5px solid var(--gray200);border-radius:var(--radius-sm);font-size:13px;outline:none;transition:.2s;font-family:'Inter',sans-serif;background:var(--white)}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--orange)}
+.form-group textarea{resize:vertical;min-height:70px}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:var(--radius);width:100%;max-width:600px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-md)}
+.modal-header{padding:20px 24px 16px;border-bottom:1px solid var(--gray200);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--white);z-index:1}
+.modal-title{font-size:17px;font-weight:700;color:var(--navy);font-family:'Outfit',sans-serif}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--gray400);line-height:1}
+.modal-close:hover{color:var(--gray700)}
+.modal-body{padding:24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--gray200);display:flex;gap:8px;justify-content:flex-end}
+
+/* FILTER BAR */
+.filter-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.filter-bar input,.filter-bar select{padding:8px 12px;border:1.5px solid var(--gray200);border-radius:var(--radius-sm);font-size:13px;outline:none;background:var(--white);min-width:160px}
+.filter-bar input:focus,.filter-bar select:focus{border-color:var(--orange)}
+
+/* ALERTS */
+.alert{padding:12px 16px;border-radius:var(--radius-sm);font-size:13px;margin-bottom:12px;display:flex;align-items:flex-start;gap:8px}
+.alert-warn{background:var(--yellow-light);color:#92400E;border-left:3px solid var(--yellow)}
+.alert-danger{background:var(--red-light);color:#991B1B;border-left:3px solid var(--red)}
+.alert-info{background:#EFF6FF;color:#1E40AF;border-left:3px solid #3B82F6}
+.alert-success{background:var(--green-light);color:#14532D;border-left:3px solid var(--green)}
+
+/* DASHBOARD */
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.dash-full{grid-column:1/-1}
+.dash-card-title{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:14px;font-family:'Outfit',sans-serif;display:flex;align-items:center;justify-content:space-between}
+
+/* STOCK */
+.stock-input-wrap{display:flex;align-items:center;gap:4px}
+.stock-adj{width:28px;height:28px;border-radius:4px;border:1px solid var(--gray200);background:var(--gray50);cursor:pointer;font-size:14px;display:inline-flex;align-items:center;justify-content:center}
+.stock-adj:hover{background:var(--gray200)}
+.stock-qty-input{width:56px;text-align:center;padding:4px;border:1.5px solid var(--gray200);border-radius:4px;font-size:13px;outline:none}
+.stock-qty-input:focus{border-color:var(--orange)}
+
+/* PRODUCT THUMB */
+.prod-thumb{display:inline-block;width:40px;height:40px;border-radius:6px;background:var(--gray100);font-size:20px;line-height:40px;text-align:center;flex-shrink:0}
+
+/* TOGGLE */
+.toggle{position:relative;width:36px;height:20px;display:inline-block}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.toggle-track{position:absolute;inset:0;background:var(--gray300);border-radius:10px;cursor:pointer;transition:.2s}
+.toggle input:checked+.toggle-track{background:var(--green)}
+.toggle-track::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:var(--white);top:2px;left:2px;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle input:checked+.toggle-track::after{left:18px}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:var(--white);padding:12px 20px;border-radius:var(--radius-sm);font-size:13px;z-index:9999;opacity:0;transform:translateY(8px);transition:.3s;pointer-events:none;max-width:320px}
+#toast.show{opacity:1;transform:translateY(0)}
+
+/* BESTSELLER */
+.bestseller-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--gray100)}
+.bestseller-row:last-child{border-bottom:none}
+.bs-rank{width:24px;height:24px;border-radius:50%;background:var(--orange-light);color:var(--orange);font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* INV LINE */
+.inv-line{display:grid;grid-template-columns:2fr 80px 1fr 1fr 1fr 30px;gap:8px;align-items:end;margin-bottom:8px;background:var(--gray50);padding:10px;border-radius:6px;border:1px solid var(--gray200)}
+
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .main{margin-left:0}
+  .dash-grid{grid-template-columns:1fr}
+  .form-row.cols2,.form-row.cols3{grid-template-columns:1fr}
+  .inv-line{grid-template-columns:1fr 1fr;row-gap:8px}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <span>Aydın<em>Gros</em></span>
+      <p>Yönetim Paneli</p>
+    </div>
+    <label>Kullanıcı Adı</label>
+    <input type="text" id="loginUser" placeholder="admin" autocomplete="username">
+    <label>Şifre</label>
+    <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password">
+    <button class="login-btn" onclick="doLogin()">Giriş Yap</button>
+    <div id="loginErr">Kullanıcı adı veya şifre hatalı.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appWrap">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span>Aydın<em>Gros</em></span>
+      <p>Yönetim Paneli</p>
+    </div>
+    <nav>
+      <button class="nav-item active" onclick="showPage('dash')"><span class="icon">📊</span> Özet</button>
+      <button class="nav-item" onclick="showPage('products')"><span class="icon">📦</span> Ürünler</button>
+      <button class="nav-item" onclick="showPage('orders')"><span class="icon">🛒</span> Siparişler</button>
+      <button class="nav-item" onclick="showPage('campaigns')"><span class="icon">📅</span> Kampanyalar</button>
+      <button class="nav-item" onclick="showPage('invoices')"><span class="icon">📄</span> Fatura & Maliyet</button>
+      <button class="nav-item" onclick="showPage('stock')"><span class="icon">📈</span> Stok Takibi</button>
+      <button class="nav-item" onclick="showPage('coupons')"><span class="icon">🎟️</span> Kuponlar</button>
+      <button class="nav-item" onclick="showPage('settings')"><span class="icon">⚙️</span> Ayarlar</button>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="doLogout()">🚪 Çıkış Yap</button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div id="page-dash" class="page active">
+      <div class="page-header">
+        <div><div class="page-title">Özet</div><div class="page-subtitle">Genel durum ve hızlı erişim</div></div>
+        <button class="btn btn-ghost btn-sm" onclick="renderDash()">↻ Yenile</button>
+      </div>
+      <div class="stats-grid" id="dashStats"></div>
+      <div id="dashAlerts"></div>
+      <div class="dash-grid">
+        <div class="card">
+          <div class="dash-card-title">Son Siparişler <a href="#" onclick="showPage('orders');return false" style="font-size:12px;color:var(--orange);font-weight:500;text-decoration:none">Tümü →</a></div>
+          <div id="dashOrders"></div>
+        </div>
+        <div class="card">
+          <div class="dash-card-title">En Çok Satan Ürünler</div>
+          <div id="dashBestSellers"></div>
+        </div>
+        <div class="card dash-full">
+          <div class="dash-card-title">Kritik Stok Uyarıları <a href="#" onclick="showPage('stock');return false" style="font-size:12px;color:var(--orange);font-weight:500;text-decoration:none">Stoka Git →</a></div>
+          <div id="dashStockAlerts"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRODUCTS -->
+    <div id="page-products" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Ürünler</div><div class="page-subtitle" id="prodCount"></div></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="resetProducts()">↺ Varsayılana Dön</button>
+          <button class="btn btn-primary" onclick="openProductModal()">+ Ürün Ekle</button>
+        </div>
+      </div>
+      <div class="filter-bar">
+        <input type="text" id="prodSearch" placeholder="Ürün ara..." oninput="renderProducts()">
+        <select id="prodCatFilter" onchange="renderProducts()">
+          <option value="">Tüm Kategoriler</option>
+          <option value="manav">🥦 Manav</option>
+          <option value="temel-gida">🌾 Temel Gıda</option>
+          <option value="sut-sarkuteri">🧀 Süt & Şarküteri</option>
+          <option value="atistirmalik">🍿 Atıştırmalık</option>
+          <option value="temizlik">🧹 Temizlik</option>
+          <option value="icecek">🧃 İçecek</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Ürün</th><th>Kategori</th><th>Fiyat</th><th>Stok</th><th>Öne Çıkan</th><th>İşlemler</th></tr></thead>
+          <tbody id="prodTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ORDERS -->
+    <div id="page-orders" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Siparişler</div><div class="page-subtitle" id="orderCount"></div></div>
+        <button class="btn btn-danger btn-sm" onclick="clearOrders()">Tümünü Temizle</button>
+      </div>
+      <div class="filter-bar">
+        <input type="text" id="orderSearch" placeholder="Müşteri veya adres ara..." oninput="renderOrders()">
+        <select id="orderStatusFilter" onchange="renderOrders()">
+          <option value="">Tüm Durumlar</option>
+          <option value="0">Alındı</option>
+          <option value="1">Hazırlanıyor</option>
+          <option value="2">Yolda</option>
+          <option value="3">Teslim Edildi</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tarih</th><th>Müşteri</th><th>Adres</th><th>Tutar</th><th>Durum</th><th>İşlemler</th></tr></thead>
+          <tbody id="orderTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CAMPAIGNS -->
+    <div id="page-campaigns" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Kampanyalar</div><div class="page-subtitle">Tarih aralıklı indirim ve kampanya yönetimi</div></div>
+        <button class="btn btn-primary" onclick="openCampaignModal()">+ Kampanya Ekle</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Kampanya Adı</th><th>Tür</th><th>İndirim</th><th>Hedef</th><th>Başlangıç</th><th>Bitiş</th><th>Durum</th><th>İşlemler</th></tr></thead>
+          <tbody id="campTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- INVOICES -->
+    <div id="page-invoices" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Fatura & Maliyet</div><div class="page-subtitle">Alış fiyatı + kar marjı → satış fiyatı hesaplama</div></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="openGlobalMarginModal()">% Global Marj Uygula</button>
+          <button class="btn btn-primary" onclick="addInvLine()">+ Satır Ekle</button>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="dash-card-title" style="margin-bottom:4px">Yeni Fatura / Maliyet Girişi</div>
+        <p style="font-size:12px;color:var(--gray400);margin-bottom:16px">Alış fiyatı ve kar marjı girin — satış fiyatı otomatik hesaplanır. "Kaydet" butonuna basınca ürün fiyatları ve stok güncellenir.</p>
+        <div style="overflow-x:auto">
+          <table style="min-width:680px">
+            <thead><tr><th>Ürün</th><th>Miktar</th><th>Alış Fiyatı (₺)</th><th>Kar Marjı (%)</th><th>Satış Fiyatı (₺)</th><th></th></tr></thead>
+            <tbody id="invLines"></tbody>
+          </table>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
+          <div class="form-group" style="flex:1;min-width:200px">
+            <label>Fatura Notu (opsiyonel)</label>
+            <input type="text" id="invNote" placeholder="Fatura no, tedarikçi adı vb.">
+          </div>
+          <button class="btn btn-success" onclick="saveInvoice()">💾 Faturayı Kaydet & Fiyatları Güncelle</button>
+        </div>
+      </div>
+      <div style="font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;color:var(--navy);margin-bottom:12px">Geçmiş Faturalar</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tarih</th><th>Not</th><th>Ürün Sayısı</th><th>Toplam Maliyet</th><th>İşlemler</th></tr></thead>
+          <tbody id="invHistoryBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- STOCK -->
+    <div id="page-stock" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Stok Takibi</div><div class="page-subtitle">Ürün bazlı stok miktarı ve uyarı eşiği</div></div>
+        <button class="btn btn-success" onclick="saveAllStock()">💾 Tüm Stoku Kaydet</button>
+      </div>
+      <div class="filter-bar">
+        <input type="text" id="stockSearch" placeholder="Ürün ara..." oninput="renderStock()">
+        <select id="stockFilter" onchange="renderStock()">
+          <option value="">Tüm Durumlar</option>
+          <option value="out">🔴 Tükendi</option>
+          <option value="low">🟡 Kritik</option>
+          <option value="ok">🟢 Yeterli</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Ürün</th><th>Kategori</th><th>Stok Adedi</th><th>Min. Eşik</th><th>Durum</th></tr></thead>
+          <tbody id="stockTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- COUPONS -->
+    <div id="page-coupons" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Kuponlar</div><div class="page-subtitle">İndirim ve hediye kupon kodları</div></div>
+        <button class="btn btn-primary" onclick="openCouponModal()">+ Kupon Ekle</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Kupon Kodu</th><th>İndirim %</th><th>Hediye Ürün</th><th>Mesaj</th><th>İşlemler</th></tr></thead>
+          <tbody id="couponTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="page-settings" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Ayarlar</div><div class="page-subtitle">Site ve uygulama ayarları</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="card">
+          <div class="dash-card-title" style="margin-bottom:16px">Genel Ayarlar</div>
+          <div class="form-group" style="margin-bottom:12px"><label>Ücretsiz Teslimat Eşiği (₺)</label><input type="number" id="setThreshold" placeholder="1000"></div>
+          <div class="form-group" style="margin-bottom:12px"><label>WhatsApp Numarası (90 ile başlayan)</label><input type="text" id="setWa" placeholder="905444789461"></div>
+          <div class="form-group" style="margin-bottom:16px"><label>Duyuru Metinleri (her satır ayrı duyuru)</label><textarea id="setAnn" rows="4" placeholder="Bugün taze sebze indirimde!"></textarea></div>
+          <button class="btn btn-primary" onclick="saveSettings()">Ayarları Kaydet</button>
+        </div>
+        <div class="card">
+          <div class="dash-card-title" style="margin-bottom:16px">Şube Bilgileri</div>
+          <div class="form-group" style="margin-bottom:12px"><label>Şube 1 Adı</label><input type="text" id="setBranch1" placeholder="Geyras (Merkez) Şube"></div>
+          <div class="form-group" style="margin-bottom:12px"><label>Şube 1 Adres</label><input type="text" id="setBranch1Addr" placeholder="Şube 1 adresi"></div>
+          <div class="form-group" style="margin-bottom:12px"><label>Şube 2 Adı</label><input type="text" id="setBranch2" placeholder="Şube 2 adı"></div>
+          <div class="form-group" style="margin-bottom:16px"><label>Şube 2 Adres</label><input type="text" id="setBranch2Addr" placeholder="Şube 2 adresi"></div>
+          <button class="btn btn-primary" onclick="saveSettings()">Kaydet</button>
+        </div>
+        <div class="card">
+          <div class="dash-card-title" style="margin-bottom:16px">Şifre Değiştir</div>
+          <div class="form-group" style="margin-bottom:12px"><label>Yeni Şifre</label><input type="password" id="setNewPass" placeholder="Yeni şifre"></div>
+          <div class="form-group" style="margin-bottom:16px"><label>Şifre Tekrar</label><input type="password" id="setNewPass2" placeholder="Şifre tekrar"></div>
+          <button class="btn btn-primary" onclick="changePass()">Şifreyi Değiştir</button>
+        </div>
+        <div class="card">
+          <div class="dash-card-title" style="margin-bottom:16px">Veri Yönetimi</div>
+          <p style="font-size:13px;color:var(--gray500);margin-bottom:12px">Tüm localStorage verilerini yedekle veya sıfırla.</p>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn btn-ghost" onclick="exportData()">📥 Veriyi Dışa Aktar (JSON)</button>
+            <button class="btn btn-ghost" onclick="document.getElementById('importFile').click()">📤 Veri İçe Aktar</button>
+            <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(this)">
+            <button class="btn btn-danger btn-sm" onclick="nukeData()">⚠️ Tüm Veriyi Sil</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODALS -->
+
+<!-- Product Modal -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header">
+      <div class="modal-title" id="productModalTitle">Ürün Ekle</div>
+      <button class="modal-close" onclick="closeModal('productModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editProdId">
+      <div class="form-row cols2">
+        <div class="form-group"><label>Ürün Adı *</label><input type="text" id="prodName" placeholder="Ürün adı"></div>
+        <div class="form-group"><label>Kategori *</label>
+          <select id="prodCat">
+            <option value="manav">🥦 Manav</option>
+            <option value="temel-gida">🌾 Temel Gıda</option>
+            <option value="sut-sarkuteri">🧀 Süt & Şarküteri</option>
+            <option value="atistirmalik">🍿 Atıştırmalık</option>
+            <option value="temizlik">🧹 Temizlik</option>
+            <option value="icecek">🧃 İçecek</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row cols3">
+        <div class="form-group"><label>Fiyat (₺) *</label><input type="number" id="prodPrice" placeholder="0.00" step="0.01"></div>
+        <div class="form-group"><label>Birim</label><input type="text" id="prodUnit" placeholder="kg, adet, lt..."></div>
+        <div class="form-group"><label>Emoji/İkon</label><input type="text" id="prodEmoji" placeholder="🍎"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Görsel URL (opsiyonel)</label><input type="text" id="prodImg" placeholder="https://..."></div>
+      </div>
+      <div class="form-row cols2">
+        <div class="form-group"><label>Etiket (opsiyonel)</label><input type="text" id="prodBadge" placeholder="Yeni, İndirim, Taze..."></div>
+        <div class="form-group" style="display:flex;align-items:center;gap:8px;padding-top:20px">
+          <label class="toggle"><input type="checkbox" id="prodFeatured"><span class="toggle-track"></span></label>
+          <span style="font-size:13px;font-weight:600;color:var(--gray700)">Öne Çıkan</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('productModal')">İptal</button>
+      <button class="btn btn-primary" onclick="saveProduct()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Order Detail Modal -->
+<div class="modal-overlay" id="orderModal">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-header">
+      <div class="modal-title">Sipariş Detayı</div>
+      <button class="modal-close" onclick="closeModal('orderModal')">✕</button>
+    </div>
+    <div class="modal-body" id="orderModalBody"></div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('orderModal')">Kapat</button></div>
+  </div>
+</div>
+
+<!-- Campaign Modal -->
+<div class="modal-overlay" id="campaignModal">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header">
+      <div class="modal-title" id="campModalTitle">Kampanya Ekle</div>
+      <button class="modal-close" onclick="closeModal('campaignModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editCampId">
+      <div class="form-row">
+        <div class="form-group"><label>Kampanya Adı *</label><input type="text" id="campName" placeholder="Yaz İndirimi, Haftasonu Fırsatı..."></div>
+      </div>
+      <div class="form-row cols2">
+        <div class="form-group"><label>Kampanya Türü</label>
+          <select id="campType" onchange="updateCampTypeUI()">
+            <option value="pct">Yüzde İndirim (%)</option>
+            <option value="fixed">Sabit İndirim (₺)</option>
+            <option value="gift">Hediye Ürün</option>
+            <option value="free_delivery">Ücretsiz Teslimat</option>
+          </select>
+        </div>
+        <div class="form-group" id="campDiscountGroup"><label>İndirim Değeri</label><input type="number" id="campDiscount" placeholder="10"></div>
+      </div>
+      <div class="form-row cols2">
+        <div class="form-group"><label>Hedef</label>
+          <select id="campTarget" onchange="updateCampTargetUI()">
+            <option value="all">Tüm Ürünler</option>
+            <option value="cat">Kategori</option>
+            <option value="prod">Belirli Ürün</option>
+            <option value="cart">Min. Sepet Tutarı</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label id="campTargetValLabel">Hedef Değer</label>
+          <select id="campTargetCat" style="display:none">
+            <option value="manav">Manav</option>
+            <option value="temel-gida">Temel Gıda</option>
+            <option value="sut-sarkuteri">Süt & Şarküteri</option>
+            <option value="atistirmalik">Atıştırmalık</option>
+            <option value="temizlik">Temizlik</option>
+            <option value="icecek">İçecek</option>
+          </select>
+          <input type="number" id="campCartMin" placeholder="Min. sepet (₺)" style="display:none">
+          <input type="text" id="campTargetProd" placeholder="Ürün adı" style="display:none">
+        </div>
+      </div>
+      <div class="form-row" id="campGiftGroup" style="display:none">
+        <div class="form-group"><label>Hediye Ürün Adı</label><input type="text" id="campGiftItem" placeholder="Hediye ürün adı"></div>
+      </div>
+      <div class="form-row cols2">
+        <div class="form-group"><label>Başlangıç Tarihi</label><input type="date" id="campStart"></div>
+        <div class="form-group"><label>Bitiş Tarihi</label><input type="date" id="campEnd"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Açıklama (duyuru metninde gösterilir)</label><input type="text" id="campDesc" placeholder="Tüm manav ürünlerinde %20 indirim!"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('campaignModal')">İptal</button>
+      <button class="btn btn-primary" onclick="saveCampaign()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Invoice Detail Modal -->
+<div class="modal-overlay" id="invoiceDetailModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Fatura Detayı</div>
+      <button class="modal-close" onclick="closeModal('invoiceDetailModal')">✕</button>
+    </div>
+    <div class="modal-body" id="invoiceDetailBody"></div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('invoiceDetailModal')">Kapat</button></div>
+  </div>
+</div>
+
+<!-- Global Margin Modal -->
+<div class="modal-overlay" id="globalMarginModal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <div class="modal-title">Global Kar Marjı Uygula</div>
+      <button class="modal-close" onclick="closeModal('globalMarginModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="alert alert-warn" style="margin-bottom:16px">⚠️ Bu işlem seçilen kategorideki tüm ürünlerin satış fiyatını günceller. Alış fiyatı girilmiş ürünler baz alınır.</div>
+      <div class="form-group" style="margin-bottom:12px"><label>Kar Marjı (%)</label><input type="number" id="globalMarginPct" placeholder="30" min="0" max="500"></div>
+      <div class="form-group"><label>Uygulama Kapsamı</label>
+        <select id="globalMarginScope">
+          <option value="all">Tüm Ürünler</option>
+          <option value="manav">Manav</option>
+          <option value="temel-gida">Temel Gıda</option>
+          <option value="sut-sarkuteri">Süt & Şarküteri</option>
+          <option value="atistirmalik">Atıştırmalık</option>
+          <option value="temizlik">Temizlik</option>
+          <option value="icecek">İçecek</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('globalMarginModal')">İptal</button>
+      <button class="btn btn-success" onclick="applyGlobalMargin()">Uygula</button>
+    </div>
+  </div>
+</div>
+
+<!-- Coupon Modal -->
+<div class="modal-overlay" id="couponModal">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-header">
+      <div class="modal-title" id="couponModalTitle">Kupon Ekle</div>
+      <button class="modal-close" onclick="closeModal('couponModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editCouponKey">
+      <div class="form-row cols2">
+        <div class="form-group"><label>Kupon Kodu *</label><input type="text" id="couponCode" placeholder="INDIRIM10" style="text-transform:uppercase"></div>
+        <div class="form-group"><label>İndirim % (0 = sadece hediye)</label><input type="number" id="couponPct" placeholder="10" min="0" max="100"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Hediye Ürün (opsiyonel)</label><input type="text" id="couponGift" placeholder="Ürün adı veya boş bırak"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Başarı Mesajı</label><input type="text" id="couponText" placeholder="%10 İNDİRİM UYGULANDI!"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('couponModal')">İptal</button>
+      <button class="btn btn-primary" onclick="saveCoupon()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ── DEFAULT DATA ─────────────────────────────────────────────────────── */
+const DEFAULT_PRODUCTS=[
+  {id:1,name:'Domates',cat:'manav',price:24.90,unit:'kg',emoji:'🍅',img:'',badge:'Taze',featured:true},
+  {id:2,name:'Salatalık',cat:'manav',price:19.90,unit:'kg',emoji:'🥒',img:'',badge:'',featured:false},
+  {id:3,name:'Biber',cat:'manav',price:29.90,unit:'kg',emoji:'🫑',img:'',badge:'',featured:false},
+  {id:4,name:'Patlıcan',cat:'manav',price:22.90,unit:'kg',emoji:'🍆',img:'',badge:'',featured:false},
+  {id:5,name:'Patates',cat:'manav',price:17.90,unit:'kg',emoji:'🥔',img:'',badge:'',featured:true},
+  {id:6,name:'Soğan',cat:'manav',price:14.90,unit:'kg',emoji:'🧅',img:'',badge:'',featured:false},
+  {id:7,name:'Sarımsak',cat:'manav',price:89.90,unit:'kg',emoji:'🧄',img:'',badge:'',featured:false},
+  {id:8,name:'Muz',cat:'manav',price:34.90,unit:'kg',emoji:'🍌',img:'',badge:'İthal',featured:false},
+  {id:9,name:'Elma',cat:'manav',price:27.90,unit:'kg',emoji:'🍎',img:'',badge:'Taze',featured:true},
+  {id:10,name:'Portakal',cat:'manav',price:19.90,unit:'kg',emoji:'🍊',img:'',badge:'',featured:false},
+  {id:11,name:'Un (1 kg)',cat:'temel-gida',price:29.90,unit:'paket',emoji:'🌾',img:'',badge:'',featured:false},
+  {id:12,name:'Şeker (1 kg)',cat:'temel-gida',price:34.90,unit:'paket',emoji:'🍬',img:'',badge:'',featured:false},
+  {id:13,name:'Tuz (1 kg)',cat:'temel-gida',price:12.90,unit:'paket',emoji:'🧂',img:'',badge:'',featured:false},
+  {id:14,name:'Makarna (500g)',cat:'temel-gida',price:19.90,unit:'paket',emoji:'🍝',img:'',badge:'',featured:true},
+  {id:15,name:'Pirinç (1 kg)',cat:'temel-gida',price:44.90,unit:'paket',emoji:'🍚',img:'',badge:'',featured:false},
+  {id:16,name:'Mercimek (1 kg)',cat:'temel-gida',price:39.90,unit:'paket',emoji:'🫘',img:'',badge:'',featured:false},
+  {id:17,name:'Bulgur (1 kg)',cat:'temel-gida',price:32.90,unit:'paket',emoji:'🌾',img:'',badge:'',featured:false},
+  {id:18,name:'Zeytinyağı (1 lt)',cat:'temel-gida',price:249.90,unit:'şişe',emoji:'🫙',img:'',badge:'',featured:true},
+  {id:19,name:'Domates Salçası (830g)',cat:'temel-gida',price:44.90,unit:'teneke',emoji:'🥫',img:'',badge:'',featured:false},
+  {id:20,name:'Nohut (1 kg)',cat:'temel-gida',price:42.90,unit:'paket',emoji:'🫘',img:'',badge:'',featured:false},
+  {id:21,name:'Süt (1 lt)',cat:'sut-sarkuteri',price:29.90,unit:'lt',emoji:'🥛',img:'',badge:'',featured:true},
+  {id:22,name:'Yoğurt (1 kg)',cat:'sut-sarkuteri',price:44.90,unit:'kg',emoji:'🥛',img:'',badge:'',featured:false},
+  {id:23,name:'Beyaz Peynir (500g)',cat:'sut-sarkuteri',price:89.90,unit:'paket',emoji:'🧀',img:'',badge:'',featured:true},
+  {id:24,name:'Kaşar Peynir (400g)',cat:'sut-sarkuteri',price:119.90,unit:'paket',emoji:'🧀',img:'',badge:'',featured:false},
+  {id:25,name:'Tereyağı (250g)',cat:'sut-sarkuteri',price:74.90,unit:'paket',emoji:'🧈',img:'',badge:'',featured:false},
+  {id:26,name:'Yumurta (10\'lu)',cat:'sut-sarkuteri',price:49.90,unit:'koli',emoji:'🥚',img:'',badge:'',featured:true},
+  {id:27,name:'Sucuk (200g)',cat:'sut-sarkuteri',price:84.90,unit:'paket',emoji:'🌭',img:'',badge:'',featured:false},
+  {id:28,name:'Zeytin (400g)',cat:'sut-sarkuteri',price:64.90,unit:'paket',emoji:'🫒',img:'',badge:'',featured:false},
+  {id:29,name:'Cips (200g)',cat:'atistirmalik',price:39.90,unit:'paket',emoji:'🍿',img:'',badge:'',featured:false},
+  {id:30,name:'Çikolata (100g)',cat:'atistirmalik',price:34.90,unit:'adet',emoji:'🍫',img:'',badge:'',featured:false},
+  {id:31,name:'Bisküvi (150g)',cat:'atistirmalik',price:19.90,unit:'paket',emoji:'🍪',img:'',badge:'',featured:false},
+  {id:32,name:'Kuruyemiş Karışık (200g)',cat:'atistirmalik',price:79.90,unit:'paket',emoji:'🥜',img:'',badge:'',featured:true},
+  {id:33,name:'Gofret (4\'lü)',cat:'atistirmalik',price:24.90,unit:'paket',emoji:'🧇',img:'',badge:'',featured:false},
+  {id:34,name:'Kek (400g)',cat:'atistirmalik',price:44.90,unit:'adet',emoji:'🍰',img:'',badge:'',featured:false},
+  {id:35,name:'Bulaşık Deterjanı (1 lt)',cat:'temizlik',price:54.90,unit:'şişe',emoji:'🧴',img:'',badge:'',featured:false},
+  {id:36,name:'Çamaşır Suyu (3 lt)',cat:'temizlik',price:39.90,unit:'şişe',emoji:'🧴',img:'',badge:'',featured:true},
+  {id:37,name:'Deterjan (3 kg)',cat:'temizlik',price:149.90,unit:'paket',emoji:'🧺',img:'',badge:'',featured:false},
+  {id:38,name:'Tuvalet Kağıdı (32\'li)',cat:'temizlik',price:119.90,unit:'paket',emoji:'🧻',img:'',badge:'',featured:true},
+  {id:39,name:'Kağıt Havlu (8\'li)',cat:'temizlik',price:74.90,unit:'paket',emoji:'🧻',img:'',badge:'',featured:false},
+  {id:40,name:'Bulaşık Sünger (5\'li)',cat:'temizlik',price:24.90,unit:'paket',emoji:'🧽',img:'',badge:'',featured:false},
+  {id:41,name:'Su (1.5 lt)',cat:'icecek',price:9.90,unit:'şişe',emoji:'💧',img:'',badge:'',featured:false},
+  {id:42,name:'Meyve Suyu (1 lt)',cat:'icecek',price:34.90,unit:'kutu',emoji:'🧃',img:'',badge:'',featured:true},
+  {id:43,name:'Kola (1 lt)',cat:'icecek',price:29.90,unit:'şişe',emoji:'🥤',img:'',badge:'',featured:false},
+  {id:44,name:'Ayran (500 ml)',cat:'icecek',price:12.90,unit:'şişe',emoji:'🥛',img:'',badge:'',featured:false},
+  {id:45,name:'Çay (500g)',cat:'icecek',price:89.90,unit:'paket',emoji:'🍵',img:'',badge:'',featured:true},
+  {id:46,name:'Kahve (250g)',cat:'icecek',price:119.90,unit:'paket',emoji:'☕',img:'',badge:'',featured:false},
+  {id:47,name:'Gazoz (1 lt)',cat:'icecek',price:19.90,unit:'şişe',emoji:'🫧',img:'',badge:'',featured:false},
+  {id:48,name:'Enerji İçeceği (250ml)',cat:'icecek',price:29.90,unit:'kutu',emoji:'⚡',img:'',badge:'',featured:false},
+];
+const DEFAULT_PROMOS={
+  'AYDIN5':{pct:5,gift:null,text:'%5 İNDİRİM UYGULANDI!'},
+  'AYDIN10':{pct:10,gift:null,text:'%10 İNDİRİM UYGULANDI!'},
+  'EKMEK':{pct:0,gift:'Sıcak Somun Ekmek (Hediye)',text:'HEDİYE EKMEK UYGULANDI!'},
+  'HEDIYE':{pct:0,gift:'Ülker Çikolatalı Gofret (Hediye)',text:'HEDİYE ÇİKOLATA UYGULANDI!'},
+  'CIKO':{pct:0,gift:'Ülker Çikolatalı Gofret (Hediye)',text:'HEDİYE ÇİKOLATA UYGULANDI!'},
+  'BEDAVA':{pct:0,gift:'Ücretsiz Adrese Teslimat',text:'ÜCRETSİZ KARGO UYGULANDI!'},
+};
+const DEFAULT_SETTINGS={
+  threshold:1000,waNumber:'905444789461',
+  announcements:'🚀 1000₺ üzeri siparişlerde ÜCRETSİZ TESLİMAT!\n🥬 Taze meyve sebze her gün!\n🎁 AYDIN10 kodu ile %10 indirim!',
+  branch1Name:'Geyras (Merkez) Şube',branch1Addr:'Geyras Mah. Aydın Cad. No:1',
+  branch2Name:'Efeler Şube',branch2Addr:'Efeler Mah. Gros Cad. No:5',
+  adminPass:'aydin2026'
+};
+
+/* ── STATE ───────────────────────────────────────────────────────────── */
+let products=[],orders=[],promos={},settings={},campaigns=[],stock={},invoices=[];
+let invLineCounter=0;
+
+function loadData(){
+  products=JSON.parse(localStorage.getItem('ag_products')||'null')||JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+  orders=JSON.parse(localStorage.getItem('ag_orders')||'[]');
+  promos=JSON.parse(localStorage.getItem('ag_promos')||'null')||JSON.parse(JSON.stringify(DEFAULT_PROMOS));
+  settings=JSON.parse(localStorage.getItem('ag_settings')||'null')||JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+  campaigns=JSON.parse(localStorage.getItem('ag_campaigns')||'[]');
+  stock=JSON.parse(localStorage.getItem('ag_stock')||'{}');
+  invoices=JSON.parse(localStorage.getItem('ag_invoices')||'[]');
+  products.forEach(p=>{ if(!stock[p.id]) stock[p.id]={qty:50,min:5}; });
+}
+
+const saveProducts=()=>localStorage.setItem('ag_products',JSON.stringify(products));
+const saveOrders=()=>localStorage.setItem('ag_orders',JSON.stringify(orders));
+const savePromos=()=>localStorage.setItem('ag_promos',JSON.stringify(promos));
+const saveCampaigns=()=>localStorage.setItem('ag_campaigns',JSON.stringify(campaigns));
+const saveStock=()=>localStorage.setItem('ag_stock',JSON.stringify(stock));
+const saveInvoiceData=()=>localStorage.setItem('ag_invoices',JSON.stringify(invoices));
+
+function persistSettings(){
+  localStorage.setItem('ag_settings',JSON.stringify(settings));
+}
+
+/* ── UTILS ──────────────────────────────────────────────────────────── */
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  clearTimeout(t._tid);
+  t._tid=setTimeout(()=>t.classList.remove('show'),3000);
+}
+function esc(s){const d=document.createElement('div');d.textContent=String(s??'');return d.innerHTML;}
+function fmtDate(ts){if(!ts)return'-';const d=new Date(ts);return d.toLocaleDateString('tr-TR')+' '+d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});}
+function fmtPrice(n){return(parseFloat(n)||0).toFixed(2).replace('.',',')+' ₺';}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function catLabel(c){return({'manav':'🥦 Manav','temel-gida':'🌾 Temel Gıda','sut-sarkuteri':'🧀 Süt & Şarküteri','atistirmalik':'🍿 Atıştırmalık','temizlik':'🧹 Temizlik','icecek':'🧃 İçecek'})[c]||c;}
+function getStockStatus(p){const s=stock[p.id]||{qty:50,min:5};if(s.qty<=0)return'out';if(s.qty<=s.min)return'low';return'ok';}
+function stockBadge(p){return({'out':'<span class="badge badge-red">🔴 Tükendi</span>','low':'<span class="badge badge-yellow">🟡 Kritik</span>','ok':'<span class="badge badge-green">🟢 Yeterli</span>'})[getStockStatus(p)];}
+function isActiveCampaign(c){
+  if(!c.active)return false;
+  const now=new Date();
+  if(c.start&&new Date(c.start)>now)return false;
+  if(c.end&&new Date(c.end)<now)return false;
+  return true;
+}
+
+/* ── LOGIN ──────────────────────────────────────────────────────────── */
+function doLogin(){
+  const u=document.getElementById('loginUser').value.trim();
+  const p=document.getElementById('loginPass').value;
+  const savedPass=(settings&&settings.adminPass)?settings.adminPass:'aydin2026';
+  if(u==='admin'&&(p===savedPass||p==='aydin2026')){
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('appWrap').style.display='block';
+    try{renderDash();}catch(e){console.error('renderDash error:',e);}
+  } else {
+    document.getElementById('loginErr').style.display='block';
+  }
+}
+document.getElementById('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('loginUser').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+function doLogout(){location.reload();}
+function changePass(){
+  const n=document.getElementById('setNewPass').value;
+  const n2=document.getElementById('setNewPass2').value;
+  if(!n){toast('Şifre boş olamaz');return;}
+  if(n!==n2){toast('Şifreler eşleşmiyor');return;}
+  settings.adminPass=n;
+  persistSettings();
+  document.getElementById('setNewPass').value='';
+  document.getElementById('setNewPass2').value='';
+  toast('Şifre güncellendi ✓');
+}
+
+/* ── NAVIGATION ─────────────────────────────────────────────────────── */
+const PAGE_RENDERERS={dash:renderDash,products:renderProducts,orders:renderOrders,campaigns:renderCampaigns,invoices:renderInvoices,stock:renderStock,coupons:renderCoupons,settings:renderSettingsForm};
+const PAGE_INDICES={dash:0,products:1,orders:2,campaigns:3,invoices:4,stock:5,coupons:6,settings:7};
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item')[PAGE_INDICES[id]]?.classList.add('active');
+  PAGE_RENDERERS[id]?.();
+}
+
+/* ── DASHBOARD ──────────────────────────────────────────────────────── */
+function renderDash(){
+  loadData();
+  processOrderStock();
+  updateSidebarStockBadge();
+  const revenue=orders.reduce((s,o)=>s+(o.total||0),0);
+  const criticalStock=products.filter(p=>getStockStatus(p)!=='ok').length;
+  const activeCamps=campaigns.filter(isActiveCampaign).length;
+  document.getElementById('dashStats').innerHTML=`
+    <div class="stat-card"><div class="stat-icon orange">🛒</div><div class="stat-val">${orders.length}</div><div class="stat-label">Toplam Sipariş</div></div>
+    <div class="stat-card"><div class="stat-icon green">💰</div><div class="stat-val">${fmtPrice(revenue)}</div><div class="stat-label">Toplam Ciro</div></div>
+    <div class="stat-card"><div class="stat-icon blue">📦</div><div class="stat-val">${products.length}</div><div class="stat-label">Ürün Sayısı</div></div>
+    <div class="stat-card"><div class="stat-icon purple">📅</div><div class="stat-val">${activeCamps}</div><div class="stat-label">Aktif Kampanya</div></div>
+    <div class="stat-card"><div class="stat-icon ${criticalStock>0?'red':'green'}">${criticalStock>0?'⚠️':'✅'}</div><div class="stat-val">${criticalStock}</div><div class="stat-label">Kritik Stok</div></div>
+    <div class="stat-card"><div class="stat-icon yellow">🎟️</div><div class="stat-val">${Object.keys(promos).length}</div><div class="stat-label">Aktif Kupon</div></div>
+  `;
+  const outProds=products.filter(p=>getStockStatus(p)==='out');
+  const lowProds=products.filter(p=>getStockStatus(p)==='low');
+  let alerts='';
+  if(outProds.length) alerts+=`<div class="alert alert-danger">🔴 ${outProds.length} ürün tükendi: ${outProds.slice(0,5).map(p=>esc(p.name)).join(', ')}${outProds.length>5?'...':''}</div>`;
+  if(lowProds.length) alerts+=`<div class="alert alert-warn">🟡 ${lowProds.length} ürün kritik stokta: ${lowProds.slice(0,5).map(p=>esc(p.name)).join(', ')}${lowProds.length>5?'...':''}</div>`;
+  const expCamps=campaigns.filter(c=>c.end&&new Date(c.end)<new Date());
+  if(expCamps.length) alerts+=`<div class="alert alert-info">📅 ${expCamps.length} kampanya süresi doldu.</div>`;
+  document.getElementById('dashAlerts').innerHTML=alerts;
+
+  const recent=[...orders].reverse().slice(0,5);
+  const sLabel=['Alındı','Hazırlanıyor','Yolda','Teslim Edildi'];
+  const sCls=['badge-yellow','badge-orange','badge-blue','badge-green'];
+  document.getElementById('dashOrders').innerHTML=recent.length?
+    `<div style="overflow-x:auto"><table><tbody>${recent.map(o=>`<tr>
+      <td style="font-size:12px;color:var(--gray400)">${fmtDate(o.ts)}</td>
+      <td style="font-weight:600;font-size:13px">${esc(o.name||'Misafir')}</td>
+      <td style="font-weight:700;color:var(--orange)">${fmtPrice(o.total)}</td>
+      <td><span class="badge ${sCls[o.status||0]}">${sLabel[o.status||0]}</span></td>
+    </tr>`).join('')}</tbody></table></div>`:
+    '<p style="color:var(--gray400);font-size:13px;text-align:center;padding:20px">Henüz sipariş yok</p>';
+
+  const salesMap={};
+  orders.forEach(o=>(o.items||[]).forEach(i=>{salesMap[i.name]=(salesMap[i.name]||0)+i.quantity;}));
+  const top=Object.entries(salesMap).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  document.getElementById('dashBestSellers').innerHTML=top.length?
+    top.map(([name,qty],i)=>`<div class="bestseller-row"><div class="bs-rank">${i+1}</div><div style="flex:1;font-size:13px;font-weight:500">${esc(name)}</div><div style="font-size:12px;color:var(--gray500)">${qty} adet</div></div>`).join(''):
+    '<p style="color:var(--gray400);font-size:13px;text-align:center;padding:20px">Sipariş verisi yok</p>';
+
+  const crit=[...outProds,...lowProds];
+  document.getElementById('dashStockAlerts').innerHTML=crit.length?
+    `<div style="overflow-x:auto"><table><thead><tr><th>Ürün</th><th>Kategori</th><th>Stok</th><th>Durum</th></tr></thead>
+    <tbody>${crit.map(p=>{const s=stock[p.id]||{qty:0};return`<tr><td>${esc(p.emoji||'')} ${esc(p.name)}</td><td>${catLabel(p.cat)}</td><td style="font-weight:700">${s.qty}</td><td>${stockBadge(p)}</td></tr>`;}).join('')}</tbody></table></div>`:
+    '<p style="color:var(--green);font-size:13px"><strong>✅ Tüm ürünler yeterli stokta.</strong></p>';
+}
+
+/* ── PRODUCTS ───────────────────────────────────────────────────────── */
+function renderProducts(){
+  loadData();
+  const q=(document.getElementById('prodSearch')?.value||'').toLowerCase();
+  const cat=document.getElementById('prodCatFilter')?.value||'';
+  const list=products.filter(p=>(!q||(p.name||'').toLowerCase().includes(q))&&(!cat||p.cat===cat));
+  document.getElementById('prodCount').textContent=`${list.length} ürün`;
+  const tbody=document.getElementById('prodTableBody');
+  if(!list.length){tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--gray400)">Ürün bulunamadı</td></tr>`;return;}
+  tbody.innerHTML=list.map(p=>`<tr>
+    <td><div style="display:flex;align-items:center;gap:10px">
+      ${p.img?`<img src="${esc(p.img)}" style="width:40px;height:40px;object-fit:cover;border-radius:6px" onerror="this.style.display='none'">`:`<div class="prod-thumb">${p.emoji||'📦'}</div>`}
+      <div><div style="font-weight:600;font-size:13px">${esc(p.name)}</div>${p.badge?`<span class="badge badge-orange" style="font-size:10px">${esc(p.badge)}</span>`:''}</div>
+    </div></td>
+    <td>${catLabel(p.cat)}</td>
+    <td style="font-weight:700;color:var(--orange)">${fmtPrice(p.price)}</td>
+    <td>${stockBadge(p)} <span style="font-size:12px;color:var(--gray500)">${(stock[p.id]||{qty:0}).qty} ${p.unit||'adet'}</span></td>
+    <td><label class="toggle"><input type="checkbox" ${p.featured?'checked':''} onchange="toggleFeatured(${p.id},this.checked)"><span class="toggle-track"></span></label></td>
+    <td><div style="display:flex;gap:4px">
+      <button class="btn btn-ghost btn-xs" onclick="openProductModal(${p.id})">✏️</button>
+      <button class="btn btn-danger btn-xs" onclick="deleteProduct(${p.id})">🗑️</button>
+    </div></td>
+  </tr>`).join('');
+}
+function toggleFeatured(id,val){const p=products.find(x=>x.id===id);if(p){p.featured=val;saveProducts();}}
+function openProductModal(id){
+  const p=id?products.find(x=>x.id===id):null;
+  document.getElementById('productModalTitle').textContent=p?'Ürün Düzenle':'Ürün Ekle';
+  document.getElementById('editProdId').value=id||'';
+  ['prodName','prodUnit','prodEmoji','prodImg','prodBadge'].forEach(f=>document.getElementById(f).value=p?.[f.replace('prod','').toLowerCase()]||'');
+  document.getElementById('prodName').value=p?.name||'';
+  document.getElementById('prodCat').value=p?.cat||'manav';
+  document.getElementById('prodPrice').value=p?.price||'';
+  document.getElementById('prodUnit').value=p?.unit||'';
+  document.getElementById('prodEmoji').value=p?.emoji||'';
+  document.getElementById('prodImg').value=p?.img||'';
+  document.getElementById('prodBadge').value=p?.badge||'';
+  document.getElementById('prodFeatured').checked=p?.featured||false;
+  openModal('productModal');
+}
+function saveProduct(){
+  const id=parseInt(document.getElementById('editProdId').value)||null;
+  const name=document.getElementById('prodName').value.trim();
+  if(!name){toast('Ürün adı gerekli');return;}
+  const price=parseFloat(document.getElementById('prodPrice').value);
+  if(!price){toast('Fiyat gerekli');return;}
+  const obj={id:id||(Math.max(0,...products.map(p=>p.id))+1),name,cat:document.getElementById('prodCat').value,price,unit:document.getElementById('prodUnit').value.trim(),emoji:document.getElementById('prodEmoji').value.trim(),img:document.getElementById('prodImg').value.trim(),badge:document.getElementById('prodBadge').value.trim(),featured:document.getElementById('prodFeatured').checked};
+  if(id){products[products.findIndex(p=>p.id===id)]=obj;}
+  else{products.push(obj);if(!stock[obj.id])stock[obj.id]={qty:0,min:5};saveStock();}
+  saveProducts();closeModal('productModal');renderProducts();toast(id?'Ürün güncellendi ✓':'Ürün eklendi ✓');
+}
+function deleteProduct(id){if(!confirm('Bu ürünü silmek istiyor musunuz?'))return;products=products.filter(p=>p.id!==id);saveProducts();renderProducts();toast('Ürün silindi');}
+function resetProducts(){if(!confirm('Tüm ürünler varsayılana dönecek. Emin misiniz?'))return;products=JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));saveProducts();renderProducts();toast('Ürünler sıfırlandı ✓');}
+
+/* ── ORDERS ─────────────────────────────────────────────────────────── */
+function renderOrders(){
+  loadData();
+  const q=(document.getElementById('orderSearch')?.value||'').toLowerCase();
+  const sf=document.getElementById('orderStatusFilter')?.value;
+  const list=[...orders].reverse().filter(o=>{
+    if(q&&!(o.name||'').toLowerCase().includes(q)&&!(o.addr||'').toLowerCase().includes(q))return false;
+    if(sf!==''&&sf!==undefined&&String(o.status||0)!==sf)return false;
+    return true;
+  });
+  document.getElementById('orderCount').textContent=`${orders.length} sipariş`;
+  const sLabel=['Alındı','Hazırlanıyor','Yolda','Teslim Edildi'];
+  const sCls=['badge-yellow','badge-orange','badge-blue','badge-green'];
+  const tbody=document.getElementById('orderTableBody');
+  if(!list.length){tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--gray400)">Sipariş bulunamadı</td></tr>`;return;}
+  tbody.innerHTML=list.map((o)=>{
+    const realIdx=orders.indexOf(o);
+    return`<tr>
+    <td style="font-size:12px;color:var(--gray500)">${fmtDate(o.ts)}</td>
+    <td style="font-weight:600">${esc(o.name||'Misafir')}</td>
+    <td style="font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(o.addr||'-')}</td>
+    <td style="font-weight:700;color:var(--orange)">${fmtPrice(o.total)}</td>
+    <td><select class="badge ${sCls[o.status||0]}" onchange="changeOrderStatus(${realIdx},this.value)" style="border:none;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;outline:none">
+      ${sLabel.map((l,i)=>`<option value="${i}"${(o.status||0)===i?' selected':''}>${l}</option>`).join('')}
+    </select></td>
+    <td><div style="display:flex;gap:4px">
+      <button class="btn btn-ghost btn-xs" onclick="viewOrder(${realIdx})">👁️</button>
+      <a href="https://wa.me/${settings.waNumber||'905444789461'}?text=${encodeURIComponent('Sayın müşterimiz, siparişinizin durumu güncellendi: '+sLabel[o.status||0])}" target="_blank" class="btn btn-success btn-xs">WA</a>
+      <button class="btn btn-danger btn-xs" onclick="deleteOrder(${realIdx})">🗑️</button>
+    </div></td>
+  </tr>`;}).join('');
+}
+function changeOrderStatus(idx,val){if(orders[idx])orders[idx].status=parseInt(val);saveOrders();toast('Durum güncellendi ✓');}
+function viewOrder(idx){
+  const o=orders[idx];if(!o)return;
+  const sLabel=['Alındı','Hazırlanıyor','Yolda','Teslim Edildi'];
+  document.getElementById('orderModalBody').innerHTML=`
+    <div style="display:grid;gap:12px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div><p style="font-size:11px;color:var(--gray400)">MÜŞTERİ</p><p style="font-weight:600">${esc(o.name||'Misafir')}</p></div>
+        <div><p style="font-size:11px;color:var(--gray400)">DURUM</p><p><span class="badge badge-blue">${sLabel[o.status||0]}</span></p></div>
+        <div><p style="font-size:11px;color:var(--gray400)">TARİH</p><p style="font-size:13px">${fmtDate(o.ts)}</p></div>
+        <div><p style="font-size:11px;color:var(--gray400)">TUTAR</p><p style="font-weight:700;color:var(--orange);font-size:16px">${fmtPrice(o.total)}</p></div>
+      </div>
+      <div><p style="font-size:11px;color:var(--gray400)">TESLİMAT ADRESİ</p><p style="font-size:13px">${esc(o.addr||'-')}</p></div>
+      ${o.note?`<div><p style="font-size:11px;color:var(--gray400)">NOT</p><p style="font-size:13px">${esc(o.note)}</p></div>`:''}
+      ${o.mapLink?`<div><p style="font-size:11px;color:var(--gray400)">KONUM</p><a href="${esc(o.mapLink)}" target="_blank" class="btn btn-ghost btn-sm" style="margin-top:4px">🗺️ Haritada Gör</a></div>`:''}
+      <div><p style="font-size:11px;color:var(--gray400);margin-bottom:8px">ÜRÜNLER</p>
+        <div class="table-wrap" style="border:none"><table><thead><tr><th>Ürün</th><th>Adet</th><th>Fiyat</th></tr></thead>
+        <tbody>${(o.items||[]).map(item=>{const q=item.quantity||item.qty||1;return`<tr><td>${esc(item.name)}</td><td>${q}</td><td>${fmtPrice(item.price*q)}</td></tr>`;}).join('')}</tbody></table></div>
+      </div>
+    </div>`;
+  openModal('orderModal');
+}
+function deleteOrder(idx){if(!confirm('Siparişi sil?'))return;orders.splice(idx,1);saveOrders();renderOrders();toast('Sipariş silindi');}
+function clearOrders(){if(!confirm('Tüm siparişler silinecek. Emin misiniz?'))return;orders=[];saveOrders();renderOrders();toast('Tüm siparişler silindi');}
+
+/* ── CAMPAIGNS ──────────────────────────────────────────────────────── */
+function renderCampaigns(){
+  loadData();
+  const tbody=document.getElementById('campTableBody');
+  if(!campaigns.length){tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--gray400)">Kampanya bulunamadı. + Kampanya Ekle butonuna tıklayın.</td></tr>`;return;}
+  const tLabel={pct:'% İndirim',fixed:'₺ İndirim',gift:'Hediye',free_delivery:'Ücretsiz Teslimat'};
+  tbody.innerHTML=campaigns.map((c,i)=>{
+    const active=isActiveCampaign(c);
+    const discText=c.type==='pct'?`%${c.discount}`:c.type==='fixed'?`${c.discount}₺`:c.type==='gift'?esc(c.giftItem||'-'):'Ücretsiz';
+    const targetText=c.target==='cat'?catLabel(c.targetCat):c.target==='cart'?'Min '+fmtPrice(c.cartMin):c.target==='prod'?esc(c.targetProd||'-'):'Tüm Ürünler';
+    return`<tr>
+      <td style="font-weight:600">${esc(c.name)}</td>
+      <td><span class="badge badge-blue">${tLabel[c.type]||c.type}</span></td>
+      <td>${discText}</td>
+      <td style="font-size:12px">${targetText}</td>
+      <td style="font-size:12px;color:var(--gray500)">${c.start||'—'}</td>
+      <td style="font-size:12px;color:var(--gray500)">${c.end||'—'}</td>
+      <td>
+        <label class="toggle"><input type="checkbox" ${c.active?'checked':''} onchange="toggleCampaign(${i},this.checked)"><span class="toggle-track"></span></label>
+        <span style="font-size:11px;color:var(--gray400);margin-left:4px">${active?'Aktif':'Pasif'}</span>
+      </td>
+      <td><div style="display:flex;gap:4px">
+        <button class="btn btn-ghost btn-xs" onclick="openCampaignModal(${i})">✏️</button>
+        <button class="btn btn-danger btn-xs" onclick="deleteCampaign(${i})">🗑️</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+function toggleCampaign(i,val){campaigns[i].active=val;saveCampaigns();updateAnnouncementsFromCampaigns();toast(val?'Kampanya aktif edildi':'Kampanya pasife alındı');}
+function updateAnnouncementsFromCampaigns(){
+  const activDescs=campaigns.filter(isActiveCampaign).filter(c=>c.desc).map(c=>c.desc);
+  if(!activDescs.length)return;
+  const base=(settings.announcements||'').split('\n').filter(l=>l&&!campaigns.some(c=>c.desc&&l===c.desc));
+  settings.announcements=[...base,...activDescs].join('\n');
+  persistSettings();
+}
+function openCampaignModal(idx){
+  const c=idx!==undefined?campaigns[idx]:null;
+  document.getElementById('campModalTitle').textContent=c?'Kampanya Düzenle':'Kampanya Ekle';
+  document.getElementById('editCampId').value=idx!==undefined?idx:'';
+  document.getElementById('campName').value=c?.name||'';
+  document.getElementById('campType').value=c?.type||'pct';
+  document.getElementById('campDiscount').value=c?.discount||'';
+  document.getElementById('campTarget').value=c?.target||'all';
+  document.getElementById('campTargetCat').value=c?.targetCat||'manav';
+  document.getElementById('campCartMin').value=c?.cartMin||'';
+  document.getElementById('campTargetProd').value=c?.targetProd||'';
+  document.getElementById('campGiftItem').value=c?.giftItem||'';
+  document.getElementById('campStart').value=c?.start||'';
+  document.getElementById('campEnd').value=c?.end||'';
+  document.getElementById('campDesc').value=c?.desc||'';
+  updateCampTypeUI();updateCampTargetUI();
+  openModal('campaignModal');
+}
+function updateCampTypeUI(){
+  const t=document.getElementById('campType').value;
+  document.getElementById('campDiscountGroup').style.display=(t==='free_delivery'||t==='gift')?'none':'block';
+  document.getElementById('campGiftGroup').style.display=t==='gift'?'block':'none';
+}
+function updateCampTargetUI(){
+  const t=document.getElementById('campTarget').value;
+  document.getElementById('campTargetCat').style.display=t==='cat'?'block':'none';
+  document.getElementById('campCartMin').style.display=t==='cart'?'block':'none';
+  document.getElementById('campTargetProd').style.display=t==='prod'?'block':'none';
+}
+document.getElementById('campTarget').addEventListener('change',updateCampTargetUI);
+function saveCampaign(){
+  const rawIdx=document.getElementById('editCampId').value;
+  const idx=rawIdx!==''?parseInt(rawIdx):null;
+  const name=document.getElementById('campName').value.trim();
+  if(!name){toast('Kampanya adı gerekli');return;}
+  const obj={name,active:idx!==null?campaigns[idx].active:true,type:document.getElementById('campType').value,discount:parseFloat(document.getElementById('campDiscount').value)||0,target:document.getElementById('campTarget').value,targetCat:document.getElementById('campTargetCat').value,cartMin:parseFloat(document.getElementById('campCartMin').value)||0,targetProd:document.getElementById('campTargetProd').value.trim(),giftItem:document.getElementById('campGiftItem').value.trim(),start:document.getElementById('campStart').value,end:document.getElementById('campEnd').value,desc:document.getElementById('campDesc').value.trim()};
+  if(idx!==null)campaigns[idx]=obj;else campaigns.push(obj);
+  saveCampaigns();updateAnnouncementsFromCampaigns();closeModal('campaignModal');renderCampaigns();toast(idx!==null?'Kampanya güncellendi ✓':'Kampanya eklendi ✓');
+}
+function deleteCampaign(i){if(!confirm('Kampanyayı sil?'))return;campaigns.splice(i,1);saveCampaigns();renderCampaigns();toast('Kampanya silindi');}
+
+/* ── INVOICES ───────────────────────────────────────────────────────── */
+function renderInvoices(){
+  loadData();
+  const tbody=document.getElementById('invLines');
+  if(!tbody.children.length){invLineCounter=0;addInvLine();}
+  renderInvHistory();
+}
+function addInvLine(){
+  invLineCounter++;
+  const id=invLineCounter;
+  const opts=products.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
+  const tr=document.createElement('tr');
+  tr.id=`invLine_${id}`;
+  tr.innerHTML=`
+    <td><select id="ilProd_${id}" onchange="onProdSelectChange(${id})">${opts}</select></td>
+    <td><input type="number" id="ilQty_${id}" value="1" min="0.001" step="0.001" style="width:72px;padding:6px;border:1.5px solid var(--gray200);border-radius:4px;font-size:13px;outline:none" oninput="calcInvLine(${id})"></td>
+    <td><input type="number" id="ilCost_${id}" placeholder="0.00" step="0.01" style="width:100px;padding:6px;border:1.5px solid var(--gray200);border-radius:4px;font-size:13px;outline:none" oninput="calcInvLine(${id})"></td>
+    <td><input type="number" id="ilMargin_${id}" value="30" step="0.1" style="width:80px;padding:6px;border:1.5px solid var(--gray200);border-radius:4px;font-size:13px;outline:none" oninput="calcInvLine(${id})"></td>
+    <td><input type="number" id="ilSell_${id}" placeholder="0.00" step="0.01" style="width:100px;padding:6px;border:1.5px solid var(--gray200);border-radius:4px;font-size:13px;font-weight:700;color:var(--orange);outline:none" oninput="calcInvLineReverse(${id})"></td>
+    <td><button onclick="removeInvLine(${id})" style="width:26px;height:26px;border:none;border-radius:4px;background:var(--red-light);color:var(--red);cursor:pointer;font-size:13px">✕</button></td>`;
+  document.getElementById('invLines').appendChild(tr);
+  onProdSelectChange(id);
+}
+function onProdSelectChange(id){
+  const pid=parseInt(document.getElementById(`ilProd_${id}`)?.value);
+  const p=products.find(x=>x.id===pid);
+  if(p){const sell=document.getElementById(`ilSell_${id}`);if(sell)sell.value=p.price.toFixed(2);}
+}
+function calcInvLine(id){
+  const cost=parseFloat(document.getElementById(`ilCost_${id}`)?.value)||0;
+  const margin=parseFloat(document.getElementById(`ilMargin_${id}`)?.value)||0;
+  if(cost>0){const sell=document.getElementById(`ilSell_${id}`);if(sell)sell.value=(cost*(1+margin/100)).toFixed(2);}
+}
+function calcInvLineReverse(id){
+  const sell=parseFloat(document.getElementById(`ilSell_${id}`)?.value)||0;
+  const cost=parseFloat(document.getElementById(`ilCost_${id}`)?.value)||0;
+  if(sell>0&&cost>0){const m=document.getElementById(`ilMargin_${id}`);if(m)m.value=((sell-cost)/cost*100).toFixed(1);}
+}
+function removeInvLine(id){document.getElementById(`invLine_${id}`)?.remove();}
+function saveInvoice(){
+  const lines=[];
+  let totalCost=0;
+  for(let i=1;i<=invLineCounter;i++){
+    const el=document.getElementById(`invLine_${i}`);if(!el)continue;
+    const pid=parseInt(document.getElementById(`ilProd_${i}`)?.value);
+    const qty=parseFloat(document.getElementById(`ilQty_${i}`)?.value)||1;
+    const cost=parseFloat(document.getElementById(`ilCost_${i}`)?.value)||0;
+    const sell=parseFloat(document.getElementById(`ilSell_${i}`)?.value)||0;
+    const margin=parseFloat(document.getElementById(`ilMargin_${i}`)?.value)||0;
+    if(!pid||!sell)continue;
+    lines.push({pid,qty,cost,sell,margin});
+    totalCost+=cost*qty;
+    const pi=products.findIndex(p=>p.id===pid);
+    if(pi>-1)products[pi].price=sell;
+    if(!stock[pid])stock[pid]={qty:0,min:5};
+    stock[pid].qty+=qty;
+  }
+  if(!lines.length){toast('En az bir ürün satırı doldurun');return;}
+  invoices.unshift({ts:Date.now(),note:document.getElementById('invNote').value.trim(),lines,totalCost});
+  saveProducts();saveStock();saveInvoiceData();
+  document.getElementById('invLines').innerHTML='';
+  invLineCounter=0;addInvLine();
+  document.getElementById('invNote').value='';
+  renderInvHistory();
+  toast(`Fatura kaydedildi. ${lines.length} ürün güncellendi ✓`);
+}
+function renderInvHistory(){
+  const tbody=document.getElementById('invHistoryBody');
+  if(!invoices.length){tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--gray400)">Fatura kaydı yok</td></tr>`;return;}
+  tbody.innerHTML=invoices.map((inv,i)=>`<tr>
+    <td style="font-size:12px;color:var(--gray500)">${fmtDate(inv.ts)}</td>
+    <td>${esc(inv.note||'—')}</td>
+    <td>${inv.lines?.length||0} ürün</td>
+    <td style="font-weight:700">${fmtPrice(inv.totalCost)}</td>
+    <td><div style="display:flex;gap:4px">
+      <button class="btn btn-ghost btn-xs" onclick="viewInvoice(${i})">👁️</button>
+      <button class="btn btn-danger btn-xs" onclick="deleteInvoice(${i})">🗑️</button>
+    </div></td>
+  </tr>`).join('');
+}
+function viewInvoice(i){
+  const inv=invoices[i];if(!inv)return;
+  document.getElementById('invoiceDetailBody').innerHTML=`
+    <p style="font-size:12px;color:var(--gray400);margin-bottom:12px">${fmtDate(inv.ts)} — ${esc(inv.note||'Not yok')}</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Ürün</th><th>Miktar</th><th>Alış (₺)</th><th>Marj (%)</th><th>Satış (₺)</th></tr></thead>
+      <tbody>${(inv.lines||[]).map(l=>{const p=products.find(x=>x.id===l.pid);return`<tr>
+        <td>${p?esc(p.name):'(Silindi)'}</td><td>${l.qty}</td><td>${fmtPrice(l.cost)}</td>
+        <td>%${(l.margin||0).toFixed(1)}</td><td style="font-weight:700;color:var(--orange)">${fmtPrice(l.sell)}</td>
+      </tr>`;}).join('')}</tbody>
+      <tfoot><tr><td colspan="4"><strong>Toplam Maliyet</strong></td><td style="font-weight:700">${fmtPrice(inv.totalCost)}</td></tr></tfoot>
+    </table></div>`;
+  openModal('invoiceDetailModal');
+}
+function deleteInvoice(i){if(!confirm('Fatura kaydını sil?'))return;invoices.splice(i,1);saveInvoiceData();renderInvHistory();toast('Fatura silindi');}
+function openGlobalMarginModal(){openModal('globalMarginModal');}
+function applyGlobalMargin(){
+  const pct=parseFloat(document.getElementById('globalMarginPct').value);
+  const scope=document.getElementById('globalMarginScope').value;
+  if(!pct||pct<=0){toast('Geçerli bir marj değeri girin');return;}
+  const costMap={};
+  invoices.forEach(inv=>(inv.lines||[]).forEach(l=>{if(l.cost&&l.cost>0)costMap[l.pid]=l.cost;}));
+  let updated=0;
+  products.forEach(p=>{
+    if(scope!=='all'&&p.cat!==scope)return;
+    const cost=costMap[p.id];
+    if(cost){p.price=parseFloat((cost*(1+pct/100)).toFixed(2));updated++;}
+  });
+  saveProducts();closeModal('globalMarginModal');
+  toast(`${updated} ürün fiyatı güncellendi (%${pct} marj) ✓`);
+}
+
+/* ── ORDER → STOCK DEDUCTION ───────────────────────────────────────── */
+function processOrderStock(){
+  let changed=false;
+  orders.forEach(o=>{
+    if(o.stockDeducted)return;
+    (o.items||[]).forEach(item=>{
+      const p=products.find(x=>x.name===item.name);
+      if(!p)return;
+      if(!stock[p.id])stock[p.id]={qty:50,min:5};
+      stock[p.id].qty=Math.max(0,stock[p.id].qty-(item.quantity||item.qty||1));
+    });
+    o.stockDeducted=true;
+    changed=true;
+  });
+  if(changed){saveStock();saveOrders();}
+}
+
+function updateSidebarStockBadge(){
+  const critical=products.filter(p=>getStockStatus(p)!=='ok').length;
+  const existing=document.getElementById('stockNavBadge');
+  if(existing)existing.remove();
+  if(critical>0){
+    const btn=document.querySelectorAll('.nav-item')[5];
+    if(btn){
+      const badge=document.createElement('span');
+      badge.id='stockNavBadge';
+      badge.textContent=critical;
+      badge.style.cssText='margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center';
+      btn.appendChild(badge);
+    }
+  }
+}
+
+/* ── STOCK ──────────────────────────────────────────────────────────── */
+function renderStock(){
+  loadData();
+  updateSidebarStockBadge();
+  const q=(document.getElementById('stockSearch')?.value||'').toLowerCase();
+  const sf=document.getElementById('stockFilter')?.value||'';
+  const list=products.filter(p=>{
+    if(q&&!(p.name||'').toLowerCase().includes(q))return false;
+    if(sf&&getStockStatus(p)!==sf)return false;
+    return true;
+  });
+  const tbody=document.getElementById('stockTableBody');
+  if(!list.length){tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--gray400)">Ürün bulunamadı</td></tr>`;return;}
+  tbody.innerHTML=list.map(p=>{
+    const s=stock[p.id]||{qty:0,min:5};
+    return`<tr>
+      <td><div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:18px">${p.emoji||'📦'}</span>
+        <div><div style="font-weight:600;font-size:13px">${esc(p.name)}</div><div style="font-size:11px;color:var(--gray400)">${fmtPrice(p.price)} / ${p.unit||'adet'}</div></div>
+      </div></td>
+      <td>${catLabel(p.cat)}</td>
+      <td><div class="stock-input-wrap">
+        <button class="stock-adj" onclick="adjustStock(${p.id},-1)">−</button>
+        <input class="stock-qty-input" type="number" id="stk_${p.id}" value="${s.qty}" min="0" onchange="onStockChange(${p.id},this.value)">
+        <button class="stock-adj" onclick="adjustStock(${p.id},1)">+</button>
+      </div></td>
+      <td><input class="stock-qty-input" type="number" id="stkmin_${p.id}" value="${s.min}" min="0" placeholder="5" onchange="onStockMinChange(${p.id},this.value)"></td>
+      <td id="stkbadge_${p.id}">${stockBadge(p)}</td>
+    </tr>`;
+  }).join('');
+}
+function adjustStock(pid,delta){
+  if(!stock[pid])stock[pid]={qty:0,min:5};
+  const inp=document.getElementById(`stk_${pid}`);
+  const nv=Math.max(0,(parseInt(inp?.value)||0)+delta);
+  stock[pid].qty=nv;
+  if(inp)inp.value=nv;
+  saveStock();
+  const badge=document.getElementById(`stkbadge_${pid}`);
+  if(badge){const p=products.find(x=>x.id===pid);if(p)badge.innerHTML=stockBadge(p);}
+}
+function onStockChange(pid,val){if(!stock[pid])stock[pid]={qty:0,min:5};stock[pid].qty=Math.max(0,parseInt(val)||0);saveStock();}
+function onStockMinChange(pid,val){if(!stock[pid])stock[pid]={qty:0,min:5};stock[pid].min=Math.max(0,parseInt(val)||0);saveStock();}
+function saveAllStock(){
+  products.forEach(p=>{
+    const qi=document.getElementById(`stk_${p.id}`);
+    const mi=document.getElementById(`stkmin_${p.id}`);
+    if(!stock[p.id])stock[p.id]={qty:0,min:5};
+    if(qi)stock[p.id].qty=Math.max(0,parseInt(qi.value)||0);
+    if(mi)stock[p.id].min=Math.max(0,parseInt(mi.value)||0);
+  });
+  saveStock();toast('Stok kaydedildi ✓');
+}
+
+/* ── COUPONS ────────────────────────────────────────────────────────── */
+function renderCoupons(){
+  loadData();
+  const entries=Object.entries(promos);
+  const tbody=document.getElementById('couponTableBody');
+  if(!entries.length){tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--gray400)">Kupon bulunamadı</td></tr>`;return;}
+  tbody.innerHTML=entries.map(([code,v])=>`<tr>
+    <td><span style="font-family:'Outfit',sans-serif;font-weight:700;font-size:14px;background:var(--orange-light);color:var(--orange);padding:3px 10px;border-radius:4px">${esc(code)}</span></td>
+    <td>${v.pct>0?`<span class="badge badge-green">%${v.pct}</span>`:'<span class="badge badge-gray">—</span>'}</td>
+    <td style="font-size:13px">${v.gift?esc(v.gift):'<span style="color:var(--gray400)">—</span>'}</td>
+    <td style="font-size:12px;color:var(--gray600)">${esc(v.text||'')}</td>
+    <td><div style="display:flex;gap:4px">
+      <button class="btn btn-ghost btn-xs" onclick="openCouponModal('${esc(code)}')">✏️</button>
+      <button class="btn btn-danger btn-xs" onclick="deleteCoupon('${esc(code)}')">🗑️</button>
+    </div></td>
+  </tr>`).join('');
+}
+function openCouponModal(code){
+  const v=code?promos[code]:null;
+  document.getElementById('couponModalTitle').textContent=v?'Kupon Düzenle':'Kupon Ekle';
+  document.getElementById('editCouponKey').value=code||'';
+  document.getElementById('couponCode').value=code||'';
+  document.getElementById('couponPct').value=v?.pct||0;
+  document.getElementById('couponGift').value=v?.gift||'';
+  document.getElementById('couponText').value=v?.text||'';
+  openModal('couponModal');
+}
+function saveCoupon(){
+  const oldKey=document.getElementById('editCouponKey').value;
+  const code=document.getElementById('couponCode').value.trim().toUpperCase();
+  if(!code){toast('Kupon kodu gerekli');return;}
+  const obj={pct:parseInt(document.getElementById('couponPct').value)||0,gift:document.getElementById('couponGift').value.trim()||null,text:document.getElementById('couponText').value.trim()||code+' UYGULANDI!'};
+  if(oldKey&&oldKey!==code)delete promos[oldKey];
+  promos[code]=obj;
+  savePromos();closeModal('couponModal');renderCoupons();toast(oldKey?'Kupon güncellendi ✓':'Kupon eklendi ✓');
+}
+function deleteCoupon(code){if(!confirm(`"${code}" kuponunu sil?`))return;delete promos[code];savePromos();renderCoupons();toast('Kupon silindi');}
+
+/* ── SETTINGS ───────────────────────────────────────────────────────── */
+function renderSettingsForm(){
+  loadData();
+  document.getElementById('setThreshold').value=settings.threshold||1000;
+  document.getElementById('setWa').value=settings.waNumber||'905444789461';
+  document.getElementById('setAnn').value=settings.announcements||'';
+  document.getElementById('setBranch1').value=settings.branch1Name||'';
+  document.getElementById('setBranch1Addr').value=settings.branch1Addr||'';
+  document.getElementById('setBranch2').value=settings.branch2Name||'';
+  document.getElementById('setBranch2Addr').value=settings.branch2Addr||'';
+}
+function saveSettings(){
+  settings.threshold=parseFloat(document.getElementById('setThreshold').value)||1000;
+  settings.waNumber=document.getElementById('setWa').value.trim()||'905444789461';
+  settings.announcements=document.getElementById('setAnn').value;
+  settings.branch1Name=document.getElementById('setBranch1').value;
+  settings.branch1Addr=document.getElementById('setBranch1Addr').value;
+  settings.branch2Name=document.getElementById('setBranch2').value;
+  settings.branch2Addr=document.getElementById('setBranch2Addr').value;
+  persistSettings();
+  toast('Ayarlar kaydedildi ✓');
+}
+function exportData(){
+  const data={products,orders,promos,settings,campaigns,stock,invoices};
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+  a.download='aydingros-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  toast('Veri dışa aktarıldı ✓');
+}
+function importData(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      if(d.products)localStorage.setItem('ag_products',JSON.stringify(d.products));
+      if(d.orders)localStorage.setItem('ag_orders',JSON.stringify(d.orders));
+      if(d.promos)localStorage.setItem('ag_promos',JSON.stringify(d.promos));
+      if(d.settings)localStorage.setItem('ag_settings',JSON.stringify(d.settings));
+      if(d.campaigns)localStorage.setItem('ag_campaigns',JSON.stringify(d.campaigns));
+      if(d.stock)localStorage.setItem('ag_stock',JSON.stringify(d.stock));
+      if(d.invoices)localStorage.setItem('ag_invoices',JSON.stringify(d.invoices));
+      loadData();toast('Veri başarıyla içe aktarıldı ✓');
+    }catch(err){toast('Geçersiz JSON dosyası');}
+  };
+  reader.readAsText(file);
+  input.value='';
+}
+function nukeData(){
+  if(!confirm('TÜM VERİ SİLİNECEK! Geri alınamaz. Emin misiniz?'))return;
+  if(!confirm('Son kez onaylıyor musunuz?'))return;
+  ['ag_products','ag_orders','ag_promos','ag_settings','ag_campaigns','ag_stock','ag_invoices'].forEach(k=>localStorage.removeItem(k));
+  toast('Tüm veri silindi. Yenileniyor...');
+  setTimeout(()=>location.reload(),2000);
+}
+
+/* ── INIT ───────────────────────────────────────────────────────────── */
+try{loadData();}catch(e){console.error('loadData error:',e);}
+</script>
+</body>
+</html>
