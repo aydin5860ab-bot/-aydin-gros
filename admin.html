@@ -187,7 +187,12 @@ tr:hover td{background:var(--gray50)}
 .sidebar-overlay.open{display:block}
 
 @media(max-width:900px){
+  .hide-mob{display:none!important}
   .mobile-topbar{display:flex}
+  .stock-adj{width:36px;height:36px;font-size:18px}
+  .stock-qty-input{width:52px;height:36px;font-size:14px}
+  .btn-xs{padding:6px 10px;font-size:12px}
+  .nav-item{padding:13px 16px;font-size:15px}
   .sidebar{position:fixed;transform:translateX(-100%);transition:transform .25s ease;top:0;z-index:100}
   .sidebar.open{transform:translateX(0)}
   .main{margin-left:0;padding:16px;padding-top:72px}
@@ -322,7 +327,7 @@ tr:hover td{background:var(--gray50)}
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Ürün</th><th>Kategori</th><th>Fiyat</th><th>Stok</th><th>Öne Çıkan</th><th>İşlemler</th></tr></thead>
+          <thead><tr><th>Ürün</th><th class="hide-mob">Kategori</th><th>Fiyat</th><th class="hide-mob">Stok</th><th class="hide-mob">Öne Çıkan</th><th>İşlemler</th></tr></thead>
           <tbody id="prodTableBody"></tbody>
         </table>
       </div>
@@ -352,7 +357,7 @@ tr:hover td{background:var(--gray50)}
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Tarih</th><th>Müşteri</th><th>Adres</th><th>Tutar</th><th>Durum</th><th>İşlemler</th></tr></thead>
+          <thead><tr><th>Tarih</th><th>Müşteri</th><th class="hide-mob">Adres</th><th>Tutar</th><th>Durum</th><th>İşlemler</th></tr></thead>
           <tbody id="orderTableBody"></tbody>
         </table>
       </div>
@@ -424,7 +429,7 @@ tr:hover td{background:var(--gray50)}
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Ürün</th><th>Kategori</th><th>Stok Adedi</th><th>Min. Eşik</th><th>Durum</th></tr></thead>
+          <thead><tr><th>Ürün</th><th class="hide-mob">Kategori</th><th>Stok Adedi</th><th class="hide-mob">Min. Eşik</th><th>Durum</th></tr></thead>
           <tbody id="stockTableBody"></tbody>
         </table>
       </div>
@@ -916,10 +921,10 @@ function renderProducts(){
       ${p.img?`<img src="${esc(p.img)}" style="width:40px;height:40px;object-fit:cover;border-radius:6px" onerror="this.style.display='none'">`:`<div class="prod-thumb">${p.emoji||'📦'}</div>`}
       <div><div style="font-weight:600;font-size:13px">${esc(p.name)}</div>${p.badge?`<span class="badge badge-orange" style="font-size:10px">${esc(p.badge)}</span>`:''}</div>
     </div></td>
-    <td>${catLabel(p.cat)}</td>
+    <td class="hide-mob">${catLabel(p.cat)}</td>
     <td style="font-weight:700;color:var(--orange)">${fmtPrice(p.price)}</td>
-    <td>${stockBadge(p)} <span style="font-size:12px;color:var(--gray500)">${(stock[p.id]||{qty:0}).qty} ${p.unit||'adet'}</span></td>
-    <td><label class="toggle"><input type="checkbox" ${p.featured?'checked':''} onchange="toggleFeatured(${p.id},this.checked)"><span class="toggle-track"></span></label></td>
+    <td class="hide-mob">${stockBadge(p)} <span style="font-size:12px;color:var(--gray500)">${(stock[p.id]||{qty:0}).qty} ${p.unit||'adet'}</span></td>
+    <td class="hide-mob"><label class="toggle"><input type="checkbox" ${p.featured?'checked':''} onchange="toggleFeatured(${p.id},this.checked)"><span class="toggle-track"></span></label></td>
     <td><div style="display:flex;gap:4px">
       <button class="btn btn-ghost btn-xs" onclick="openProductModal(${p.id})">✏️</button>
       <button class="btn btn-danger btn-xs" onclick="deleteProduct(${p.id})">🗑️</button>
@@ -981,7 +986,7 @@ function renderOrders(){
     return`<tr>
     <td><div style="font-size:12px;color:var(--gray500)">${fmtDate(o.ts)}</div>${o.no?`<div style="font-size:10px;color:var(--orange);font-weight:600">${esc(o.no)}</div>`:''}</td>
     <td style="font-weight:600">${esc(o.name||'Misafir')}${o.phone?`<div style="font-size:11px;color:var(--gray400);font-weight:400">${esc(o.phone)}</div>`:''}</td>
-    <td style="font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(o.addr||'-')}</td>
+    <td class="hide-mob" style="font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(o.addr||'-')}</td>
     <td style="font-weight:700;color:var(--orange)">${fmtPrice(o.total)}</td>
     <td><select class="badge ${sCls[o.status||0]}" onchange="changeOrderStatus(${realIdx},this.value)" style="border:none;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;outline:none">
       ${sLabel.map((l,i)=>`<option value="${i}"${(o.status||0)===i?' selected':''}>${l}</option>`).join('')}
@@ -1261,13 +1266,13 @@ function renderStock(){
         <span style="font-size:18px">${p.emoji||'📦'}</span>
         <div><div style="font-weight:600;font-size:13px">${esc(p.name)}</div><div style="font-size:11px;color:var(--gray400)">${fmtPrice(p.price)} / ${p.unit||'adet'}</div></div>
       </div></td>
-      <td>${catLabel(p.cat)}</td>
+      <td class="hide-mob">${catLabel(p.cat)}</td>
       <td><div class="stock-input-wrap">
         <button class="stock-adj" onclick="adjustStock(${p.id},-1)">−</button>
         <input class="stock-qty-input" type="number" id="stk_${p.id}" value="${s.qty}" min="0" onchange="onStockChange(${p.id},this.value)">
         <button class="stock-adj" onclick="adjustStock(${p.id},1)">+</button>
       </div></td>
-      <td><input class="stock-qty-input" type="number" id="stkmin_${p.id}" value="${s.min}" min="0" placeholder="5" onchange="onStockMinChange(${p.id},this.value)"></td>
+      <td class="hide-mob"><input class="stock-qty-input" type="number" id="stkmin_${p.id}" value="${s.min}" min="0" placeholder="5" onchange="onStockMinChange(${p.id},this.value)"></td>
       <td id="stkbadge_${p.id}">${stockBadge(p)}</td>
     </tr>`;
   }).join('');
