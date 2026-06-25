@@ -540,9 +540,8 @@
       .camp-banner{padding:20px 16px;}
       .camp-banner h3{font-size:18px;}
       .camp-banner-inner{gap:16px;}
-      .wheel-float{bottom:88px;left:12px;padding:9px 14px;font-size:12px;}
+      .wheel-float{bottom:76px;left:12px;border-radius:50%;width:46px;height:46px;padding:0;justify-content:center;font-size:20px;animation:none;}
       .wheel-float span{display:none;}
-      .wheel-float{border-radius:50%;width:46px;height:46px;padding:0;justify-content:center;font-size:20px;}
       .wa-widget{bottom:76px;right:12px;}
       .wa-toggle{width:46px;height:46px;font-size:22px;}
       .hdr-track-btn{padding:0 10px;height:38px;}
@@ -1176,21 +1175,21 @@
 <nav class="mob-nav">
   <div class="mob-nav-inner">
     <button class="mob-nav-btn active" onclick="scrollTo({top:0,behavior:'smooth'})">
-      <span class="mob-nav-icon">🏠</span>Ana Sayfa
+      <span class="mob-nav-icon">🏠</span>
     </button>
     <button class="mob-nav-btn" onclick="document.querySelector('.catnav').scrollIntoView({behavior:'smooth'})">
-      <span class="mob-nav-icon">🗂️</span>Kategoriler
+      <span class="mob-nav-icon">🗂️</span>
     </button>
     <button class="mob-nav-btn" onclick="openCart()">
-      <span class="mob-nav-icon">🛒</span>Sepet
+      <span class="mob-nav-icon">🛒</span>
       <span class="mob-nav-badge" id="mobCartBadge">0</span>
     </button>
     <button class="mob-nav-btn" onclick="openFavs()">
-      <span class="mob-nav-icon">❤️</span>Favoriler
+      <span class="mob-nav-icon">❤️</span>
       <span class="mob-nav-badge" id="mobFavBadge">0</span>
     </button>
     <button class="mob-nav-btn" onclick="openAuth()">
-      <span class="mob-nav-icon">👤</span>Hesabım
+      <span class="mob-nav-icon">👤</span>
     </button>
   </div>
 </nav>
