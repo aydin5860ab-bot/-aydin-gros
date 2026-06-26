@@ -486,6 +486,22 @@ tr:hover td{background:var(--gray50)}
             <button class="btn btn-danger btn-sm" onclick="nukeData()">⚠️ Tüm Veriyi Sil</button>
           </div>
         </div>
+
+        <!-- RAKİP FİYAT ANALİZİ — tam genişlik -->
+        <div class="card" style="grid-column:1/-1;border:2px solid var(--orange-light)">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px">
+            <div>
+              <div class="dash-card-title" style="margin-bottom:4px">🏪 Rakip Fiyat Analizi</div>
+              <p style="font-size:13px;color:var(--gray500)">Erenler Cep fiyatlarıyla karşılaştır, pahalı kaldığın ürünlerde uyarı al.</p>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <span id="compLastUpdateLabel" style="font-size:12px;color:var(--gray400);align-self:center"></span>
+              <button class="btn btn-ghost btn-sm" onclick="openEditCompetitor()">✏️ Rakip Fiyatları Düzenle</button>
+              <button class="btn btn-primary" onclick="openCompetitorModal()">📊 Analizi Görüntüle</button>
+            </div>
+          </div>
+          <div id="compSummaryBar"></div>
+        </div>
       </div>
     </div>
 
@@ -493,6 +509,61 @@ tr:hover td{background:var(--gray50)}
 </div>
 
 <!-- MODALS -->
+
+<!-- Competitor Analysis Modal -->
+<div class="modal-overlay" id="competitorModal">
+  <div class="modal" style="max-width:760px">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">📊 Rakip Fiyat Analizi — Erenler Cep</div>
+        <div style="font-size:12px;color:var(--gray400);margin-top:2px" id="compModalDate"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('competitorModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="compAlertBanner" style="margin-bottom:16px"></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px" id="compSummaryCards"></div>
+      <div class="table-wrap">
+        <table id="compTable">
+          <thead><tr>
+            <th>Ürün</th>
+            <th>Aydın Gros</th>
+            <th>Erenler Cep</th>
+            <th>Fark</th>
+            <th>Durum</th>
+          </tr></thead>
+          <tbody id="compTableBody"></tbody>
+        </table>
+      </div>
+      <p style="font-size:12px;color:var(--gray400);margin-top:12px">* Fiyatlar manuel olarak güncellenir. Son kontrol: <span id="compModalLastCheck"></span></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('competitorModal')">Kapat</button>
+      <button class="btn btn-primary" onclick="closeModal('competitorModal');openEditCompetitor()">✏️ Fiyatları Güncelle</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Competitor Prices Modal -->
+<div class="modal-overlay" id="editCompetitorModal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header">
+      <div class="modal-title">✏️ Rakip Fiyatları Güncelle</div>
+      <button class="modal-close" onclick="closeModal('editCompetitorModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="alert alert-info" style="margin-bottom:16px">
+        💡 Erenler Cep sitesini kontrol edip güncel fiyatları buraya girin. Fiyatı olmayan ürünleri boş bırakın.
+        <br><a href="https://www.erenlercep.com/" target="_blank" style="color:var(--orange);font-weight:600">erenlercep.com →</a>
+      </div>
+      <div id="editCompFields" style="display:flex;flex-direction:column;gap:10px;max-height:420px;overflow-y:auto"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('editCompetitorModal')">İptal</button>
+      <button class="btn btn-primary" onclick="saveCompetitorPrices()">💾 Kaydet & Analiz Et</button>
+    </div>
+  </div>
+</div>
 
 <!-- Product Modal -->
 <div class="modal-overlay" id="productModal">
@@ -1341,6 +1412,7 @@ function deleteCoupon(code){if(!confirm(`"${code}" kuponunu sil?`))return;delete
 /* ── SETTINGS ───────────────────────────────────────────────────────── */
 function renderSettingsForm(){
   loadData();
+  renderCompSummaryBar();
   document.getElementById('setThreshold').value=settings.threshold||1000;
   document.getElementById('setWa').value=settings.waNumber||'905444789461';
   document.getElementById('setAnn').value=settings.announcements||'';
@@ -1393,6 +1465,183 @@ function nukeData(){
   ['ag_products','ag_orders','ag_promos','ag_settings','ag_campaigns','ag_stock','ag_invoices'].forEach(k=>localStorage.removeItem(k));
   toast('Tüm veri silindi. Yenileniyor...');
   setTimeout(()=>location.reload(),2000);
+}
+
+/* ── RAKİP FİYAT ANALİZİ ───────────────────────────────────────────── */
+const COMP_DEFAULT = {
+  name:'Erenler Cep',
+  url:'https://www.erenlercep.com/',
+  updatedAt: 0,
+  prices:{
+    'Salatalık':44.95,
+    'Soğan':44.95,
+    'Elma':99.95,
+    'Kivi':179.95,
+    'Karpuz':19.95,
+    'Meyve Suyu':33.95,
+    'Yumoş':149.95
+  }
+};
+function loadCompetitor(){
+  const raw=localStorage.getItem('ag_competitor');
+  if(raw)try{return JSON.parse(raw);}catch(e){}
+  return JSON.parse(JSON.stringify(COMP_DEFAULT));
+}
+function saveCompetitorPrices(){
+  const comp=loadCompetitor();
+  comp.updatedAt=Date.now();
+  const fields=document.querySelectorAll('#editCompFields .comp-price-field');
+  fields.forEach(inp=>{
+    const pname=inp.dataset.pname;
+    const val=parseFloat(inp.value);
+    if(pname){
+      if(val>0)comp.prices[pname]=val;
+      else delete comp.prices[pname];
+    }
+  });
+  localStorage.setItem('ag_competitor',JSON.stringify(comp));
+  closeModal('editCompetitorModal');
+  toast('Rakip fiyatları kaydedildi ✓');
+  renderCompSummaryBar();
+  openCompetitorModal();
+}
+function renderCompSummaryBar(){
+  const comp=loadCompetitor();
+  const el=document.getElementById('compLastUpdateLabel');
+  const bar=document.getElementById('compSummaryBar');
+  if(!el||!bar)return;
+  if(comp.updatedAt){
+    const d=new Date(comp.updatedAt);
+    el.textContent='Son güncelleme: '+d.toLocaleDateString('tr-TR')+' '+d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
+  }
+  const {cheap,expensive,near}=compStats(comp);
+  bar.innerHTML=`<div style="display:flex;gap:10px;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:6px;background:var(--green-light);color:var(--green);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600">
+      ✅ ${cheap} üründe ÜCUZsunuz
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;background:var(--red-light);color:var(--red);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600">
+      ⚠️ ${expensive} üründe PAHALIsınız
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;background:var(--yellow-light);color:var(--yellow);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600">
+      ≈ ${near} üründe yakınsınız
+    </div>
+  </div>`;
+}
+function compStats(comp){
+  loadData();
+  let cheap=0,expensive=0,near=0;
+  Object.entries(comp.prices||{}).forEach(([cname,cprice])=>{
+    const match=findMatchingProduct(cname);
+    if(!match)return;
+    const diff=(match.price-cprice)/cprice*100;
+    if(diff>5)expensive++;
+    else if(diff<-5)cheap++;
+    else near++;
+  });
+  return{cheap,expensive,near};
+}
+function findMatchingProduct(cname){
+  const kw=cname.toLowerCase().replace(/\s+/g,' ').trim();
+  return products.find(p=>{
+    const pn=(p.name||'').toLowerCase();
+    return pn===kw||pn.includes(kw)||kw.includes(pn);
+  });
+}
+function openCompetitorModal(){
+  const comp=loadCompetitor();
+  loadData();
+  const dateEl=document.getElementById('compModalDate');
+  const lastCheckEl=document.getElementById('compModalLastCheck');
+  if(comp.updatedAt){
+    const d=new Date(comp.updatedAt);
+    const ds=d.toLocaleDateString('tr-TR')+' '+d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
+    if(dateEl)dateEl.textContent='Kaynak: erenlercep.com — fiyatlar '+ds+' itibarıyla';
+    if(lastCheckEl)lastCheckEl.textContent=ds;
+  } else {
+    if(dateEl)dateEl.textContent='Kaynak: erenlercep.com — fiyatlar manuel girilmiştir';
+    if(lastCheckEl)lastCheckEl.textContent='Güncellenmedi';
+  }
+  let cheap=0,expensive=0,near=0,noMatch=0;
+  const rows=[];
+  Object.entries(comp.prices||{}).forEach(([cname,cprice])=>{
+    const match=findMatchingProduct(cname);
+    if(!match){noMatch++;return;}
+    const diff=match.price-cprice;
+    const diffPct=(diff/cprice*100);
+    let badge,rowStyle='';
+    if(diffPct>5){
+      badge=`<span class="badge badge-red">⚠️ Pahalıyız +${diffPct.toFixed(0)}%</span>`;
+      rowStyle='background:#FFF5F5';
+      expensive++;
+    } else if(diffPct<-5){
+      badge=`<span class="badge badge-green">✅ Ucuzuz ${diffPct.toFixed(0)}%</span>`;
+      cheap++;
+    } else {
+      badge=`<span class="badge badge-yellow">≈ Yakın</span>`;
+      near++;
+    }
+    const diffColor=diff>0?'var(--red)':diff<0?'var(--green)':'var(--gray500)';
+    const diffSign=diff>0?'+':'';
+    rows.push(`<tr style="${rowStyle}">
+      <td><strong>${esc(match.name)}</strong><div style="font-size:11px;color:var(--gray400)">${esc(match.unit||'adet')}</div></td>
+      <td style="font-weight:700;color:var(--orange)">${fmtPrice(match.price)}</td>
+      <td style="font-weight:600;color:var(--gray600)">${fmtPrice(cprice)}</td>
+      <td style="font-weight:700;color:${diffColor}">${diffSign}${fmtPrice(Math.abs(diff))}</td>
+      <td>${badge}</td>
+    </tr>`);
+  });
+  rows.sort((a,b)=>{
+    const ap=a.includes('Pahalıyız')?0:a.includes('Yakın')?1:2;
+    const bp=b.includes('Pahalıyız')?0:b.includes('Yakın')?1:2;
+    return ap-bp;
+  });
+  document.getElementById('compTableBody').innerHTML=rows.length?rows.join(''):`<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--gray400)">Karşılaştırılacak ürün bulunamadı. Rakip fiyatları düzenleyin.</td></tr>`;
+  const total=cheap+expensive+near;
+  document.getElementById('compSummaryCards').innerHTML=`
+    <div style="background:var(--red-light);border-radius:8px;padding:14px;text-align:center">
+      <div style="font-size:28px;font-weight:800;color:var(--red)">${expensive}</div>
+      <div style="font-size:12px;color:var(--red);font-weight:600">⚠️ Pahalı Ürün</div>
+      <div style="font-size:11px;color:var(--gray500);margin-top:2px">Rakibe göre %5+ fazla</div>
+    </div>
+    <div style="background:var(--yellow-light);border-radius:8px;padding:14px;text-align:center">
+      <div style="font-size:28px;font-weight:800;color:var(--yellow)">${near}</div>
+      <div style="font-size:12px;color:var(--yellow);font-weight:600">≈ Yakın Fiyat</div>
+      <div style="font-size:11px;color:var(--gray500);margin-top:2px">±%5 aralığında</div>
+    </div>
+    <div style="background:var(--green-light);border-radius:8px;padding:14px;text-align:center">
+      <div style="font-size:28px;font-weight:800;color:var(--green)">${cheap}</div>
+      <div style="font-size:12px;color:var(--green);font-weight:600">✅ Ucuz Ürün</div>
+      <div style="font-size:11px;color:var(--gray500);margin-top:2px">Rakipten %5+ ucuz</div>
+    </div>`;
+  const alertEl=document.getElementById('compAlertBanner');
+  if(expensive>0){
+    alertEl.innerHTML=`<div class="alert alert-danger">⚠️ <strong>${expensive} ürününüzün fiyatı Erenler Cep'ten yüksek!</strong> Bu ürünlerde fiyatını düşürmeyi veya kampanya açmayı düşünün.</div>`;
+  } else if(total===0){
+    alertEl.innerHTML=`<div class="alert alert-info">ℹ️ Henüz karşılaştırılacak rakip fiyatı girilmemiş. "Fiyatları Güncelle" butonuna basın.</div>`;
+  } else {
+    alertEl.innerHTML=`<div class="alert alert-success">✅ Harika! Rakibinize göre fiyat avantajınız var. Tüm ürünlerde rekabetçisiniz.</div>`;
+  }
+  openModal('competitorModal');
+}
+function openEditCompetitor(){
+  const comp=loadCompetitor();
+  loadData();
+  const container=document.getElementById('editCompFields');
+  const allNames=new Set([...Object.keys(comp.prices||{}),...products.map(p=>p.name)]);
+  const fields=[...allNames].sort().map(name=>{
+    const match=products.find(p=>p.name===name);
+    const compPrice=comp.prices?.[name]||'';
+    const aydinPrice=match?` (Aydın: ${fmtPrice(match.price)}`+(match.unit?` / ${match.unit}`:'')+')':'';
+    return`<div style="display:flex;align-items:center;gap:10px;padding:8px;background:var(--gray50);border-radius:6px">
+      <div style="flex:1;font-size:13px;font-weight:500">${esc(name)}<span style="font-size:11px;color:var(--gray400)">${aydinPrice}</span></div>
+      <div style="display:flex;align-items:center;gap:4px">
+        <span style="font-size:12px;color:var(--gray500)">₺</span>
+        <input class="comp-price-field stock-qty-input" data-pname="${esc(name)}" type="number" value="${compPrice}" placeholder="—" step="0.01" style="width:80px;text-align:right">
+      </div>
+    </div>`;
+  }).join('');
+  container.innerHTML=fields;
+  openModal('editCompetitorModal');
 }
 
 /* ── YENİ SİPARİŞ BİLDİRİMİ ────────────────────────────────────────── */
