@@ -643,6 +643,9 @@
     <div class="catnav-item" onclick="scrollToSection('atistirmalik')">🍪 Atıştırmalık</div>
     <div class="catnav-item" onclick="scrollToSection('temizlik')">🧴 Temizlik</div>
     <div class="catnav-item" onclick="scrollToSection('icecek')">🥤 İçecekler</div>
+    <div class="catnav-item" onclick="scrollToSection('kozmetik')">💄 Kozmetik</div>
+    <div class="catnav-item" onclick="scrollToSection('anne-bebek')">👶 Anne & Bebek</div>
+    <div class="catnav-item" onclick="scrollToSection('ev-gerecleri')">🏠 Ev Gereçleri</div>
     <div class="catnav-item" onclick="scrollToSection('subeler')">📍 Şubeler</div>
   </div>
 </nav>
@@ -699,6 +702,9 @@
     <div class="qc-item" onclick="scrollToSection('atistirmalik')"><div class="qc-icon">🍪</div><div class="qc-label">Atıştırmalık</div></div>
     <div class="qc-item" onclick="scrollToSection('temizlik')"><div class="qc-icon">🧴</div><div class="qc-label">Temizlik</div></div>
     <div class="qc-item" onclick="scrollToSection('icecek')"><div class="qc-icon">🥤</div><div class="qc-label">İçecekler</div></div>
+    <div class="qc-item" onclick="scrollToSection('kozmetik')"><div class="qc-icon">💄</div><div class="qc-label">Kozmetik</div></div>
+    <div class="qc-item" onclick="scrollToSection('anne-bebek')"><div class="qc-icon">👶</div><div class="qc-label">Anne & Bebek</div></div>
+    <div class="qc-item" onclick="scrollToSection('ev-gerecleri')"><div class="qc-icon">🏠</div><div class="qc-label">Ev Gereçleri</div></div>
     <div class="qc-item" onclick="openWheelModal()"><div class="qc-icon">🎡</div><div class="qc-label">Fırsat Çarkı</div></div>
     <div class="qc-item" onclick="scrollToSection('subeler')"><div class="qc-icon">📍</div><div class="qc-label">Şubeler</div></div>
   </div>
@@ -869,6 +875,57 @@
   </div>
   <div class="prod-scroll-wrap">
     <div class="prod-scroll" id="icecek-scroll"></div>
+  </div>
+</section>
+
+<!-- ══ KOZMETİK ══ -->
+<section class="sec" id="kozmetik">
+  <div class="sec-head">
+    <div class="sec-head-left">
+      <span class="sec-icon">💄</span>
+      <div>
+        <div class="sec-title">Kozmetik & Kişisel Bakım</div>
+        <div class="sec-subtitle">Şampuan, diş macunu, deodorant ve daha fazlası</div>
+      </div>
+    </div>
+    <a class="sec-link">Tümünü Gör →</a>
+  </div>
+  <div class="prod-scroll-wrap">
+    <div class="prod-scroll" id="kozmetik-scroll"></div>
+  </div>
+</section>
+
+<!-- ══ ANNE & BEBEK ══ -->
+<section class="sec" id="anne-bebek" style="background:#fff;">
+  <div class="sec-head">
+    <div class="sec-head-left">
+      <span class="sec-icon">👶</span>
+      <div>
+        <div class="sec-title">Anne & Bebek</div>
+        <div class="sec-subtitle">Bebek bezi, mama, ıslak mendil ve bakım ürünleri</div>
+      </div>
+    </div>
+    <a class="sec-link">Tümünü Gör →</a>
+  </div>
+  <div class="prod-scroll-wrap">
+    <div class="prod-scroll" id="anne-bebek-scroll"></div>
+  </div>
+</section>
+
+<!-- ══ EV GEREÇLERİ ══ -->
+<section class="sec" id="ev-gerecleri">
+  <div class="sec-head">
+    <div class="sec-head-left">
+      <span class="sec-icon">🏠</span>
+      <div>
+        <div class="sec-title">Ev Gereçleri</div>
+        <div class="sec-subtitle">Çöp torbası, pil, mutfak gereçleri ve daha fazlası</div>
+      </div>
+    </div>
+    <a class="sec-link">Tümünü Gör →</a>
+  </div>
+  <div class="prod-scroll-wrap">
+    <div class="prod-scroll" id="ev-gerecleri-scroll"></div>
   </div>
 </section>
 
@@ -1438,6 +1495,9 @@ function renderAll(){
   renderSection('atistirmalik-scroll', p=>p.cat==='atistirmalik');
   renderSection('temizlik-scroll', p=>p.cat==='temizlik');
   renderSection('icecek-scroll', p=>p.cat==='icecek');
+  renderSection('kozmetik-scroll', p=>p.cat==='kozmetik');
+  renderSection('anne-bebek-scroll', p=>p.cat==='anne-bebek');
+  renderSection('ev-gerecleri-scroll', p=>p.cat==='ev-gerecleri');
 }
 
 function refreshCard(id){

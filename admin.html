@@ -323,6 +323,9 @@ tr:hover td{background:var(--gray50)}
           <option value="atistirmalik">🍿 Atıştırmalık</option>
           <option value="temizlik">🧹 Temizlik</option>
           <option value="icecek">🧃 İçecek</option>
+          <option value="kozmetik">💄 Kozmetik</option>
+          <option value="anne-bebek">👶 Anne & Bebek</option>
+          <option value="ev-gerecleri">🏠 Ev Gereçleri</option>
         </select>
       </div>
       <div class="table-wrap">
@@ -584,6 +587,9 @@ tr:hover td{background:var(--gray50)}
             <option value="atistirmalik">🍿 Atıştırmalık</option>
             <option value="temizlik">🧹 Temizlik</option>
             <option value="icecek">🧃 İçecek</option>
+            <option value="kozmetik">💄 Kozmetik</option>
+            <option value="anne-bebek">👶 Anne & Bebek</option>
+            <option value="ev-gerecleri">🏠 Ev Gereçleri</option>
           </select>
         </div>
       </div>
@@ -663,6 +669,9 @@ tr:hover td{background:var(--gray50)}
             <option value="atistirmalik">Atıştırmalık</option>
             <option value="temizlik">Temizlik</option>
             <option value="icecek">İçecek</option>
+            <option value="kozmetik">Kozmetik</option>
+            <option value="anne-bebek">Anne & Bebek</option>
+            <option value="ev-gerecleri">Ev Gereçleri</option>
           </select>
           <input type="number" id="campCartMin" placeholder="Min. sepet (₺)" style="display:none">
           <input type="text" id="campTargetProd" placeholder="Ürün adı" style="display:none">
@@ -717,6 +726,9 @@ tr:hover td{background:var(--gray50)}
           <option value="atistirmalik">Atıştırmalık</option>
           <option value="temizlik">Temizlik</option>
           <option value="icecek">İçecek</option>
+          <option value="kozmetik">Kozmetik</option>
+          <option value="anne-bebek">Anne & Bebek</option>
+          <option value="ev-gerecleri">Ev Gereçleri</option>
         </select>
       </div>
     </div>
@@ -807,6 +819,83 @@ const DEFAULT_PRODUCTS=[
   {id:46,name:'Kahve (250g)',cat:'icecek',price:119.90,unit:'paket',emoji:'☕',img:'',badge:'',featured:false},
   {id:47,name:'Gazoz (1 lt)',cat:'icecek',price:19.90,unit:'şişe',emoji:'🫧',img:'',badge:'',featured:false},
   {id:48,name:'Enerji İçeceği (250ml)',cat:'icecek',price:29.90,unit:'kutu',emoji:'⚡',img:'',badge:'',featured:false},
+  /* ── MANAV EK ÜRÜNLER ── */
+  {id:49,name:'Havuç',cat:'manav',price:34.90,unit:'kg',emoji:'🥕',img:'',badge:'Taze',featured:false},
+  {id:50,name:'Kabak',cat:'manav',price:29.90,unit:'kg',emoji:'🥬',img:'',badge:'',featured:false},
+  {id:51,name:'Karpuz',cat:'manav',price:14.90,unit:'kg',emoji:'🍉',img:'',badge:'Mevsim',featured:true},
+  {id:52,name:'Limon',cat:'manav',price:49.90,unit:'kg',emoji:'🍋',img:'',badge:'',featured:false},
+  {id:53,name:'Kivi',cat:'manav',price:89.90,unit:'kg',emoji:'🥝',img:'',badge:'İthal',featured:false},
+  {id:54,name:'Avokado',cat:'manav',price:54.90,unit:'adet',emoji:'🥑',img:'',badge:'',featured:false},
+  {id:55,name:'Biber Sivri',cat:'manav',price:39.90,unit:'kg',emoji:'🌶️',img:'',badge:'Taze',featured:false},
+  {id:56,name:'Biber Dolma',cat:'manav',price:49.90,unit:'kg',emoji:'🫑',img:'',badge:'',featured:false},
+  {id:57,name:'Marul Kıvırcık',cat:'manav',price:34.90,unit:'adet',emoji:'🥬',img:'',badge:'Taze',featured:false},
+  {id:58,name:'Maydanoz',cat:'manav',price:14.90,unit:'bağ',emoji:'🌿',img:'',badge:'',featured:false},
+  {id:59,name:'Nane',cat:'manav',price:14.90,unit:'bağ',emoji:'🌿',img:'',badge:'',featured:false},
+  {id:60,name:'Roka',cat:'manav',price:14.90,unit:'bağ',emoji:'🌿',img:'',badge:'',featured:false},
+  {id:61,name:'Soğan Yeşil',cat:'manav',price:19.90,unit:'bağ',emoji:'🌱',img:'',badge:'',featured:false},
+  {id:62,name:'Mantar',cat:'manav',price:99.90,unit:'kg',emoji:'🍄',img:'',badge:'',featured:false},
+  {id:63,name:'Pirasa',cat:'manav',price:24.90,unit:'kg',emoji:'🌿',img:'',badge:'',featured:false},
+  {id:64,name:'Domates Pembe',cat:'manav',price:39.90,unit:'kg',emoji:'🍅',img:'',badge:'',featured:false},
+  {id:65,name:'Erik',cat:'manav',price:39.90,unit:'kg',emoji:'🍑',img:'',badge:'Mevsim',featured:false},
+  /* ── TEMEL GIDA EK ÜRÜNLER ── */
+  {id:66,name:'Fasulye Kuru (1 kg)',cat:'temel-gida',price:54.90,unit:'paket',emoji:'🫘',img:'',badge:'',featured:false},
+  {id:67,name:'Ayçiçek Yağı (5 lt)',cat:'temel-gida',price:299.90,unit:'bidon',emoji:'🫙',img:'',badge:'',featured:true},
+  {id:68,name:'Biber Salçası (830g)',cat:'temel-gida',price:44.90,unit:'teneke',emoji:'🥫',img:'',badge:'',featured:false},
+  {id:69,name:'Çorba Tarhana (500g)',cat:'temel-gida',price:39.90,unit:'paket',emoji:'🍲',img:'',badge:'',featured:false},
+  {id:70,name:'Domates Konservesi (800g)',cat:'temel-gida',price:34.90,unit:'teneke',emoji:'🥫',img:'',badge:'',featured:false},
+  {id:71,name:'Baharat Karışık (50g)',cat:'temel-gida',price:19.90,unit:'paket',emoji:'🌶️',img:'',badge:'',featured:false},
+  {id:72,name:'Ketçap (800g)',cat:'temel-gida',price:54.90,unit:'şişe',emoji:'🍅',img:'',badge:'',featured:false},
+  /* ── SÜT & ŞARKÜTERİ EK ÜRÜNLER ── */
+  {id:73,name:'Siyah Zeytin (400g)',cat:'sut-sarkuteri',price:59.90,unit:'paket',emoji:'🫒',img:'',badge:'',featured:false},
+  {id:74,name:'Tahin (300g)',cat:'sut-sarkuteri',price:69.90,unit:'kavanoz',emoji:'🫙',img:'',badge:'',featured:false},
+  {id:75,name:'Bal (250g)',cat:'sut-sarkuteri',price:139.90,unit:'kavanoz',emoji:'🍯',img:'',badge:'',featured:true},
+  {id:76,name:'Salam Hindi (60g)',cat:'sut-sarkuteri',price:34.90,unit:'paket',emoji:'🥩',img:'',badge:'',featured:false},
+  {id:77,name:'Kasap Köfte (350g)',cat:'sut-sarkuteri',price:99.90,unit:'paket',emoji:'🍖',img:'',badge:'Taze',featured:false},
+  {id:78,name:'Tavuk Döner (300g)',cat:'sut-sarkuteri',price:79.90,unit:'paket',emoji:'🍗',img:'',badge:'',featured:false},
+  {id:79,name:'Kaşar Dilimli (200g)',cat:'sut-sarkuteri',price:79.90,unit:'paket',emoji:'🧀',img:'',badge:'',featured:false},
+  {id:80,name:'Helva Sade (200g)',cat:'sut-sarkuteri',price:44.90,unit:'paket',emoji:'🍮',img:'',badge:'',featured:false},
+  /* ── ATIŞTIRMALIK EK ÜRÜNLER ── */
+  {id:81,name:'Leblebi (200g)',cat:'atistirmalik',price:29.90,unit:'paket',emoji:'🫘',img:'',badge:'',featured:false},
+  {id:82,name:'Kraker (70g)',cat:'atistirmalik',price:19.90,unit:'paket',emoji:'🍘',img:'',badge:'',featured:false},
+  {id:83,name:'Çerez Karışık (100g)',cat:'atistirmalik',price:34.90,unit:'paket',emoji:'🥜',img:'',badge:'',featured:false},
+  {id:84,name:'Helvalı Gofret (4\'lü)',cat:'atistirmalik',price:19.90,unit:'paket',emoji:'🍫',img:'',badge:'',featured:false},
+  /* ── TEMİZLİK EK ÜRÜNLER ── */
+  {id:85,name:'Cam Temizleyici (500ml)',cat:'temizlik',price:44.90,unit:'şişe',emoji:'🧴',img:'',badge:'',featured:false},
+  {id:86,name:'Sıvı Sabun (400ml)',cat:'temizlik',price:39.90,unit:'şişe',emoji:'🧴',img:'',badge:'',featured:false},
+  {id:87,name:'Duş Jeli (500ml)',cat:'temizlik',price:54.90,unit:'şişe',emoji:'🧴',img:'',badge:'',featured:false},
+  {id:88,name:'Kağıt Mendil (10\'lu)',cat:'temizlik',price:24.90,unit:'paket',emoji:'🧻',img:'',badge:'',featured:false},
+  /* ── İÇECEK EK ÜRÜNLER ── */
+  {id:89,name:'Maden Suyu (200ml)',cat:'icecek',price:9.90,unit:'şişe',emoji:'💧',img:'',badge:'',featured:false},
+  {id:90,name:'Limonata (1 lt)',cat:'icecek',price:29.90,unit:'şişe',emoji:'🍋',img:'',badge:'',featured:false},
+  {id:91,name:'Şalgam (1 lt)',cat:'icecek',price:24.90,unit:'şişe',emoji:'🟣',img:'',badge:'',featured:false},
+  {id:92,name:'Ice Tea (1.5 lt)',cat:'icecek',price:39.90,unit:'şişe',emoji:'🍵',img:'',badge:'',featured:false},
+  {id:93,name:'Kola (2.5 lt)',cat:'icecek',price:44.90,unit:'şişe',emoji:'🥤',img:'',badge:'',featured:false},
+  /* ── KOZMETİK (YENİ KATEGORİ) ── */
+  {id:94,name:'Diş Macunu (75ml)',cat:'kozmetik',price:39.90,unit:'tüp',emoji:'🦷',img:'',badge:'',featured:true},
+  {id:95,name:'Şampuan (400ml)',cat:'kozmetik',price:79.90,unit:'şişe',emoji:'🧴',img:'',badge:'',featured:false},
+  {id:96,name:'Saç Kremi (400ml)',cat:'kozmetik',price:69.90,unit:'şişe',emoji:'🧴',img:'',badge:'',featured:false},
+  {id:97,name:'Deodorant Roll-On (50ml)',cat:'kozmetik',price:89.90,unit:'adet',emoji:'✨',img:'',badge:'',featured:false},
+  {id:98,name:'El Kremi (75ml)',cat:'kozmetik',price:39.90,unit:'tüp',emoji:'🧴',img:'',badge:'',featured:false},
+  {id:99,name:'Kolonya (400ml)',cat:'kozmetik',price:99.90,unit:'şişe',emoji:'💫',img:'',badge:'',featured:true},
+  {id:100,name:'Tıraş Köpüğü (200ml)',cat:'kozmetik',price:59.90,unit:'kutu',emoji:'🪒',img:'',badge:'',featured:false},
+  {id:101,name:'Dudak Balsamı',cat:'kozmetik',price:29.90,unit:'adet',emoji:'💄',img:'',badge:'',featured:false},
+  /* ── ANNE & BEBEK (YENİ KATEGORİ) ── */
+  {id:102,name:'Bebek Bezi S (54\'lü)',cat:'anne-bebek',price:249.90,unit:'paket',emoji:'👶',img:'',badge:'',featured:true},
+  {id:103,name:'Bebek Bezi M (44\'lü)',cat:'anne-bebek',price:279.90,unit:'paket',emoji:'👶',img:'',badge:'',featured:false},
+  {id:104,name:'Bebek Bezi L (36\'lı)',cat:'anne-bebek',price:299.90,unit:'paket',emoji:'👶',img:'',badge:'',featured:false},
+  {id:105,name:'Bebek Islak Mendil (72\'li)',cat:'anne-bebek',price:39.90,unit:'paket',emoji:'🧻',img:'',badge:'',featured:false},
+  {id:106,name:'Bebek Maması Tahıllı (400g)',cat:'anne-bebek',price:189.90,unit:'kutu',emoji:'🍼',img:'',badge:'',featured:false},
+  {id:107,name:'Bebek Şampuanı (200ml)',cat:'anne-bebek',price:89.90,unit:'şişe',emoji:'🧴',img:'',badge:'',featured:false},
+  {id:108,name:'Pirinç Unu Bebek (400g)',cat:'anne-bebek',price:79.90,unit:'kutu',emoji:'🍚',img:'',badge:'',featured:false},
+  /* ── EV GEREÇLERİ (YENİ KATEGORİ) ── */
+  {id:109,name:'Çöp Torbası (20\'li)',cat:'ev-gerecleri',price:29.90,unit:'rulo',emoji:'🗑️',img:'',badge:'',featured:false},
+  {id:110,name:'Mutfak Temizlik Bezi (3\'lü)',cat:'ev-gerecleri',price:34.90,unit:'paket',emoji:'🧹',img:'',badge:'',featured:false},
+  {id:111,name:'Folyo (30m)',cat:'ev-gerecleri',price:44.90,unit:'rulo',emoji:'📦',img:'',badge:'',featured:false},
+  {id:112,name:'Pil AA (2\'li)',cat:'ev-gerecleri',price:39.90,unit:'paket',emoji:'🔋',img:'',badge:'',featured:false},
+  {id:113,name:'Cam Bardak Seti (6\'lı)',cat:'ev-gerecleri',price:89.90,unit:'set',emoji:'🥃',img:'',badge:'',featured:true},
+  {id:114,name:'Plastik Saklama Kabı (1.6 lt)',cat:'ev-gerecleri',price:49.90,unit:'adet',emoji:'📦',img:'',badge:'',featured:false},
+  {id:115,name:'Çay Bardağı Seti (6\'lı)',cat:'ev-gerecleri',price:79.90,unit:'set',emoji:'☕',img:'',badge:'',featured:false},
+  {id:116,name:'Mutfak Makası',cat:'ev-gerecleri',price:54.90,unit:'adet',emoji:'✂️',img:'',badge:'',featured:false},
 ];
 const DEFAULT_PROMOS={
   'AYDIN5':{pct:5,gift:null,text:'%5 İNDİRİM UYGULANDI!'},
@@ -863,7 +952,7 @@ function fmtDate(ts){if(!ts)return'-';const d=new Date(ts);return d.toLocaleDate
 function fmtPrice(n){return(parseFloat(n)||0).toFixed(2).replace('.',',')+' ₺';}
 function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
-function catLabel(c){return({'manav':'🥦 Manav','temel-gida':'🌾 Temel Gıda','sut-sarkuteri':'🧀 Süt & Şarküteri','atistirmalik':'🍿 Atıştırmalık','temizlik':'🧹 Temizlik','icecek':'🧃 İçecek'})[c]||c;}
+function catLabel(c){return({'manav':'🥦 Manav','temel-gida':'🌾 Temel Gıda','sut-sarkuteri':'🧀 Süt & Şarküteri','atistirmalik':'🍿 Atıştırmalık','temizlik':'🧹 Temizlik','icecek':'🧃 İçecek','kozmetik':'💄 Kozmetik','anne-bebek':'👶 Anne & Bebek','ev-gerecleri':'🏠 Ev Gereçleri'})[c]||c;}
 function getStockStatus(p){const s=stock[p.id]||{qty:50,min:5};if(s.qty<=0)return'out';if(s.qty<=s.min)return'low';return'ok';}
 function stockBadge(p){return({'out':'<span class="badge badge-red">🔴 Tükendi</span>','low':'<span class="badge badge-yellow">🟡 Kritik</span>','ok':'<span class="badge badge-green">🟢 Yeterli</span>'})[getStockStatus(p)];}
 function isActiveCampaign(c){
