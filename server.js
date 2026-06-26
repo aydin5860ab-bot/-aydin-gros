@@ -211,6 +211,33 @@ http.createServer(async (req, res) => {
     return;
   }
 
+  // === API: DB ===
+  if (pathname.startsWith('/api/db/')) {
+    const coll = pathname.split('/')[3];
+    if (!coll || !/^[a-z0-9_-]+$/i.test(coll)) {
+      res.writeHead(400); res.end('Invalid collection');
+      return;
+    }
+    const dbFile = `${baseDir}/db_${coll}.json`;
+    if (req.method === 'GET') {
+      try {
+        const data = fs.existsSync(dbFile) ? fs.readFileSync(dbFile, 'utf8') : 'null';
+        res.writeHead(200, {'Content-Type': 'application/json'});
+        res.end(data);
+      } catch(e) { res.writeHead(500); res.end('null'); }
+    } else if (req.method === 'POST') {
+      try {
+        const body = await readBody(req);
+        fs.writeFileSync(dbFile, body);
+        res.writeHead(200, {'Content-Type': 'application/json'});
+        res.end(JSON.stringify({ok: true}));
+      } catch(e) {
+        res.writeHead(500); res.end(JSON.stringify({error: e.message}));
+      }
+    }
+    return;
+  }
+
   // === Statik dosya sunucu ===
   let urlPath = pathname === '/' ? '/index.html' : pathname;
   let filePath = path.join(baseDir, urlPath);

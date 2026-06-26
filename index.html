@@ -593,14 +593,14 @@
 <!-- ══ ANNOUNCEMENT ══ -->
 <div class="ann">
   <div class="track">
-    <span>?��� Tokat İçi 1000₺ Üzeri Siparişlerde ÜCRETSİZ EVE TESLİMAT!</span>
-    <span>?��� Manav Reyonumuz Günlük Taze Meyve & Sebze</span>
-    <span>?��� WhatsApp Sipariş Hattı: 0544 478 94 61</span>
-    <span>?�?� Haftanın Fırsatları Her Pazartesi Güncellenir</span>
-    <span>?��� Geyras & Karşıyaka �?ubelerimiz Her Gün 08:30–22:00</span>
-    <span>?��� Tokat İçi 1000₺ Üzeri Siparişlerde ÜCRETSİZ EVE TESLİMAT!</span>
-    <span>?��� Manav Reyonumuz Günlük Taze Meyve & Sebze</span>
-    <span>?��� WhatsApp Sipariş Hattı: 0544 478 94 61</span>
+    <span>🚚 Tokat İçi 1000₺ Üzeri Siparişlerde ÜCRETSİZ EVE TESLİMAT!</span>
+    <span>🥬 Manav Reyonumuz Günlük Taze Meyve & Sebze</span>
+    <span>📱 WhatsApp Sipariş Hattı: 0544 478 94 61</span>
+    <span>🔥 Haftanın Fırsatları Her Pazartesi Güncellenir</span>
+    <span>📍 Geyras & Karşıyaka Şubelerimiz Her Gün 08:30–22:00</span>
+    <span>🚚 Tokat İçi 1000₺ Üzeri Siparişlerde ÜCRETSİZ EVE TESLİMAT!</span>
+    <span>🥬 Manav Reyonumuz Günlük Taze Meyve & Sebze</span>
+    <span>📱 WhatsApp Sipariş Hattı: 0544 478 94 61</span>
   </div>
 </div>
 
@@ -609,7 +609,7 @@
   <div class="hdr-inner">
     <div class="hdr-logo"><span class="logo-a">AYDIN</span><span class="logo-g">GROS</span></div>
     <button class="hdr-delivery" onclick="openAddrModal()" id="hdrDeliveryBtn">
-      <span class="hdr-delivery-icon">?���</span>
+      <span class="hdr-delivery-icon">🛒</span>
       <div class="hdr-delivery-text">
         <small>Teslimat Adresi</small>
         <strong id="hdrAddrText">Adres Seçin</strong>
@@ -620,13 +620,13 @@
         <option value="">Tüm Ürünler</option>
         <option value="manav">Manav</option>
         <option value="temel-gida">Temel Gıda</option>
-        <option value="sut-sarkuteri">Süt & �?arküteri</option>
+        <option value="sut-sarkuteri">Süt & Şarküteri</option>
         <option value="atistirmalik">Atıştırmalık</option>
         <option value="temizlik">Temizlik</option>
         <option value="icecek">İçecekler</option>
       </select>
       <input type="text" id="searchInput" placeholder="Ürün, marka veya kategori arayın..." onkeydown="if(event.key==='Enter')doSearch()">
-      <button class="hdr-search-btn" onclick="doSearch()">?���</button>
+      <button class="hdr-search-btn" onclick="doSearch()">🔍</button>
     </div>
     <div class="hdr-icons">
       <button class="hdr-icon-btn" onclick="openFavs()" title="Favorilerim">
@@ -634,13 +634,13 @@
         <span class="fav-badge" id="favBadge">0</span>
       </button>
       <div class="user-menu-wrap">
-        <button class="hdr-icon-btn" id="userBtn" onclick="handleUserBtn()" title="Hesabım">?���</button>
+        <button class="hdr-icon-btn" id="userBtn" onclick="handleUserBtn()" title="Hesabım">🔍</button>
         <div class="user-menu" id="userMenu">
           <div class="user-menu-name" id="userMenuName"></div>
-          <a onclick="closeUserMenu()">?��� Hesabım</a>
+          <a onclick="closeUserMenu()">👤 Hesabım</a>
           <a onclick="openFavs();closeUserMenu()">❤️ Favorilerim</a>
-          <a onclick="toggleCart();closeUserMenu()">?��� Sepetim</a>
-          <a class="logout" onclick="logout()">?��� Çıkış Yap</a>
+          <a onclick="toggleCart();closeUserMenu()">🛒 Sepetim</a>
+          <a class="logout" onclick="logout()">🚪 Çıkış Yap</a>
         </div>
       </div>
       <button class="hdr-track-btn" onclick="openTrackModal()" title="Sipariş Takibi">
@@ -648,7 +648,7 @@
         <span class="hdr-track-dot"></span>
       </button>
       <button class="hdr-icon-btn" onclick="toggleCart()" title="Sepetim">
-        ?���
+        📦
         <span class="cart-badge" id="cartBadge">0</span>
       </button>
     </div>
@@ -658,19 +658,19 @@
 <!-- ══ CATEGORY NAV ══ -->
 <nav class="catnav">
   <div class="catnav-inner">
-    <div class="catnav-item kampanya active" onclick="scrollToSection('firsatlar')">?��� Kampanyalar</div>
-    <div class="catnav-item" onclick="scrollToSection('manav')">?��� Manav</div>
-    <div class="catnav-item" onclick="scrollToSection('temel-gida')">?��� Temel Gıda</div>
-    <div class="catnav-item" onclick="scrollToSection('sut-sarkuteri')">?��� Süt & �?arküteri</div>
-    <div class="catnav-item" onclick="scrollToSection('atistirmalik')">?��� Atıştırmalık</div>
-    <div class="catnav-item" onclick="scrollToSection('temizlik')">?��� Temizlik</div>
-    <div class="catnav-item" onclick="scrollToSection('icecek')">?��� İçecekler</div>
-    <div class="catnav-item" onclick="scrollToSection('kasap')">?��� Kasap & Et</div>
-    <div class="catnav-item" onclick="scrollToSection('kahvaltilik')">?��� Kahvaltılık</div>
-    <div class="catnav-item" onclick="scrollToSection('kozmetik')">?��� Kozmetik</div>
-    <div class="catnav-item" onclick="scrollToSection('anne-bebek')">?��� Anne & Bebek</div>
-    <div class="catnav-item" onclick="scrollToSection('ev-gerecleri')">?��� Ev Gereçleri</div>
-    <div class="catnav-item" onclick="scrollToSection('subeler')">?��� �?ubeler</div>
+    <div class="catnav-item kampanya active" onclick="scrollToSection('firsatlar')">🔥 Kampanyalar</div>
+    <div class="catnav-item" onclick="scrollToSection('manav')">🥬 Manav</div>
+    <div class="catnav-item" onclick="scrollToSection('temel-gida')">🛒 Temel Gıda</div>
+    <div class="catnav-item" onclick="scrollToSection('sut-sarkuteri')">🧀 Süt & Şarküteri</div>
+    <div class="catnav-item" onclick="scrollToSection('atistirmalik')">🍫 Atıştırmalık</div>
+    <div class="catnav-item" onclick="scrollToSection('temizlik')">🧹 Temizlik</div>
+    <div class="catnav-item" onclick="scrollToSection('icecek')">🥤 İçecekler</div>
+    <div class="catnav-item" onclick="scrollToSection('kasap')">🥩 Kasap & Et</div>
+    <div class="catnav-item" onclick="scrollToSection('kahvaltilik')">☕ Kahvaltılık</div>
+    <div class="catnav-item" onclick="scrollToSection('kozmetik')">💄 Kozmetik</div>
+    <div class="catnav-item" onclick="scrollToSection('anne-bebek')">👶 Anne & Bebek</div>
+    <div class="catnav-item" onclick="scrollToSection('ev-gerecleri')">🏠 Ev Gereçleri</div>
+    <div class="catnav-item" onclick="scrollToSection('subeler')">📍 Şubeler</div>
   </div>
 </nav>
 
@@ -681,7 +681,7 @@
     <div class="hero-slide hero-slide-1">
       <div class="hero-slide-img" style="background-image:url('https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1200');"></div>
       <div class="hero-content">
-        <div class="hero-badge slide-1-badge">?��� HAFTANIN FIRSATLARI</div>
+        <div class="hero-badge slide-1-badge">🔥 HAFTANIN FIRSATLARI</div>
         <h1>Taze, Kaliteli<br>ve Her Zaman<br><em>Hesaplı.</em></h1>
         <p>Bu haftaya özel indirimli ürünleri kaçırmayın. Tokat'ın en uygun fiyatlı market alışverişi.</p>
         <button class="hero-btn hero-btn-green" onclick="scrollToSection('firsatlar')">Fırsatları Gör →</button>
@@ -691,17 +691,17 @@
     <div class="hero-slide hero-slide-2">
       <div class="hero-slide-img" style="background-image:url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1200');"></div>
       <div class="hero-content">
-        <div class="hero-badge slide-2-badge">?��� EVE SERVİS HATTI</div>
+        <div class="hero-badge slide-2-badge">🚚 EVE SERVİS HATTI</div>
         <h1>WhatsApp'tan<br>Yaz, Kapına<br><em>Gelsin!</em></h1>
         <p>Alışveriş listenizi WhatsApp'tan gönderin, hızlı teslimat imkânından yararlanın.</p>
-        <a href="https://wa.me/905444789461?text=Merhaba%20Aydın%20Gros!" target="_blank" class="hero-btn hero-btn-gold">?��� Hemen Sipariş Ver</a>
+        <a href="https://wa.me/905444789461?text=Merhaba%20Aydın%20Gros!" target="_blank" class="hero-btn hero-btn-gold">📦 Hemen Sipariş Ver</a>
       </div>
     </div>
     <!-- Slide 3 -->
     <div class="hero-slide hero-slide-3">
       <div class="hero-slide-img" style="background-image:url('https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=1200');"></div>
       <div class="hero-content">
-        <div class="hero-badge slide-3-badge">?��� GÜNLÜK TAZE MANAV</div>
+        <div class="hero-badge slide-3-badge">🥬 GÜNLÜK TAZE MANAV</div>
         <h1>Her Sabah<br>Halden<br><em>Geliyor.</em></h1>
         <p>Günlük seçme meyve ve sebzeler her sabah reyonumuza taze olarak giriyor.</p>
         <button class="hero-btn hero-btn-white" onclick="scrollToSection('manav')">Manava Git →</button>
@@ -720,19 +720,19 @@
 <!-- ══ QUICK CATEGORIES ══ -->
 <div class="quick-cats">
   <div class="qc-grid">
-    <div class="qc-item" onclick="scrollToSection('manav')"><div class="qc-icon">?���</div><div class="qc-label">Manav</div></div>
-    <div class="qc-item" onclick="scrollToSection('temel-gida')"><div class="qc-icon">?���</div><div class="qc-label">Temel Gıda</div></div>
-    <div class="qc-item" onclick="scrollToSection('sut-sarkuteri')"><div class="qc-icon">?���</div><div class="qc-label">Süt & �?arküteri</div></div>
-    <div class="qc-item" onclick="scrollToSection('atistirmalik')"><div class="qc-icon">?���</div><div class="qc-label">Atıştırmalık</div></div>
-    <div class="qc-item" onclick="scrollToSection('temizlik')"><div class="qc-icon">?���</div><div class="qc-label">Temizlik</div></div>
-    <div class="qc-item" onclick="scrollToSection('icecek')"><div class="qc-icon">?���</div><div class="qc-label">İçecekler</div></div>
-    <div class="qc-item" onclick="scrollToSection('kasap')"><div class="qc-icon">?���</div><div class="qc-label">Kasap & Et</div></div>
-    <div class="qc-item" onclick="scrollToSection('kahvaltilik')"><div class="qc-icon">?���</div><div class="qc-label">Kahvaltılık</div></div>
-    <div class="qc-item" onclick="scrollToSection('kozmetik')"><div class="qc-icon">?���</div><div class="qc-label">Kozmetik</div></div>
-    <div class="qc-item" onclick="scrollToSection('anne-bebek')"><div class="qc-icon">?���</div><div class="qc-label">Anne & Bebek</div></div>
-    <div class="qc-item" onclick="scrollToSection('ev-gerecleri')"><div class="qc-icon">?���</div><div class="qc-label">Ev Gereçleri</div></div>
-    <div class="qc-item" onclick="openWheelModal()"><div class="qc-icon">?�?�</div><div class="qc-label">Fırsat Çarkı</div></div>
-    <div class="qc-item" onclick="scrollToSection('subeler')"><div class="qc-icon">?���</div><div class="qc-label">�?ubeler</div></div>
+    <div class="qc-item" onclick="scrollToSection('manav')"><div class="qc-icon">🛒</div><div class="qc-label">Manav</div></div>
+    <div class="qc-item" onclick="scrollToSection('temel-gida')"><div class="qc-icon">🛒</div><div class="qc-label">Temel Gıda</div></div>
+    <div class="qc-item" onclick="scrollToSection('sut-sarkuteri')"><div class="qc-icon">🛒</div><div class="qc-label">Süt & Şarküteri</div></div>
+    <div class="qc-item" onclick="scrollToSection('atistirmalik')"><div class="qc-icon">🛒</div><div class="qc-label">Atıştırmalık</div></div>
+    <div class="qc-item" onclick="scrollToSection('temizlik')"><div class="qc-icon">🛒</div><div class="qc-label">Temizlik</div></div>
+    <div class="qc-item" onclick="scrollToSection('icecek')"><div class="qc-icon">🛒</div><div class="qc-label">İçecekler</div></div>
+    <div class="qc-item" onclick="scrollToSection('kasap')"><div class="qc-icon">🛒</div><div class="qc-label">Kasap & Et</div></div>
+    <div class="qc-item" onclick="scrollToSection('kahvaltilik')"><div class="qc-icon">🛒</div><div class="qc-label">Kahvaltılık</div></div>
+    <div class="qc-item" onclick="scrollToSection('kozmetik')"><div class="qc-icon">🛒</div><div class="qc-label">Kozmetik</div></div>
+    <div class="qc-item" onclick="scrollToSection('anne-bebek')"><div class="qc-icon">🛒</div><div class="qc-label">Anne & Bebek</div></div>
+    <div class="qc-item" onclick="scrollToSection('ev-gerecleri')"><div class="qc-icon">🛒</div><div class="qc-label">Ev Gereçleri</div></div>
+    <div class="qc-item" onclick="openWheelModal()"><div class="qc-icon">🔥</div><div class="qc-label">Fırsat Çarkı</div></div>
+    <div class="qc-item" onclick="scrollToSection('subeler')"><div class="qc-icon">🛒</div><div class="qc-label">Şubeler</div></div>
   </div>
 </div>
 
@@ -740,15 +740,15 @@
 <div class="camp-strip">
   <div class="camp-grid">
     <div class="camp-card" onclick="scrollToSection('firsatlar')">
-      <div class="camp-card-icon">?���</div>
+      <div class="camp-card-icon">🛒</div>
       <div class="camp-card-text"><strong>1000₺ Üzeri Ücretsiz Teslimat</strong><small>Tokat içi tüm siparişlerde geçerli</small></div>
     </div>
     <div class="camp-card" onclick="openWheelModal()">
-      <div class="camp-card-icon">?�?�</div>
-      <div class="camp-card-text"><strong>�?ans Çarkını Çevir!</strong><small>%5, %10 indirim ve hediyeler kazan</small></div>
+      <div class="camp-card-icon">🔥</div>
+      <div class="camp-card-text"><strong>Şans Çarkını Çevir!</strong><small>%5, %10 indirim ve hediyeler kazan</small></div>
     </div>
     <div class="camp-card" onclick="scrollToSection('firsatlar')">
-      <div class="camp-card-icon">?���️</div>
+      <div class="camp-card-icon">📦️</div>
       <div class="camp-card-text"><strong>Haftanın Fırsatları</strong><small>Her Pazartesi güncellenen indirimler</small></div>
     </div>
   </div>
@@ -758,7 +758,7 @@
 <section class="sec" id="firsatlar" style="background:#fff;">
   <div class="sec-head">
     <div class="sec-head-left">
-      <span class="sec-icon">?���</span>
+      <span class="sec-icon">🛒</span>
       <div>
         <div class="sec-title">Haftanın Fırsatları</div>
         <div class="sec-subtitle">Bu haftaya özel indirimli ürünler — Pazartesi güncellenir</div>
@@ -775,7 +775,7 @@
 <section class="sec" id="manav">
   <div class="sec-head">
     <div class="sec-head-left">
-      <span class="sec-icon">?���</span>
+      <span class="sec-icon">🛒</span>
       <div>
         <div class="sec-title">Manav Reyonu</div>
         <div class="sec-subtitle">Her sabah halden seçilerek gelen taze meyve & sebze</div>
@@ -792,7 +792,7 @@
 <div class="wa-banner">
   <div class="wa-banner-inner">
     <div class="wa-banner-text">
-      <h2>?��� WhatsApp ile Eve Teslimat</h2>
+      <h2>📱 WhatsApp ile Eve Teslimat</h2>
       <p>Evden çıkmadan alışveriş yapın. Listenizi yazın, kapınıza getirelim.</p>
     </div>
     <div class="wa-banner-steps">
@@ -802,7 +802,7 @@
       <div class="wa-step"><div class="wa-step-num">4</div>Kapınıza Gelsin!</div>
     </div>
     <div class="wa-banner-cta">
-      <a href="https://wa.me/905444789461?text=Merhaba%20Aydın%20Gros!%20Sipariş%20vermek%20istiyorum." target="_blank" class="wa-main-btn">?��� HEMEN SİPARİ�? VER</a>
+      <a href="https://wa.me/905444789461?text=Merhaba%20Aydın%20Gros!%20Sipariş%20vermek%20istiyorum." target="_blank" class="wa-main-btn">🛒 HEMEN SİPARİŞ VER</a>
       <div class="wa-banner-phone">Hattımız: <a href="tel:+905444789461">0544 478 94 61</a> · Her gün 09:00–21:00</div>
     </div>
   </div>
@@ -812,7 +812,7 @@
 <section class="sec" id="temel-gida" style="background:#fff;">
   <div class="sec-head">
     <div class="sec-head-left">
-      <span class="sec-icon">?���</span>
+      <span class="sec-icon">🛒</span>
       <div>
         <div class="sec-title">Temel Gıda</div>
         <div class="sec-subtitle">Yağ, çay, şeker, makarna ve daha fazlası</div>
@@ -825,13 +825,13 @@
   </div>
 </section>
 
-<!-- ══ SÜT & �?ARKÜTERİ ══ -->
+<!-- ══ SÜT & ŞARKÜTERİ ══ -->
 <section class="sec" id="sut-sarkuteri">
   <div class="sec-head">
     <div class="sec-head-left">
-      <span class="sec-icon">?���</span>
+      <span class="sec-icon">🛒</span>
       <div>
-        <div class="sec-title">Süt & �?arküteri</div>
+        <div class="sec-title">Süt & Şarküteri</div>
         <div class="sec-subtitle">Yöresel peynirler, taze süt ve kahvaltılık ürünler</div>
       </div>
     </div>
@@ -853,11 +853,11 @@
   </div>
 </div>
 
-<!-- ══ ATI�?TIRMALIK ══ -->
+<!-- ══ ATIŞTIRMALIK ══ -->
 <section class="sec" id="atistirmalik" style="background:#fff;">
   <div class="sec-head">
     <div class="sec-head-left">
-      <span class="sec-icon">?���</span>
+      <span class="sec-icon">🛒</span>
       <div>
         <div class="sec-title">Atıştırmalıklar</div>
         <div class="sec-subtitle">Bisküvi, çikolata, cips ve daha fazlası</div>
@@ -874,7 +874,7 @@
 <section class="sec" id="temizlik">
   <div class="sec-head">
     <div class="sec-head-left">
-      <span class="sec-icon">?���</span>
+      <span class="sec-icon">🛒</span>
       <div>
         <div class="sec-title">Temizlik & Hijyen</div>
         <div class="sec-subtitle">Deterjan, kağıt ürünleri ve kişisel bakım</div>
@@ -891,7 +891,7 @@
 <section class="sec" id="icecek" style="background:#fff;">
   <div class="sec-head">
     <div class="sec-head-left">
-      <span class="sec-icon">?���</span>
+      <span class="sec-icon">🛒</span>
       <div>
         <div class="sec-title">İçecekler</div>
         <div class="sec-subtitle">Su, gazlı içecek, meyve suyu ve daha fazlası</div>
@@ -908,10 +908,10 @@
 <section class="sec" id="kozmetik">
   <div class="sec-head">
     <div class="sec-head-left">
-      <span class="sec-icon">?���</span>
+      <span class="sec-icon">🛒</span>
       <div>
         <div class="sec-title">Kozmetik & Kişisel Bakım</div>
-        <div class="sec-subtitle">�?ampuan, diş macunu, deodorant ve daha fazlası</div>
+        <div class="sec-subtitle">Şampuan, diş macunu, deodorant ve daha fazlası</div>
       </div>
     </div>
     <a class="sec-link">Tümünü Gör →</a>
@@ -925,7 +925,7 @@
 <section class="sec" id="anne-bebek" style="background:#fff;">
   <div class="sec-head">
     <div class="sec-head-left">
-      <span class="sec-icon">?���</span>
+      <span class="sec-icon">🛒</span>
       <div>
         <div class="sec-title">Anne & Bebek</div>
         <div class="sec-subtitle">Bebek bezi, mama, ıslak mendil ve bakım ürünleri</div>
@@ -942,7 +942,7 @@
 <section class="sec" id="kasap" style="background:#fff;">
   <div class="sec-head">
     <div class="sec-head-left">
-      <span class="sec-icon">?���</span>
+      <span class="sec-icon">🛒</span>
       <div>
         <div class="sec-title">Kasap & Et Ürünleri</div>
         <div class="sec-subtitle">Taze kıyma, köfte, tavuk, sucuk ve şarküteri ürünleri</div>
@@ -959,7 +959,7 @@
 <section class="sec" id="kahvaltilik">
   <div class="sec-head">
     <div class="sec-head-left">
-      <span class="sec-icon">?���</span>
+      <span class="sec-icon">🛒</span>
       <div>
         <div class="sec-title">Kahvaltılık Ürünler</div>
         <div class="sec-subtitle">Bal, reçel, zeytin, peynir, yumurta ve sabah sofrası</div>
@@ -976,7 +976,7 @@
 <section class="sec" id="ev-gerecleri">
   <div class="sec-head">
     <div class="sec-head-left">
-      <span class="sec-icon">?���</span>
+      <span class="sec-icon">🛒</span>
       <div>
         <div class="sec-title">Ev Gereçleri</div>
         <div class="sec-subtitle">Çöp torbası, pil, mutfak gereçleri ve daha fazlası</div>
@@ -989,33 +989,33 @@
   </div>
 </section>
 
-<!-- ══ �?UBELERİMİZ ══ -->
+<!-- ══ ŞUBELERİMİZ ══ -->
 <section class="branches-sec" id="subeler">
   <div style="text-align:center;padding:0 32px 28px;max-width:1400px;margin:0 auto;">
-    <div style="font-size:12px;font-weight:700;color:var(--green);letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px;">?��� FİZİKSEL MA�?AZALARIMIZ</div>
-    <div style="font-family:var(--font-h);font-size:28px;font-weight:800;color:var(--gray-800);margin-bottom:8px;">�?ubelerimiz</div>
+    <div style="font-size:12px;font-weight:700;color:var(--green);letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px;">🏪 FİZİKSEL MAŞAZALARIMIZ</div>
+    <div style="font-family:var(--font-h);font-size:28px;font-weight:800;color:var(--gray-800);margin-bottom:8px;">Şubelerimiz</div>
     <div style="font-size:15px;color:var(--gray-500);">Tokat'ta iki büyük şubemizle hizmetinizdeyiz.</div>
   </div>
   <div class="branches-grid">
     <div class="branch-card">
-      <div class="branch-name">?��� Geyras (Merkez) �?ube</div>
+      <div class="branch-name">📍 Geyras (Merkez) Şube</div>
       <ul class="branch-info">
-        <li><strong>?���</strong> Geyras Mah. Sivas Cd. No:12, Tokat</li>
-        <li><strong>?��?</strong> 0356 214 00 00</li>
-        <li><strong>?���</strong> Her gün 08:30 – 22:00</li>
-        <li><strong>?���</strong> Ücretsiz otopark mevcut</li>
+        <li><strong>📦</strong> Geyras Mah. Sivas Cd. No:12, Tokat</li>
+        <li><strong>?Ş</strong> 0356 214 00 00</li>
+        <li><strong>📦</strong> Her gün 08:30 – 22:00</li>
+        <li><strong>📦</strong> Ücretsiz otopark mevcut</li>
       </ul>
-      <a href="https://maps.google.com/?q=Tokat+Geyras" target="_blank" class="branch-map-btn">?���️ Haritada Görüntüle</a>
+      <a href="https://maps.google.com/?q=Tokat+Geyras" target="_blank" class="branch-map-btn">📱️ Haritada Görüntüle</a>
     </div>
     <div class="branch-card">
-      <div class="branch-name">?��� Karşıyaka �?ube</div>
+      <div class="branch-name">📦 Karşıyaka Şube</div>
       <ul class="branch-info">
-        <li><strong>?���</strong> Karşıyaka Mah. Orhan Gazi Cd. No:45, Tokat</li>
-        <li><strong>?��?</strong> 0356 228 00 00</li>
-        <li><strong>?���</strong> Her gün 08:30 – 22:00</li>
-        <li><strong>?���</strong> Ücretsiz otopark mevcut</li>
+        <li><strong>📦</strong> Karşıyaka Mah. Orhan Gazi Cd. No:45, Tokat</li>
+        <li><strong>?Ş</strong> 0356 228 00 00</li>
+        <li><strong>📦</strong> Her gün 08:30 – 22:00</li>
+        <li><strong>📦</strong> Ücretsiz otopark mevcut</li>
       </ul>
-      <a href="https://maps.google.com/?q=Tokat+Karsiyaka" target="_blank" class="branch-map-btn">?���️ Haritada Görüntüle</a>
+      <a href="https://maps.google.com/?q=Tokat+Karsiyaka" target="_blank" class="branch-map-btn">📱️ Haritada Görüntüle</a>
     </div>
   </div>
 </section>
@@ -1039,8 +1039,8 @@
       <div class="footer-slogan">Taze, Kaliteli ve Hesaplı Alışveriş.</div>
       <p class="footer-desc">Tokat'ın yerel gross market zinciri olarak 2 şubemiz ve eve teslimat servisimizle Tokat halkına en iyi fiyat garantisini sunuyoruz.</p>
       <div class="footer-social">
-        <a class="fsoc" href="#" title="Instagram">?���</a>
-        <a class="fsoc" href="#" title="Facebook">?���</a>
+        <a class="fsoc" href="#" title="Instagram">📱</a>
+        <a class="fsoc" href="#" title="Facebook">📱</a>
         <a class="fsoc" href="#" title="YouTube">▶️</a>
       </div>
     </div>
@@ -1049,7 +1049,7 @@
       <ul class="footer-links">
         <li><a onclick="scrollToSection('manav')">Manav (Meyve & Sebze)</a></li>
         <li><a onclick="scrollToSection('temel-gida')">Temel Gıda & Bakliyat</a></li>
-        <li><a onclick="scrollToSection('sut-sarkuteri')">Süt & �?arküteri</a></li>
+        <li><a onclick="scrollToSection('sut-sarkuteri')">Süt & Şarküteri</a></li>
         <li><a onclick="scrollToSection('atistirmalik')">Atıştırmalık & Bisküvi</a></li>
         <li><a onclick="scrollToSection('temizlik')">Temizlik & Deterjan</a></li>
         <li><a onclick="scrollToSection('icecek')">İçecekler</a></li>
@@ -1073,21 +1073,21 @@
     <div>
       <div class="footer-col-title">İletişim</div>
       <ul class="footer-links">
-        <li>?��� Geyras Mah. Sivas Cd. No:12</li>
-        <li>?��� Karşıyaka Mah. Orhan Gazi Cd. No:45</li>
-        <li><a href="tel:+905444789461" style="color:var(--orange);">?��? 0544 478 94 61</a></li>
+        <li>📍 Geyras Mah. Sivas Cd. No:12</li>
+        <li>📦 Karşıyaka Mah. Orhan Gazi Cd. No:45</li>
+        <li><a href="tel:+905444789461" style="color:var(--orange);">📞 0544 478 94 61</a></li>
         <li><a href="mailto:info@aydingros.com">✉️ info@aydingros.com</a></li>
       </ul>
       <a href="https://wa.me/905444789461" class="footer-wa" target="_blank">
-        ?��� WhatsApp'tan Yazın
+        📱 WhatsApp'tan Yazın
         <small>Sipariş & Canlı Destek</small>
       </a>
     </div>
   </div>
   <div class="footer-bottom">
     <span>© 2026 AYDIN GROS SÜPERMARKET — Tüm Hakları Saklıdır.</span>
-    <span>?���?��� Tokat'ın Yerel Gücü</span>
-    <span>Gizlilik · �?artlar · Çerezler</span>
+    <span>🏪📍 Tokat'ın Yerel Gücü</span>
+    <span>Gizlilik · Şartlar · Çerezler</span>
   </div>
 </footer>
 
@@ -1098,7 +1098,7 @@
     <button class="fav-close" onclick="closeFavs()">×</button>
   </div>
   <div class="fav-items" id="favItems">
-    <div class="fav-empty"><div class="fav-empty-icon">?���</div><p style="font-size:15px;font-weight:600;">Henüz favori eklemediniz</p><p style="font-size:13px;margin-top:6px;color:var(--gray-400);">Ürün kartlarındaki ❤️ butonuna tıklayın.</p></div>
+    <div class="fav-empty"><div class="fav-empty-icon">🛒</div><p style="font-size:15px;font-weight:600;">Henüz favori eklemediniz</p><p style="font-size:13px;margin-top:6px;color:var(--gray-400);">Ürün kartlarındaki ❤️ butonuna tıklayın.</p></div>
   </div>
 </div>
 
@@ -1106,11 +1106,11 @@
 <div class="cart-overlay" id="cartOverlay" onclick="closeAllPanels()"></div>
 <div class="cart-sidebar" id="cartSidebar">
   <div class="cart-hdr">
-    <h3>?��� Alışveriş Sepetim</h3>
+    <h3>🛒 Alışveriş Sepetim</h3>
     <button class="cart-close" onclick="toggleCart()">×</button>
   </div>
   <div class="cart-items" id="cartItems">
-    <div class="cart-empty"><div class="cart-empty-icon">?���</div><p style="font-size:15px;font-weight:600;">Sepetiniz boş</p><p style="font-size:13px;margin-top:6px;color:var(--gray-400);">Ürün eklemek için "Ekle" butonuna tıklayın.</p></div>
+    <div class="cart-empty"><div class="cart-empty-icon">🛒</div><p style="font-size:15px;font-weight:600;">Sepetiniz boş</p><p style="font-size:13px;margin-top:6px;color:var(--gray-400);">Ürün eklemek için "Ekle" butonuna tıklayın.</p></div>
   </div>
   <div class="cart-footer">
     <div class="promo-row">
@@ -1141,19 +1141,19 @@
         </div>
       </div>
       <div class="wheel-right">
-        <div class="wheel-title">Aydın Gros Fırsat Çarkı ?�?�</div>
+        <div class="wheel-title">Aydın Gros Fırsat Çarkı 🔥</div>
         <p class="wheel-desc">Telefon numaranızı girin, çarkı çevirin ve alışverişinizde kullanabileceğiniz sürpriz indirimler kazanın!</p>
         <div class="wheel-form" id="wheelForm">
           <input type="tel" id="wheelPhone" placeholder="Telefon Numaranız (05xx...)">
-          <button type="button" onclick="enableSpin()">Kupon Kazan! ?�?�</button>
+          <button type="button" onclick="enableSpin()">Kupon Kazan! 🔥</button>
         </div>
         <div class="wheel-result" id="wheelResult">
-          <div class="gift-icon">?�?�</div>
+          <div class="gift-icon">🔥</div>
           <h4>Tebrikler! Kazandınız:</h4>
           <div class="gift-name" id="giftName"></div>
           <p>Kupon Kodunuz:</p>
           <div class="coupon-code" id="couponCode"></div>
-          <button class="use-coupon-btn" onclick="useCoupon()">?��� WhatsApp ile Sipariş Ver & Kullan</button>
+          <button class="use-coupon-btn" onclick="useCoupon()">📱 WhatsApp ile Sipariş Ver & Kullan</button>
         </div>
       </div>
     </div>
@@ -1173,7 +1173,7 @@
     </div>
     <div class="auth-body">
 
-      <!-- GİRİ�? PANEL -->
+      <!-- GİRİŞ PANEL -->
       <div class="auth-panel active" id="panel-login">
         <div class="auth-field">
           <label>E-POSTA ADRESİ</label>
@@ -1181,9 +1181,9 @@
           <div class="auth-error" id="loginEmailErr">Geçerli bir e-posta girin.</div>
         </div>
         <div class="auth-field">
-          <label>�?İFRE</label>
-          <input type="password" id="loginPass" placeholder="�?ifrenizi girin" onkeydown="if(event.key==='Enter')doLogin()">
-          <div class="auth-error" id="loginPassErr">�?ifre en az 6 karakter olmalı.</div>
+          <label>ŞİFRE</label>
+          <input type="password" id="loginPass" placeholder="Şifrenizi girin" onkeydown="if(event.key==='Enter')doLogin()">
+          <div class="auth-error" id="loginPassErr">Şifre en az 6 karakter olmalı.</div>
         </div>
         <div class="auth-error" id="loginGenErr" style="display:none;margin-bottom:10px;text-align:center;"></div>
         <button class="auth-submit" onclick="doLogin()">Giriş Yap</button>
@@ -1203,14 +1203,14 @@
           <div class="auth-error" id="regEmailErr">Geçerli bir e-posta girin.</div>
         </div>
         <div class="auth-field">
-          <label>�?İFRE</label>
+          <label>ŞİFRE</label>
           <input type="password" id="regPass" placeholder="En az 6 karakter">
-          <div class="auth-error" id="regPassErr">�?ifre en az 6 karakter olmalı.</div>
+          <div class="auth-error" id="regPassErr">Şifre en az 6 karakter olmalı.</div>
         </div>
         <div class="auth-field">
-          <label>�?İFRE TEKRAR</label>
-          <input type="password" id="regPass2" placeholder="�?ifrenizi tekrar girin" onkeydown="if(event.key==='Enter')doRegister()">
-          <div class="auth-error" id="regPass2Err">�?ifreler eşleşmiyor.</div>
+          <label>ŞİFRE TEKRAR</label>
+          <input type="password" id="regPass2" placeholder="Şifrenizi tekrar girin" onkeydown="if(event.key==='Enter')doRegister()">
+          <div class="auth-error" id="regPass2Err">Şifreler eşleşmiyor.</div>
         </div>
         <div class="auth-kvkk">
           <input type="checkbox" id="kvkkCheck">
@@ -1229,7 +1229,7 @@
 <div class="mob-search">
   <div class="mob-search-inner">
     <input type="text" id="mobSearchInput" placeholder="Ürün veya kategori ara..." onkeydown="if(event.key==='Enter'){document.getElementById('searchInput').value=this.value;doSearch();}">
-    <button onclick="document.getElementById('searchInput').value=document.getElementById('mobSearchInput').value;doSearch();">?���</button>
+    <button onclick="document.getElementById('searchInput').value=document.getElementById('mobSearchInput').value;doSearch();">🔍</button>
   </div>
 </div>
 
@@ -1237,12 +1237,12 @@
 <div class="addr-modal" id="addrModal" onclick="if(event.target===this)closeAddrModal()">
   <div class="addr-box">
     <div class="addr-head">
-      <h3>?��� Teslimat Adresiniz</h3>
+      <h3>📦 Teslimat Adresiniz</h3>
       <button class="addr-close" onclick="closeAddrModal()">×</button>
     </div>
     <div class="addr-body">
       <button class="addr-locate-btn" onclick="getMyLocation()">
-        ?��� Konumumu Otomatik Al
+        📦 Konumumu Otomatik Al
       </button>
       <div class="addr-map-preview" id="addrMapPreview">
         <iframe id="addrMapFrame" src="" allowfullscreen loading="lazy"></iframe>
@@ -1262,7 +1262,7 @@
 <div class="pay-modal" id="payModal" onclick="if(event.target===this)closePayModal()">
   <div class="pay-box">
     <div class="pay-head">
-      <h3>?��� Ödeme Yöntemi Seçin</h3>
+      <h3>💳 Ödeme Yöntemi Seçin</h3>
       <p>Teslimatta geçerli ödeme seçenekleri</p>
       <button class="pay-close" onclick="closePayModal()">×</button>
     </div>
@@ -1270,14 +1270,14 @@
       <div class="pay-summary" id="paySummary">Toplam: <strong id="payTotal">₺0.00</strong></div>
       <div class="pay-opts">
         <button class="pay-opt" onclick="doCheckout('nakit')">
-          <span class="pay-opt-icon">?���</span>
+          <span class="pay-opt-icon">🛒</span>
           <div class="pay-opt-text">
             <strong>Kapıda Nakit Ödeme</strong>
             <small>Teslimat sırasında nakit olarak ödeyin</small>
           </div>
         </button>
         <button class="pay-opt" onclick="doCheckout('kart')">
-          <span class="pay-opt-icon">?���</span>
+          <span class="pay-opt-icon">🛒</span>
           <div class="pay-opt-text">
             <strong>Kapıda Kartla Ödeme</strong>
             <small>Kredi veya banka kartı ile kapıda ödeme</small>
@@ -1293,13 +1293,13 @@
 <nav class="mob-nav">
   <div class="mob-nav-inner">
     <button class="mob-nav-btn active" onclick="scrollTo({top:0,behavior:'smooth'})">
-      <span class="mob-nav-icon">?���</span>
+      <span class="mob-nav-icon">🛒</span>
     </button>
     <button class="mob-nav-btn" onclick="document.querySelector('.catnav').scrollIntoView({behavior:'smooth'})">
-      <span class="mob-nav-icon">?���️</span>
+      <span class="mob-nav-icon">📦️</span>
     </button>
     <button class="mob-nav-btn" onclick="openCart()">
-      <span class="mob-nav-icon">?���</span>
+      <span class="mob-nav-icon">🛒</span>
       <span class="mob-nav-badge" id="mobCartBadge">0</span>
     </button>
     <button class="mob-nav-btn" onclick="openFavs()">
@@ -1307,7 +1307,7 @@
       <span class="mob-nav-badge" id="mobFavBadge">0</span>
     </button>
     <button class="mob-nav-btn" onclick="openAuth()">
-      <span class="mob-nav-icon">?���</span>
+      <span class="mob-nav-icon">🛒</span>
     </button>
   </div>
 </nav>
@@ -1316,7 +1316,7 @@
 <div class="wa-widget">
   <div class="wa-chat-popup" id="waChatPopup">
     <div class="wa-chat-head">
-      <div class="wa-chat-avatar">?���</div>
+      <div class="wa-chat-avatar">🛒</div>
       <div class="wa-chat-head-info">
         <strong>Aydın Gros</strong>
         <small>● Genellikle birkaç dakikada yanıtlar</small>
@@ -1325,32 +1325,32 @@
     </div>
     <div class="wa-chat-body">
       <div class="wa-chat-msg">
-        <strong>Aydın Gros ?���</strong>
-        Merhaba! ?��� Aydın Gros Sanal Market'e hoş geldiniz.<br><br>
+        <strong>Aydın Gros 📦</strong>
+        Merhaba! 👋 Aydın Gros Sanal Market'e hoş geldiniz.<br><br>
         Size nasıl yardımcı olabiliriz? Aşağıdaki seçeneklerden birini seçin veya doğrudan mesaj gönderin.
       </div>
       <div class="wa-chat-time">Aydın Gros · Tokat'ın Yerel Gücü</div>
       <div class="wa-quick-replies">
-        <a class="wa-qr" href="https://wa.me/905444789461?text=Merhaba%20Aydın%20Gros!%20?���%20Sipariş%20vermek%20istiyorum.%20Listemi%20iletebilir%20miyim%3F" target="_blank">?��� Sipariş vermek istiyorum</a>
-        <a class="wa-qr" href="https://wa.me/905444789461?text=Merhaba%20Aydın%20Gros!%20?���%20Ürün%20fiyatları%20ve%20stok%20durumu%20hakkında%20bilgi%20almak%20istiyorum." target="_blank">?��� Ürün ve fiyat sormak istiyorum</a>
-        <a class="wa-qr" href="https://wa.me/905444789461?text=Merhaba%20Aydın%20Gros!%20?���%20Eve%20teslimat%20hizmetiniz%20hakkında%20bilgi%20alabilir%20miyim%3F%20Adresim%3A" target="_blank">?��� Eve teslimat hakkında bilgi</a>
-        <a class="wa-qr" href="https://wa.me/905444789461?text=Merhaba%20Aydın%20Gros!%20ℹ️%20�?ubeleriniz%20ve%20çalışma%20saatleriniz%20hakkında%20bilgi%20almak%20istiyorum." target="_blank">ℹ️ �?ube ve saat bilgisi</a>
+        <a class="wa-qr" href="https://wa.me/905444789461?text=Merhaba%20Aydın%20Gros!%20📋%20Sipariş%20vermek%20istiyorum.%20Listemi%20iletebilir%20miyim%3F" target="_blank">📋 Sipariş vermek istiyorum</a>
+        <a class="wa-qr" href="https://wa.me/905444789461?text=Merhaba%20Aydın%20Gros!%20📦%20Ürün%20fiyatları%20ve%20stok%20durumu%20hakkında%20bilgi%20almak%20istiyorum." target="_blank">📦 Ürün ve fiyat sormak istiyorum</a>
+        <a class="wa-qr" href="https://wa.me/905444789461?text=Merhaba%20Aydın%20Gros!%20📦%20Eve%20teslimat%20hizmetiniz%20hakkında%20bilgi%20alabilir%20miyim%3F%20Adresim%3A" target="_blank">📦 Eve teslimat hakkında bilgi</a>
+        <a class="wa-qr" href="https://wa.me/905444789461?text=Merhaba%20Aydın%20Gros!%20ℹ️%20Şubeleriniz%20ve%20çalışma%20saatleriniz%20hakkında%20bilgi%20almak%20istiyorum." target="_blank">ℹ️ Şube ve saat bilgisi</a>
       </div>
     </div>
   </div>
-  <button class="wa-toggle" onclick="toggleWaChat()" title="WhatsApp ile Sipariş">?���</button>
+  <button class="wa-toggle" onclick="toggleWaChat()" title="WhatsApp ile Sipariş">🔍</button>
 </div>
 
 <!-- ══ ORDER TRACK BUTTON ══ -->
 <button class="track-float" onclick="openTrackModal()" title="Siparişini takip et">
-  <span class="track-led"></span> Sipariş Takibi ?���
+  <span class="track-led"></span> Sipariş Takibi 📋
 </button>
 
 <!-- ══ ORDER TRACK MODAL ══ -->
 <div class="track-modal" id="trackModal" onclick="if(event.target===this)closeTrackModal()">
   <div class="track-box">
     <div class="track-head">
-      <h2>?��� Sipariş Takibi</h2>
+      <h2>📋 Sipariş Takibi</h2>
       <p>Siparişinin durumunu telefon ve sipariş numaranla sorgula</p>
       <button class="track-close-btn" onclick="closeTrackModal()">×</button>
     </div>
@@ -1360,7 +1360,7 @@
         <input type="tel" id="trackPhone" placeholder="05XX XXX XX XX" maxlength="11">
       </div>
       <div class="track-field">
-        <label>SİPARİ�? NUMARASI</label>
+        <label>SİPARİŞ NUMARASI</label>
         <input type="text" id="trackOrderNo" placeholder="AG-20260625-XXXX" style="text-transform:uppercase">
       </div>
       <button class="track-submit" onclick="trackOrder()">Sorgula</button>
@@ -1372,7 +1372,7 @@
         </div>
         <div class="track-steps" id="trackSteps"></div>
         <a class="track-wa-help" id="trackWaHelp" href="#" target="_blank">
-          ?��� WhatsApp'tan sipariş durumunu sor
+          📱 WhatsApp'tan sipariş durumunu sor
         </a>
       </div>
     </div>
@@ -1380,7 +1380,7 @@
 </div>
 
 <!-- ══ FLOATS ══ -->
-<button class="wheel-float" onclick="openWheelModal()"><span class="wheel-icon">?�?�</span> <span>Fırsat Çarkı</span></button>
+<button class="wheel-float" onclick="openWheelModal()"><span class="wheel-icon">🔥</span> <span>Fırsat Çarkı</span></button>
 
 <script>
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1404,12 +1404,12 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:10,name:"Çaykur Rize Turist Çayı",unit:"1 kg",cat:"temel-gida",price:149,old:null,badge:"ÇOK SATAN",btype:"badge-gold",img:"https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=400",feat:true},
   {id:11,name:"Mehmet Efendi Türk Kahvesi",unit:"100 g",cat:"temel-gida",price:39,old:null,badge:"ÇOK SATAN",btype:"badge-gold",img:"https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400",feat:true},
   {id:12,name:"Pınar Makarna Spagetti",unit:"500 g",cat:"temel-gida",price:28,old:35,badge:"-%20",btype:"badge-red",img:"https://images.unsplash.com/photo-1551462147-ff29053bfc14?w=400",feat:false},
-  {id:13,name:"Doğuş Toz �?eker",unit:"5 kg",cat:"temel-gida",price:139,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1622484211148-716598e09117?w=400",feat:false},
+  {id:13,name:"Doğuş Toz Şeker",unit:"5 kg",cat:"temel-gida",price:139,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1622484211148-716598e09117?w=400",feat:false},
   {id:14,name:"Nuh'un Ankara Unu",unit:"2 kg",cat:"temel-gida",price:45,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400",feat:false},
   {id:15,name:"Dost Pirinç",unit:"2 kg",cat:"temel-gida",price:89,old:105,badge:"-%15",btype:"badge-red",img:"https://images.unsplash.com/photo-1536304993881-ff86e0c9ef96?w=400",feat:false},
   {id:16,name:"Eti Gıda Nohut",unit:"1 kg",cat:"temel-gida",price:55,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1515543904379-3d757afe72e4?w=400",feat:false},
 
-  // SÜT & �?ARKÜTERİ
+  // SÜT & ŞARKÜTERİ
   {id:17,name:"İçim Yarım Yağlı Süt",unit:"1 L",cat:"sut-sarkuteri",price:29.9,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400",feat:false},
   {id:18,name:"Sütaş Doğal Yoğurt",unit:"1 kg",cat:"sut-sarkuteri",price:49,old:62,badge:"-%21",btype:"badge-red",img:"https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400",feat:true},
   {id:19,name:"Sütaş Süzme Peynir",unit:"500 g",cat:"sut-sarkuteri",price:79.9,old:null,badge:"YENİ",btype:"badge-green",img:"https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=400",feat:true},
@@ -1419,7 +1419,7 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:23,name:"Pınar Krema",unit:"200 ml",cat:"sut-sarkuteri",price:32,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1603569283847-aa295f0d4caf?w=400",feat:false},
   {id:24,name:"Pakmaya Yaş Maya",unit:"4'lü Paket",cat:"sut-sarkuteri",price:22,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400",feat:false},
 
-  // ATI�?TIRMALIK
+  // ATIŞTIRMALIK
   {id:25,name:"Ülker Çikolatalı Gofret",unit:"5'li Paket",cat:"atistirmalik",price:27.5,old:null,badge:"FIRSAT",btype:"badge-gold",img:"https://images.unsplash.com/photo-1511381939415-e44015466834?w=400",feat:true},
   {id:26,name:"Lays Klasik Cips",unit:"200 g Aile Boy",cat:"atistirmalik",price:32,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1566478431375-7f43070bb658?w=400",feat:true},
   {id:27,name:"Ritz Kraker",unit:"200 g",cat:"atistirmalik",price:29,old:35,badge:"-%17",btype:"badge-red",img:"https://images.unsplash.com/photo-1523473827533-2a64d0d36748?w=400",feat:false},
@@ -1443,7 +1443,7 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:41,name:"Coca-Cola Orijinal",unit:"1.5 L",cat:"icecek",price:35,old:null,badge:"ÇOK SATAN",btype:"badge-gold",img:"https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400",feat:true},
   {id:42,name:"Erikli Su",unit:"0.5 L 12'li",cat:"icecek",price:65,old:79,badge:"-%18",btype:"badge-red",img:"https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400",feat:true},
   {id:43,name:"Kızılay Maden Suyu",unit:"6'lı 200 ml",cat:"icecek",price:28,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1608885898957-a599fb1698d6?w=400",feat:false},
-  {id:44,name:"Fuse Tea �?eftali",unit:"1.5 L",cat:"icecek",price:32,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400",feat:false},
+  {id:44,name:"Fuse Tea Şeftali",unit:"1.5 L",cat:"icecek",price:32,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400",feat:false},
   {id:45,name:"Lipton Ice Tea Limon",unit:"1.5 L",cat:"icecek",price:30,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400",feat:false},
   {id:46,name:"Pepsi Cola",unit:"2.5 L",cat:"icecek",price:42,old:52,badge:"-%19",btype:"badge-red",img:"https://images.unsplash.com/photo-1629203851122-3726ecdf080e?w=400",feat:false},
   {id:47,name:"Uludağ Gazoz",unit:"1 L",cat:"icecek",price:22,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400",feat:false},
@@ -1474,16 +1474,16 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:70,name:"Domates Konservesi (800g)",unit:"teneke",cat:"temel-gida",price:34.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400",feat:false},
   {id:71,name:"Baharat Karışık (50g)",unit:"paket",cat:"temel-gida",price:19.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1506368249639-73a05d6f6488?w=400",feat:false},
   {id:72,name:"Ketçap (800g)",unit:"şişe",cat:"temel-gida",price:54.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=400",feat:false},
-  // SÜT & �?ARKÜTERİ EK ÜRÜNLER
+  // SÜT & ŞARKÜTERİ EK ÜRÜNLER
   {id:73,name:"Siyah Zeytin (400g)",unit:"paket",cat:"sut-sarkuteri",price:59.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1572635148818-ef6fd45eb394?w=400",feat:false},
   {id:74,name:"Tahin (300g)",unit:"kavanoz",cat:"sut-sarkuteri",price:69.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400",feat:false},
-  {id:75,name:"Bal (250g)",unit:"kavanoz",cat:"sut-sarkuteri",price:139.90,old:null,badge:"DO�?AL",btype:"badge-gold",img:"https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400",feat:true},
+  {id:75,name:"Bal (250g)",unit:"kavanoz",cat:"sut-sarkuteri",price:139.90,old:null,badge:"DOŞAL",btype:"badge-gold",img:"https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400",feat:true},
   {id:76,name:"Salam Hindi (60g)",unit:"paket",cat:"sut-sarkuteri",price:34.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1544025162-d76694265947?w=400",feat:false},
   {id:77,name:"Kasap Köfte (350g)",unit:"paket",cat:"sut-sarkuteri",price:99.90,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1529694157872-4e0c0f3b238b?w=400",feat:false},
   {id:78,name:"Tavuk Döner (300g)",unit:"paket",cat:"sut-sarkuteri",price:79.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=400",feat:false},
   {id:79,name:"Kaşar Dilimli (200g)",unit:"paket",cat:"sut-sarkuteri",price:79.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=400",feat:false},
   {id:80,name:"Helva Sade (200g)",unit:"paket",cat:"sut-sarkuteri",price:44.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400",feat:false},
-  // ATI�?TIRMALIK EK ÜRÜNLER
+  // ATIŞTIRMALIK EK ÜRÜNLER
   {id:81,name:"Leblebi (200g)",unit:"paket",cat:"atistirmalik",price:29.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=400",feat:false},
   {id:82,name:"Kraker (70g)",unit:"paket",cat:"atistirmalik",price:19.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1548365328-8c6db3220e4d?w=400",feat:false},
   {id:83,name:"Çerez Karışık (100g)",unit:"paket",cat:"atistirmalik",price:34.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=400",feat:false},
@@ -1496,12 +1496,12 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   // İÇECEK EK ÜRÜNLER
   {id:89,name:"Maden Suyu (200ml)",unit:"şişe",cat:"icecek",price:9.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400",feat:false},
   {id:90,name:"Limonata (1 lt)",unit:"şişe",cat:"icecek",price:29.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1621263764928-df1444c5e859?w=400",feat:false},
-  {id:91,name:"�?algam (1 lt)",unit:"şişe",cat:"icecek",price:24.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1567528735588-5cfca04c3fa1?w=400",feat:false},
+  {id:91,name:"Şalgam (1 lt)",unit:"şişe",cat:"icecek",price:24.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1567528735588-5cfca04c3fa1?w=400",feat:false},
   {id:92,name:"Ice Tea (1.5 lt)",unit:"şişe",cat:"icecek",price:39.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400",feat:false},
   {id:93,name:"Kola (2.5 lt)",unit:"şişe",cat:"icecek",price:44.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1629203851122-3726ecdf080e?w=400",feat:false},
   // KOZMETİK
   {id:94,name:"Diş Macunu (75ml)",unit:"tüp",cat:"kozmetik",price:39.90,old:null,badge:"ÖZEL FİYAT",btype:"badge-green",img:"https://images.unsplash.com/photo-1585238342024-78d387f4a707?w=400",feat:true},
-  {id:95,name:"�?ampuan (400ml)",unit:"şişe",cat:"kozmetik",price:74.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400",feat:false},
+  {id:95,name:"Şampuan (400ml)",unit:"şişe",cat:"kozmetik",price:74.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400",feat:false},
   {id:96,name:"Saç Kremi (400ml)",unit:"şişe",cat:"kozmetik",price:69.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1526045612212-70caf35c14df?w=400",feat:false},
   {id:97,name:"Deodorant Roll-On (50ml)",unit:"adet",cat:"kozmetik",price:89.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1599305090598-fe179d501227?w=400",feat:false},
   {id:98,name:"El Kremi (75ml)",unit:"tüp",cat:"kozmetik",price:39.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400",feat:false},
@@ -1514,7 +1514,7 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:104,name:"Bebek Bezi L (32'li)",unit:"paket",cat:"anne-bebek",price:199.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400",feat:false},
   {id:105,name:"Bebek Islak Mendil (72'li)",unit:"paket",cat:"anne-bebek",price:39.90,old:null,badge:"ÇOK SATAN",btype:"badge-gold",img:"https://images.unsplash.com/photo-1584515933487-779824d29309?w=400",feat:true},
   {id:106,name:"Bebek Maması Tahıllı (400g)",unit:"kutu",cat:"anne-bebek",price:189.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=400",feat:false},
-  {id:107,name:"Bebek �?ampuanı (200ml)",unit:"şişe",cat:"anne-bebek",price:89.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400",feat:false},
+  {id:107,name:"Bebek Şampuanı (200ml)",unit:"şişe",cat:"anne-bebek",price:89.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400",feat:false},
   {id:108,name:"Pirinç Unu Bebek (400g)",unit:"kutu",cat:"anne-bebek",price:79.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400",feat:false},
   // EV GEREÇLERİ
   {id:109,name:"Çöp Torbası (10'lu)",unit:"rulo",cat:"ev-gerecleri",price:39.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1542621334-a254cf47733d?w=400",feat:false},
@@ -1566,51 +1566,51 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:148,name:"Paşabahçe Çay Bardağı",unit:"6'lı set",cat:"ev-gerecleri",price:119.90,old:149.95,badge:"-%20",btype:"badge-red",img:"https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=400",feat:true},
   {id:149,name:"Cam Kavanoz",unit:"660ml",cat:"ev-gerecleri",price:24.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1584990347449-39ce4c9af92a?w=400",feat:false},
   {id:150,name:"Plastik Saklama Kabı",unit:"1.6L",cat:"ev-gerecleri",price:49.90,old:54.95,badge:null,btype:"",img:"https://images.unsplash.com/photo-1584990347449-39ce4c9af92a?w=400",feat:false},
-  // MANAV YENİ ÇE�?İTLER
+  // MANAV YENİ ÇEŞİTLER
   {id:151,name:"Çilek",unit:"500g",cat:"manav",price:79.90,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=400",feat:true},
   {id:152,name:"Kiraz",unit:"500g",cat:"manav",price:89.90,old:null,badge:"MEVSİM",btype:"badge-green",img:"https://images.unsplash.com/photo-1559181567-c3190ca9959b?w=400",feat:false},
   {id:153,name:"İspanak",unit:"demet",cat:"manav",price:19.90,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400",feat:false},
   {id:154,name:"Brokoli",unit:"adet",cat:"manav",price:34.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?w=400",feat:false},
-  {id:155,name:"�?eftali",unit:"1 kg",cat:"manav",price:59.90,old:null,badge:"MEVSİM",btype:"badge-green",img:"https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=400",feat:false},
+  {id:155,name:"Şeftali",unit:"1 kg",cat:"manav",price:59.90,old:null,badge:"MEVSİM",btype:"badge-green",img:"https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=400",feat:false},
   {id:156,name:"Üzüm Siyah",unit:"1 kg",cat:"manav",price:79.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1515706886582-54c73c5eaf41?w=400",feat:false},
   {id:157,name:"Kavun",unit:"1 adet",cat:"manav",price:44.90,old:null,badge:"MEVSİM",btype:"badge-green",img:"https://images.unsplash.com/photo-1529563979-ab4b49c0cbc9?w=400",feat:false},
-  // TEMEL GIDA YENİ ÇE�?İTLER
+  // TEMEL GIDA YENİ ÇEŞİTLER
   {id:158,name:"Zeytinyağı Riviera",unit:"1 L",cat:"temel-gida",price:299.90,old:349.90,badge:"-%14",btype:"badge-red",img:"https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400",feat:true},
   {id:159,name:"Kırmızı Mercimek",unit:"1 kg",cat:"temel-gida",price:49.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=400",feat:false},
   {id:160,name:"Domates Salçası",unit:"700g",cat:"temel-gida",price:44.90,old:null,badge:"EV YAPIMI",btype:"badge-gold",img:"https://images.unsplash.com/photo-1561661741-9cb1b77fd4ba?w=400",feat:false},
   {id:161,name:"Elma Sirkesi",unit:"1 L",cat:"temel-gida",price:39.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1534353341884-c1d87ea7f7b7?w=400",feat:false},
   {id:162,name:"Mercimek Çorbası Hazır",unit:"2'li paket",cat:"temel-gida",price:29.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400",feat:false},
   {id:163,name:"Susam",unit:"250g",cat:"temel-gida",price:34.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1506368249639-73a05d6f6488?w=400",feat:false},
-  // SÜT & �?ARKÜTERİ YENİ ÇE�?İTLER
+  // SÜT & ŞARKÜTERİ YENİ ÇEŞİTLER
   {id:164,name:"Ayran Büyük",unit:"2 L",cat:"sut-sarkuteri",price:44.90,old:null,badge:"BÜYÜK BOY",btype:"badge-blue",img:"https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400",feat:false},
   {id:165,name:"Lor Peyniri",unit:"500g",cat:"sut-sarkuteri",price:69.90,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1631435342738-9dfb1de1c66c?w=400",feat:false},
   {id:166,name:"Sucuk Dilimli",unit:"200g",cat:"sut-sarkuteri",price:79.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1562967915-6ba607ff7d05?w=400",feat:false},
   {id:167,name:"Çökelek Taze",unit:"500g",cat:"sut-sarkuteri",price:59.90,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1603569283847-aa295f0d4caf?w=400",feat:false},
-  // ATI�?TIRMALIK YENİ ÇE�?İTLER
-  {id:168,name:"Fındık Kavrulmuş",unit:"250g",cat:"atistirmalik",price:129.90,old:null,badge:"DO�?AL",btype:"badge-gold",img:"https://images.unsplash.com/photo-1533738363-b7f9aef128ce?w=400",feat:true},
+  // ATIŞTIRMALIK YENİ ÇEŞİTLER
+  {id:168,name:"Fındık Kavrulmuş",unit:"250g",cat:"atistirmalik",price:129.90,old:null,badge:"DOŞAL",btype:"badge-gold",img:"https://images.unsplash.com/photo-1533738363-b7f9aef128ce?w=400",feat:true},
   {id:169,name:"Sütlü Çikolata",unit:"100g",cat:"atistirmalik",price:49.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=400",feat:false},
   {id:170,name:"Meyveli Kek Dilimi",unit:"4'lü paket",cat:"atistirmalik",price:29.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400",feat:false},
-  {id:171,name:"Badem Çiğ",unit:"100g",cat:"atistirmalik",price:79.90,old:null,badge:"SA�?LIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1547414368-ac947d00b91d?w=400",feat:false},
-  // TEMİZLİK YENİ ÇE�?İTLER
+  {id:171,name:"Badem Çiğ",unit:"100g",cat:"atistirmalik",price:79.90,old:null,badge:"SAŞLIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1547414368-ac947d00b91d?w=400",feat:false},
+  // TEMİZLİK YENİ ÇEŞİTLER
   {id:172,name:"WC Temizleyici",unit:"750ml",cat:"temizlik",price:44.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1607344645866-009c320b63e0?w=400",feat:false},
   {id:173,name:"Çamaşır Suyu Klorlu",unit:"3 L",cat:"temizlik",price:49.90,old:null,badge:"EKONOMİK",btype:"badge-gold",img:"https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=400",feat:false},
   {id:174,name:"Bulaşık Süngeri",unit:"5'li paket",cat:"temizlik",price:24.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?w=400",feat:false},
   {id:175,name:"Islak Mendil Limonlu",unit:"72'li paket",cat:"temizlik",price:34.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1584515933487-779824d29309?w=400",feat:false},
-  // İÇECEK YENİ ÇE�?İTLER
+  // İÇECEK YENİ ÇEŞİTLER
   {id:176,name:"Taze Portakal Suyu",unit:"1 L",cat:"icecek",price:49.90,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1504509546545-e000b4a62425?w=400",feat:true},
   {id:177,name:"Nescafé Klasik",unit:"100g",cat:"icecek",price:149.90,old:179.90,badge:"-%16",btype:"badge-red",img:"https://images.unsplash.com/photo-1494314671902-399b18174975?w=400",feat:false},
   {id:178,name:"Portakal Limonata",unit:"1 L",cat:"icecek",price:34.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1621263764928-df1444c5e859?w=400",feat:false},
   {id:179,name:"Soda Naneli",unit:"6x200ml",cat:"icecek",price:34.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1608885898957-a599fb1698d6?w=400",feat:false},
-  // KASAP YENİ ÇE�?İTLER
+  // KASAP YENİ ÇEŞİTLER
   {id:180,name:"Dana Bonfile",unit:"500g",cat:"kasap",price:349.90,old:null,badge:"PREMİUM",btype:"badge-gold",img:"https://images.unsplash.com/photo-1558030006-450675393462?w=400",feat:true},
   {id:181,name:"Piliç Kanat",unit:"1 kg",cat:"kasap",price:99.90,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=400",feat:false},
   {id:182,name:"Kuzu Pirzola",unit:"500g",cat:"kasap",price:299.90,old:null,badge:"SEÇİM",btype:"badge-gold",img:"https://images.unsplash.com/photo-1544025162-d76538b2a681?w=400",feat:false},
-  // KAHVALTILIK YENİ ÇE�?İTLER
+  // KAHVALTILIK YENİ ÇEŞİTLER
   {id:183,name:"Fındık Kreması",unit:"400g",cat:"kahvaltilik",price:149.90,old:null,badge:"ÇOK SATAN",btype:"badge-gold",img:"https://images.unsplash.com/photo-1567206563114-c179906b52b8?w=400",feat:true},
   {id:184,name:"Çay Poşeti",unit:"40'lı",cat:"kahvaltilik",price:79.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1564890369478-c89ca3d9cde8?w=400",feat:false},
   {id:185,name:"Tereyağlı Bisküvi",unit:"200g",cat:"kahvaltilik",price:39.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1603532648955-039310d9ed75?w=400",feat:false},
 
-  // MANAV — ERENLER CEP E�?DE�?ERİ
+  // MANAV — ERENLER CEP EŞDEŞERİ
   {id:186,name:"Dere Otu",unit:"bağ",cat:"manav",price:24.90,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=400",feat:false},
   {id:187,name:"Tere",unit:"bağ",cat:"manav",price:14.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1?w=400",feat:false},
   {id:188,name:"Reyhan",unit:"bağ",cat:"manav",price:19.90,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=400",feat:false},
@@ -1621,7 +1621,7 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:193,name:"Turp",unit:"bağ",cat:"manav",price:19.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400",feat:false},
   {id:194,name:"Biber Charleston",unit:"1 kg",cat:"manav",price:44.90,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?w=400",feat:false},
 
-  // KASAP & ET — ERENLER CEP E�?DE�?ERİ
+  // KASAP & ET — ERENLER CEP EŞDEŞERİ
   {id:195,name:"Dana Kuşbaşı",unit:"1 kg",cat:"kasap",price:879.90,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=400",feat:true},
   {id:196,name:"Dana Kıyma",unit:"1 kg",cat:"kasap",price:859.90,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=400",feat:false},
   {id:197,name:"Dana Sote",unit:"1 kg",cat:"kasap",price:889.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=400",feat:false},
@@ -1641,20 +1641,20 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:209,name:"Torku Üçgen Peynir 100g",unit:"kap",cat:"sut-sarkuteri",price:47.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=400",feat:false},
   {id:210,name:"Torku Süt 180ml Muzlu",unit:"adet",cat:"sut-sarkuteri",price:17.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400",feat:false},
   {id:211,name:"Aytaç Dana Sucuk 220g",unit:"paket",cat:"sut-sarkuteri",price:209.90,old:239.90,badge:"-%12",btype:"badge-red",img:"https://images.unsplash.com/photo-1562967915-6ba607ff7d05?w=400",feat:true},
-  {id:212,name:"Balparmak Bal 49g",unit:"adet",cat:"sut-sarkuteri",price:69.90,old:null,badge:"DO�?AL",btype:"badge-gold",img:"https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400",feat:false},
+  {id:212,name:"Balparmak Bal 49g",unit:"adet",cat:"sut-sarkuteri",price:69.90,old:null,badge:"DOŞAL",btype:"badge-gold",img:"https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400",feat:false},
   {id:213,name:"Ece Siyah Zeytin 720g",unit:"kavanoz",cat:"sut-sarkuteri",price:139.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1572635148818-ef6fd45eb394?w=400",feat:false},
   {id:214,name:"Torku Çokofest 30g",unit:"adet",cat:"atistirmalik",price:19.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400",feat:false},
-  {id:215,name:"�?ölen Bisküvi 82g",unit:"paket",cat:"atistirmalik",price:29.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400",feat:false},
+  {id:215,name:"Şölen Bisküvi 82g",unit:"paket",cat:"atistirmalik",price:29.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400",feat:false},
   {id:216,name:"Eti Petito 72g",unit:"paket",cat:"atistirmalik",price:89.90,old:null,badge:"ÇOK SATAN",btype:"badge-gold",img:"https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400",feat:false},
   {id:217,name:"Tropicana Meyve Suyu 330ml",unit:"kutu",cat:"icecek",price:29.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1534353436294-0dbd4bdac845?w=400",feat:false},
   {id:218,name:"Doğanay Limonata 300ml",unit:"şişe",cat:"icecek",price:24.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1621263764928-df1444c5e859?w=400",feat:false},
 
-  // TEMİZLİK — ERENLER CEP E�?DE�?ERİ
+  // TEMİZLİK — ERENLER CEP EŞDEŞERİ
   {id:219,name:"Perwoll Çamaşır Deterjanı 2.97L",unit:"şişe",cat:"temizlik",price:199.90,old:null,badge:"YÜNLÜLERİÇİN",btype:"badge-blue",img:"https://images.unsplash.com/photo-1585421514738-01798e348b17?w=400",feat:false},
   {id:220,name:"Vernel Max Yumuşatıcı 1.44L",unit:"şişe",cat:"temizlik",price:114.90,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1585421514738-01798e348b17?w=400",feat:false},
   {id:221,name:"Magic Çok Amaçlı Sprey 750ml",unit:"şişe",cat:"temizlik",price:54.90,old:null,badge:"PRATİK",btype:"badge-blue",img:"https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400",feat:false},
 
-  // KOZMETİK — ERENLER CEP E�?DE�?ERİ
+  // KOZMETİK — ERENLER CEP EŞDEŞERİ
   {id:222,name:"Sensodyne Diş Macunu 50ml",unit:"tüp",cat:"kozmetik",price:139.90,old:null,badge:"HASSASİYET",btype:"badge-blue",img:"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400",feat:false},
   {id:223,name:"Sensodyne Diş Macunu 100ml",unit:"tüp",cat:"kozmetik",price:229.90,old:null,badge:"BÜYÜK BOY",btype:"badge-blue",img:"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400",feat:false},
   {id:224,name:"Colgate Çocuk Diş Macunu",unit:"tüp",cat:"kozmetik",price:279.90,old:null,badge:"ÇOCUKLAR",btype:"badge-green",img:"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400",feat:false},
@@ -1697,13 +1697,13 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:257,name:"Piliç Baget",unit:"1 kg",cat:"kasap",price:159.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=400",feat:false},
 
   // === ERENLER CEP'TEN TEMEL GIDA ===
-  {id:258,name:"Lipton Ice Tea �?eftali 1.5L",unit:"şişe",cat:"temel-gida",price:62.95,old:null,badge:"SEVİLEN",btype:"badge-blue",img:"https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400",feat:false},
+  {id:258,name:"Lipton Ice Tea Şeftali 1.5L",unit:"şişe",cat:"temel-gida",price:62.95,old:null,badge:"SEVİLEN",btype:"badge-blue",img:"https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400",feat:false},
   {id:259,name:"Doğuş Çay 48li",unit:"kutu",cat:"temel-gida",price:109.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1564890369478-c89ca3d9cde8?w=400",feat:false},
-  {id:260,name:"Kükürer Elma Sirkesi 1L",unit:"şişe",cat:"temel-gida",price:114.95,old:null,badge:"DO�?AL",btype:"badge-green",img:"https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400",feat:false},
+  {id:260,name:"Kükürer Elma Sirkesi 1L",unit:"şişe",cat:"temel-gida",price:114.95,old:null,badge:"DOŞAL",btype:"badge-green",img:"https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400",feat:false},
   {id:261,name:"Yayla Fasülye",unit:"1 kg",cat:"temel-gida",price:109.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1585852989498-7f2e0e542ff6?w=400",feat:false},
   {id:262,name:"Kent Nişasta",unit:"400 gr",cat:"temel-gida",price:54.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1622484211148-716598e09117?w=400",feat:false},
-  {id:263,name:"Dr. Oetker Krem �?anti",unit:"288 gr",cat:"temel-gida",price:139.95,old:null,badge:"FIRIN",btype:"badge-blue",img:"https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?w=400",feat:false},
-  {id:264,name:"Koska Tahin",unit:"350 gr",cat:"temel-gida",price:129.95,old:null,badge:"DO�?AL",btype:"badge-green",img:"https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400",feat:false},
+  {id:263,name:"Dr. Oetker Krem Şanti",unit:"288 gr",cat:"temel-gida",price:139.95,old:null,badge:"FIRIN",btype:"badge-blue",img:"https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?w=400",feat:false},
+  {id:264,name:"Koska Tahin",unit:"350 gr",cat:"temel-gida",price:129.95,old:null,badge:"DOŞAL",btype:"badge-green",img:"https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400",feat:false},
   {id:265,name:"Pakmaya Instant Maya",unit:"100 gr",cat:"temel-gida",price:44.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?w=400",feat:false},
   {id:266,name:"Tamek Domates Salçası",unit:"830 gr",cat:"temel-gida",price:89.95,old:null,badge:"EKONOMİK",btype:"badge-gold",img:"https://images.unsplash.com/photo-1546549032-9571cd6b27df?w=400",feat:false},
   {id:267,name:"Pakmaya Kabartma Tozu",unit:"5x10 gr",cat:"temel-gida",price:29.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?w=400",feat:false},
@@ -1711,7 +1711,7 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:269,name:"Nescafe Classic",unit:"200 gr",cat:"temel-gida",price:389.95,old:null,badge:"KLASİK",btype:"badge-gold",img:"https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400",feat:false},
   {id:270,name:"Ülker Çikolata Kaplı Gofret",unit:"36 gr",cat:"temel-gida",price:24.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400",feat:false},
 
-  // === ERENLER CEP'TEN ATI�?TIRILMALIK ===
+  // === ERENLER CEP'TEN ATIŞTIRILMALIK ===
   {id:271,name:"Torku Çokofest Frambuazlı",unit:"30 gr",cat:"atistirmalik",price:20.95,old:null,badge:"YENİ TAT",btype:"badge-blue",img:"https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400",feat:false},
   {id:272,name:"Torku Çokofest Karamel",unit:"30 gr",cat:"atistirmalik",price:20.95,old:null,badge:"YENİ TAT",btype:"badge-blue",img:"https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400",feat:false},
   {id:273,name:"Torku Gofret",unit:"35 gr",cat:"atistirmalik",price:13.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400",feat:false},
@@ -1726,9 +1726,9 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:282,name:"Kars Tuzsuz Kavrulmuş Fındık",unit:"200 gr",cat:"atistirmalik",price:129.95,old:null,badge:"KARS",btype:"badge-blue",img:"https://images.unsplash.com/photo-1578920845869-d7c524e6b6f6?w=400",feat:false},
   {id:283,name:"Antep Fıstığı",unit:"200 gr",cat:"atistirmalik",price:219.95,old:null,badge:"ANTEP",btype:"badge-gold",img:"https://images.unsplash.com/photo-1578920845869-d7c524e6b6f6?w=400",feat:false},
 
-  // === ERENLER CEP'TEN SÜT & �?ARKÜTERİ ===
+  // === ERENLER CEP'TEN SÜT & ŞARKÜTERİ ===
   {id:284,name:"Torku Helva Fıstıklı 200gr",unit:"paket",cat:"sut-sarkuteri",price:104.95,old:null,badge:"FISTIKLI",btype:"badge-gold",img:"https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400",feat:false},
-  {id:285,name:"Torku Tereyağı 500gr",unit:"paket",cat:"sut-sarkuteri",price:429.95,old:null,badge:"DO�?AL",btype:"badge-green",img:"https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400",feat:false},
+  {id:285,name:"Torku Tereyağı 500gr",unit:"paket",cat:"sut-sarkuteri",price:429.95,old:null,badge:"DOŞAL",btype:"badge-green",img:"https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400",feat:false},
   {id:286,name:"Torku Tereyağı 1000gr",unit:"paket",cat:"sut-sarkuteri",price:774.95,old:null,badge:"AİLE BOY",btype:"badge-blue",img:"https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400",feat:false},
   {id:287,name:"Torku Süt 200ml",unit:"adet",cat:"sut-sarkuteri",price:18.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400",feat:false},
   {id:288,name:"Pınar Salam",unit:"50 gr",cat:"sut-sarkuteri",price:44.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1562967915-6ba607ff7d05?w=400",feat:false},
@@ -1737,13 +1737,13 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:291,name:"M.Birlik Zeytin Az Tuzlu",unit:"800 gr",cat:"sut-sarkuteri",price:199.95,old:null,badge:"AZ TUZLU",btype:"badge-blue",img:"https://images.unsplash.com/photo-1572635148818-ef6fd45eb394?w=400",feat:false},
   {id:292,name:"Becel Tereyağ Keyfi 500gr",unit:"kase",cat:"sut-sarkuteri",price:136.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400",feat:false},
   {id:293,name:"Pınar Beyaz Peynir",unit:"500 gr",cat:"sut-sarkuteri",price:189.95,old:null,badge:"KLASIK",btype:"badge-blue",img:"https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=400",feat:false},
-  {id:294,name:"Sütaş Ayran",unit:"1 L",cat:"sut-sarkuteri",price:44.95,old:null,badge:"SO�?UK",btype:"badge-blue",img:"https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400",feat:true},
+  {id:294,name:"Sütaş Ayran",unit:"1 L",cat:"sut-sarkuteri",price:44.95,old:null,badge:"SOŞUK",btype:"badge-blue",img:"https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400",feat:true},
   {id:295,name:"Sütaş Süzme Yoğurt",unit:"500 gr",cat:"sut-sarkuteri",price:59.95,old:null,badge:"SÜZME",btype:"badge-green",img:"https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400",feat:false},
   {id:296,name:"Ece Siyah Zeytin Çizik",unit:"720 gr",cat:"sut-sarkuteri",price:146.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1572635148818-ef6fd45eb394?w=400",feat:false},
   {id:297,name:"Tahsildaroğlu Beyaz Peynir",unit:"400 gr",cat:"sut-sarkuteri",price:219.95,old:null,badge:"GELENEKSEl",btype:"badge-gold",img:"https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=400",feat:false},
 
   // === ERENLER CEP'TEN İÇECEK ===
-  {id:298,name:"Fuse Tea �?eftali 500ml",unit:"şişe",cat:"icecek",price:34.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400",feat:false},
+  {id:298,name:"Fuse Tea Şeftali 500ml",unit:"şişe",cat:"icecek",price:34.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400",feat:false},
   {id:299,name:"Coca-Cola 330ml",unit:"kutu",cat:"icecek",price:29.95,old:null,badge:"KLASİK",btype:"badge-red",img:"https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400",feat:true},
   {id:300,name:"Pepsi 330ml",unit:"kutu",cat:"icecek",price:28.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400",feat:false},
   {id:301,name:"Sprite 330ml",unit:"kutu",cat:"icecek",price:28.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400",feat:false},
@@ -1785,16 +1785,16 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:333,name:"Arko Nem Krem 250ml",unit:"kap",cat:"kozmetik",price:109.95,old:null,badge:"NEMLENDİRİCİ",btype:"badge-blue",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
   {id:334,name:"Eyüp Sabri Traş Kolonyası",unit:"250ml",cat:"kozmetik",price:154.95,old:null,badge:"KLASİK",btype:"badge-blue",img:"https://images.unsplash.com/photo-1622618991746-fe6004db3a47?w=400",feat:false},
   {id:335,name:"Signal Diş Macunu 75ml",unit:"tüp",cat:"kozmetik",price:139.60,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400",feat:false},
-  {id:336,name:"Head & Shoulders �?ampuan 400ml",unit:"şişe",cat:"kozmetik",price:189.95,old:null,badge:"KEPEK",btype:"badge-blue",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
-  {id:337,name:"Pantene �?ampuan 400ml",unit:"şişe",cat:"kozmetik",price:169.95,old:null,badge:"ONARICI",btype:"badge-green",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
-  {id:338,name:"Dove Vücut �?ampuanı 400ml",unit:"şişe",cat:"kozmetik",price:149.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
+  {id:336,name:"Head & Shoulders Şampuan 400ml",unit:"şişe",cat:"kozmetik",price:189.95,old:null,badge:"KEPEK",btype:"badge-blue",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
+  {id:337,name:"Pantene Şampuan 400ml",unit:"şişe",cat:"kozmetik",price:169.95,old:null,badge:"ONARICI",btype:"badge-green",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
+  {id:338,name:"Dove Vücut Şampuanı 400ml",unit:"şişe",cat:"kozmetik",price:149.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
   {id:339,name:"Rexona Deodorant 150ml",unit:"kutu",cat:"kozmetik",price:89.95,old:null,badge:"72 SAAT",btype:"badge-blue",img:"https://images.unsplash.com/photo-1585232350538-47af97f8f9bd?w=400",feat:true},
   {id:340,name:"Nivea Güneş Kremi SPF50",unit:"175ml",cat:"kozmetik",price:239.95,old:null,badge:"SPF50",btype:"badge-red",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
 
   // === ERENLER CEP'TEN KAHVALTILlK ===
   {id:341,name:"Koska Çilek Reçeli",unit:"380 gr",cat:"kahvaltilik",price:89.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1571090256273-01b23d97c0e6?w=400",feat:false},
   {id:342,name:"Koska Vişne Reçeli",unit:"380 gr",cat:"kahvaltilik",price:89.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1571090256273-01b23d97c0e6?w=400",feat:false},
-  {id:343,name:"Balparmak Süzme Bal",unit:"460 gr",cat:"kahvaltilik",price:319.95,old:null,badge:"DO�?AL",btype:"badge-green",img:"https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400",feat:true},
+  {id:343,name:"Balparmak Süzme Bal",unit:"460 gr",cat:"kahvaltilik",price:319.95,old:null,badge:"DOŞAL",btype:"badge-green",img:"https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400",feat:true},
   {id:344,name:"Koska Tahin Helvası",unit:"350 gr",cat:"kahvaltilik",price:79.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400",feat:false},
   {id:345,name:"Ülker Çokokrem",unit:"350 gr",cat:"kahvaltilik",price:89.95,old:null,badge:"ÇOK SATAN",btype:"badge-gold",img:"https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400",feat:false},
   {id:346,name:"Sana Margarin",unit:"500 gr",cat:"kahvaltilik",price:79.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400",feat:false},
@@ -1802,10 +1802,10 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:348,name:"Pınar Lor Peyniri",unit:"500 gr",cat:"kahvaltilik",price:79.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=400",feat:false},
 
   // === ERENLER CEP'TEN ANNE & BEBEK ===
-  {id:349,name:"Pampers Bebek Bezi 3 Beden",unit:"52li",cat:"anne-bebek",price:339.95,old:null,badge:"YENİ DO�?AN",btype:"badge-blue",img:"https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400",feat:true},
+  {id:349,name:"Pampers Bebek Bezi 3 Beden",unit:"52li",cat:"anne-bebek",price:339.95,old:null,badge:"YENİ DOŞAN",btype:"badge-blue",img:"https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400",feat:true},
   {id:350,name:"Huggies Bebek Bezi 2 Beden",unit:"44lü",cat:"anne-bebek",price:299.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400",feat:false},
   {id:351,name:"Bebek Islak Mendil 72li",unit:"paket",cat:"anne-bebek",price:44.95,old:null,badge:"ALOE VERA",btype:"badge-green",img:"https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400",feat:false},
-  {id:352,name:"Bebek �?ampuanı 400ml",unit:"şişe",cat:"anne-bebek",price:89.95,old:null,badge:"HASSAS",btype:"badge-green",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
+  {id:352,name:"Bebek Şampuanı 400ml",unit:"şişe",cat:"anne-bebek",price:89.95,old:null,badge:"HASSAS",btype:"badge-green",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
   {id:353,name:"Bebek Pudrası 200gr",unit:"kutu",cat:"anne-bebek",price:69.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
   {id:354,name:"Hipp Kaşıklı Maması",unit:"190 gr",cat:"anne-bebek",price:84.95,old:null,badge:"ORGANİK",btype:"badge-green",img:"https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400",feat:false},
   {id:355,name:"Aptamil Devam Sütü 2",unit:"800 gr",cat:"anne-bebek",price:649.95,old:null,badge:"0-6 AY",btype:"badge-blue",img:"https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400",feat:false},
@@ -1839,13 +1839,13 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:379,name:"Kabak Zucchini",unit:"1 kg",cat:"manav",price:54.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?w=400",feat:false},
   {id:380,name:"Patlıcan",unit:"1 kg",cat:"manav",price:49.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1601648764658-cf37e8c89b70?w=400",feat:false},
   {id:381,name:"Karnabahar",unit:"adet",cat:"manav",price:69.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1584868720818-0a8b4765e2c4?w=400",feat:false},
-  {id:382,name:"Brokoli",unit:"adet",cat:"manav",price:74.95,old:null,badge:"SA�?LIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1584868720818-0a8b4765e2c4?w=400",feat:false},
+  {id:382,name:"Brokoli",unit:"adet",cat:"manav",price:74.95,old:null,badge:"SAŞLIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1584868720818-0a8b4765e2c4?w=400",feat:false},
   {id:383,name:"Mantar",unit:"500 gr",cat:"manav",price:89.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1504545102780-26774c1bb073?w=400",feat:false},
   {id:384,name:"Kereviz",unit:"adet",cat:"manav",price:59.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1540148426945-6cf22a6b2383?w=400",feat:false},
   {id:385,name:"Taze Fasülye",unit:"1 kg",cat:"manav",price:139.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=400",feat:false},
   {id:386,name:"Çilek",unit:"500 gr",cat:"manav",price:99.95,old:null,badge:"TAZE GÜNLÜK",btype:"badge-green",img:"https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=400",feat:true},
   {id:387,name:"Kayısı",unit:"1 kg",cat:"manav",price:79.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=400",feat:false},
-  {id:388,name:"�?eftali",unit:"1 kg",cat:"manav",price:89.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=400",feat:false},
+  {id:388,name:"Şeftali",unit:"1 kg",cat:"manav",price:89.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=400",feat:false},
   {id:389,name:"Erik",unit:"1 kg",cat:"manav",price:69.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1571160246942-85d5f0ad22e5?w=400",feat:false},
 
   // === YENİ KASAP ÜRÜNLERİ ===
@@ -1862,48 +1862,48 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   // === YENİ TEMEL GIDA ÜRÜNLERİ ===
   {id:399,name:"Ayçiçek Yağı Komili",unit:"2 L",cat:"temel-gida",price:169.95,old:189.95,badge:"-%11",btype:"badge-red",img:"https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400",feat:true},
   {id:400,name:"Zeytinyağı Tariş",unit:"1 L",cat:"temel-gida",price:349.95,old:null,badge:"NATUREL",btype:"badge-gold",img:"https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400",feat:false},
-  {id:401,name:"Toz �?eker Torku",unit:"5 kg",cat:"temel-gida",price:229.95,old:null,badge:"AİLE BOY",btype:"badge-blue",img:"https://images.unsplash.com/photo-1546549032-9571cd6b27df?w=400",feat:false},
+  {id:401,name:"Toz Şeker Torku",unit:"5 kg",cat:"temel-gida",price:229.95,old:null,badge:"AİLE BOY",btype:"badge-blue",img:"https://images.unsplash.com/photo-1546549032-9571cd6b27df?w=400",feat:false},
   {id:402,name:"İnce Tuz",unit:"1 kg",cat:"temel-gida",price:24.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1546549032-9571cd6b27df?w=400",feat:false},
   {id:403,name:"Baldo Pirinç",unit:"1 kg",cat:"temel-gida",price:89.95,old:null,badge:"KALİTELİ",btype:"badge-gold",img:"https://images.unsplash.com/photo-1536304993881-ff86e0c9ef7c?w=400",feat:false},
   {id:404,name:"Spagetti Barilla",unit:"500 gr",cat:"temel-gida",price:49.95,old:null,badge:"İTALYAN",btype:"badge-blue",img:"https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?w=400",feat:false},
-  {id:405,name:"Kırmızı Mercimek",unit:"1 kg",cat:"temel-gida",price:74.95,old:null,badge:"SA�?LIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1585852989498-7f2e0e542ff6?w=400",feat:false},
-  {id:406,name:"Nohut",unit:"1 kg",cat:"temel-gida",price:79.95,old:null,badge:"SA�?LIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1585852989498-7f2e0e542ff6?w=400",feat:false},
-  {id:407,name:"Kuru Fasülye",unit:"1 kg",cat:"temel-gida",price:84.95,old:null,badge:"SA�?LIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1585852989498-7f2e0e542ff6?w=400",feat:false},
-  {id:408,name:"Buğday Unu Eti",unit:"2 kg",cat:"temel-gida",price:79.95,old:null,badge:"Ö�?ÜTME",btype:"badge-gold",img:"https://images.unsplash.com/photo-1622484211148-716598e09117?w=400",feat:false},
+  {id:405,name:"Kırmızı Mercimek",unit:"1 kg",cat:"temel-gida",price:74.95,old:null,badge:"SAŞLIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1585852989498-7f2e0e542ff6?w=400",feat:false},
+  {id:406,name:"Nohut",unit:"1 kg",cat:"temel-gida",price:79.95,old:null,badge:"SAŞLIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1585852989498-7f2e0e542ff6?w=400",feat:false},
+  {id:407,name:"Kuru Fasülye",unit:"1 kg",cat:"temel-gida",price:84.95,old:null,badge:"SAŞLIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1585852989498-7f2e0e542ff6?w=400",feat:false},
+  {id:408,name:"Buğday Unu Eti",unit:"2 kg",cat:"temel-gida",price:79.95,old:null,badge:"ÖŞÜTME",btype:"badge-gold",img:"https://images.unsplash.com/photo-1622484211148-716598e09117?w=400",feat:false},
   {id:409,name:"Galeta Unu",unit:"500 gr",cat:"temel-gida",price:39.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1622484211148-716598e09117?w=400",feat:false},
   {id:410,name:"Karadeniz Yufkası",unit:"1 kg",cat:"temel-gida",price:74.95,old:null,badge:"GELENEKSEL",btype:"badge-gold",img:"https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?w=400",feat:false},
   {id:411,name:"Tamek Ketçap",unit:"500 gr",cat:"temel-gida",price:64.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1546549032-9571cd6b27df?w=400",feat:false},
   {id:412,name:"Hellmann's Mayonez",unit:"680 gr",cat:"temel-gida",price:134.95,old:null,badge:"ÇOK SATAN",btype:"badge-gold",img:"https://images.unsplash.com/photo-1546549032-9571cd6b27df?w=400",feat:false},
   {id:413,name:"Knorr Sebze Çorbası",unit:"69 gr",cat:"temel-gida",price:29.95,old:null,badge:"HAZIR",btype:"badge-blue",img:"https://images.unsplash.com/photo-1547592180-85f173990554?w=400",feat:false},
-  {id:414,name:"Tarım Kredi Elma Sirkesi",unit:"500ml",cat:"temel-gida",price:49.95,old:null,badge:"DO�?AL",btype:"badge-green",img:"https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400",feat:false},
+  {id:414,name:"Tarım Kredi Elma Sirkesi",unit:"500ml",cat:"temel-gida",price:49.95,old:null,badge:"DOŞAL",btype:"badge-green",img:"https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400",feat:false},
 
-  // === YENİ ATI�?TIRILMALIK ===
+  // === YENİ ATIŞTIRILMALIK ===
   {id:415,name:"Lay's Fırında Kırmızı Biber",unit:"148 gr",cat:"atistirmalik",price:64.95,old:null,badge:"FIRINDA",btype:"badge-red",img:"https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=400",feat:true},
   {id:416,name:"Pringles Original",unit:"165 gr",cat:"atistirmalik",price:89.95,old:null,badge:"KLASİK",btype:"badge-gold",img:"https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=400",feat:false},
   {id:417,name:"Ulker Biskrem Findikli",unit:"90 gr",cat:"atistirmalik",price:39.95,old:null,badge:"KREMALI",btype:"badge-gold",img:"https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400",feat:false},
   {id:418,name:"KitKat",unit:"41.5 gr",cat:"atistirmalik",price:34.95,old:null,badge:"ÇOK SATAN",btype:"badge-gold",img:"https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400",feat:false},
   {id:419,name:"Milka Fındıklı",unit:"100 gr",cat:"atistirmalik",price:59.95,old:null,badge:"ALPİN SÜT",btype:"badge-blue",img:"https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400",feat:false},
-  {id:420,name:"Haribo Gummy Bears",unit:"100 gr",cat:"atistirmalik",price:44.95,old:null,badge:"ÇOCU�?A",btype:"badge-green",img:"https://images.unsplash.com/photo-1582058091597-8d9e08c2e70e?w=400",feat:false},
+  {id:420,name:"Haribo Gummy Bears",unit:"100 gr",cat:"atistirmalik",price:44.95,old:null,badge:"ÇOCUŞA",btype:"badge-green",img:"https://images.unsplash.com/photo-1582058091597-8d9e08c2e70e?w=400",feat:false},
   {id:421,name:"Çubuk Kraker Eti",unit:"175 gr",cat:"atistirmalik",price:49.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400",feat:false},
   {id:422,name:"Ülker Altın Leblebi",unit:"150 gr",cat:"atistirmalik",price:54.95,old:null,badge:"LEBLEBİ",btype:"badge-gold",img:"https://images.unsplash.com/photo-1578920845869-d7c524e6b6f6?w=400",feat:false},
-  {id:423,name:"Cips Karışık Kuruyemiş",unit:"250 gr",cat:"atistirmalik",price:119.95,old:null,badge:"KARI�?IK",btype:"badge-gold",img:"https://images.unsplash.com/photo-1578920845869-d7c524e6b6f6?w=400",feat:false},
+  {id:423,name:"Cips Karışık Kuruyemiş",unit:"250 gr",cat:"atistirmalik",price:119.95,old:null,badge:"KARIŞIK",btype:"badge-gold",img:"https://images.unsplash.com/photo-1578920845869-d7c524e6b6f6?w=400",feat:false},
   {id:424,name:"Eti Popkek",unit:"2x60 gr",cat:"atistirmalik",price:34.95,old:null,badge:"ÇOCUK SEVERİ",btype:"badge-green",img:"https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400",feat:false},
 
-  // === YENİ SÜT & �?ARKÜTERİ ===
+  // === YENİ SÜT & ŞARKÜTERİ ===
   {id:425,name:"Pınar Süt",unit:"1 L",cat:"sut-sarkuteri",price:49.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400",feat:true},
   {id:426,name:"Sütaş Süt",unit:"1 L",cat:"sut-sarkuteri",price:47.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400",feat:false},
-  {id:427,name:"Pınar Yoğurt",unit:"1 kg",cat:"sut-sarkuteri",price:64.95,old:null,badge:"TAM YA�?",btype:"badge-gold",img:"https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400",feat:false},
+  {id:427,name:"Pınar Yoğurt",unit:"1 kg",cat:"sut-sarkuteri",price:64.95,old:null,badge:"TAM YAŞ",btype:"badge-gold",img:"https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400",feat:false},
   {id:428,name:"Sütaş Yoğurt",unit:"750 gr",cat:"sut-sarkuteri",price:54.95,old:null,badge:"SÜZME",btype:"badge-green",img:"https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400",feat:false},
   {id:429,name:"Labne Peyniri Pınar",unit:"200 gr",cat:"sut-sarkuteri",price:79.95,old:null,badge:"KREMALİ",btype:"badge-blue",img:"https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=400",feat:false},
   {id:430,name:"Kaşar Peyniri Pınar",unit:"400 gr",cat:"sut-sarkuteri",price:179.95,old:null,badge:"KLASİK",btype:"badge-gold",img:"https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=400",feat:true},
   {id:431,name:"Sütaş Süzme Peynir",unit:"900 gr",cat:"sut-sarkuteri",price:249.95,old:null,badge:"BÜYÜK BOY",btype:"badge-blue",img:"https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=400",feat:false},
-  {id:432,name:"Krem Peynir Philadelphia",unit:"200 gr",cat:"sut-sarkuteri",price:99.95,old:null,badge:"YUMU�?AK",btype:"badge-blue",img:"https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=400",feat:false},
+  {id:432,name:"Krem Peynir Philadelphia",unit:"200 gr",cat:"sut-sarkuteri",price:99.95,old:null,badge:"YUMUŞAK",btype:"badge-blue",img:"https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=400",feat:false},
   {id:433,name:"Yumurta Günlük",unit:"15li",cat:"sut-sarkuteri",price:89.95,old:null,badge:"GÜNLÜK",btype:"badge-gold",img:"https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=400",feat:true},
   {id:434,name:"Yumurta Köy",unit:"10lu",cat:"sut-sarkuteri",price:99.95,old:null,badge:"KÖY",btype:"badge-green",img:"https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=400",feat:false},
   {id:435,name:"Sosis Pınar",unit:"500 gr",cat:"sut-sarkuteri",price:139.95,old:null,badge:"IZGARA",btype:"badge-red",img:"https://images.unsplash.com/photo-1562967915-6ba607ff7d05?w=400",feat:false},
   {id:436,name:"Hindi Salam",unit:"150 gr",cat:"sut-sarkuteri",price:69.95,old:null,badge:"HAFIF",btype:"badge-green",img:"https://images.unsplash.com/photo-1562967915-6ba607ff7d05?w=400",feat:false},
-  {id:437,name:"Kaymak",unit:"200 gr",cat:"sut-sarkuteri",price:94.95,old:null,badge:"DO�?AL",btype:"badge-green",img:"https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400",feat:false},
-  {id:438,name:"Sütaş Ayran",unit:"500 ml",cat:"sut-sarkuteri",price:24.95,old:null,badge:"SO�?UK",btype:"badge-blue",img:"https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400",feat:false},
+  {id:437,name:"Kaymak",unit:"200 gr",cat:"sut-sarkuteri",price:94.95,old:null,badge:"DOŞAL",btype:"badge-green",img:"https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400",feat:false},
+  {id:438,name:"Sütaş Ayran",unit:"500 ml",cat:"sut-sarkuteri",price:24.95,old:null,badge:"SOŞUK",btype:"badge-blue",img:"https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400",feat:false},
 
   // === YENİ İÇECEK ===
   {id:439,name:"Lipton Çay Bardak 100lü",unit:"kutu",cat:"icecek",price:169.95,old:null,badge:"ÇOK SATAN",btype:"badge-gold",img:"https://images.unsplash.com/photo-1564890369478-c89ca3d9cde8?w=400",feat:true},
@@ -1918,19 +1918,19 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:448,name:"Tarhana Çorbası Paketli",unit:"500 gr",cat:"icecek",price:89.95,old:null,badge:"GELENEKSEL",btype:"badge-gold",img:"https://images.unsplash.com/photo-1547592180-85f173990554?w=400",feat:false},
 
   // === YENİ TEMİZLİK ===
-  {id:449,name:"Mr. Muscle Banyo Sprey",unit:"750ml",cat:"temizlik",price:89.95,old:null,badge:"GÜÇLENDİRİLMİ�?",btype:"badge-blue",img:"https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400",feat:false},
-  {id:450,name:"Cillit Bang Kireç Temizleyici",unit:"750ml",cat:"temizlik",price:99.95,old:null,badge:"GÜÇLENDİRİLMİ�?",btype:"badge-red",img:"https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400",feat:false},
+  {id:449,name:"Mr. Muscle Banyo Sprey",unit:"750ml",cat:"temizlik",price:89.95,old:null,badge:"GÜÇLENDİRİLMİŞ",btype:"badge-blue",img:"https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400",feat:false},
+  {id:450,name:"Cillit Bang Kireç Temizleyici",unit:"750ml",cat:"temizlik",price:99.95,old:null,badge:"GÜÇLENDİRİLMİŞ",btype:"badge-red",img:"https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400",feat:false},
   {id:451,name:"Vanish Leke Çıkarıcı",unit:"500ml",cat:"temizlik",price:129.95,old:null,badge:"RENKLERE",btype:"badge-blue",img:"https://images.unsplash.com/photo-1585421514738-01798e348b17?w=400",feat:true},
   {id:452,name:"Ace Çamaşır Suyu",unit:"1.5 L",cat:"temizlik",price:64.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400",feat:false},
   {id:453,name:"Comfort Yumuşatıcı 1.5L",unit:"şişe",cat:"temizlik",price:109.95,old:null,badge:"BAHAR",btype:"badge-green",img:"https://images.unsplash.com/photo-1585421514738-01798e348b17?w=400",feat:false},
   {id:454,name:"Bold Matik 3kg",unit:"kutu",cat:"temizlik",price:219.95,old:249.95,badge:"-%12",btype:"badge-red",img:"https://images.unsplash.com/photo-1585421514738-01798e348b17?w=400",feat:true},
   {id:455,name:"Scotch-Brite Sünger",unit:"5li",cat:"temizlik",price:59.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400",feat:false},
   {id:456,name:"Presto El Dezenfektanı",unit:"500ml",cat:"temizlik",price:69.95,old:null,badge:"KORUYUCU",btype:"badge-blue",img:"https://images.unsplash.com/photo-1584515933487-779824d29309?w=400",feat:false},
-  {id:457,name:"Familia Tuvalet Kağıdı 16lı",unit:"paket",cat:"temizlik",price:129.95,old:null,badge:"YUMU�?AK",btype:"badge-blue",img:"https://images.unsplash.com/photo-1585421514738-01798e348b17?w=400",feat:false},
+  {id:457,name:"Familia Tuvalet Kağıdı 16lı",unit:"paket",cat:"temizlik",price:129.95,old:null,badge:"YUMUŞAK",btype:"badge-blue",img:"https://images.unsplash.com/photo-1585421514738-01798e348b17?w=400",feat:false},
   {id:458,name:"İpek Kağıt Havlu 12li",unit:"paket",cat:"temizlik",price:164.95,old:null,badge:"EKONOMİK",btype:"badge-gold",img:"https://images.unsplash.com/photo-1585421514738-01798e348b17?w=400",feat:false},
 
   // === YENİ KOZMETİK ===
-  {id:459,name:"Clear Erkek �?ampuan 500ml",unit:"şişe",cat:"kozmetik",price:189.95,old:null,badge:"KEPEK",btype:"badge-blue",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
+  {id:459,name:"Clear Erkek Şampuan 500ml",unit:"şişe",cat:"kozmetik",price:189.95,old:null,badge:"KEPEK",btype:"badge-blue",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
   {id:460,name:"Elseve Saç Bakım Kremi 400ml",unit:"şişe",cat:"kozmetik",price:149.95,old:null,badge:"ONARICI",btype:"badge-green",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
   {id:461,name:"Garnier Micellar Su 400ml",unit:"şişe",cat:"kozmetik",price:149.95,old:null,badge:"TEMİZLEYİCİ",btype:"badge-green",img:"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400",feat:true},
   {id:462,name:"Old Spice Deodorant 150ml",unit:"kutu",cat:"kozmetik",price:99.95,old:null,badge:"48 SAAT",btype:"badge-blue",img:"https://images.unsplash.com/photo-1585232350538-47af97f8f9bd?w=400",feat:false},
@@ -1943,18 +1943,18 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
 
   // === YENİ KAHVALTILlK ===
   {id:469,name:"Nutella",unit:"630 gr",cat:"kahvaltilik",price:249.95,old:null,badge:"ÇOK SATAN",btype:"badge-gold",img:"https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400",feat:true},
-  {id:470,name:"Ankara Tahin",unit:"350 gr",cat:"kahvaltilik",price:99.95,old:null,badge:"DO�?AL",btype:"badge-green",img:"https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400",feat:false},
+  {id:470,name:"Ankara Tahin",unit:"350 gr",cat:"kahvaltilik",price:99.95,old:null,badge:"DOŞAL",btype:"badge-green",img:"https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400",feat:false},
   {id:471,name:"Dardanel Ton Balığı",unit:"160 gr",cat:"kahvaltilik",price:89.95,old:null,badge:"KAHVALTI",btype:"badge-blue",img:"https://images.unsplash.com/photo-1534353436294-0dbd4bdac845?w=400",feat:false},
   {id:472,name:"Tat Çilek Reçeli",unit:"700 gr",cat:"kahvaltilik",price:129.95,old:null,badge:"ÇİLEK",btype:"badge-red",img:"https://images.unsplash.com/photo-1571090256273-01b23d97c0e6?w=400",feat:false},
   {id:473,name:"Ulker Çokomel",unit:"100 gr",cat:"kahvaltilik",price:44.95,old:null,badge:"KAHVALTI",btype:"badge-gold",img:"https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400",feat:false},
-  {id:474,name:"Torku Bal Kaymak",unit:"300 gr",cat:"kahvaltilik",price:139.95,old:null,badge:"DO�?AL",btype:"badge-green",img:"https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400",feat:false},
+  {id:474,name:"Torku Bal Kaymak",unit:"300 gr",cat:"kahvaltilik",price:139.95,old:null,badge:"DOŞAL",btype:"badge-green",img:"https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400",feat:false},
   {id:475,name:"Pınar Labne",unit:"8x20 gr",cat:"kahvaltilik",price:79.95,old:null,badge:"PORSIYON",btype:"badge-blue",img:"https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=400",feat:false},
 
   // === YENİ ANNE & BEBEK ===
   {id:476,name:"Pampers Bebek Bezi 4 Beden",unit:"46lı",cat:"anne-bebek",price:359.95,old:null,badge:"AKTIF BEBEK",btype:"badge-blue",img:"https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400",feat:true},
-  {id:477,name:"Huggies Elite Soft Bezi",unit:"56lı",cat:"anne-bebek",price:389.95,old:null,badge:"ULTRA YUMU�?AK",btype:"badge-green",img:"https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400",feat:false},
+  {id:477,name:"Huggies Elite Soft Bezi",unit:"56lı",cat:"anne-bebek",price:389.95,old:null,badge:"ULTRA YUMUŞAK",btype:"badge-green",img:"https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400",feat:false},
   {id:478,name:"Bebek Losyonu Johnson's",unit:"300ml",cat:"anne-bebek",price:99.95,old:null,badge:"HASSAS",btype:"badge-green",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
-  {id:479,name:"Bebek Kremi Bepanthen",unit:"100 gr",cat:"anne-bebek",price:129.95,old:null,badge:"Pİ�?İK KAR�?ITI",btype:"badge-blue",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
+  {id:479,name:"Bebek Kremi Bepanthen",unit:"100 gr",cat:"anne-bebek",price:129.95,old:null,badge:"PİŞİK KARŞITI",btype:"badge-blue",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
   {id:480,name:"Hipp Organik Meyve Püresi",unit:"190 gr",cat:"anne-bebek",price:69.95,old:null,badge:"ORGANİK",btype:"badge-green",img:"https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400",feat:false},
   {id:481,name:"Bebek Havlusu Islak 80li",unit:"paket",cat:"anne-bebek",price:54.95,old:null,badge:"PARFÜMSÜZ",btype:"badge-green",img:"https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400",feat:false},
 
@@ -1982,23 +1982,23 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:500,name:"Böğürtlen",unit:"125 gr",cat:"manav",price:149.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1425934398893-310a009a77f9?w=400",feat:false},
   {id:501,name:"Dut Siyah",unit:"1 kg",cat:"manav",price:69.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1528821128474-27f963b062bf?w=400",feat:false},
   {id:502,name:"Bezelye Taze",unit:"1 kg",cat:"manav",price:79.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=400",feat:false},
-  {id:503,name:"Kuşkonmaz",unit:"500 gr",cat:"manav",price:129.95,old:null,badge:"SA�?LIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400",feat:false},
+  {id:503,name:"Kuşkonmaz",unit:"500 gr",cat:"manav",price:129.95,old:null,badge:"SAŞLIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400",feat:false},
   {id:504,name:"Bamya",unit:"500 gr",cat:"manav",price:89.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?w=400",feat:false},
   {id:505,name:"Semizotu",unit:"bağ",cat:"manav",price:29.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400",feat:false},
   {id:506,name:"Mısır Taze",unit:"adet",cat:"manav",price:24.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1604977042946-1eecc30f269e?w=400",feat:false},
   {id:507,name:"Marul",unit:"adet",cat:"manav",price:29.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1?w=400",feat:false},
   {id:508,name:"Fesleğen",unit:"bağ",cat:"manav",price:34.95,old:null,badge:"AROMALIK",btype:"badge-green",img:"https://images.unsplash.com/photo-1628556270448-4d4e4148e1b1?w=400",feat:false},
   {id:509,name:"Kişniş",unit:"bağ",cat:"manav",price:24.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=400",feat:false},
-  {id:510,name:"Adaçayı Taze",unit:"bağ",cat:"manav",price:34.95,old:null,badge:"DO�?AL",btype:"badge-green",img:"https://images.unsplash.com/photo-1628556270448-4d4e4148e1b1?w=400",feat:false},
+  {id:510,name:"Adaçayı Taze",unit:"bağ",cat:"manav",price:34.95,old:null,badge:"DOŞAL",btype:"badge-green",img:"https://images.unsplash.com/photo-1628556270448-4d4e4148e1b1?w=400",feat:false},
   {id:511,name:"Balkabağı",unit:"1 kg",cat:"manav",price:34.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1570586437263-ab629fccc818?w=400",feat:false},
-  {id:512,name:"Tatlı Patates",unit:"1 kg",cat:"manav",price:59.95,old:null,badge:"SA�?LIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400",feat:false},
-  {id:513,name:"Hurma",unit:"500 gr",cat:"manav",price:129.95,old:null,badge:"DO�?AL",btype:"badge-gold",img:"https://images.unsplash.com/photo-1601004890657-9839b19e7b74?w=400",feat:false},
+  {id:512,name:"Tatlı Patates",unit:"1 kg",cat:"manav",price:59.95,old:null,badge:"SAŞLIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400",feat:false},
+  {id:513,name:"Hurma",unit:"500 gr",cat:"manav",price:129.95,old:null,badge:"DOŞAL",btype:"badge-gold",img:"https://images.unsplash.com/photo-1601004890657-9839b19e7b74?w=400",feat:false},
   {id:514,name:"Elma Granny Smith",unit:"1 kg",cat:"manav",price:79.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400",feat:false},
   {id:515,name:"Greyfurt",unit:"1 kg",cat:"manav",price:79.95,old:null,badge:"C VİTAMİNİ",btype:"badge-blue",img:"https://images.unsplash.com/photo-1547514701-42782101795e?w=400",feat:false},
   {id:516,name:"Pomelo",unit:"adet",cat:"manav",price:99.95,old:null,badge:"EGZOTİK",btype:"badge-blue",img:"https://images.unsplash.com/photo-1547514701-42782101795e?w=400",feat:false},
   {id:517,name:"Nektarin",unit:"1 kg",cat:"manav",price:89.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=400",feat:false},
   {id:518,name:"Üzüm Beyaz",unit:"1 kg",cat:"manav",price:119.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1537640538966-79f369143f8f?w=400",feat:false},
-  {id:519,name:"Kuru Üzüm",unit:"200 gr",cat:"manav",price:54.95,old:null,badge:"DO�?AL",btype:"badge-gold",img:"https://images.unsplash.com/photo-1537640538966-79f369143f8f?w=400",feat:false},
+  {id:519,name:"Kuru Üzüm",unit:"200 gr",cat:"manav",price:54.95,old:null,badge:"DOŞAL",btype:"badge-gold",img:"https://images.unsplash.com/photo-1537640538966-79f369143f8f?w=400",feat:false},
   {id:520,name:"Ceviz Taze",unit:"1 kg",cat:"manav",price:249.95,old:null,badge:"YEREL",btype:"badge-gold",img:"https://images.unsplash.com/photo-1578920845869-d7c524e6b6f6?w=400",feat:false},
 
   // === YENİ KASAP 2 ===
@@ -2015,8 +2015,8 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:531,name:"Kuzu Lokum",unit:"1 kg",cat:"kasap",price:1299.95,old:null,badge:"PREMİUM",btype:"badge-gold",img:"https://images.unsplash.com/photo-1544025162-d76538b2a681?w=400",feat:false},
   {id:532,name:"Balık Levrek",unit:"adet",cat:"kasap",price:449.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400",feat:false},
   {id:533,name:"Balık Çipura",unit:"adet",cat:"kasap",price:399.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400",feat:false},
-  {id:534,name:"Balık Somon Dilim",unit:"200 gr",cat:"kasap",price:299.95,old:null,badge:"SO�?UK SU",btype:"badge-blue",img:"https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400",feat:true},
-  {id:535,name:"Piliç �?iş Hazır",unit:"400 gr",cat:"kasap",price:229.95,old:null,badge:"HAZIR",btype:"badge-blue",img:"https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=400",feat:false},
+  {id:534,name:"Balık Somon Dilim",unit:"200 gr",cat:"kasap",price:299.95,old:null,badge:"SOŞUK SU",btype:"badge-blue",img:"https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400",feat:true},
+  {id:535,name:"Piliç Şiş Hazır",unit:"400 gr",cat:"kasap",price:229.95,old:null,badge:"HAZIR",btype:"badge-blue",img:"https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=400",feat:false},
   {id:536,name:"Mangal Köftesi",unit:"500 gr",cat:"kasap",price:329.95,old:null,badge:"MANGAL",btype:"badge-red",img:"https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=400",feat:false},
   {id:537,name:"Hindi Göğsü Fileto",unit:"1 kg",cat:"kasap",price:299.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=400",feat:false},
   {id:538,name:"Dana Kaburga",unit:"1 kg",cat:"kasap",price:749.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1558030006-450675393462?w=400",feat:false},
@@ -2028,8 +2028,8 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:542,name:"Karabiber Öğütülmüş",unit:"50 gr",cat:"temel-gida",price:44.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1590165482129-1b8b27698780?w=400",feat:false},
   {id:543,name:"Kimyon Toz",unit:"50 gr",cat:"temel-gida",price:34.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1590165482129-1b8b27698780?w=400",feat:false},
   {id:544,name:"Tarçın Toz",unit:"50 gr",cat:"temel-gida",price:39.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1590165482129-1b8b27698780?w=400",feat:false},
-  {id:545,name:"Zerdeçal Toz",unit:"50 gr",cat:"temel-gida",price:49.95,old:null,badge:"SA�?LIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1590165482129-1b8b27698780?w=400",feat:false},
-  {id:546,name:"Kekik Kuru",unit:"20 gr",cat:"temel-gida",price:24.95,old:null,badge:"DO�?AL",btype:"badge-green",img:"https://images.unsplash.com/photo-1590165482129-1b8b27698780?w=400",feat:false},
+  {id:545,name:"Zerdeçal Toz",unit:"50 gr",cat:"temel-gida",price:49.95,old:null,badge:"SAŞLIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1590165482129-1b8b27698780?w=400",feat:false},
+  {id:546,name:"Kekik Kuru",unit:"20 gr",cat:"temel-gida",price:24.95,old:null,badge:"DOŞAL",btype:"badge-green",img:"https://images.unsplash.com/photo-1590165482129-1b8b27698780?w=400",feat:false},
   {id:547,name:"Sumak",unit:"50 gr",cat:"temel-gida",price:29.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1590165482129-1b8b27698780?w=400",feat:false},
   {id:548,name:"Bezelye Konserve",unit:"400 gr",cat:"temel-gida",price:39.95,old:null,badge:"KOLAY",btype:"badge-blue",img:"https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=400",feat:false},
   {id:549,name:"Mısır Konserve",unit:"400 gr",cat:"temel-gida",price:34.95,old:null,badge:"KOLAY",btype:"badge-blue",img:"https://images.unsplash.com/photo-1604977042946-1eecc30f269e?w=400",feat:false},
@@ -2039,19 +2039,19 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:553,name:"Fusilli Makarna",unit:"500 gr",cat:"temel-gida",price:49.95,old:null,badge:"İTALYAN",btype:"badge-blue",img:"https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?w=400",feat:false},
   {id:554,name:"Lazanya",unit:"250 gr",cat:"temel-gida",price:59.95,old:null,badge:"FIRIN",btype:"badge-gold",img:"https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?w=400",feat:false},
   {id:555,name:"Mısır Gevreği Kellogg's",unit:"375 gr",cat:"temel-gida",price:149.95,old:null,badge:"KAHVALTI",btype:"badge-gold",img:"https://images.unsplash.com/photo-1536304993881-ff86e0c9ef7c?w=400",feat:false},
-  {id:556,name:"Yulaf Ezmesi",unit:"500 gr",cat:"temel-gida",price:79.95,old:null,badge:"SA�?LIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1515543237350-b3eea1ec8082?w=400",feat:false},
+  {id:556,name:"Yulaf Ezmesi",unit:"500 gr",cat:"temel-gida",price:79.95,old:null,badge:"SAŞLIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1515543237350-b3eea1ec8082?w=400",feat:false},
   {id:557,name:"Bulgur İri",unit:"1 kg",cat:"temel-gida",price:49.95,old:null,badge:"GELENEKSEL",btype:"badge-gold",img:"https://images.unsplash.com/photo-1536304993881-ff86e0c9ef7c?w=400",feat:false},
   {id:558,name:"Kısır Karışımı",unit:"500 gr",cat:"temel-gida",price:44.95,old:null,badge:"HAZIR",btype:"badge-blue",img:"https://images.unsplash.com/photo-1585852989498-7f2e0e542ff6?w=400",feat:false},
-  {id:559,name:"Üzüm Pekmezi",unit:"500 gr",cat:"temel-gida",price:89.95,old:null,badge:"DO�?AL",btype:"badge-green",img:"https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400",feat:false},
-  {id:560,name:"Dut Pekmezi",unit:"500 gr",cat:"temel-gida",price:99.95,old:null,badge:"DO�?AL",btype:"badge-green",img:"https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400",feat:false},
-  {id:561,name:"Nar Ekşisi",unit:"250 ml",cat:"temel-gida",price:79.95,old:null,badge:"DO�?AL",btype:"badge-green",img:"https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400",feat:false},
+  {id:559,name:"Üzüm Pekmezi",unit:"500 gr",cat:"temel-gida",price:89.95,old:null,badge:"DOŞAL",btype:"badge-green",img:"https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400",feat:false},
+  {id:560,name:"Dut Pekmezi",unit:"500 gr",cat:"temel-gida",price:99.95,old:null,badge:"DOŞAL",btype:"badge-green",img:"https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400",feat:false},
+  {id:561,name:"Nar Ekşisi",unit:"250 ml",cat:"temel-gida",price:79.95,old:null,badge:"DOŞAL",btype:"badge-green",img:"https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400",feat:false},
   {id:562,name:"Hellmann's Mayonez",unit:"680 gr",cat:"temel-gida",price:134.95,old:null,badge:"ÇOK SATAN",btype:"badge-gold",img:"https://images.unsplash.com/photo-1546549032-9571cd6b27df?w=400",feat:true},
   {id:563,name:"Tamek Ketçap",unit:"500 gr",cat:"temel-gida",price:64.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1546549032-9571cd6b27df?w=400",feat:false},
   {id:564,name:"Hardal Dijon",unit:"200 gr",cat:"temel-gida",price:89.95,old:null,badge:"FRANSIZ",btype:"badge-blue",img:"https://images.unsplash.com/photo-1546549032-9571cd6b27df?w=400",feat:false},
   {id:565,name:"Soya Sosu",unit:"150 ml",cat:"temel-gida",price:129.95,old:null,badge:"ASYA",btype:"badge-blue",img:"https://images.unsplash.com/photo-1546549032-9571cd6b27df?w=400",feat:false},
   {id:566,name:"Çekirdek Ay",unit:"200 gr",cat:"temel-gida",price:34.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1578920845869-d7c524e6b6f6?w=400",feat:false},
-  {id:567,name:"Kabak Çekirdeği",unit:"200 gr",cat:"temel-gida",price:89.95,old:null,badge:"SA�?LIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1578920845869-d7c524e6b6f6?w=400",feat:false},
-  {id:568,name:"Ceviz İç",unit:"200 gr",cat:"temel-gida",price:189.95,old:null,badge:"SA�?LIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1578920845869-d7c524e6b6f6?w=400",feat:false},
+  {id:567,name:"Kabak Çekirdeği",unit:"200 gr",cat:"temel-gida",price:89.95,old:null,badge:"SAŞLIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1578920845869-d7c524e6b6f6?w=400",feat:false},
+  {id:568,name:"Ceviz İç",unit:"200 gr",cat:"temel-gida",price:189.95,old:null,badge:"SAŞLIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1578920845869-d7c524e6b6f6?w=400",feat:false},
   {id:569,name:"Toz Kakao",unit:"200 gr",cat:"temel-gida",price:89.95,old:null,badge:"FIRIN",btype:"badge-gold",img:"https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?w=400",feat:false},
   {id:570,name:"Hazır Çorba Sebze",unit:"69 gr",cat:"temel-gida",price:34.95,old:null,badge:"HAZIR",btype:"badge-blue",img:"https://images.unsplash.com/photo-1547592180-85f173990554?w=400",feat:false},
   {id:571,name:"Hazır Çorba Domates",unit:"69 gr",cat:"temel-gida",price:29.95,old:null,badge:"HAZIR",btype:"badge-blue",img:"https://images.unsplash.com/photo-1547592180-85f173990554?w=400",feat:false},
@@ -2059,13 +2059,13 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:573,name:"Pesto Sos Barilla",unit:"190 gr",cat:"temel-gida",price:89.95,old:null,badge:"İTALYAN",btype:"badge-green",img:"https://images.unsplash.com/photo-1546549032-9571cd6b27df?w=400",feat:false},
   {id:574,name:"Domates Sos Bertolli",unit:"400 gr",cat:"temel-gida",price:79.95,old:null,badge:"İTALYAN",btype:"badge-red",img:"https://images.unsplash.com/photo-1546549032-9571cd6b27df?w=400",feat:false},
   {id:575,name:"Salça Biber",unit:"830 gr",cat:"temel-gida",price:99.95,old:null,badge:"GELENEKSEL",btype:"badge-red",img:"https://images.unsplash.com/photo-1546549032-9571cd6b27df?w=400",feat:false},
-  {id:576,name:"Turşu Karışık",unit:"720 gr",cat:"temel-gida",price:79.95,old:null,badge:"EK�?İ",btype:"badge-green",img:"https://images.unsplash.com/photo-1535912559178-46d7b962f5df?w=400",feat:false},
+  {id:576,name:"Turşu Karışık",unit:"720 gr",cat:"temel-gida",price:79.95,old:null,badge:"EKŞİ",btype:"badge-green",img:"https://images.unsplash.com/photo-1535912559178-46d7b962f5df?w=400",feat:false},
   {id:577,name:"Zeytinyağı 750ml",unit:"şişe",cat:"temel-gida",price:249.95,old:null,badge:"SIZMA",btype:"badge-gold",img:"https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400",feat:true},
-  {id:578,name:"Çikolata Soslu Granola",unit:"350 gr",cat:"temel-gida",price:149.95,old:null,badge:"SA�?LIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1515543237350-b3eea1ec8082?w=400",feat:false},
+  {id:578,name:"Çikolata Soslu Granola",unit:"350 gr",cat:"temel-gida",price:149.95,old:null,badge:"SAŞLIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1515543237350-b3eea1ec8082?w=400",feat:false},
   {id:579,name:"Mısır Unu",unit:"1 kg",cat:"temel-gida",price:44.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1622484211148-716598e09117?w=400",feat:false},
   {id:580,name:"Tam Buğday Unu",unit:"1 kg",cat:"temel-gida",price:59.95,old:null,badge:"TAM TAHIL",btype:"badge-green",img:"https://images.unsplash.com/photo-1622484211148-716598e09117?w=400",feat:false},
 
-  // === YENİ SÜT & �?ARKÜTERİ 2 ===
+  // === YENİ SÜT & ŞARKÜTERİ 2 ===
   {id:581,name:"Laktozsuz Süt 1L",unit:"kutu",cat:"sut-sarkuteri",price:59.95,old:null,badge:"LAKTOSUZ",btype:"badge-green",img:"https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400",feat:false},
   {id:582,name:"Organik Süt 1L",unit:"kutu",cat:"sut-sarkuteri",price:74.95,old:null,badge:"ORGANİK",btype:"badge-green",img:"https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400",feat:false},
   {id:583,name:"Çikolatalı Süt 200ml",unit:"kutu",cat:"sut-sarkuteri",price:24.95,old:null,badge:"ÇOCUK",btype:"badge-gold",img:"https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400",feat:false},
@@ -2074,7 +2074,7 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:586,name:"Mihaliç Peyniri",unit:"500 gr",cat:"sut-sarkuteri",price:279.95,old:null,badge:"YÖRESEL",btype:"badge-gold",img:"https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=400",feat:false},
   {id:587,name:"Çedar Dilim",unit:"150 gr",cat:"sut-sarkuteri",price:99.95,old:null,badge:"DİLİMLİ",btype:"badge-blue",img:"https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=400",feat:false},
   {id:588,name:"Mozzarella Top",unit:"125 gr",cat:"sut-sarkuteri",price:99.95,old:null,badge:"İTALYAN",btype:"badge-blue",img:"https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=400",feat:false},
-  {id:589,name:"Rokfor Peyniri",unit:"150 gr",cat:"sut-sarkuteri",price:129.95,old:null,badge:"MA�?ARA",btype:"badge-gold",img:"https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=400",feat:false},
+  {id:589,name:"Rokfor Peyniri",unit:"150 gr",cat:"sut-sarkuteri",price:129.95,old:null,badge:"MAŞARA",btype:"badge-gold",img:"https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=400",feat:false},
   {id:590,name:"Dil Peyniri",unit:"250 gr",cat:"sut-sarkuteri",price:189.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=400",feat:false},
   {id:591,name:"Kars Gravyeri",unit:"300 gr",cat:"sut-sarkuteri",price:249.95,old:null,badge:"KARS",btype:"badge-gold",img:"https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=400",feat:false},
   {id:592,name:"Keçi Peyniri",unit:"200 gr",cat:"sut-sarkuteri",price:299.95,old:null,badge:"KEÇI",btype:"badge-blue",img:"https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=400",feat:false},
@@ -2088,44 +2088,44 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:600,name:"Sıvı Krema",unit:"200 ml",cat:"sut-sarkuteri",price:59.95,old:null,badge:"FIRINCI",btype:"badge-gold",img:"https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400",feat:false},
   {id:601,name:"Kefir İçeceği",unit:"400 ml",cat:"sut-sarkuteri",price:39.95,old:null,badge:"PROBİYOTİK",btype:"badge-green",img:"https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400",feat:false},
   {id:602,name:"Probiyotik Yoğurt",unit:"500 gr",cat:"sut-sarkuteri",price:74.95,old:null,badge:"PROBİYOTİK",btype:"badge-green",img:"https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400",feat:false},
-  {id:603,name:"Kaymak Çifte",unit:"200 gr",cat:"sut-sarkuteri",price:129.95,old:null,badge:"DO�?AL",btype:"badge-gold",img:"https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400",feat:false},
+  {id:603,name:"Kaymak Çifte",unit:"200 gr",cat:"sut-sarkuteri",price:129.95,old:null,badge:"DOŞAL",btype:"badge-gold",img:"https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400",feat:false},
   {id:604,name:"Bal Kestane",unit:"460 gr",cat:"sut-sarkuteri",price:399.95,old:null,badge:"ORMAN",btype:"badge-gold",img:"https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400",feat:false},
-  {id:605,name:"Kuru İncir",unit:"500 gr",cat:"sut-sarkuteri",price:119.95,old:null,badge:"DO�?AL",btype:"badge-green",img:"https://images.unsplash.com/photo-1601004890657-9839b19e7b74?w=400",feat:false},
-  {id:606,name:"Kuru Kayısı",unit:"200 gr",cat:"sut-sarkuteri",price:89.95,old:null,badge:"DO�?AL",btype:"badge-green",img:"https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=400",feat:false},
-  {id:607,name:"Kuru Erik",unit:"200 gr",cat:"sut-sarkuteri",price:79.95,old:null,badge:"DO�?AL",btype:"badge-green",img:"https://images.unsplash.com/photo-1571160246942-85d5f0ad22e5?w=400",feat:false},
+  {id:605,name:"Kuru İncir",unit:"500 gr",cat:"sut-sarkuteri",price:119.95,old:null,badge:"DOŞAL",btype:"badge-green",img:"https://images.unsplash.com/photo-1601004890657-9839b19e7b74?w=400",feat:false},
+  {id:606,name:"Kuru Kayısı",unit:"200 gr",cat:"sut-sarkuteri",price:89.95,old:null,badge:"DOŞAL",btype:"badge-green",img:"https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=400",feat:false},
+  {id:607,name:"Kuru Erik",unit:"200 gr",cat:"sut-sarkuteri",price:79.95,old:null,badge:"DOŞAL",btype:"badge-green",img:"https://images.unsplash.com/photo-1571160246942-85d5f0ad22e5?w=400",feat:false},
   {id:608,name:"Zeytin Yeşil Gemlik",unit:"500 gr",cat:"sut-sarkuteri",price:129.95,old:null,badge:"GEMLİK",btype:"badge-gold",img:"https://images.unsplash.com/photo-1572635148818-ef6fd45eb394?w=400",feat:false},
   {id:609,name:"Çökelek Tuzlu",unit:"500 gr",cat:"sut-sarkuteri",price:89.95,old:null,badge:"YÖRESEL",btype:"badge-gold",img:"https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=400",feat:false},
   {id:610,name:"Tahin Helva 650gr",unit:"paket",cat:"sut-sarkuteri",price:299.95,old:null,badge:"AİLE BOY",btype:"badge-blue",img:"https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400",feat:false},
 
   // === YENİ İÇECEK 2 ===
   {id:611,name:"Bergamotlu Çay 20li",unit:"kutu",cat:"icecek",price:89.95,old:null,badge:"AROMATİK",btype:"badge-gold",img:"https://images.unsplash.com/photo-1564890369478-c89ca3d9cde8?w=400",feat:false},
-  {id:612,name:"Yeşil Çay 20li",unit:"kutu",cat:"icecek",price:79.95,old:null,badge:"SA�?LIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1564890369478-c89ca3d9cde8?w=400",feat:false},
-  {id:613,name:"Ihlamur Çayı 20li",unit:"kutu",cat:"icecek",price:59.95,old:null,badge:"DO�?AL",btype:"badge-green",img:"https://images.unsplash.com/photo-1564890369478-c89ca3d9cde8?w=400",feat:false},
-  {id:614,name:"Papatya Çayı 20li",unit:"kutu",cat:"icecek",price:59.95,old:null,badge:"DO�?AL",btype:"badge-green",img:"https://images.unsplash.com/photo-1564890369478-c89ca3d9cde8?w=400",feat:false},
+  {id:612,name:"Yeşil Çay 20li",unit:"kutu",cat:"icecek",price:79.95,old:null,badge:"SAŞLIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1564890369478-c89ca3d9cde8?w=400",feat:false},
+  {id:613,name:"Ihlamur Çayı 20li",unit:"kutu",cat:"icecek",price:59.95,old:null,badge:"DOŞAL",btype:"badge-green",img:"https://images.unsplash.com/photo-1564890369478-c89ca3d9cde8?w=400",feat:false},
+  {id:614,name:"Papatya Çayı 20li",unit:"kutu",cat:"icecek",price:59.95,old:null,badge:"DOŞAL",btype:"badge-green",img:"https://images.unsplash.com/photo-1564890369478-c89ca3d9cde8?w=400",feat:false},
   {id:615,name:"Kuşburnu Çayı 20li",unit:"kutu",cat:"icecek",price:59.95,old:null,badge:"C VİTAMİNİ",btype:"badge-blue",img:"https://images.unsplash.com/photo-1564890369478-c89ca3d9cde8?w=400",feat:false},
-  {id:616,name:"Zencefil-Limon Çay",unit:"20li",cat:"icecek",price:69.95,old:null,badge:"BA�?I�?IKLIK",btype:"badge-green",img:"https://images.unsplash.com/photo-1564890369478-c89ca3d9cde8?w=400",feat:true},
+  {id:616,name:"Zencefil-Limon Çay",unit:"20li",cat:"icecek",price:69.95,old:null,badge:"BAŞIŞIKLIK",btype:"badge-green",img:"https://images.unsplash.com/photo-1564890369478-c89ca3d9cde8?w=400",feat:true},
   {id:617,name:"Cappuccino Hazır",unit:"10li",cat:"icecek",price:129.95,old:null,badge:"PRATİK",btype:"badge-gold",img:"https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400",feat:false},
   {id:618,name:"Vişne Suyu 1L",unit:"kutu",cat:"icecek",price:74.95,old:null,badge:"MEYVELİ",btype:"badge-red",img:"https://images.unsplash.com/photo-1534353436294-0dbd4bdac845?w=400",feat:false},
   {id:619,name:"Elma Suyu 1L",unit:"kutu",cat:"icecek",price:64.95,old:null,badge:"KATKISIZ",btype:"badge-green",img:"https://images.unsplash.com/photo-1534353436294-0dbd4bdac845?w=400",feat:false},
-  {id:620,name:"�?eftali Nektarı 1L",unit:"kutu",cat:"icecek",price:64.95,old:null,badge:"MEYVELİ",btype:"badge-gold",img:"https://images.unsplash.com/photo-1534353436294-0dbd4bdac845?w=400",feat:false},
+  {id:620,name:"Şeftali Nektarı 1L",unit:"kutu",cat:"icecek",price:64.95,old:null,badge:"MEYVELİ",btype:"badge-gold",img:"https://images.unsplash.com/photo-1534353436294-0dbd4bdac845?w=400",feat:false},
   {id:621,name:"Nar Suyu 750ml",unit:"şişe",cat:"icecek",price:89.95,old:null,badge:"ANTIOKSIDAN",btype:"badge-red",img:"https://images.unsplash.com/photo-1534353436294-0dbd4bdac845?w=400",feat:false},
-  {id:622,name:"�?algam Suyu 330ml",unit:"şişe",cat:"icecek",price:29.95,old:null,badge:"GELENEKSEL",btype:"badge-red",img:"https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400",feat:false},
+  {id:622,name:"Şalgam Suyu 330ml",unit:"şişe",cat:"icecek",price:29.95,old:null,badge:"GELENEKSEL",btype:"badge-red",img:"https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400",feat:false},
   {id:623,name:"Boza 500ml",unit:"şişe",cat:"icecek",price:39.95,old:null,badge:"GELENEKSEL",btype:"badge-gold",img:"https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400",feat:false},
   {id:624,name:"Monster Enerji 500ml",unit:"kutu",cat:"icecek",price:59.95,old:null,badge:"ENERJİ",btype:"badge-red",img:"https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400",feat:false},
-  {id:625,name:"Pepsi Max 330ml",unit:"kutu",cat:"icecek",price:28.95,old:null,badge:"�?EKERSIZ",btype:"badge-blue",img:"https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400",feat:false},
+  {id:625,name:"Pepsi Max 330ml",unit:"kutu",cat:"icecek",price:28.95,old:null,badge:"ŞEKERSIZ",btype:"badge-blue",img:"https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400",feat:false},
   {id:626,name:"Schweppes Tonic 330ml",unit:"kutu",cat:"icecek",price:28.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400",feat:false},
   {id:627,name:"Fruko 330ml",unit:"kutu",cat:"icecek",price:22.95,old:null,badge:"KLASİK",btype:"badge-gold",img:"https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400",feat:false},
   {id:628,name:"Granül Kahve Maxwell",unit:"100 gr",cat:"icecek",price:249.95,old:null,badge:"HAZIR",btype:"badge-gold",img:"https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400",feat:false},
   {id:629,name:"Çay Demlik Poşet 100lü",unit:"kutu",cat:"icecek",price:89.95,old:null,badge:"EKONOMİK",btype:"badge-gold",img:"https://images.unsplash.com/photo-1564890369478-c89ca3d9cde8?w=400",feat:false},
-  {id:630,name:"Doğadan Bitki Çayı",unit:"20li",cat:"icecek",price:79.95,old:null,badge:"DO�?AL",btype:"badge-green",img:"https://images.unsplash.com/photo-1564890369478-c89ca3d9cde8?w=400",feat:false},
-  {id:631,name:"Hindistan Cevizi Suyu",unit:"330ml",cat:"icecek",price:49.95,old:null,badge:"DO�?AL",btype:"badge-green",img:"https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400",feat:false},
+  {id:630,name:"Doğadan Bitki Çayı",unit:"20li",cat:"icecek",price:79.95,old:null,badge:"DOŞAL",btype:"badge-green",img:"https://images.unsplash.com/photo-1564890369478-c89ca3d9cde8?w=400",feat:false},
+  {id:631,name:"Hindistan Cevizi Suyu",unit:"330ml",cat:"icecek",price:49.95,old:null,badge:"DOŞAL",btype:"badge-green",img:"https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400",feat:false},
   {id:632,name:"Portakal Suyu Taze 1L",unit:"şişe",cat:"icecek",price:89.95,old:null,badge:"TAZE SIKMA",btype:"badge-green",img:"https://images.unsplash.com/photo-1534353436294-0dbd4bdac845?w=400",feat:true},
   {id:633,name:"Sırma Su 5L",unit:"şişe",cat:"icecek",price:69.95,old:null,badge:"AİLE BOY",btype:"badge-blue",img:"https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400",feat:false},
   {id:634,name:"Efes Pilsen 500ml",unit:"şişe",cat:"icecek",price:54.95,old:null,badge:"KLASİK",btype:"badge-gold",img:"https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=400",feat:false},
   {id:635,name:"Fanta Limon 330ml",unit:"kutu",cat:"icecek",price:28.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400",feat:false},
   {id:636,name:"Torku Çay 100lü",unit:"kutu",cat:"icecek",price:119.95,old:null,badge:"EKONOMİK",btype:"badge-gold",img:"https://images.unsplash.com/photo-1564890369478-c89ca3d9cde8?w=400",feat:false},
 
-  // === YENİ ATI�?TIRILMALIK 2 ===
+  // === YENİ ATIŞTIRILMALIK 2 ===
   {id:637,name:"Ruffles Fırında",unit:"136 gr",cat:"atistirmalik",price:54.95,old:null,badge:"FIRINDA",btype:"badge-red",img:"https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=400",feat:false},
   {id:638,name:"Cheetos Mısır",unit:"80 gr",cat:"atistirmalik",price:44.95,old:null,badge:"PEYNİRLİ",btype:"badge-gold",img:"https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=400",feat:false},
   {id:639,name:"Popcorn Tatlı Karamel",unit:"70 gr",cat:"atistirmalik",price:34.95,old:null,badge:"KARAMEL",btype:"badge-gold",img:"https://images.unsplash.com/photo-1578920845869-d7c524e6b6f6?w=400",feat:false},
@@ -2141,11 +2141,11 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:649,name:"M&M Fındıklı",unit:"90 gr",cat:"atistirmalik",price:89.95,old:null,badge:"FIRINDA",btype:"badge-red",img:"https://images.unsplash.com/photo-1582058091597-8d9e08c2e70e?w=400",feat:false},
   {id:650,name:"Toblerone",unit:"100 gr",cat:"atistirmalik",price:99.95,old:null,badge:"İSVİÇRE",btype:"badge-gold",img:"https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400",feat:false},
   {id:651,name:"Oreo Bisküvi",unit:"154 gr",cat:"atistirmalik",price:59.95,old:null,badge:"ÇOK SATAN",btype:"badge-gold",img:"https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400",feat:true},
-  {id:652,name:"Digestive Bisküvi",unit:"250 gr",cat:"atistirmalik",price:49.95,old:null,badge:"SA�?LIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400",feat:false},
-  {id:653,name:"Cashew Tuzsuz",unit:"200 gr",cat:"atistirmalik",price:189.95,old:null,badge:"SA�?LIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1578920845869-d7c524e6b6f6?w=400",feat:false},
+  {id:652,name:"Digestive Bisküvi",unit:"250 gr",cat:"atistirmalik",price:49.95,old:null,badge:"SAŞLIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400",feat:false},
+  {id:653,name:"Cashew Tuzsuz",unit:"200 gr",cat:"atistirmalik",price:189.95,old:null,badge:"SAŞLIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1578920845869-d7c524e6b6f6?w=400",feat:false},
   {id:654,name:"Yer Fıstığı Kavrulmuş",unit:"300 gr",cat:"atistirmalik",price:89.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1578920845869-d7c524e6b6f6?w=400",feat:false},
   {id:655,name:"Fıstıklı Lokum",unit:"250 gr",cat:"atistirmalik",price:99.95,old:null,badge:"GELENEKSEL",btype:"badge-gold",img:"https://images.unsplash.com/photo-1582058091597-8d9e08c2e70e?w=400",feat:false},
-  {id:656,name:"Granola Bar",unit:"40 gr",cat:"atistirmalik",price:29.95,old:null,badge:"SA�?LIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400",feat:false},
+  {id:656,name:"Granola Bar",unit:"40 gr",cat:"atistirmalik",price:29.95,old:null,badge:"SAŞLIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400",feat:false},
   {id:657,name:"Protein Bar",unit:"60 gr",cat:"atistirmalik",price:74.95,old:null,badge:"PROTEİN",btype:"badge-blue",img:"https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400",feat:false},
   {id:658,name:"Eti Cin Bisküvi",unit:"200 gr",cat:"atistirmalik",price:39.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400",feat:false},
   {id:659,name:"Milka 300gr",unit:"paket",cat:"atistirmalik",price:189.95,old:null,badge:"ALPİN SÜT",btype:"badge-blue",img:"https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400",feat:false},
@@ -2160,7 +2160,7 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:666,name:"Reçel Kiraz",unit:"380 gr",cat:"kahvaltilik",price:109.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1571090256273-01b23d97c0e6?w=400",feat:false},
   {id:667,name:"Reçel Kızılcık",unit:"380 gr",cat:"kahvaltilik",price:119.95,old:null,badge:"YÖRESEL",btype:"badge-gold",img:"https://images.unsplash.com/photo-1571090256273-01b23d97c0e6?w=400",feat:false},
   {id:668,name:"Orman Balı",unit:"460 gr",cat:"kahvaltilik",price:349.95,old:null,badge:"ORMAN",btype:"badge-gold",img:"https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400",feat:false},
-  {id:669,name:"Kekik Balı",unit:"460 gr",cat:"kahvaltilik",price:299.95,old:null,badge:"DO�?AL",btype:"badge-green",img:"https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400",feat:false},
+  {id:669,name:"Kekik Balı",unit:"460 gr",cat:"kahvaltilik",price:299.95,old:null,badge:"DOŞAL",btype:"badge-green",img:"https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400",feat:false},
   {id:670,name:"Çam Balı",unit:"460 gr",cat:"kahvaltilik",price:449.95,old:null,badge:"NADIDE",btype:"badge-gold",img:"https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400",feat:false},
   {id:671,name:"Zeytin Yeşil Kırma",unit:"500 gr",cat:"kahvaltilik",price:89.95,old:null,badge:"GELENEKSEL",btype:"badge-gold",img:"https://images.unsplash.com/photo-1572635148818-ef6fd45eb394?w=400",feat:false},
   {id:672,name:"Yeşil Dolma Zeytin",unit:"500 gr",cat:"kahvaltilik",price:119.95,old:null,badge:"DOLMA",btype:"badge-green",img:"https://images.unsplash.com/photo-1572635148818-ef6fd45eb394?w=400",feat:false},
@@ -2170,11 +2170,11 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:676,name:"Poğaça Sade",unit:"adet",cat:"kahvaltilik",price:24.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?w=400",feat:false},
   {id:677,name:"Simit",unit:"adet",cat:"kahvaltilik",price:14.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?w=400",feat:false},
   {id:678,name:"Açma",unit:"adet",cat:"kahvaltilik",price:22.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?w=400",feat:false},
-  {id:679,name:"Pekmez Üzüm",unit:"500 gr",cat:"kahvaltilik",price:99.95,old:null,badge:"DO�?AL",btype:"badge-green",img:"https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400",feat:false},
-  {id:680,name:"Nohutlu Humus",unit:"200 gr",cat:"kahvaltilik",price:59.95,old:null,badge:"SA�?LIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1585852989498-7f2e0e542ff6?w=400",feat:false},
+  {id:679,name:"Pekmez Üzüm",unit:"500 gr",cat:"kahvaltilik",price:99.95,old:null,badge:"DOŞAL",btype:"badge-green",img:"https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400",feat:false},
+  {id:680,name:"Nohutlu Humus",unit:"200 gr",cat:"kahvaltilik",price:59.95,old:null,badge:"SAŞLIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1585852989498-7f2e0e542ff6?w=400",feat:false},
   {id:681,name:"Zeytinyağlı Sarma",unit:"400 gr",cat:"kahvaltilik",price:89.95,old:null,badge:"GELENEKSEL",btype:"badge-gold",img:"https://images.unsplash.com/photo-1534353436294-0dbd4bdac845?w=400",feat:false},
   {id:682,name:"Çikolatalı Fındık Ezmesi",unit:"350 gr",cat:"kahvaltilik",price:219.95,old:null,badge:"FINDIKLI",btype:"badge-gold",img:"https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400",feat:false},
-  {id:683,name:"Avokado Ezmesi",unit:"150 gr",cat:"kahvaltilik",price:89.95,old:null,badge:"SA�?LIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1519162808019-7de1683fa2ad?w=400",feat:false},
+  {id:683,name:"Avokado Ezmesi",unit:"150 gr",cat:"kahvaltilik",price:89.95,old:null,badge:"SAŞLIKLI",btype:"badge-green",img:"https://images.unsplash.com/photo-1519162808019-7de1683fa2ad?w=400",feat:false},
   {id:684,name:"Taze Kaşar Dilim",unit:"200 gr",cat:"kahvaltilik",price:149.95,old:null,badge:"TAZE",btype:"badge-green",img:"https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=400",feat:false},
   {id:685,name:"Sandviç Ekmeği",unit:"500 gr",cat:"kahvaltilik",price:49.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?w=400",feat:false},
   {id:686,name:"Yöresel Pastırmalı Kahvaltı",unit:"200 gr",cat:"kahvaltilik",price:159.95,old:null,badge:"YÖRESEL",btype:"badge-gold",img:"https://images.unsplash.com/photo-1562967915-6ba607ff7d05?w=400",feat:false},
@@ -2186,26 +2186,26 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:690,name:"Bebek Mutlu Bezi 4 Beden",unit:"50li",cat:"anne-bebek",price:199.95,old:null,badge:"EKONOMİK",btype:"badge-gold",img:"https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400",feat:false},
   {id:691,name:"Nestlé Bebek Maması Pirinç",unit:"200 gr",cat:"anne-bebek",price:219.95,old:null,badge:"6AY+",btype:"badge-blue",img:"https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400",feat:false},
   {id:692,name:"Aptamil 1 Başlangıç",unit:"800 gr",cat:"anne-bebek",price:749.95,old:null,badge:"0-6AY",btype:"badge-blue",img:"https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400",feat:false},
-  {id:693,name:"Bebek Bisküvisi",unit:"180 gr",cat:"anne-bebek",price:89.95,old:null,badge:"BEBE�?İNE",btype:"badge-green",img:"https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400",feat:false},
+  {id:693,name:"Bebek Bisküvisi",unit:"180 gr",cat:"anne-bebek",price:89.95,old:null,badge:"BEBEŞİNE",btype:"badge-green",img:"https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400",feat:false},
   {id:694,name:"Biberon Dr. Brown's",unit:"150ml",cat:"anne-bebek",price:299.95,old:null,badge:"ANTI-KOLIK",btype:"badge-blue",img:"https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400",feat:false},
-  {id:695,name:"Emzik Philips Avent",unit:"adet",cat:"anne-bebek",price:149.95,old:null,badge:"DO�?AL",btype:"badge-green",img:"https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400",feat:false},
+  {id:695,name:"Emzik Philips Avent",unit:"adet",cat:"anne-bebek",price:149.95,old:null,badge:"DOŞAL",btype:"badge-green",img:"https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400",feat:false},
   {id:696,name:"Bebek Yağı Johnson's",unit:"300ml",cat:"anne-bebek",price:129.95,old:null,badge:"HASSAS",btype:"badge-green",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
-  {id:697,name:"Bepanthen Pişik Kremi",unit:"100 gr",cat:"anne-bebek",price:149.95,old:null,badge:"Pİ�?İK ÖNLEMI",btype:"badge-blue",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
+  {id:697,name:"Bepanthen Pişik Kremi",unit:"100 gr",cat:"anne-bebek",price:149.95,old:null,badge:"PİŞİK ÖNLEMI",btype:"badge-blue",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
   {id:698,name:"Huggies Natural Care Mendil",unit:"80li",cat:"anne-bebek",price:59.95,old:null,badge:"HASSAS",btype:"badge-green",img:"https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400",feat:false},
   {id:699,name:"Bebek Sebze Püresi Hipp",unit:"190 gr",cat:"anne-bebek",price:69.95,old:null,badge:"ORGANİK",btype:"badge-green",img:"https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400",feat:false},
   {id:700,name:"NAN 3 Devam Sütü",unit:"800 gr",cat:"anne-bebek",price:699.95,old:null,badge:"10-12AY",btype:"badge-blue",img:"https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400",feat:false},
-  {id:701,name:"Çocuk Vitamini",unit:"30lü",cat:"anne-bebek",price:199.95,old:null,badge:"BA�?I�?IKLIK",btype:"badge-green",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
-  {id:702,name:"Bebek Havlusu 4lü",unit:"set",cat:"anne-bebek",price:249.95,old:null,badge:"YUMU�?AK",btype:"badge-green",img:"https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400",feat:false},
+  {id:701,name:"Çocuk Vitamini",unit:"30lü",cat:"anne-bebek",price:199.95,old:null,badge:"BAŞIŞIKLIK",btype:"badge-green",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
+  {id:702,name:"Bebek Havlusu 4lü",unit:"set",cat:"anne-bebek",price:249.95,old:null,badge:"YUMUŞAK",btype:"badge-green",img:"https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400",feat:false},
   {id:703,name:"Çocuk Güneş Kremi SPF50",unit:"150ml",cat:"anne-bebek",price:149.95,old:null,badge:"SPF50",btype:"badge-red",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
-  {id:704,name:"Bebek Diş Jeli",unit:"75 gr",cat:"anne-bebek",price:89.95,old:null,badge:"İLK Dİ�?",btype:"badge-blue",img:"https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400",feat:false},
-  {id:705,name:"Çocuk Diş Fırçası",unit:"adet",cat:"anne-bebek",price:49.95,old:null,badge:"YUMU�?AK",btype:"badge-green",img:"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400",feat:false},
+  {id:704,name:"Bebek Diş Jeli",unit:"75 gr",cat:"anne-bebek",price:89.95,old:null,badge:"İLK DİŞ",btype:"badge-blue",img:"https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400",feat:false},
+  {id:705,name:"Çocuk Diş Fırçası",unit:"adet",cat:"anne-bebek",price:49.95,old:null,badge:"YUMUŞAK",btype:"badge-green",img:"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400",feat:false},
 
   // === YENİ KOZMETİK 2 ===
   {id:706,name:"Ipana Diş Macunu 90ml",unit:"tüp",cat:"kozmetik",price:79.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400",feat:false},
   {id:707,name:"Colgate Total 75ml",unit:"tüp",cat:"kozmetik",price:89.95,old:null,badge:"TOPLAM KORUMA",btype:"badge-blue",img:"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400",feat:false},
   {id:708,name:"Oral-B Diş Fırçası Soft",unit:"adet",cat:"kozmetik",price:89.95,old:null,badge:"SOFT",btype:"badge-green",img:"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400",feat:false},
-  {id:709,name:"Gliss �?ampuan 500ml",unit:"şişe",cat:"kozmetik",price:169.95,old:null,badge:"ONARICI",btype:"badge-green",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
-  {id:710,name:"TRESemmé �?ampuan 400ml",unit:"şişe",cat:"kozmetik",price:149.95,old:null,badge:"SALON KALITE",btype:"badge-gold",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
+  {id:709,name:"Gliss Şampuan 500ml",unit:"şişe",cat:"kozmetik",price:169.95,old:null,badge:"ONARICI",btype:"badge-green",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
+  {id:710,name:"TRESemmé Şampuan 400ml",unit:"şişe",cat:"kozmetik",price:149.95,old:null,badge:"SALON KALITE",btype:"badge-gold",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
   {id:711,name:"Elvive Saç Bakım Kremi",unit:"300ml",cat:"kozmetik",price:159.95,old:null,badge:"ONARICI",btype:"badge-green",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
   {id:712,name:"Nivea Body Lotion 400ml",unit:"şişe",cat:"kozmetik",price:219.95,old:null,badge:"NEMLENDİRİCİ",btype:"badge-blue",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:true},
   {id:713,name:"Vaseline Losyon 400ml",unit:"şişe",cat:"kozmetik",price:189.95,old:null,badge:"ONARICI",btype:"badge-green",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
@@ -2215,18 +2215,18 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:717,name:"Rexona Men Deodorant",unit:"150ml",cat:"kozmetik",price:89.95,old:null,badge:"72 SAAT",btype:"badge-blue",img:"https://images.unsplash.com/photo-1585232350538-47af97f8f9bd?w=400",feat:false},
   {id:718,name:"Axe Deodorant 150ml",unit:"kutu",cat:"kozmetik",price:99.95,old:null,badge:"ERKEK",btype:"badge-blue",img:"https://images.unsplash.com/photo-1585232350538-47af97f8f9bd?w=400",feat:false},
   {id:719,name:"Dove Deodorant Kadın",unit:"150ml",cat:"kozmetik",price:89.95,old:null,badge:"HASSAS",btype:"badge-green",img:"https://images.unsplash.com/photo-1585232350538-47af97f8f9bd?w=400",feat:false},
-  {id:720,name:"Gillette Fusion Jilet",unit:"4lü",cat:"kozmetik",price:299.95,old:null,badge:"5 A�?IZ",btype:"badge-blue",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
+  {id:720,name:"Gillette Fusion Jilet",unit:"4lü",cat:"kozmetik",price:299.95,old:null,badge:"5 AŞIZ",btype:"badge-blue",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
   {id:721,name:"Veet Tüy Dökücü Krem",unit:"200ml",cat:"kozmetik",price:149.95,old:null,badge:"3 DK",btype:"badge-blue",img:"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400",feat:false},
   {id:722,name:"Garnier Saç Boyası",unit:"set",cat:"kozmetik",price:189.95,old:null,badge:"KALICI",btype:"badge-gold",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
-  {id:723,name:"Arko Men Tıraş Jeli",unit:"200ml",cat:"kozmetik",price:89.95,old:null,badge:"SO�?UTMA",btype:"badge-blue",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
+  {id:723,name:"Arko Men Tıraş Jeli",unit:"200ml",cat:"kozmetik",price:89.95,old:null,badge:"SOŞUTMA",btype:"badge-blue",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
   {id:724,name:"Pamuk 100gr",unit:"paket",cat:"kozmetik",price:44.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1584515933487-779824d29309?w=400",feat:false},
   {id:725,name:"Band-Aid Yara Bandı 20li",unit:"kutu",cat:"kozmetik",price:49.95,old:null,badge:"ESNEK",btype:"badge-blue",img:"https://images.unsplash.com/photo-1584515933487-779824d29309?w=400",feat:false},
   {id:726,name:"Neutrogena Yüz Yıkama",unit:"150ml",cat:"kozmetik",price:149.95,old:null,badge:"DERİN TEMİZLİK",btype:"badge-blue",img:"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400",feat:false},
   {id:727,name:"Nivea Yüz Kremi",unit:"50ml",cat:"kozmetik",price:189.95,old:null,badge:"NEMLENDİRİCİ",btype:"badge-blue",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
-  {id:728,name:"Garnier BB Krem",unit:"50ml",cat:"kozmetik",price:199.95,old:null,badge:"DO�?AL GÖRÜNÜM",btype:"badge-green",img:"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400",feat:false},
+  {id:728,name:"Garnier BB Krem",unit:"50ml",cat:"kozmetik",price:199.95,old:null,badge:"DOŞAL GÖRÜNÜM",btype:"badge-green",img:"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400",feat:false},
   {id:729,name:"Maybelline Maskara",unit:"adet",cat:"kozmetik",price:199.95,old:null,badge:"HACIM",btype:"badge-gold",img:"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400",feat:false},
   {id:730,name:"Flormar Oje",unit:"adet",cat:"kozmetik",price:79.95,old:null,badge:"RENKLI",btype:"badge-gold",img:"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400",feat:false},
-  {id:731,name:"Kerastase �?ampuan",unit:"250ml",cat:"kozmetik",price:599.95,old:null,badge:"SALON",btype:"badge-gold",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
+  {id:731,name:"Kerastase Şampuan",unit:"250ml",cat:"kozmetik",price:599.95,old:null,badge:"SALON",btype:"badge-gold",img:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",feat:false},
 
   // === YENİ TEMİZLİK 2 ===
   {id:732,name:"Ariel Pods 24lü",unit:"paket",cat:"temizlik",price:299.95,old:null,badge:"PRATİK",btype:"badge-blue",img:"https://images.unsplash.com/photo-1585421514738-01798e348b17?w=400",feat:true},
@@ -2241,23 +2241,23 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:741,name:"Finish All in 1 Tablet",unit:"28li",cat:"temizlik",price:179.95,old:null,badge:"PARLAK",btype:"badge-blue",img:"https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400",feat:false},
   {id:742,name:"Somat Tablet 28li",unit:"paket",cat:"temizlik",price:159.95,old:null,badge:"TEMİZ",btype:"badge-blue",img:"https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400",feat:false},
   {id:743,name:"Cif Krem 500ml",unit:"şişe",cat:"temizlik",price:79.95,old:null,badge:"PASLANMAZA",btype:"badge-blue",img:"https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400",feat:false},
-  {id:744,name:"Harpic Tuvalet Temizleyici",unit:"750ml",cat:"temizlik",price:79.95,old:null,badge:"GÜÇLENDİRİLMİ�?",btype:"badge-red",img:"https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400",feat:false},
+  {id:744,name:"Harpic Tuvalet Temizleyici",unit:"750ml",cat:"temizlik",price:79.95,old:null,badge:"GÜÇLENDİRİLMİŞ",btype:"badge-red",img:"https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400",feat:false},
   {id:745,name:"Pledge Mobilya Cilası",unit:"250ml",cat:"temizlik",price:109.95,old:null,badge:"PARLATICI",btype:"badge-gold",img:"https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400",feat:false},
   {id:746,name:"Çöp Torbası Orta Boy",unit:"30lu",cat:"temizlik",price:59.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400",feat:false},
-  {id:747,name:"Soda Karbonat",unit:"300 gr",cat:"temizlik",price:29.95,old:null,badge:"DO�?AL",btype:"badge-green",img:"https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400",feat:false},
+  {id:747,name:"Soda Karbonat",unit:"300 gr",cat:"temizlik",price:29.95,old:null,badge:"DOŞAL",btype:"badge-green",img:"https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400",feat:false},
   {id:748,name:"Scotch-Brite Sünger 5li",unit:"paket",cat:"temizlik",price:59.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400",feat:false},
   {id:749,name:"Orkid Ped Süper 20li",unit:"paket",cat:"temizlik",price:89.95,old:null,badge:"ULTRA",btype:"badge-blue",img:"https://images.unsplash.com/photo-1584515933487-779824d29309?w=400",feat:false},
   {id:750,name:"Kleenex Mendil 10lu",unit:"paket",cat:"temizlik",price:24.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1585421514738-01798e348b17?w=400",feat:false},
   {id:751,name:"Selpak Yüz Mendili 100lü",unit:"kutu",cat:"temizlik",price:39.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1585421514738-01798e348b17?w=400",feat:false},
   {id:752,name:"Flash Sıvı Temizleyici",unit:"800ml",cat:"temizlik",price:89.95,old:null,badge:"ÇOK YÜZEY",btype:"badge-blue",img:"https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400",feat:false},
-  {id:753,name:"Domestos Tuvalet Jeli",unit:"750ml",cat:"temizlik",price:69.95,old:null,badge:"GÜÇLENDİRİLMİ�?",btype:"badge-blue",img:"https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400",feat:false},
+  {id:753,name:"Domestos Tuvalet Jeli",unit:"750ml",cat:"temizlik",price:69.95,old:null,badge:"GÜÇLENDİRİLMİŞ",btype:"badge-blue",img:"https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400",feat:false},
   {id:754,name:"Mr. Proper Yer Temizleyici",unit:"1L",cat:"temizlik",price:89.95,old:null,badge:"PARLAK YER",btype:"badge-blue",img:"https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400",feat:false},
   {id:755,name:"Ütü Suyu",unit:"1L",cat:"temizlik",price:44.95,old:null,badge:"KOKU",btype:"badge-green",img:"https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400",feat:false},
   {id:756,name:"Ovma Teli 5li",unit:"paket",cat:"temizlik",price:24.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400",feat:false},
 
   // === YENİ EV GEREÇLERİ 2 ===
   {id:757,name:"Tencere Takımı 5 Parça",unit:"set",cat:"ev-gerecleri",price:799.95,old:null,badge:"EKSİKSİZ SET",btype:"badge-gold",img:"https://images.unsplash.com/photo-1585421514738-01798e348b17?w=400",feat:false},
-  {id:758,name:"Yapışmaz Tava 28cm",unit:"adet",cat:"ev-gerecleri",price:349.95,old:null,badge:"YAPI�?MAZ",btype:"badge-blue",img:"https://images.unsplash.com/photo-1585421514738-01798e348b17?w=400",feat:false},
+  {id:758,name:"Yapışmaz Tava 28cm",unit:"adet",cat:"ev-gerecleri",price:349.95,old:null,badge:"YAPIŞMAZ",btype:"badge-blue",img:"https://images.unsplash.com/photo-1585421514738-01798e348b17?w=400",feat:false},
   {id:759,name:"Fırın Tepsisi",unit:"30x20cm",cat:"ev-gerecleri",price:149.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1585421514738-01798e348b17?w=400",feat:false},
   {id:760,name:"Bıçak Seti 5 Parça",unit:"set",cat:"ev-gerecleri",price:499.95,old:null,badge:"PROFESYONEl",btype:"badge-gold",img:"https://images.unsplash.com/photo-1585421514738-01798e348b17?w=400",feat:false},
   {id:761,name:"Mutfak Makası",unit:"adet",cat:"ev-gerecleri",price:89.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400",feat:false},
@@ -2277,7 +2277,7 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:775,name:"Kapı Paspası",unit:"adet",cat:"ev-gerecleri",price:119.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1585421514738-01798e348b17?w=400",feat:false},
   {id:776,name:"Banyo Paspası",unit:"adet",cat:"ev-gerecleri",price:99.95,old:null,badge:"KAYMAZ",btype:"badge-blue",img:"https://images.unsplash.com/photo-1585421514738-01798e348b17?w=400",feat:false},
   {id:777,name:"Sabunluk",unit:"adet",cat:"ev-gerecleri",price:59.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400",feat:false},
-  {id:778,name:"Duvara Monte Raf",unit:"set",cat:"ev-gerecleri",price:249.95,old:null,badge:"SA�?LAM",btype:"badge-blue",img:"https://images.unsplash.com/photo-1585421514738-01798e348b17?w=400",feat:false},
+  {id:778,name:"Duvara Monte Raf",unit:"set",cat:"ev-gerecleri",price:249.95,old:null,badge:"SAŞLAM",btype:"badge-blue",img:"https://images.unsplash.com/photo-1585421514738-01798e348b17?w=400",feat:false},
   {id:779,name:"Termos 1L",unit:"adet",cat:"ev-gerecleri",price:399.95,old:null,badge:"12 SAAT",btype:"badge-gold",img:"https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400",feat:false},
   {id:780,name:"Tuvalet Kağıdı Tutucu",unit:"adet",cat:"ev-gerecleri",price:89.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400",feat:false},
   {id:781,name:"Plastik Poşet 50li",unit:"paket",cat:"ev-gerecleri",price:34.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400",feat:false},
@@ -2619,7 +2619,7 @@ let favorites = new Set();
    RENDER PRODUCTS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 function catLabel(c){
-  const m={manav:"Manav","temel-gida":"Temel Gıda","sut-sarkuteri":"Süt & �?arküteri",atistirmalik:"Atıştırmalık",temizlik:"Temizlik",icecek:"İçecek",kasap:"Kasap & Et",kahvaltilik:"Kahvaltılık",kozmetik:"Kozmetik","anne-bebek":"Anne & Bebek","ev-gerecleri":"Ev Gereçleri"};
+  const m={manav:"Manav","temel-gida":"Temel Gıda","sut-sarkuteri":"Süt & Şarküteri",atistirmalik:"Atıştırmalık",temizlik:"Temizlik",icecek:"İçecek",kasap:"Kasap & Et",kahvaltilik:"Kahvaltılık",kozmetik:"Kozmetik","anne-bebek":"Anne & Bebek","ev-gerecleri":"Ev Gereçleri"};
   return m[c]||c;
 }
 
@@ -2681,7 +2681,7 @@ function makeCard(p){
     <div class="pcard" id="pcard-${p.id}">
       ${badge}
       <button class="pcard-edit-btn" onclick="openEditProduct(${p.id})" title="Duzenle">&#9998;</button>
-      <button class="pcard-fav" id="fav-btn-${p.id}" onclick="toggleFav(${p.id})">${favorites.has(p.id)?'❤️':'?���'}</button>
+      <button class="pcard-fav" id="fav-btn-${p.id}" onclick="toggleFav(${p.id})">${favorites.has(p.id)?'❤️':'🤍'}</button>
       <div class="pcard-img-div" style="background-image:url('${p.img}');"></div>
       <div class="pcard-body">
         <div class="pcard-cat">${catLabel(p.cat)}</div>
@@ -2693,7 +2693,7 @@ function makeCard(p){
         </div>
         <div class="pcard-footer">
           <div id="add-${p.id}">${addBlock}</div>
-          <a href="https://wa.me/905444789461?text=${encodeURIComponent('Merhaba Aydın Gros! '+p.name+' ('+p.unit+') sipariş etmek istiyorum.')}" class="pcard-wa" target="_blank">?��� Hızlı Sipariş</a>
+          <a href="https://wa.me/905444789461?text=${encodeURIComponent('Merhaba Aydın Gros! '+p.name+' ('+p.unit+') sipariş etmek istiyorum.')}" class="pcard-wa" target="_blank">⚡ Hızlı Sipariş</a>
         </div>
       </div>
     </div>`;
@@ -2776,7 +2776,7 @@ function updateCartUI(){
 
   const container = document.getElementById('cartItems');
   if(cart.length===0){
-    container.innerHTML=`<div class="cart-empty"><div class="cart-empty-icon">?���</div><p style="font-size:15px;font-weight:600;">Sepetiniz boş</p><p style="font-size:13px;margin-top:6px;color:var(--gray-400);">Ürün eklemek için "Ekle" butonuna tıklayın.</p></div>`;
+    container.innerHTML=`<div class="cart-empty"><div class="cart-empty-icon">🛒</div><p style="font-size:15px;font-weight:600;">Sepetiniz boş</p><p style="font-size:13px;margin-top:6px;color:var(--gray-400);">Ürün eklemek için "Ekle" butonuna tıklayın.</p></div>`;
   } else {
     container.innerHTML = cart.map(item=>`
       <div class="citem">
@@ -2863,8 +2863,35 @@ function genOrderNo(){
   return `AG-${ymd}-${rand}`;
 }
 
-function saveOrder(orderNo, phone, items, total){
-  const orders=JSON.parse(localStorage.getItem('ag_orders')||'[]');
+async function fetchDb(coll, def) {
+  try {
+    const r = await fetch('/api/db/'+coll);
+    if(r.ok) { const d = await r.json(); if(d) return d; }
+  } catch(e) {}
+  return def;
+}
+async function saveDb(coll, data) {
+  try {
+    await fetch('/api/db/'+coll, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+  } catch(e) {}
+}
+async function syncBackend() {
+  try {
+    const dbProducts = await fetchDb('products', null);
+    if(dbProducts && dbProducts.length > 0) { products = dbProducts; }
+    const dbStock = await fetchDb('stock', null);
+    if(dbStock) {
+      products.forEach(p => {
+        if(dbStock[p.id] && dbStock[p.id].qty <= 0) { p.outOfStock = true; }
+      });
+    }
+    renderProducts();
+  } catch(e) {}
+}
+setTimeout(syncBackend, 500);
+
+async function saveOrder(orderNo, phone, items, total){
+  const orders = await fetchDb('orders', JSON.parse(localStorage.getItem('ag_orders')||'[]'));
   orders.push({
     no: orderNo,
     name: currentUser?.name || '',
@@ -2875,6 +2902,7 @@ function saveOrder(orderNo, phone, items, total){
     ts: Date.now(),
     status: 0
   });
+  await saveDb('orders', orders);
   localStorage.setItem('ag_orders', JSON.stringify(orders));
 }
 
@@ -2909,17 +2937,17 @@ function doCheckout(payMethod){
   const phone=currentUser?.phone||'';
   const addr=localStorage.getItem('ag_addr')||'Belirtilmedi';
   saveOrder(orderNo, phone, cart, total);
-  const payLabel=payMethod==='nakit'?'?��� Kapıda Nakit':'?��� Kapıda Kart';
+  const payLabel=payMethod==='nakit'?'📦 Kapıda Nakit':'📦 Kapıda Kart';
   let msg='Merhaba Aydın Gros! Web sitenizden sipariş oluşturmak istiyorum:\n\n';
-  msg+=`?��� SİPARİ�? NO: ${orderNo}\n`;
-  msg+=`?��� ÖDEME: ${payLabel}\n`;
-  msg+=`?��� TESLİMAT: ${addr}\n`;
+  msg+=`📋 SİPARİŞ NO: ${orderNo}\n`;
+  msg+=`💳 ÖDEME: ${payLabel}\n`;
+  msg+=`📍 TESLİMAT: ${addr}\n`;
   if(userCoords){
     const lat=userCoords.latitude.toFixed(6), lng=userCoords.longitude.toFixed(6);
-    msg+=`?���️ CANLI KONUM: https://maps.google.com/maps?q=${lat},${lng}\n`;
+    msg+=`📍️ CANLI KONUM: https://maps.google.com/maps?q=${lat},${lng}\n`;
   }
   msg+='\n';
-  msg+='SİPARİ�? LİSTEM:\n';
+  msg+='SİPARİŞ LİSTEM:\n';
   cart.forEach((i,n)=>{ msg+=`${n+1}. ${i.name} (${i.unit}) × ${i.quantity} → ₺${(i.price*i.quantity).toFixed(2)}\n`; });
   msg+='\n─────────────────\n';
   msg+=`Ara Toplam: ₺${subtotal.toFixed(2)}\n`;
@@ -2938,10 +2966,10 @@ function showOrderConfirm(orderNo, total, payLabel){
   const el=document.createElement('div');
   el.style.cssText='position:fixed;inset:0;background:rgba(15,23,42,.8);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px);animation:popIn .3s ease;';
   el.innerHTML=`<div style="background:#fff;border-radius:16px;padding:32px;max-width:380px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.3);">
-    <div style="font-size:56px;margin-bottom:12px;">?�?�</div>
+    <div style="font-size:56px;margin-bottom:12px;">🔥</div>
     <h3 style="font-family:var(--font-h);font-size:22px;font-weight:800;color:var(--green);margin-bottom:8px;">Siparişiniz Alındı!</h3>
     <div style="background:var(--green-light);border:2px dashed var(--green);border-radius:8px;padding:14px;margin:16px 0;">
-      <div style="font-size:11px;font-weight:700;color:var(--green-dark);letter-spacing:.1em;margin-bottom:6px;">SİPARİ�? NUMARANIZ</div>
+      <div style="font-size:11px;font-weight:700;color:var(--green-dark);letter-spacing:.1em;margin-bottom:6px;">SİPARİŞ NUMARANIZ</div>
       <div style="font-size:24px;font-weight:900;color:var(--green-dark);letter-spacing:.05em;">${orderNo}</div>
     </div>
     <div style="font-size:13px;color:var(--gray-600);margin-bottom:6px;">Toplam: <strong style="color:var(--gray-800);">₺${total.toFixed(2)}</strong></div>
@@ -2975,11 +3003,11 @@ function saveManualAddr(){
 
 function getMyLocation(){
   const st=document.getElementById('addrStatus');
-  st.textContent='?��� Konumunuz alınıyor...'; st.className='addr-status';
+  st.textContent='📦 Konumunuz alınıyor...'; st.className='addr-status';
   if(!navigator.geolocation){ st.textContent='Tarayıcınız konum desteklemiyor.'; st.className='addr-status error'; return; }
   navigator.geolocation.getCurrentPosition(pos=>{
     const lat=pos.coords.latitude.toFixed(6), lng=pos.coords.longitude.toFixed(6);
-    st.textContent='?��� Adres dönüştürülüyor...';
+    st.textContent='📍 Adres dönüştürülüyor...';
     fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=tr`)
       .then(r=>r.json())
       .then(data=>{
@@ -3044,9 +3072,9 @@ function trackOrder(){
   else if(mins>=10) step=1;
   const STEPS=[
     {icon:'✅',label:'Sipariş Alındı',sub:'Siparişin başarıyla alındı.'},
-    {icon:'?���‍?���',label:'Hazırlanıyor',sub:'Ürünlerin hazırlanıyor.'},
-    {icon:'?���',label:'Yola Çıktı',sub:'Siparişin yolda!'},
-    {icon:'?�?�',label:'Teslim Edildi',sub:'Siparişin teslim edildi. Afiyet olsun!'}
+    {icon:'👨‍🌾',label:'Hazırlanıyor',sub:'Ürünlerin hazırlanıyor.'},
+    {icon:'📦',label:'Yola Çıktı',sub:'Siparişin yolda!'},
+    {icon:'🔥',label:'Teslim Edildi',sub:'Siparişin teslim edildi. Afiyet olsun!'}
   ];
   const chipClass=['status-received','status-preparing','status-onway','status-delivered'][step];
   const chipLabel=['Sipariş Alındı','Hazırlanıyor','Yola Çıktı','Teslim Edildi'][step];
@@ -3148,7 +3176,7 @@ function toggleFav(id){
   }
   // update all fav buttons for this product across all sections
   document.querySelectorAll(`#fav-btn-${id}`).forEach(btn=>{
-    btn.textContent = favorites.has(id) ? '❤️' : '?���';
+    btn.textContent = favorites.has(id) ? '❤️' : '🤍';
   });
   updateFavBadge();
   renderFavSidebar();
@@ -3168,7 +3196,7 @@ function updateFavBadge(){
 function renderFavSidebar(){
   const container = document.getElementById('favItems');
   if(favorites.size === 0){
-    container.innerHTML = `<div class="fav-empty"><div class="fav-empty-icon">?���</div><p style="font-size:15px;font-weight:600;">Henüz favori eklemediniz</p><p style="font-size:13px;margin-top:6px;color:var(--gray-400);">Ürün kartlarındaki ❤️ butonuna tıklayın.</p></div>`;
+    container.innerHTML = `<div class="fav-empty"><div class="fav-empty-icon">🛒</div><p style="font-size:15px;font-weight:600;">Henüz favori eklemediniz</p><p style="font-size:13px;margin-top:6px;color:var(--gray-400);">Ürün kartlarındaki ❤️ butonuna tıklayın.</p></div>`;
     return;
   }
   const favProducts = products.filter(p => favorites.has(p.id));
@@ -3228,7 +3256,7 @@ function showSearchResults(results,query){
   sec.innerHTML=`
     <div class="sec-head">
       <div class="sec-head-left">
-        <span class="sec-icon">?���</span>
+        <span class="sec-icon">🛒</span>
         <div><div class="sec-title">"${query}" Arama Sonuçları</div><div class="sec-subtitle">${results.length} ürün bulundu</div></div>
       </div>
       <button onclick="document.getElementById('searchResultsSec').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--gray-400);">×</button>
@@ -3291,7 +3319,7 @@ function updateUserHeader(){
     document.getElementById('userMenuName').innerHTML =
       `<strong>${currentUser.name}</strong><small>${currentUser.email}</small>`;
   } else {
-    btn.textContent = '?���';
+    btn.textContent = '📦';
     btn.classList.remove('user-avatar');
     btn.title = 'Hesabım';
   }
@@ -3348,11 +3376,11 @@ function doLogin(){
   }
   if(found.pass !== pass){
     const err=document.getElementById('loginGenErr');
-    err.textContent='�?ifre hatalı. Lütfen tekrar deneyin.'; err.style.display='block'; return;
+    err.textContent='Şifre hatalı. Lütfen tekrar deneyin.'; err.style.display='block'; return;
   }
   saveUser({name:found.name, email:found.email});
   closeAuth();
-  showToast(`Hoş geldiniz, ${found.name.split(' ')[0]}! ?���`);
+  showToast(`Hoş geldiniz, ${found.name.split(' ')[0]}! 👋`);
 }
 
 function doRegister(){
@@ -3382,7 +3410,7 @@ function doRegister(){
   localStorage.setItem('ag_users', JSON.stringify(users));
   saveUser({name, email});
   closeAuth();
-  showToast(`Üyeliğiniz oluşturuldu! Hoş geldiniz, ${name.split(' ')[0]}! ?�?�`);
+  showToast(`Üyeliğiniz oluşturuldu! Hoş geldiniz, ${name.split(' ')[0]}! 🎉`);
 }
 
 function logout(){
@@ -3390,7 +3418,7 @@ function logout(){
   localStorage.removeItem('ag_user');
   updateUserHeader();
   closeUserMenu();
-  showToast('Çıkış yapıldı. Görüşürüz! ?���');
+  showToast('Çıkış yapıldı. Görüşürüz! 🎉');
 }
 
 function toggleUserMenu(){
