@@ -323,6 +323,8 @@ tr:hover td{background:var(--gray50)}
           <option value="atistirmalik">🍿 Atıştırmalık</option>
           <option value="temizlik">🧹 Temizlik</option>
           <option value="icecek">🧃 İçecek</option>
+          <option value="kasap">🥩 Kasap & Et</option>
+          <option value="kahvaltilik">🍳 Kahvaltılık</option>
           <option value="kozmetik">💄 Kozmetik</option>
           <option value="anne-bebek">👶 Anne & Bebek</option>
           <option value="ev-gerecleri">🏠 Ev Gereçleri</option>
@@ -499,7 +501,7 @@ tr:hover td{background:var(--gray50)}
             </div>
             <div style="display:flex;gap:8px;flex-wrap:wrap">
               <span id="compLastUpdateLabel" style="font-size:12px;color:var(--gray400);align-self:center"></span>
-              <button class="btn btn-ghost btn-sm" onclick="openEditCompetitor()">✏️ Rakip Fiyatları Düzenle</button>
+              <button class="btn btn-ghost btn-sm" id="compLiveBtn" onclick="fetchLiveErenler()">🔄 Canlı Fiyat Çek</button>
               <button class="btn btn-primary" onclick="openCompetitorModal()">📊 Analizi Görüntüle</button>
             </div>
           </div>
@@ -515,7 +517,7 @@ tr:hover td{background:var(--gray50)}
 
 <!-- Competitor Analysis Modal -->
 <div class="modal-overlay" id="competitorModal">
-  <div class="modal" style="max-width:760px">
+  <div class="modal" style="max-width:820px">
     <div class="modal-header">
       <div>
         <div class="modal-title">📊 Rakip Fiyat Analizi — Erenler Cep</div>
@@ -525,45 +527,47 @@ tr:hover td{background:var(--gray50)}
     </div>
     <div class="modal-body">
       <div id="compAlertBanner" style="margin-bottom:16px"></div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px" id="compSummaryCards"></div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px" id="compSummaryCards"></div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <select id="compCatFilter" onchange="renderCompTableRows()" style="padding:6px 10px;border:1px solid var(--gray200);border-radius:6px;font-size:13px;background:var(--white)">
+          <option value="">Tüm Kategoriler</option>
+          <option value="manav">Manav</option>
+          <option value="kasap">Kasap</option>
+          <option value="sut-sarkuteri">Süt & Şarküteri</option>
+          <option value="temel-gida">Temel Gıda</option>
+          <option value="atistirmalik">Atıştırmalık</option>
+          <option value="icecek">İçecek</option>
+          <option value="temizlik">Temizlik</option>
+          <option value="kozmetik">Kozmetik</option>
+        </select>
+        <select id="compStatusFilter" onchange="renderCompTableRows()" style="padding:6px 10px;border:1px solid var(--gray200);border-radius:6px;font-size:13px;background:var(--white)">
+          <option value="">Tüm Durumlar</option>
+          <option value="expensive">⚠️ Pahalı</option>
+          <option value="near">≈ Yakın</option>
+          <option value="cheap">✅ Ucuz</option>
+        </select>
+        <span id="compFilterInfo" style="font-size:12px;color:var(--gray400);align-self:center;margin-left:4px"></span>
+      </div>
       <div class="table-wrap">
         <table id="compTable">
           <thead><tr>
             <th>Ürün</th>
+            <th>Kategori</th>
             <th>Aydın Gros</th>
             <th>Erenler Cep</th>
-            <th>Fark</th>
+            <th>Fark (₺)</th>
+            <th>Fark (%)</th>
             <th>Durum</th>
           </tr></thead>
           <tbody id="compTableBody"></tbody>
         </table>
       </div>
-      <p style="font-size:12px;color:var(--gray400);margin-top:12px">* Fiyatlar manuel olarak güncellenir. Son kontrol: <span id="compModalLastCheck"></span></p>
+      <p style="font-size:12px;color:var(--gray400);margin-top:12px">* Erenler Cep fiyatları otomatik eşleştirme ile karşılaştırılır. Son güncelleme: <span id="compModalLastCheck">—</span></p>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('competitorModal')">Kapat</button>
-      <button class="btn btn-primary" onclick="closeModal('competitorModal');openEditCompetitor()">✏️ Fiyatları Güncelle</button>
-    </div>
-  </div>
-</div>
-
-<!-- Edit Competitor Prices Modal -->
-<div class="modal-overlay" id="editCompetitorModal">
-  <div class="modal" style="max-width:520px">
-    <div class="modal-header">
-      <div class="modal-title">✏️ Rakip Fiyatları Güncelle</div>
-      <button class="modal-close" onclick="closeModal('editCompetitorModal')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="alert alert-info" style="margin-bottom:16px">
-        💡 Erenler Cep sitesini kontrol edip güncel fiyatları buraya girin. Fiyatı olmayan ürünleri boş bırakın.
-        <br><a href="https://www.erenlercep.com/" target="_blank" style="color:var(--orange);font-weight:600">erenlercep.com →</a>
-      </div>
-      <div id="editCompFields" style="display:flex;flex-direction:column;gap:10px;max-height:420px;overflow-y:auto"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('editCompetitorModal')">İptal</button>
-      <button class="btn btn-primary" onclick="saveCompetitorPrices()">💾 Kaydet & Analiz Et</button>
+      <button class="btn btn-ghost" id="compModalLiveBtn" onclick="fetchLiveErenler()">🔄 Canlı Güncelle</button>
+      <button class="btn btn-primary" onclick="exportCompAnalysis()">⬇️ Excel'e Aktar</button>
     </div>
   </div>
 </div>
@@ -587,6 +591,8 @@ tr:hover td{background:var(--gray50)}
             <option value="atistirmalik">🍿 Atıştırmalık</option>
             <option value="temizlik">🧹 Temizlik</option>
             <option value="icecek">🧃 İçecek</option>
+            <option value="kasap">🥩 Kasap & Et</option>
+            <option value="kahvaltilik">🍳 Kahvaltılık</option>
             <option value="kozmetik">💄 Kozmetik</option>
             <option value="anne-bebek">👶 Anne & Bebek</option>
             <option value="ev-gerecleri">🏠 Ev Gereçleri</option>
@@ -669,6 +675,8 @@ tr:hover td{background:var(--gray50)}
             <option value="atistirmalik">Atıştırmalık</option>
             <option value="temizlik">Temizlik</option>
             <option value="icecek">İçecek</option>
+            <option value="kasap">Kasap & Et</option>
+            <option value="kahvaltilik">Kahvaltılık</option>
             <option value="kozmetik">Kozmetik</option>
             <option value="anne-bebek">Anne & Bebek</option>
             <option value="ev-gerecleri">Ev Gereçleri</option>
@@ -726,6 +734,8 @@ tr:hover td{background:var(--gray50)}
           <option value="atistirmalik">Atıştırmalık</option>
           <option value="temizlik">Temizlik</option>
           <option value="icecek">İçecek</option>
+          <option value="kasap">Kasap & Et</option>
+          <option value="kahvaltilik">Kahvaltılık</option>
           <option value="kozmetik">Kozmetik</option>
           <option value="anne-bebek">Anne & Bebek</option>
           <option value="ev-gerecleri">Ev Gereçleri</option>
@@ -896,6 +906,75 @@ const DEFAULT_PRODUCTS=[
   {id:114,name:'Plastik Saklama Kabı',cat:'ev-gerecleri',price:49.90,unit:'adet',emoji:'📦',img:'https://images.unsplash.com/photo-1584990347449-39ce4c9af92a?w=400',badge:'',featured:false},
   {id:115,name:'Çay Bardağı Seti (6\'lı)',cat:'ev-gerecleri',price:129.90,unit:'set',emoji:'☕',img:'https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=400',badge:'',featured:false},
   {id:116,name:'Mutfak Makası',cat:'ev-gerecleri',price:89.90,unit:'adet',emoji:'✂️',img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400',badge:'',featured:false},
+  {id:117,name:'Dana Kıyma',cat:'kasap',price:189.90,unit:'500g',emoji:'🥩',img:'https://images.unsplash.com/photo-1588347818481-27bd27e77b4e?w=400',badge:'TAZE',featured:true},
+  {id:118,name:'Kasap Köfte',cat:'kasap',price:134.90,unit:'350g',emoji:'🥩',img:'https://images.unsplash.com/photo-1529694157872-4e0c0f3b238b?w=400',badge:'ÇOK SATAN',featured:true},
+  {id:119,name:'Piliç Döner',cat:'kasap',price:84.90,unit:'300g',emoji:'🍗',img:'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=400',badge:'-%5',featured:false},
+  {id:120,name:'Tavuk But',cat:'kasap',price:179.90,unit:'1kg',emoji:'🍗',img:'https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=400',badge:'TAZE',featured:true},
+  {id:121,name:'Bütün Piliç',cat:'kasap',price:149.90,unit:'1kg',emoji:'🐔',img:'https://images.unsplash.com/photo-1600891964599-f61ba0e24092?w=400',badge:'',featured:false},
+  {id:122,name:'Hamburger Köfte',cat:'kasap',price:264.90,unit:'500g',emoji:'🍔',img:'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=400',badge:'',featured:false},
+  {id:123,name:'Parmak Köfte',cat:'kasap',price:134.90,unit:'400g',emoji:'🍢',img:'https://images.unsplash.com/photo-1529694157872-4e0c0f3b238b?w=400',badge:'-%10',featured:false},
+  {id:124,name:'Dana Sucuk İnce',cat:'kasap',price:124.90,unit:'200g',emoji:'🌭',img:'https://images.unsplash.com/photo-1562967915-6ba607ff7d05?w=400',badge:'',featured:false},
+  {id:125,name:'Çam Balı',cat:'kahvaltilik',price:344.90,unit:'460g',emoji:'🍯',img:'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400',badge:'-%9',featured:true},
+  {id:126,name:'Kayısı Reçeli',cat:'kahvaltilik',price:79.90,unit:'380g',emoji:'🫙',img:'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=400',badge:'',featured:false},
+  {id:127,name:'Sele Zeytin',cat:'kahvaltilik',price:134.90,unit:'800g',emoji:'🫒',img:'https://images.unsplash.com/photo-1572635148818-ef6fd45eb394?w=400',badge:'-%10',featured:true},
+  {id:128,name:'Kaşar Peyniri',cat:'kahvaltilik',price:194.90,unit:'300g',emoji:'🧀',img:'https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=400',badge:'İNDİRİM',featured:false},
+  {id:129,name:'Yumurta',cat:'kahvaltilik',price:59.90,unit:'10\'lu',emoji:'🥚',img:'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=400',badge:'TAZE',featured:true},
+  {id:130,name:'Tahin Pekmez',cat:'kahvaltilik',price:84.90,unit:'350g',emoji:'🫙',img:'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400',badge:'',featured:false},
+  {id:131,name:'Fıstık Ezmesi',cat:'kahvaltilik',price:124.90,unit:'350g',emoji:'🥜',img:'https://images.unsplash.com/photo-1567218360-a7898e9b8bcc?w=400',badge:'YENİ',featured:false},
+  {id:132,name:'Çilek Reçeli',cat:'kahvaltilik',price:74.90,unit:'380g',emoji:'🍓',img:'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=400',badge:'',featured:false},
+  {id:133,name:'Enginar',cat:'manav',price:64.90,unit:'adet',emoji:'🌿',img:'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400',badge:'MEVSİM',featured:false},
+  {id:134,name:'Sarımsak',cat:'manav',price:134.90,unit:'1kg',emoji:'🧄',img:'https://images.unsplash.com/photo-1540148426945-6cf22a6b2383?w=400',badge:'-%10',featured:false},
+  {id:135,name:'Elma Granny Smith',cat:'manav',price:94.90,unit:'1kg',emoji:'🍏',img:'https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=400',badge:'',featured:false},
+  {id:136,name:'Patlıcan',cat:'manav',price:59.90,unit:'1kg',emoji:'🍆',img:'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400',badge:'KAMPANYA',featured:false},
+  {id:137,name:'RedBull Enerji',cat:'icecek',price:64.90,unit:'250ml',emoji:'⚡',img:'https://images.unsplash.com/photo-1570197571499-166b36435e9f?w=400',badge:'ENERJİ',featured:true},
+  {id:138,name:'Sprite',cat:'icecek',price:59.90,unit:'1.5L',emoji:'🥤',img:'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400',badge:'',featured:false},
+  {id:139,name:'Coca-Cola',cat:'icecek',price:69.90,unit:'2.5L',emoji:'🥤',img:'https://images.unsplash.com/photo-1629203851122-3726ecdf080e?w=400',badge:'AİLE BOY',featured:false},
+  {id:140,name:'Fanta Portakal',cat:'icecek',price:39.90,unit:'500ml',emoji:'🟠',img:'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400',badge:'',featured:false},
+  {id:141,name:'Powerade',cat:'icecek',price:64.90,unit:'500ml',emoji:'💪',img:'https://images.unsplash.com/photo-1571165936792-697b96b5f671?w=400',badge:'',featured:false},
+  {id:142,name:'Ajax Fabuloso Lavanta',cat:'temizlik',price:109.90,unit:'1L',emoji:'🧹',img:'https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400',badge:'-%8',featured:false},
+  {id:143,name:'Fairy Platinum',cat:'temizlik',price:399.90,unit:'50 tablet',emoji:'🍽️',img:'https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?w=400',badge:'EKONOMİK',featured:true},
+  {id:144,name:'Hijyenik Ped',cat:'temizlik',price:64.90,unit:'20\'li',emoji:'🩹',img:'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=400',badge:'',featured:false},
+  {id:145,name:'Rexona Deo Erkek',cat:'kozmetik',price:119.90,unit:'150ml',emoji:'🌿',img:'https://images.unsplash.com/photo-1599305090598-fe179d501227?w=400',badge:'-%7',featured:false},
+  {id:146,name:'Gillette Fusion Yedek',cat:'kozmetik',price:544.90,unit:'2\'li',emoji:'🪒',img:'https://images.unsplash.com/photo-1612817288484-6f916006741a?w=400',badge:'-%9',featured:false},
+  {id:147,name:'Parodontax Diş Macunu',cat:'kozmetik',price:284.90,unit:'75ml',emoji:'🦷',img:'https://images.unsplash.com/photo-1585238342024-78d387f4a707?w=400',badge:'KORUYUCU',featured:false},
+  {id:148,name:'Paşabahçe Çay Bardağı',cat:'ev-gerecleri',price:119.90,unit:'6\'lı set',emoji:'☕',img:'https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=400',badge:'-%20',featured:true},
+  {id:149,name:'Cam Kavanoz',cat:'ev-gerecleri',price:24.90,unit:'660ml',emoji:'🫙',img:'https://images.unsplash.com/photo-1584990347449-39ce4c9af92a?w=400',badge:'',featured:false},
+  {id:150,name:'Plastik Saklama Kabı',cat:'ev-gerecleri',price:49.90,unit:'1.6L',emoji:'📦',img:'https://images.unsplash.com/photo-1584990347449-39ce4c9af92a?w=400',badge:'',featured:false},
+  {id:151,name:'Çilek',cat:'manav',price:79.90,unit:'500g',emoji:'🍓',img:'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=400',badge:'TAZE',featured:true},
+  {id:152,name:'Kiraz',cat:'manav',price:89.90,unit:'500g',emoji:'🍒',img:'https://images.unsplash.com/photo-1559181567-c3190ca9959b?w=400',badge:'MEVSİM',featured:false},
+  {id:153,name:'İspanak',cat:'manav',price:19.90,unit:'demet',emoji:'🥬',img:'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400',badge:'TAZE',featured:false},
+  {id:154,name:'Brokoli',cat:'manav',price:34.90,unit:'adet',emoji:'🥦',img:'https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?w=400',badge:'',featured:false},
+  {id:155,name:'Şeftali',cat:'manav',price:59.90,unit:'1kg',emoji:'🍑',img:'https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=400',badge:'MEVSİM',featured:false},
+  {id:156,name:'Üzüm Siyah',cat:'manav',price:79.90,unit:'1kg',emoji:'🍇',img:'https://images.unsplash.com/photo-1515706886582-54c73c5eaf41?w=400',badge:'',featured:false},
+  {id:157,name:'Kavun',cat:'manav',price:44.90,unit:'1 adet',emoji:'🍈',img:'https://images.unsplash.com/photo-1529563979-ab4b49c0cbc9?w=400',badge:'MEVSİM',featured:false},
+  {id:158,name:'Zeytinyağı Riviera',cat:'temel-gida',price:299.90,unit:'1L',emoji:'🫒',img:'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400',badge:'-%14',featured:true},
+  {id:159,name:'Kırmızı Mercimek',cat:'temel-gida',price:49.90,unit:'1kg',emoji:'🌾',img:'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=400',badge:'',featured:false},
+  {id:160,name:'Domates Salçası',cat:'temel-gida',price:44.90,unit:'700g',emoji:'🍅',img:'https://images.unsplash.com/photo-1561661741-9cb1b77fd4ba?w=400',badge:'EV YAPIMI',featured:false},
+  {id:161,name:'Elma Sirkesi',cat:'temel-gida',price:39.90,unit:'1L',emoji:'🍎',img:'https://images.unsplash.com/photo-1534353341884-c1d87ea7f7b7?w=400',badge:'',featured:false},
+  {id:162,name:'Mercimek Çorbası Hazır',cat:'temel-gida',price:29.90,unit:'2\'li paket',emoji:'🍵',img:'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400',badge:'',featured:false},
+  {id:163,name:'Susam',cat:'temel-gida',price:34.90,unit:'250g',emoji:'🌿',img:'https://images.unsplash.com/photo-1506368249639-73a05d6f6488?w=400',badge:'',featured:false},
+  {id:164,name:'Ayran Büyük',cat:'sut-sarkuteri',price:44.90,unit:'2L',emoji:'🥛',img:'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400',badge:'BÜYÜK BOY',featured:false},
+  {id:165,name:'Lor Peyniri',cat:'sut-sarkuteri',price:69.90,unit:'500g',emoji:'🧀',img:'https://images.unsplash.com/photo-1631435342738-9dfb1de1c66c?w=400',badge:'TAZE',featured:false},
+  {id:166,name:'Sucuk Dilimli',cat:'sut-sarkuteri',price:79.90,unit:'200g',emoji:'🌭',img:'https://images.unsplash.com/photo-1562967915-6ba607ff7d05?w=400',badge:'',featured:false},
+  {id:167,name:'Çökelek Taze',cat:'sut-sarkuteri',price:59.90,unit:'500g',emoji:'🫙',img:'https://images.unsplash.com/photo-1603569283847-aa295f0d4caf?w=400',badge:'TAZE',featured:false},
+  {id:168,name:'Fındık Kavrulmuş',cat:'atistirmalik',price:129.90,unit:'250g',emoji:'🌰',img:'https://images.unsplash.com/photo-1533738363-b7f9aef128ce?w=400',badge:'DOĞAL',featured:true},
+  {id:169,name:'Sütlü Çikolata',cat:'atistirmalik',price:49.90,unit:'100g',emoji:'🍫',img:'https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=400',badge:'',featured:false},
+  {id:170,name:'Meyveli Kek Dilimi',cat:'atistirmalik',price:29.90,unit:'4\'lü paket',emoji:'🍰',img:'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400',badge:'',featured:false},
+  {id:171,name:'Badem Çiğ',cat:'atistirmalik',price:79.90,unit:'100g',emoji:'🥜',img:'https://images.unsplash.com/photo-1547414368-ac947d00b91d?w=400',badge:'SAĞLIKLI',featured:false},
+  {id:172,name:'WC Temizleyici',cat:'temizlik',price:44.90,unit:'750ml',emoji:'🚿',img:'https://images.unsplash.com/photo-1607344645866-009c320b63e0?w=400',badge:'',featured:false},
+  {id:173,name:'Çamaşır Suyu Klorlu',cat:'temizlik',price:49.90,unit:'3L',emoji:'🧴',img:'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=400',badge:'EKONOMİK',featured:false},
+  {id:174,name:'Bulaşık Süngeri',cat:'temizlik',price:24.90,unit:'5\'li paket',emoji:'🧽',img:'https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?w=400',badge:'',featured:false},
+  {id:175,name:'Islak Mendil Limonlu',cat:'temizlik',price:34.90,unit:'72\'li paket',emoji:'🧻',img:'https://images.unsplash.com/photo-1584515933487-779824d29309?w=400',badge:'',featured:false},
+  {id:176,name:'Taze Portakal Suyu',cat:'icecek',price:49.90,unit:'1L',emoji:'🍊',img:'https://images.unsplash.com/photo-1504509546545-e000b4a62425?w=400',badge:'TAZE',featured:true},
+  {id:177,name:'Nescafé Klasik',cat:'icecek',price:149.90,unit:'100g',emoji:'☕',img:'https://images.unsplash.com/photo-1494314671902-399b18174975?w=400',badge:'-%16',featured:false},
+  {id:178,name:'Portakal Limonata',cat:'icecek',price:34.90,unit:'1L',emoji:'🍋',img:'https://images.unsplash.com/photo-1621263764928-df1444c5e859?w=400',badge:'',featured:false},
+  {id:179,name:'Soda Naneli',cat:'icecek',price:34.90,unit:'6x200ml',emoji:'🫧',img:'https://images.unsplash.com/photo-1608885898957-a599fb1698d6?w=400',badge:'',featured:false},
+  {id:180,name:'Dana Bonfile',cat:'kasap',price:349.90,unit:'500g',emoji:'🥩',img:'https://images.unsplash.com/photo-1558030006-450675393462?w=400',badge:'PREMİUM',featured:true},
+  {id:181,name:'Piliç Kanat',cat:'kasap',price:99.90,unit:'1kg',emoji:'🍗',img:'https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=400',badge:'TAZE',featured:false},
+  {id:182,name:'Kuzu Pirzola',cat:'kasap',price:299.90,unit:'500g',emoji:'🥩',img:'https://images.unsplash.com/photo-1544025162-d76538b2a681?w=400',badge:'SEÇİM',featured:false},
+  {id:183,name:'Fındık Kreması',cat:'kahvaltilik',price:149.90,unit:'400g',emoji:'🍫',img:'https://images.unsplash.com/photo-1567206563114-c179906b52b8?w=400',badge:'ÇOK SATAN',featured:true},
+  {id:184,name:'Çay Poşeti',cat:'kahvaltilik',price:79.90,unit:'40\'lı',emoji:'🍵',img:'https://images.unsplash.com/photo-1564890369478-c89ca3d9cde8?w=400',badge:'',featured:false},
+  {id:185,name:'Tereyağlı Bisküvi',cat:'kahvaltilik',price:39.90,unit:'200g',emoji:'🍪',img:'https://images.unsplash.com/photo-1603532648955-039310d9ed75?w=400',badge:'',featured:false},
 ];
 const DEFAULT_PROMOS={
   'AYDIN5':{pct:5,gift:null,text:'%5 İNDİRİM UYGULANDI!'},
@@ -1020,6 +1099,7 @@ function renderDash(){
   loadData();
   processOrderStock();
   updateSidebarStockBadge();
+  renderCompSummaryBar();
   const revenue=orders.reduce((s,o)=>s+(o.total||0),0);
   const criticalStock=products.filter(p=>getStockStatus(p)!=='ok').length;
   const activeCamps=campaigns.filter(isActiveCampaign).length;
@@ -1557,87 +1637,124 @@ function nukeData(){
 }
 
 /* ── RAKİP FİYAT ANALİZİ ───────────────────────────────────────────── */
-const COMP_DEFAULT = {
-  name:'Erenler Cep',
-  url:'https://www.erenlercep.com/',
-  updatedAt: 1750896000000,
-  prices:{
-    /* MANAV */
-    'Domates':49.95,
-    'Domates Pembe':59.95,
-    'Salatalık':44.95,
-    'Biber Sivri':59.95,
-    'Biber Dolma':79.95,
-    'Havuç':54.95,
-    'Kabak':64.95,
-    'Patates':39.95,
-    'Patlıcan':64.95,
-    'Pirasa':24.95,
-    'Soğan':44.95,
-    'Soğan Yeşil':29.95,
-    'Marul Kıvırcık':39.95,
-    'Maydanoz':19.95,
-    'Nane':19.95,
-    'Roka':19.95,
-    'Mantar':219.95,
-    'Sarımsak':149.95,
-    'Elma':99.95,
-    'Kivi':179.95,
-    'Muz':149.95,
-    'Avokado':114.95,
-    'Limon':134.95,
-    'Karpuz':19.95,
-    /* SÜT & ŞARKÜTERİ */
-    'Süt':74.95,
-    'Beyaz Peynir':159.45,
-    'Kaşar Peynir':219.95,
-    'Helva Sade':49.95,
-    'Salam Hindi':44.95,
-    'Kasap Köfte':149.95,
-    'Tavuk Döner':89.60,
-    /* TEMİZLİK */
-    'Bulaşık Deterjanı':119.95,
-    'Sıvı Sabun':44.95,
-    'Meyve Suyu':33.95,
-    /* KOZMETİK */
-    'Diş Macunu':379.95,
-    'Şampuan':74.95,
-    'Kolonya':164.95
-  }
-};
-function loadCompetitor(){
-  const raw=localStorage.getItem('ag_competitor');
-  if(raw)try{return JSON.parse(raw);}catch(e){}
-  return JSON.parse(JSON.stringify(COMP_DEFAULT));
+
+// Erenler ürünleri cache — server'dan yüklenir
+let erenlerData = [];
+
+// Sunucudan Erenler fiyat listesini yükle
+async function loadErenlerData(){
+  try{
+    const resp = await fetch('/api/erenler-products');
+    if(resp.ok) erenlerData = await resp.json();
+  } catch(e){ erenlerData = []; }
 }
-function saveCompetitorPrices(){
-  const comp=loadCompetitor();
-  comp.updatedAt=Date.now();
-  const fields=document.querySelectorAll('#editCompFields .comp-price-field');
-  fields.forEach(inp=>{
-    const pname=inp.dataset.pname;
-    const val=parseFloat(inp.value);
-    if(pname){
-      if(val>0)comp.prices[pname]=val;
-      else delete comp.prices[pname];
+
+// Türkçe karakterleri ASCII'ye normalize et (ı→i, ş→s vb.)
+function trNorm(s){
+  return (s||'').toLowerCase()
+    .replace(/ı/g,'i').replace(/İ/g,'i').replace(/I/g,'i')
+    .replace(/ğ/g,'g').replace(/Ğ/g,'g')
+    .replace(/ş/g,'s').replace(/Ş/g,'s')
+    .replace(/ç/g,'c').replace(/Ç/g,'c')
+    .replace(/ö/g,'o').replace(/Ö/g,'o')
+    .replace(/ü/g,'u').replace(/Ü/g,'u');
+}
+
+// Türkçe ada göre kelime tabanlı eşleştirme skoru
+function compMatchScore(agName, erName){
+  const clean = s => trNorm(s)
+    .replace(/[().,\/\\]/g,' ')
+    .replace(/\d+\s*(gr|g|kg|ml|l|lt|li|lu|adet|cifte|bag|kutu|paket|sise|tup|kap)\b/gi,' ')
+    .replace(/\s+/g,' ').trim();
+  const ag = clean(agName);
+  const er = clean(erName);
+  if(ag === er) return 100;
+
+  // String içerme kontrolü — kısa kelimeler için yanlış eşleşmeyi önlemek amacıyla
+  // oran eşiği uygulanır (örn. "çay" → "doğuş çay": 3/9=0.33 → geçmez)
+  if(ag.includes(er) || er.includes(ag)){
+    const shorter = Math.min(ag.length, er.length);
+    const longer  = Math.max(ag.length, er.length);
+    const ratio   = shorter / longer;
+    if(ratio >= 0.45) return 88;  // yeterli örtüşme
+    // Orana göre kısmi puan (0.45 altı)
+    if(ratio >= 0.3) return Math.round(55 + ratio * 50);
+    return 0; // çok kısa substring
+  }
+
+  // Kelime örtüşmesi
+  const agW = ag.split(' ').filter(w=>w.length>2);
+  const erW = er.split(' ').filter(w=>w.length>2);
+  if(agW.length===0 || erW.length===0) return 0;
+  let hits = 0;
+  agW.forEach(w=>{ if(erW.some(e=>e===w)) hits++; }); // sadece tam kelime eşleşmesi
+  if(hits===0){
+    // Altdize eşleşmesi (daha düşük güven)
+    agW.forEach(w=>{ if(erW.some(e=>e.includes(w)||w.includes(e))) hits+=0.5; });
+    if(hits<1) return 0;
+  }
+  const coverage = hits / Math.max(agW.length, erW.length);
+  return Math.round(coverage * 75);
+}
+
+// Erenler ürününü AydınGros ürünüyle eşleştir (products array dışarıdan verilir)
+function matchErenlerToAydin(erItem, productList){
+  let best=null, bestScore=0;
+  (productList||products).forEach(p=>{
+    const sc = compMatchScore(p.name, erItem.name);
+    if(sc>bestScore){ bestScore=sc; best=p; }
+  });
+  // Eşik: tek kelime eşleşmesinde yanlış pozitifi önlemek için 50 gerektir
+  return bestScore>=50 ? {product:best, score:bestScore} : null;
+}
+
+// Kategori etiketi (kısa)
+const CAT_LABELS={'manav':'Manav','kasap':'Kasap','sut-sarkuteri':'Süt&Şark.','temel-gida':'Gıda','atistirmalik':'Atıştır.','icecek':'İçecek','temizlik':'Temizlik','kozmetik':'Kozmetik','kahvaltilik':'Kahvaltı','anne-bebek':'Anne-Bebek','ev-gerecleri':'Ev Gereç'};
+function shortCat(c){ return CAT_LABELS[c]||c; }
+
+// Eşleşme sonuçları önbelleği (her modal açılışında hesaplama yapmamak için)
+let _compRows = [];
+
+function buildCompRows(){
+  loadData();
+  // Her AydınGros ürünü için en iyi Erenler eşleşmesini bul (dedup by ag.id)
+  const bestByAgId = {};
+  const prodList = products; // loadData sonrası sabit referans
+  erenlerData.forEach(er=>{
+    const m=matchErenlerToAydin(er, prodList);
+    if(!m) return;
+    const ag=m.product;
+    const prev=bestByAgId[ag.id];
+    if(!prev || m.score>prev.score){
+      bestByAgId[ag.id]={ag,er,score:m.score};
     }
   });
-  localStorage.setItem('ag_competitor',JSON.stringify(comp));
-  closeModal('editCompetitorModal');
-  toast('Rakip fiyatları kaydedildi ✓');
-  renderCompSummaryBar();
-  openCompetitorModal();
+  _compRows=Object.values(bestByAgId).map(({ag,er,score})=>{
+    const diff=ag.price-er.price;
+    const diffPct=er.price>0?(diff/er.price*100):0;
+    let status;
+    if(diffPct>5) status='expensive';
+    else if(diffPct<-5) status='cheap';
+    else status='near';
+    return{ag,er,diff,diffPct,status,score};
+  });
+  // Pahalıdan ucuza sırala
+  _compRows.sort((a,b)=>{
+    const ord={expensive:0,near:1,cheap:2};
+    return (ord[a.status]||0)-(ord[b.status]||0);
+  });
 }
+
 function renderCompSummaryBar(){
-  const comp=loadCompetitor();
+  loadData();
   const el=document.getElementById('compLastUpdateLabel');
   const bar=document.getElementById('compSummaryBar');
-  if(!el||!bar)return;
-  if(comp.updatedAt){
-    const d=new Date(comp.updatedAt);
-    el.textContent='Son güncelleme: '+d.toLocaleDateString('tr-TR')+' '+d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
-  }
-  const {cheap,expensive,near}=compStats(comp);
+  if(!el||!bar) return;
+  const expensive=_compRows.filter(r=>r.status==='expensive').length;
+  const cheap=_compRows.filter(r=>r.status==='cheap').length;
+  const near=_compRows.filter(r=>r.status==='near').length;
+  const total=_compRows.length;
+  el.textContent=total>0?`${total} eşleşme bulundu`:'Fiyatlar yükleniyor...';
   bar.innerHTML=`<div style="display:flex;gap:10px;flex-wrap:wrap">
     <div style="display:flex;align-items:center;gap:6px;background:var(--green-light);color:var(--green);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600">
       ✅ ${cheap} üründe ÜCUZsunuz
@@ -1650,122 +1767,155 @@ function renderCompSummaryBar(){
     </div>
   </div>`;
 }
-function compStats(comp){
-  loadData();
-  let cheap=0,expensive=0,near=0;
-  Object.entries(comp.prices||{}).forEach(([cname,cprice])=>{
-    const match=findMatchingProduct(cname);
-    if(!match)return;
-    const diff=(match.price-cprice)/cprice*100;
-    if(diff>5)expensive++;
-    else if(diff<-5)cheap++;
-    else near++;
-  });
-  return{cheap,expensive,near};
-}
-function findMatchingProduct(cname){
-  const kw=cname.toLowerCase().replace(/\s+/g,' ').trim();
-  let m=products.find(p=>(p.name||'').toLowerCase()===kw);
-  if(m)return m;
-  m=products.find(p=>(p.name||'').toLowerCase().includes(kw));
-  if(m)return m;
-  return products.find(p=>kw.includes((p.name||'').toLowerCase().split('(')[0].trim()));
-}
-function openCompetitorModal(){
-  const comp=loadCompetitor();
-  loadData();
-  const dateEl=document.getElementById('compModalDate');
-  const lastCheckEl=document.getElementById('compModalLastCheck');
-  if(comp.updatedAt){
-    const d=new Date(comp.updatedAt);
-    const ds=d.toLocaleDateString('tr-TR')+' '+d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
-    if(dateEl)dateEl.textContent='Kaynak: erenlercep.com — fiyatlar '+ds+' itibarıyla';
-    if(lastCheckEl)lastCheckEl.textContent=ds;
-  } else {
-    if(dateEl)dateEl.textContent='Kaynak: erenlercep.com — fiyatlar manuel girilmiştir';
-    if(lastCheckEl)lastCheckEl.textContent='Güncellenmedi';
+
+function renderCompTableRows(){
+  const catFilter=document.getElementById('compCatFilter')?.value||'';
+  const statusFilter=document.getElementById('compStatusFilter')?.value||'';
+  let rows=_compRows;
+  if(catFilter) rows=rows.filter(r=>r.ag.cat===catFilter);
+  if(statusFilter) rows=rows.filter(r=>r.status===statusFilter);
+  const info=document.getElementById('compFilterInfo');
+  if(info) info.textContent=`${rows.length} ürün gösteriliyor`;
+  const body=document.getElementById('compTableBody');
+  if(!body) return;
+  if(rows.length===0){
+    body.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--gray400)">Bu filtre için eşleşen ürün bulunamadı.</td></tr>`;
+    return;
   }
-  let cheap=0,expensive=0,near=0,noMatch=0;
-  const rows=[];
-  Object.entries(comp.prices||{}).forEach(([cname,cprice])=>{
-    const match=findMatchingProduct(cname);
-    if(!match){noMatch++;return;}
-    const diff=match.price-cprice;
-    const diffPct=(diff/cprice*100);
+  body.innerHTML=rows.map(r=>{
+    const {ag,er,diff,diffPct,status}=r;
     let badge,rowStyle='';
-    if(diffPct>5){
-      badge=`<span class="badge badge-red">⚠️ Pahalıyız +${diffPct.toFixed(0)}%</span>`;
+    if(status==='expensive'){
+      badge=`<span class="badge badge-red">⚠️ Pahalıyız</span>`;
       rowStyle='background:#FFF5F5';
-      expensive++;
-    } else if(diffPct<-5){
-      badge=`<span class="badge badge-green">✅ Ucuzuz ${diffPct.toFixed(0)}%</span>`;
-      cheap++;
+    } else if(status==='cheap'){
+      badge=`<span class="badge badge-green">✅ Ucuzuz</span>`;
     } else {
       badge=`<span class="badge badge-yellow">≈ Yakın</span>`;
-      near++;
     }
-    const diffColor=diff>0?'var(--red)':diff<0?'var(--green)':'var(--gray500)';
+    const diffCol=diff>0?'var(--red)':diff<0?'var(--green)':'var(--gray500)';
     const diffSign=diff>0?'+':'';
-    rows.push(`<tr style="${rowStyle}">
-      <td><strong>${esc(match.name)}</strong><div style="font-size:11px;color:var(--gray400)">${esc(match.unit||'adet')}</div></td>
-      <td style="font-weight:700;color:var(--orange)">${fmtPrice(match.price)}</td>
-      <td style="font-weight:600;color:var(--gray600)">${fmtPrice(cprice)}</td>
-      <td style="font-weight:700;color:${diffColor}">${diffSign}${fmtPrice(Math.abs(diff))}</td>
+    const pctSign=diffPct>0?'+':'';
+    return`<tr style="${rowStyle}">
+      <td><strong>${esc(ag.name)}</strong><div style="font-size:11px;color:var(--gray400)">${esc(ag.unit||'adet')}</div></td>
+      <td><span style="font-size:11px;background:var(--gray100);padding:2px 6px;border-radius:10px">${shortCat(ag.cat)}</span></td>
+      <td style="font-weight:700;color:var(--orange)">${fmtPrice(ag.price)}</td>
+      <td style="font-weight:600;color:var(--gray600)">${fmtPrice(er.price)}<div style="font-size:10px;color:var(--gray400)">${esc(er.name.substring(0,22))}</div></td>
+      <td style="font-weight:700;color:${diffCol}">${diffSign}${fmtPrice(Math.abs(diff))}</td>
+      <td style="font-weight:700;color:${diffCol}">${pctSign}${diffPct.toFixed(1)}%</td>
       <td>${badge}</td>
-    </tr>`);
-  });
-  rows.sort((a,b)=>{
-    const ap=a.includes('Pahalıyız')?0:a.includes('Yakın')?1:2;
-    const bp=b.includes('Pahalıyız')?0:b.includes('Yakın')?1:2;
-    return ap-bp;
-  });
-  document.getElementById('compTableBody').innerHTML=rows.length?rows.join(''):`<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--gray400)">Karşılaştırılacak ürün bulunamadı. Rakip fiyatları düzenleyin.</td></tr>`;
-  const total=cheap+expensive+near;
+    </tr>`;
+  }).join('');
+}
+
+async function openCompetitorModal(){
+  openModal('competitorModal');
+  const dateEl=document.getElementById('compModalDate');
+  const lastCheckEl=document.getElementById('compModalLastCheck');
+  const body=document.getElementById('compTableBody');
+  if(body) body.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--gray400)"><div style="display:flex;align-items:center;justify-content:center;gap:8px">⏳ Erenler Cep fiyatları yükleniyor...</div></td></tr>`;
+
+  if(erenlerData.length===0) await loadErenlerData();
+  buildCompRows();
+
+  const expensive=_compRows.filter(r=>r.status==='expensive').length;
+  const cheap=_compRows.filter(r=>r.status==='cheap').length;
+  const near=_compRows.filter(r=>r.status==='near').length;
+  const total=_compRows.length;
+
+  const now=new Date();
+  const ds=now.toLocaleDateString('tr-TR')+' '+now.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
+  if(dateEl) dateEl.textContent='Kaynak: erenlercep.com — '+total+' ürün eşleştirildi';
+  if(lastCheckEl) lastCheckEl.textContent=ds;
+
   document.getElementById('compSummaryCards').innerHTML=`
     <div style="background:var(--red-light);border-radius:8px;padding:14px;text-align:center">
       <div style="font-size:28px;font-weight:800;color:var(--red)">${expensive}</div>
-      <div style="font-size:12px;color:var(--red);font-weight:600">⚠️ Pahalı Ürün</div>
-      <div style="font-size:11px;color:var(--gray500);margin-top:2px">Rakibe göre %5+ fazla</div>
+      <div style="font-size:12px;color:var(--red);font-weight:600">⚠️ Pahalı</div>
+      <div style="font-size:11px;color:var(--gray500);margin-top:2px">Rakipten %5+ fazla</div>
     </div>
     <div style="background:var(--yellow-light);border-radius:8px;padding:14px;text-align:center">
       <div style="font-size:28px;font-weight:800;color:var(--yellow)">${near}</div>
-      <div style="font-size:12px;color:var(--yellow);font-weight:600">≈ Yakın Fiyat</div>
+      <div style="font-size:12px;color:var(--yellow);font-weight:600">≈ Yakın</div>
       <div style="font-size:11px;color:var(--gray500);margin-top:2px">±%5 aralığında</div>
     </div>
     <div style="background:var(--green-light);border-radius:8px;padding:14px;text-align:center">
       <div style="font-size:28px;font-weight:800;color:var(--green)">${cheap}</div>
-      <div style="font-size:12px;color:var(--green);font-weight:600">✅ Ucuz Ürün</div>
+      <div style="font-size:12px;color:var(--green);font-weight:600">✅ Ucuz</div>
       <div style="font-size:11px;color:var(--gray500);margin-top:2px">Rakipten %5+ ucuz</div>
+    </div>
+    <div style="background:var(--gray100);border-radius:8px;padding:14px;text-align:center">
+      <div style="font-size:28px;font-weight:800;color:var(--gray600)">${total}</div>
+      <div style="font-size:12px;color:var(--gray600);font-weight:600">📊 Toplam</div>
+      <div style="font-size:11px;color:var(--gray500);margin-top:2px">Eşleşen ürün</div>
     </div>`;
+
   const alertEl=document.getElementById('compAlertBanner');
   if(expensive>0){
-    alertEl.innerHTML=`<div class="alert alert-danger">⚠️ <strong>${expensive} ürününüzün fiyatı Erenler Cep'ten yüksek!</strong> Bu ürünlerde fiyatını düşürmeyi veya kampanya açmayı düşünün.</div>`;
+    const worst=_compRows.filter(r=>r.status==='expensive').sort((a,b)=>b.diffPct-a.diffPct).slice(0,3).map(r=>`${r.ag.name} (+${r.diffPct.toFixed(0)}%)`).join(', ');
+    alertEl.innerHTML=`<div class="alert alert-danger">⚠️ <strong>${expensive} ürününüzün fiyatı Erenler Cep'ten yüksek!</strong> En pahalılar: ${esc(worst)}</div>`;
   } else if(total===0){
-    alertEl.innerHTML=`<div class="alert alert-info">ℹ️ Henüz karşılaştırılacak rakip fiyatı girilmemiş. "Fiyatları Güncelle" butonuna basın.</div>`;
+    alertEl.innerHTML=`<div class="alert alert-info">ℹ️ Erenler Cep fiyat verisi yüklenemedi. Sunucuyu kontrol edin veya "Canlı Güncelle"ye basın.</div>`;
   } else {
-    alertEl.innerHTML=`<div class="alert alert-success">✅ Harika! Rakibinize göre fiyat avantajınız var. Tüm ürünlerde rekabetçisiniz.</div>`;
+    alertEl.innerHTML=`<div class="alert alert-success">✅ Harika! ${cheap} üründe rakibinizden ucuzsunuz. Tüm ürünlerde rekabetçisiniz.</div>`;
   }
-  openModal('competitorModal');
+
+  // Kategori filtrelerini sıfırla ve tabloyu çiz
+  const catSel=document.getElementById('compCatFilter');
+  const stSel=document.getElementById('compStatusFilter');
+  if(catSel) catSel.value='';
+  if(stSel) stSel.value='';
+  renderCompTableRows();
+  renderCompSummaryBar();
 }
-function openEditCompetitor(){
-  const comp=loadCompetitor();
-  loadData();
-  const container=document.getElementById('editCompFields');
-  const allNames=new Set([...Object.keys(comp.prices||{}),...products.map(p=>p.name)]);
-  const fields=[...allNames].sort().map(name=>{
-    const match=products.find(p=>p.name===name);
-    const compPrice=comp.prices?.[name]||'';
-    const aydinPrice=match?` (Aydın: ${fmtPrice(match.price)}`+(match.unit?` / ${match.unit}`:'')+')':'';
-    return`<div style="display:flex;align-items:center;gap:10px;padding:8px;background:var(--gray50);border-radius:6px">
-      <div style="flex:1;font-size:13px;font-weight:500">${esc(name)}<span style="font-size:11px;color:var(--gray400)">${aydinPrice}</span></div>
-      <div style="display:flex;align-items:center;gap:4px">
-        <span style="font-size:12px;color:var(--gray500)">₺</span>
-        <input class="comp-price-field stock-qty-input" data-pname="${esc(name)}" type="number" value="${compPrice}" placeholder="—" step="0.01" style="width:80px;text-align:right">
-      </div>
-    </div>`;
-  }).join('');
-  container.innerHTML=fields;
-  openModal('editCompetitorModal');
+
+// Canlı fiyat çekme — server proxy üzerinden
+async function fetchLiveErenler(){
+  const btn=document.getElementById('compLiveBtn')||document.getElementById('compModalLiveBtn');
+  if(btn){ btn.disabled=true; btn.textContent='⏳ Bağlanılıyor...'; }
+  toast('Erenler Cep\'e bağlanılıyor...');
+  const cats=['meyve-sebze','gida','et-tavuk','temizlik','kozmetik'];
+  let totalNew=0;
+  try{
+    for(const cat of cats){
+      const r=await fetch(`/api/erenler-live?slug=${encodeURIComponent(cat)}&page=1`);
+      if(!r.ok) continue;
+      const j=await r.json();
+      if(j.products && j.products.length>0){
+        // Sunucuya kaydet
+        await fetch('/api/save-erenler',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(j.products.map(p=>({...p,cat})))});
+        totalNew+=j.products.length;
+      }
+    }
+    await loadErenlerData();
+    buildCompRows();
+    renderCompSummaryBar();
+    if(totalNew>0){
+      toast(`✅ ${totalNew} canlı fiyat çekildi! Analiz güncellendi.`);
+    } else {
+      toast('⚠️ Erenler Cep erişim engeli aktif. Kayıtlı fiyatlar kullanılıyor.');
+    }
+  } catch(e){
+    toast('⚠️ Canlı bağlantı başarısız. Kayıtlı fiyatlar kullanılıyor.');
+  }
+  if(btn){ btn.disabled=false; btn.textContent='🔄 Canlı Fiyat Çek'; }
+}
+
+// Excel benzeri CSV dışa aktarma
+function exportCompAnalysis(){
+  if(_compRows.length===0){ toast('Dışa aktarılacak veri yok.'); return; }
+  const header='Ürün Adı;Birim;Kategori;Aydın Gros ₺;Erenler Cep ₺;Fark ₺;Fark %;Durum\n';
+  const statusTR={expensive:'Pahalı',near:'Yakın',cheap:'Ucuz'};
+  const rows=_compRows.map(r=>{
+    const sign=r.diff>0?'+':'';
+    return[r.ag.name,r.ag.unit||'adet',shortCat(r.ag.cat),r.ag.price.toFixed(2),r.er.price.toFixed(2),(sign+r.diff.toFixed(2)),(sign+r.diffPct.toFixed(1)+'%'),statusTR[r.status]].join(';');
+  }).join('\n');
+  const blob=new Blob(['﻿'+header+rows],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download='rakip-analizi.csv'; a.click();
+  URL.revokeObjectURL(url);
+  toast('CSV indirildi ✓');
 }
 
 /* ── YENİ SİPARİŞ BİLDİRİMİ ────────────────────────────────────────── */
@@ -1850,6 +2000,8 @@ function printInvoice(idx){
 /* ── INIT ───────────────────────────────────────────────────────────── */
 try{loadData();}catch(e){console.error('loadData error:',e);}
 startOrderPolling();
+// Erenler fiyatlarını arka planda yükle
+loadErenlerData().then(()=>{buildCompRows();renderCompSummaryBar();}).catch(()=>{});
 </script>
 </body>
 </html>
