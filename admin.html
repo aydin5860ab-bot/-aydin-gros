@@ -1020,7 +1020,8 @@ async function saveDb(coll, data) {
   }catch(e){}
 }
 async function initBackendData() {
-  products = await fetchDb('products', null) || JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+  const _lsProds = JSON.parse(localStorage.getItem('ag_products') || 'null');
+  products = await fetchDb('products', null) || _lsProds || JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
   orders = await fetchDb('orders', []);
   promos = await fetchDb('promos', null) || JSON.parse(JSON.stringify(DEFAULT_PROMOS));
   settings = await fetchDb('settings', null) || JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
@@ -1058,7 +1059,7 @@ function fmtDate(ts){if(!ts)return'-';const d=new Date(ts);return d.toLocaleDate
 function fmtPrice(n){return(parseFloat(n)||0).toFixed(2).replace('.',',')+' ₺';}
 function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
-function catLabel(c){return({'manav':'🥦 Manav','temel-gida':'🌾 Temel Gıda','sut-sarkuteri':'🧀 Süt & Şarküteri','atistirmalik':'🍿 Atıştırmalık','temizlik':'🧹 Temizlik','icecek':'🧃 İçecek','kozmetik':'💄 Kozmetik','anne-bebek':'👶 Anne & Bebek','ev-gerecleri':'🏠 Ev Gereçleri'})[c]||c;}
+function catLabel(c){return({'manav':'🥦 Manav','kasap':'🥩 Kasap','temel-gida':'🌾 Temel Gıda','sut-sarkuteri':'🧀 Süt & Şarküteri','atistirmalik':'🍿 Atıştırmalık','temizlik':'🧹 Temizlik','icecek':'🧃 İçecek','kozmetik':'💄 Kozmetik','anne-bebek':'👶 Anne & Bebek','ev-gerecleri':'🏠 Ev Gereçleri'})[c]||c;}
 function getStockStatus(p){const s=stock[p.id]||{qty:50,min:5};if(s.qty<=0)return'out';if(s.qty<=s.min)return'low';return'ok';}
 function stockBadge(p){return({'out':'<span class="badge badge-red">🔴 Tükendi</span>','low':'<span class="badge badge-yellow">🟡 Kritik</span>','ok':'<span class="badge badge-green">🟢 Yeterli</span>'})[getStockStatus(p)];}
 function isActiveCampaign(c){
