@@ -888,14 +888,14 @@ const DEFAULT_PRODUCTS=[
   {id:107,name:'Bebek Şampuanı (200ml)',cat:'anne-bebek',price:89.90,unit:'şişe',emoji:'🧴',img:'',badge:'',featured:false},
   {id:108,name:'Pirinç Unu Bebek (400g)',cat:'anne-bebek',price:79.90,unit:'kutu',emoji:'🍚',img:'',badge:'',featured:false},
   /* ── EV GEREÇLERİ (YENİ KATEGORİ) ── */
-  {id:109,name:'Çöp Torbası (20\'li)',cat:'ev-gerecleri',price:29.90,unit:'rulo',emoji:'🗑️',img:'',badge:'',featured:false},
-  {id:110,name:'Mutfak Temizlik Bezi (3\'lü)',cat:'ev-gerecleri',price:34.90,unit:'paket',emoji:'🧹',img:'',badge:'',featured:false},
-  {id:111,name:'Folyo (30m)',cat:'ev-gerecleri',price:44.90,unit:'rulo',emoji:'📦',img:'',badge:'',featured:false},
-  {id:112,name:'Pil AA (2\'li)',cat:'ev-gerecleri',price:39.90,unit:'paket',emoji:'🔋',img:'',badge:'',featured:false},
-  {id:113,name:'Cam Bardak Seti (6\'lı)',cat:'ev-gerecleri',price:89.90,unit:'set',emoji:'🥃',img:'',badge:'',featured:true},
-  {id:114,name:'Plastik Saklama Kabı (1.6 lt)',cat:'ev-gerecleri',price:49.90,unit:'adet',emoji:'📦',img:'',badge:'',featured:false},
-  {id:115,name:'Çay Bardağı Seti (6\'lı)',cat:'ev-gerecleri',price:79.90,unit:'set',emoji:'☕',img:'',badge:'',featured:false},
-  {id:116,name:'Mutfak Makası',cat:'ev-gerecleri',price:54.90,unit:'adet',emoji:'✂️',img:'',badge:'',featured:false},
+  {id:109,name:'Çöp Torbası (10\'li)',cat:'ev-gerecleri',price:39.90,unit:'rulo',emoji:'🗑️',img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400',badge:'',featured:false},
+  {id:110,name:'Mutfak Temizlik Bezi (5\'li)',cat:'ev-gerecleri',price:29.90,unit:'paket',emoji:'🧹',img:'https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400',badge:'',featured:false},
+  {id:111,name:'Folyo (30m)',cat:'ev-gerecleri',price:49.90,unit:'rulo',emoji:'📦',img:'https://images.unsplash.com/photo-1584990347449-39ce4c9af92a?w=400',badge:'',featured:false},
+  {id:112,name:'Pil AA (4\'lü)',cat:'ev-gerecleri',price:59.90,unit:'paket',emoji:'🔋',img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400',badge:'YENİ',featured:true},
+  {id:113,name:'Cam Bardak Seti (6\'lı)',cat:'ev-gerecleri',price:149.90,unit:'set',emoji:'🥃',img:'https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=400',badge:'-%17',featured:true},
+  {id:114,name:'Plastik Saklama Kabı',cat:'ev-gerecleri',price:49.90,unit:'adet',emoji:'📦',img:'https://images.unsplash.com/photo-1584990347449-39ce4c9af92a?w=400',badge:'',featured:false},
+  {id:115,name:'Çay Bardağı Seti (6\'lı)',cat:'ev-gerecleri',price:129.90,unit:'set',emoji:'☕',img:'https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=400',badge:'',featured:false},
+  {id:116,name:'Mutfak Makası',cat:'ev-gerecleri',price:89.90,unit:'adet',emoji:'✂️',img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400',badge:'',featured:false},
 ];
 const DEFAULT_PROMOS={
   'AYDIN5':{pct:5,gift:null,text:'%5 İNDİRİM UYGULANDI!'},
@@ -1114,7 +1114,7 @@ function saveProduct(){
   const price=parseFloat(document.getElementById('prodPrice').value);
   if(!price){toast('Fiyat gerekli');return;}
   const obj={id:id||(Math.max(0,...products.map(p=>p.id))+1),name,cat:document.getElementById('prodCat').value,price,unit:document.getElementById('prodUnit').value.trim(),emoji:document.getElementById('prodEmoji').value.trim(),img:document.getElementById('prodImg').value.trim(),badge:document.getElementById('prodBadge').value.trim(),featured:document.getElementById('prodFeatured').checked};
-  if(id){products[products.findIndex(p=>p.id===id)]=obj;}
+  if(id){const idx=products.findIndex(p=>p.id===id);const existing=products[idx];products[idx]={...existing,...obj};}
   else{products.push(obj);if(!stock[obj.id])stock[obj.id]={qty:0,min:5};saveStock();}
   saveProducts();closeModal('productModal');renderProducts();toast(id?'Ürün güncellendi ✓':'Ürün eklendi ✓');
 }

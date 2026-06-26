@@ -146,6 +146,7 @@
     .badge-red{background:var(--red);color:#fff;}
     .badge-green{background:var(--green);color:#fff;}
     .badge-gold{background:var(--orange);color:#fff;}
+    .badge-blue{background:#3B82F6;color:#fff;}
     .pcard-fav{position:absolute;top:8px;right:8px;background:#fff;border:none;width:28px;height:28px;border-radius:50%;font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.12);z-index:2;transition:all .2s;}
     .pcard-fav:hover{background:#FEE2E2;transform:scale(1.15);}
     .pcard-img{width:100%;aspect-ratio:1/1;object-fit:cover;background:var(--gray-100);display:block;}
@@ -993,6 +994,9 @@
         <li><a onclick="scrollToSection('atistirmalik')">Atıştırmalık & Bisküvi</a></li>
         <li><a onclick="scrollToSection('temizlik')">Temizlik & Deterjan</a></li>
         <li><a onclick="scrollToSection('icecek')">İçecekler</a></li>
+        <li><a onclick="scrollToSection('kozmetik')">Kozmetik & Kişisel Bakım</a></li>
+        <li><a onclick="scrollToSection('anne-bebek')">Anne & Bebek</a></li>
+        <li><a onclick="scrollToSection('ev-gerecleri')">Ev Gereçleri</a></li>
       </ul>
     </div>
     <div>
@@ -1478,7 +1482,7 @@ let favorites = new Set();
    RENDER PRODUCTS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 function catLabel(c){
-  const m={manav:"Manav","temel-gida":"Temel Gıda","sut-sarkuteri":"Süt & Şarküteri",atistirmalik:"Atıştırmalık",temizlik:"Temizlik",icecek:"İçecek"};
+  const m={manav:"Manav","temel-gida":"Temel Gıda","sut-sarkuteri":"Süt & Şarküteri",atistirmalik:"Atıştırmalık",temizlik:"Temizlik",icecek:"İçecek",kozmetik:"Kozmetik","anne-bebek":"Anne & Bebek","ev-gerecleri":"Ev Gereçleri"};
   return m[c]||c;
 }
 
