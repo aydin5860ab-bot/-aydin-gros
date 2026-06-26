@@ -1386,8 +1386,9 @@
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    PRODUCTS DATA
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const _lsVersion = localStorage.getItem('ag_version');
 const _lsProducts = JSON.parse(localStorage.getItem('ag_products') || 'null');
-let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _lsProducts[0].img) ? _lsProducts : [
+let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _lsProducts[0].img && _lsVersion === '3') ? _lsProducts : [
   // MANAV
   {id:1,name:"Salkım Domates",unit:"1 kg",cat:"manav",price:24,old:null,badge:"TAZE GÜNLÜK",btype:"badge-green",img:"https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400",feat:true},
   {id:2,name:"Kıvırcık Salatalık",unit:"1 kg",cat:"manav",price:18,old:null,badge:"TAZE GÜNLÜK",btype:"badge-green",img:"https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=400",feat:true},
@@ -2595,8 +2596,9 @@ let products = (_lsProducts && _lsProducts.length >= 1080 && _lsProducts[0] && _
   {id:1083,name:"S\u0130GNAL D\u0130\u015e MACUNU 75ML",unit:"75 ml",cat:"kozmetik",price:139.60,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400",feat:false},
   {id:1084,name:"M.B\u0130RL\u0130K ZEYT\u0130N 800GR AZ TUZLU",unit:"800 gr",cat:"sut-sarkuteri",price:199.95,old:null,badge:null,btype:"",img:"https://images.unsplash.com/photo-1611945659680-5bf82e39dce5?w=400",feat:false},
 ];
-if (!_lsProducts || _lsProducts.length < 1080 || !(_lsProducts[0] && _lsProducts[0].img)) {
+if (!_lsProducts || _lsProducts.length < 1080 || !(_lsProducts[0] && _lsProducts[0].img) || _lsVersion !== '3') {
   localStorage.setItem('ag_products', JSON.stringify(products));
+  localStorage.setItem('ag_version', '3');
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
