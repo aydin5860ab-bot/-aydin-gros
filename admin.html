@@ -1560,15 +1560,49 @@ function nukeData(){
 const COMP_DEFAULT = {
   name:'Erenler Cep',
   url:'https://www.erenlercep.com/',
-  updatedAt: 0,
+  updatedAt: 1750896000000,
   prices:{
+    /* MANAV */
+    'Domates':49.95,
+    'Domates Pembe':59.95,
     'Salatalık':44.95,
+    'Biber Sivri':59.95,
+    'Biber Dolma':79.95,
+    'Havuç':54.95,
+    'Kabak':64.95,
+    'Patates':39.95,
+    'Patlıcan':64.95,
+    'Pirasa':24.95,
     'Soğan':44.95,
+    'Soğan Yeşil':29.95,
+    'Marul Kıvırcık':39.95,
+    'Maydanoz':19.95,
+    'Nane':19.95,
+    'Roka':19.95,
+    'Mantar':219.95,
+    'Sarımsak':149.95,
     'Elma':99.95,
     'Kivi':179.95,
+    'Muz':149.95,
+    'Avokado':114.95,
+    'Limon':134.95,
     'Karpuz':19.95,
+    /* SÜT & ŞARKÜTERİ */
+    'Süt':74.95,
+    'Beyaz Peynir':159.45,
+    'Kaşar Peynir':219.95,
+    'Helva Sade':49.95,
+    'Salam Hindi':44.95,
+    'Kasap Köfte':149.95,
+    'Tavuk Döner':89.60,
+    /* TEMİZLİK */
+    'Bulaşık Deterjanı':119.95,
+    'Sıvı Sabun':44.95,
     'Meyve Suyu':33.95,
-    'Yumoş':149.95
+    /* KOZMETİK */
+    'Diş Macunu':379.95,
+    'Şampuan':74.95,
+    'Kolonya':164.95
   }
 };
 function loadCompetitor(){
@@ -1631,10 +1665,11 @@ function compStats(comp){
 }
 function findMatchingProduct(cname){
   const kw=cname.toLowerCase().replace(/\s+/g,' ').trim();
-  return products.find(p=>{
-    const pn=(p.name||'').toLowerCase();
-    return pn===kw||pn.includes(kw)||kw.includes(pn);
-  });
+  let m=products.find(p=>(p.name||'').toLowerCase()===kw);
+  if(m)return m;
+  m=products.find(p=>(p.name||'').toLowerCase().includes(kw));
+  if(m)return m;
+  return products.find(p=>kw.includes((p.name||'').toLowerCase().split('(')[0].trim()));
 }
 function openCompetitorModal(){
   const comp=loadCompetitor();
