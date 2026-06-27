@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AydÄ±n Gros â€“ YÃ¶netim Paneli</title>
+<title>Aydın Gros – Yönetim Paneli</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -220,15 +220,15 @@ tr:hover td{background:var(--gray50)}
 <div id="loginScreen">
   <div class="login-box">
     <div class="login-logo">
-      <span>AydÄ±n<em>Gros</em></span>
-      <p>YÃ¶netim Paneli</p>
+      <span>Aydın<em>Gros</em></span>
+      <p>Yönetim Paneli</p>
     </div>
-    <label>KullanÄ±cÄ± AdÄ±</label>
+    <label>Kullanıcı Adı</label>
     <input type="text" id="loginUser" placeholder="admin" autocomplete="username">
-    <label>Åifre</label>
-    <input type="password" id="loginPass" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" autocomplete="current-password">
-    <button class="login-btn" onclick="doLogin()">GiriÅŸ Yap</button>
-    <div id="loginErr">KullanÄ±cÄ± adÄ± veya ÅŸifre hatalÄ±.</div>
+    <label>Şifre</label>
+    <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password">
+    <button class="login-btn" onclick="doLogin()">Giriş Yap</button>
+    <div id="loginErr">Kullanıcı adı veya şifre hatalı.</div>
   </div>
 </div>
 
@@ -239,28 +239,28 @@ tr:hover td{background:var(--gray50)}
     <button class="hamburger" id="hamburgerBtn" onclick="toggleSidebar()">
       <span></span><span></span><span></span>
     </button>
-    <div class="mobile-logo">AydÄ±n<em>Gros</em></div>
+    <div class="mobile-logo">Aydın<em>Gros</em></div>
     <div style="width:34px"></div>
   </div>
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-      <span>AydÄ±n<em>Gros</em></span>
-      <p>YÃ¶netim Paneli</p>
+      <span>Aydın<em>Gros</em></span>
+      <p>Yönetim Paneli</p>
     </div>
     <nav>
-      <button class="nav-item active" onclick="showPage('dash')"><span class="icon">ğŸ“Š</span> Ã–zet</button>
-      <button class="nav-item" onclick="showPage('products')"><span class="icon">ğŸ“¦</span> ÃœrÃ¼nler</button>
-      <button class="nav-item" onclick="showPage('orders')"><span class="icon">ğŸ›’</span> SipariÅŸler</button>
-      <button class="nav-item" onclick="showPage('campaigns')"><span class="icon">ğŸ“…</span> Kampanyalar</button>
-      <button class="nav-item" onclick="showPage('invoices')"><span class="icon">ğŸ“„</span> Fatura & Maliyet</button>
-      <button class="nav-item" onclick="showPage('stock')"><span class="icon">ğŸ“ˆ</span> Stok Takibi</button>
-      <button class="nav-item" onclick="showPage('coupons')"><span class="icon">ğŸŸï¸</span> Kuponlar</button>
-      <button class="nav-item" onclick="showPage('settings')"><span class="icon">âš™ï¸</span> Ayarlar</button>
+      <button class="nav-item active" onclick="showPage('dash')"><span class="icon">📊</span> Özet</button>
+      <button class="nav-item" onclick="showPage('products')"><span class="icon">📦</span> Ürünler</button>
+      <button class="nav-item" onclick="showPage('orders')"><span class="icon">🛒</span> Siparişler</button>
+      <button class="nav-item" onclick="showPage('campaigns')"><span class="icon">📅</span> Kampanyalar</button>
+      <button class="nav-item" onclick="showPage('invoices')"><span class="icon">📄</span> Fatura & Maliyet</button>
+      <button class="nav-item" onclick="showPage('stock')"><span class="icon">📈</span> Stok Takibi</button>
+      <button class="nav-item" onclick="showPage('coupons')"><span class="icon">🎟️</span> Kuponlar</button>
+      <button class="nav-item" onclick="showPage('settings')"><span class="icon">⚙️</span> Ayarlar</button>
     </nav>
     <div class="sidebar-footer">
-      <button class="logout-btn" onclick="doLogout()">ğŸšª Ã‡Ä±kÄ±ÅŸ Yap</button>
+      <button class="logout-btn" onclick="doLogout()">🚪 Çıkış Yap</button>
     </div>
   </aside>
 
@@ -269,36 +269,36 @@ tr:hover td{background:var(--gray50)}
     <!-- DASHBOARD -->
     <div id="page-dash" class="page active">
       <div class="page-header">
-        <div><div class="page-title">Ã–zet</div><div class="page-subtitle">Genel durum ve hÄ±zlÄ± eriÅŸim</div></div>
-        <button class="btn btn-ghost btn-sm" onclick="renderDash()">â†» Yenile</button>
+        <div><div class="page-title">Özet</div><div class="page-subtitle">Genel durum ve hızlı erişim</div></div>
+        <button class="btn btn-ghost btn-sm" onclick="renderDash()">↻ Yenile</button>
       </div>
       <div class="stats-grid" id="dashStats"></div>
       <div id="dashAlerts"></div>
       <div class="dash-grid">
         <div class="card">
-          <div class="dash-card-title">Son SipariÅŸler <a href="#" onclick="showPage('orders');return false" style="font-size:12px;color:var(--orange);font-weight:500;text-decoration:none">TÃ¼mÃ¼ â†’</a></div>
+          <div class="dash-card-title">Son Siparişler <a href="#" onclick="showPage('orders');return false" style="font-size:12px;color:var(--orange);font-weight:500;text-decoration:none">Tümü →</a></div>
           <div id="dashOrders"></div>
         </div>
         <div class="card">
-          <div class="dash-card-title">En Ã‡ok Satan ÃœrÃ¼nler</div>
+          <div class="dash-card-title">En Çok Satan Ürünler</div>
           <div id="dashBestSellers"></div>
         </div>
         <div class="card">
-          <div class="dash-card-title">Son 7 GÃ¼n Ciro</div>
+          <div class="dash-card-title">Son 7 Gün Ciro</div>
           <div id="weeklyChart"></div>
         </div>
         <div class="card">
-          <div class="dash-card-title">HÄ±zlÄ± Ä°ÅŸlemler</div>
+          <div class="dash-card-title">Hızlı İşlemler</div>
           <div style="display:flex;flex-direction:column;gap:8px">
-            <button class="btn btn-primary" onclick="showPage('orders')" style="justify-content:flex-start">ğŸ›’ SipariÅŸleri GÃ¶r</button>
-            <button class="btn btn-ghost" onclick="showPage('campaigns')" style="justify-content:flex-start">ğŸ“… Kampanya Ekle</button>
-            <button class="btn btn-ghost" onclick="showPage('invoices')" style="justify-content:flex-start">ğŸ“„ Fatura Gir</button>
-            <button class="btn btn-ghost" onclick="showPage('stock')" style="justify-content:flex-start">ğŸ“ˆ Stok GÃ¼ncelle</button>
-            <a href="https://aydin-gros.vercel.app/" target="_blank" class="btn btn-success" style="justify-content:flex-start">ğŸŒ Siteyi GÃ¶r</a>
+            <button class="btn btn-primary" onclick="showPage('orders')" style="justify-content:flex-start">🛒 Siparişleri Gör</button>
+            <button class="btn btn-ghost" onclick="showPage('campaigns')" style="justify-content:flex-start">📅 Kampanya Ekle</button>
+            <button class="btn btn-ghost" onclick="showPage('invoices')" style="justify-content:flex-start">📄 Fatura Gir</button>
+            <button class="btn btn-ghost" onclick="showPage('stock')" style="justify-content:flex-start">📈 Stok Güncelle</button>
+            <a href="https://aydin-gros.vercel.app/" target="_blank" class="btn btn-success" style="justify-content:flex-start">🌐 Siteyi Gör</a>
           </div>
         </div>
         <div class="card dash-full">
-          <div class="dash-card-title">Kritik Stok UyarÄ±larÄ± <a href="#" onclick="showPage('stock');return false" style="font-size:12px;color:var(--orange);font-weight:500;text-decoration:none">Stoka Git â†’</a></div>
+          <div class="dash-card-title">Kritik Stok Uyarıları <a href="#" onclick="showPage('stock');return false" style="font-size:12px;color:var(--orange);font-weight:500;text-decoration:none">Stoka Git →</a></div>
           <div id="dashStockAlerts"></div>
         </div>
       </div>
@@ -307,32 +307,32 @@ tr:hover td{background:var(--gray50)}
     <!-- PRODUCTS -->
     <div id="page-products" class="page">
       <div class="page-header">
-        <div><div class="page-title">ÃœrÃ¼nler</div><div class="page-subtitle" id="prodCount"></div></div>
+        <div><div class="page-title">Ürünler</div><div class="page-subtitle" id="prodCount"></div></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn btn-ghost btn-sm" onclick="resetProducts()">â†º VarsayÄ±lana DÃ¶n</button>
-          <button class="btn btn-primary" onclick="openProductModal()">+ ÃœrÃ¼n Ekle</button>
+          <button class="btn btn-ghost btn-sm" onclick="resetProducts()">↺ Varsayılana Dön</button>
+          <button class="btn btn-primary" onclick="openProductModal()">+ Ürün Ekle</button>
         </div>
       </div>
       <div class="filter-bar">
-        <input type="text" id="prodSearch" placeholder="ÃœrÃ¼n ara..." oninput="renderProducts()">
+        <input type="text" id="prodSearch" placeholder="Ürün ara..." oninput="renderProducts()">
         <select id="prodCatFilter" onchange="renderProducts()">
-          <option value="">TÃ¼m Kategoriler</option>
-          <option value="manav">ğŸ¥¦ Manav</option>
-          <option value="temel-gida">ğŸŒ¾ Temel GÄ±da</option>
-          <option value="sut-sarkuteri">ğŸ§€ SÃ¼t & ÅarkÃ¼teri</option>
-          <option value="atistirmalik">ğŸ¿ AtÄ±ÅŸtÄ±rmalÄ±k</option>
-          <option value="temizlik">ğŸ§¹ Temizlik</option>
-          <option value="icecek">ğŸ§ƒ Ä°Ã§ecek</option>
-          <option value="kasap">ğŸ¥© Kasap & Et</option>
-          <option value="kahvaltilik">ğŸ³ KahvaltÄ±lÄ±k</option>
-          <option value="kozmetik">ğŸ’„ Kozmetik</option>
-          <option value="anne-bebek">ğŸ‘¶ Anne & Bebek</option>
-          <option value="ev-gerecleri">ğŸ  Ev GereÃ§leri</option>
+          <option value="">Tüm Kategoriler</option>
+          <option value="manav">🥦 Manav</option>
+          <option value="temel-gida">🌾 Temel Gıda</option>
+          <option value="sut-sarkuteri">🧀 Süt & Şarküteri</option>
+          <option value="atistirmalik">🍿 Atıştırmalık</option>
+          <option value="temizlik">🧹 Temizlik</option>
+          <option value="icecek">🧃 İçecek</option>
+          <option value="kasap">🥩 Kasap & Et</option>
+          <option value="kahvaltilik">🍳 Kahvaltılık</option>
+          <option value="kozmetik">💄 Kozmetik</option>
+          <option value="anne-bebek">👶 Anne & Bebek</option>
+          <option value="ev-gerecleri">🏠 Ev Gereçleri</option>
         </select>
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>ÃœrÃ¼n</th><th class="hide-mob">Kategori</th><th>Fiyat</th><th class="hide-mob">Stok</th><th class="hide-mob">Ã–ne Ã‡Ä±kan</th><th>Ä°ÅŸlemler</th></tr></thead>
+          <thead><tr><th>Ürün</th><th class="hide-mob">Kategori</th><th>Fiyat</th><th class="hide-mob">Stok</th><th class="hide-mob">Öne Çıkan</th><th>İşlemler</th></tr></thead>
           <tbody id="prodTableBody"></tbody>
         </table>
       </div>
@@ -341,28 +341,28 @@ tr:hover td{background:var(--gray50)}
     <!-- ORDERS -->
     <div id="page-orders" class="page">
       <div class="page-header">
-        <div><div class="page-title">SipariÅŸler</div><div class="page-subtitle" id="orderCount"></div></div>
-        <button class="btn btn-danger btn-sm" onclick="clearOrders()">TÃ¼mÃ¼nÃ¼ Temizle</button>
+        <div><div class="page-title">Siparişler</div><div class="page-subtitle" id="orderCount"></div></div>
+        <button class="btn btn-danger btn-sm" onclick="clearOrders()">Tümünü Temizle</button>
       </div>
       <div class="filter-bar">
-        <input type="text" id="orderSearch" placeholder="MÃ¼ÅŸteri veya adres ara..." oninput="renderOrders()">
+        <input type="text" id="orderSearch" placeholder="Müşteri veya adres ara..." oninput="renderOrders()">
         <select id="orderStatusFilter" onchange="renderOrders()">
-          <option value="">TÃ¼m Durumlar</option>
-          <option value="0">AlÄ±ndÄ±</option>
-          <option value="1">HazÄ±rlanÄ±yor</option>
+          <option value="">Tüm Durumlar</option>
+          <option value="0">Alındı</option>
+          <option value="1">Hazırlanıyor</option>
           <option value="2">Yolda</option>
           <option value="3">Teslim Edildi</option>
         </select>
         <select id="orderDateFilter" onchange="renderOrders()">
-          <option value="">TÃ¼m Tarihler</option>
-          <option value="today">BugÃ¼n</option>
+          <option value="">Tüm Tarihler</option>
+          <option value="today">Bugün</option>
           <option value="week">Bu Hafta</option>
           <option value="month">Bu Ay</option>
         </select>
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Tarih</th><th>MÃ¼ÅŸteri</th><th class="hide-mob">Adres</th><th>Tutar</th><th>Durum</th><th>Ä°ÅŸlemler</th></tr></thead>
+          <thead><tr><th>Tarih</th><th>Müşteri</th><th class="hide-mob">Adres</th><th>Tutar</th><th>Durum</th><th>İşlemler</th></tr></thead>
           <tbody id="orderTableBody"></tbody>
         </table>
       </div>
@@ -371,12 +371,12 @@ tr:hover td{background:var(--gray50)}
     <!-- CAMPAIGNS -->
     <div id="page-campaigns" class="page">
       <div class="page-header">
-        <div><div class="page-title">Kampanyalar</div><div class="page-subtitle">Tarih aralÄ±klÄ± indirim ve kampanya yÃ¶netimi</div></div>
+        <div><div class="page-title">Kampanyalar</div><div class="page-subtitle">Tarih aralıklı indirim ve kampanya yönetimi</div></div>
         <button class="btn btn-primary" onclick="openCampaignModal()">+ Kampanya Ekle</button>
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Kampanya AdÄ±</th><th>TÃ¼r</th><th>Ä°ndirim</th><th>Hedef</th><th>BaÅŸlangÄ±Ã§</th><th>BitiÅŸ</th><th>Durum</th><th>Ä°ÅŸlemler</th></tr></thead>
+          <thead><tr><th>Kampanya Adı</th><th>Tür</th><th>İndirim</th><th>Hedef</th><th>Başlangıç</th><th>Bitiş</th><th>Durum</th><th>İşlemler</th></tr></thead>
           <tbody id="campTableBody"></tbody>
         </table>
       </div>
@@ -385,33 +385,33 @@ tr:hover td{background:var(--gray50)}
     <!-- INVOICES -->
     <div id="page-invoices" class="page">
       <div class="page-header">
-        <div><div class="page-title">Fatura & Maliyet</div><div class="page-subtitle">AlÄ±ÅŸ fiyatÄ± + kar marjÄ± â†’ satÄ±ÅŸ fiyatÄ± hesaplama</div></div>
+        <div><div class="page-title">Fatura & Maliyet</div><div class="page-subtitle">Alış fiyatı + kar marjı → satış fiyatı hesaplama</div></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button class="btn btn-ghost btn-sm" onclick="openGlobalMarginModal()">% Global Marj Uygula</button>
-          <button class="btn btn-primary" onclick="addInvLine()">+ SatÄ±r Ekle</button>
+          <button class="btn btn-primary" onclick="addInvLine()">+ Satır Ekle</button>
         </div>
       </div>
       <div class="card" style="margin-bottom:16px">
-        <div class="dash-card-title" style="margin-bottom:4px">Yeni Fatura / Maliyet GiriÅŸi</div>
-        <p style="font-size:12px;color:var(--gray400);margin-bottom:16px">AlÄ±ÅŸ fiyatÄ± ve kar marjÄ± girin â€” satÄ±ÅŸ fiyatÄ± otomatik hesaplanÄ±r. "Kaydet" butonuna basÄ±nca Ã¼rÃ¼n fiyatlarÄ± ve stok gÃ¼ncellenir.</p>
+        <div class="dash-card-title" style="margin-bottom:4px">Yeni Fatura / Maliyet Girişi</div>
+        <p style="font-size:12px;color:var(--gray400);margin-bottom:16px">Alış fiyatı ve kar marjı girin — satış fiyatı otomatik hesaplanır. "Kaydet" butonuna basınca ürün fiyatları ve stok güncellenir.</p>
         <div style="overflow-x:auto">
           <table style="min-width:680px">
-            <thead><tr><th>ÃœrÃ¼n</th><th>Miktar</th><th>AlÄ±ÅŸ FiyatÄ± (â‚º)</th><th>Kar MarjÄ± (%)</th><th>SatÄ±ÅŸ FiyatÄ± (â‚º)</th><th></th></tr></thead>
+            <thead><tr><th>Ürün</th><th>Miktar</th><th>Alış Fiyatı (₺)</th><th>Kar Marjı (%)</th><th>Satış Fiyatı (₺)</th><th></th></tr></thead>
             <tbody id="invLines"></tbody>
           </table>
         </div>
         <div style="margin-top:16px;display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
           <div class="form-group" style="flex:1;min-width:200px">
             <label>Fatura Notu (opsiyonel)</label>
-            <input type="text" id="invNote" placeholder="Fatura no, tedarikÃ§i adÄ± vb.">
+            <input type="text" id="invNote" placeholder="Fatura no, tedarikçi adı vb.">
           </div>
-          <button class="btn btn-success" onclick="saveInvoice()">ğŸ’¾ FaturayÄ± Kaydet & FiyatlarÄ± GÃ¼ncelle</button>
+          <button class="btn btn-success" onclick="saveInvoice()">💾 Faturayı Kaydet & Fiyatları Güncelle</button>
         </div>
       </div>
-      <div style="font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;color:var(--navy);margin-bottom:12px">GeÃ§miÅŸ Faturalar</div>
+      <div style="font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;color:var(--navy);margin-bottom:12px">Geçmiş Faturalar</div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Tarih</th><th>Not</th><th>ÃœrÃ¼n SayÄ±sÄ±</th><th>Toplam Maliyet</th><th>Ä°ÅŸlemler</th></tr></thead>
+          <thead><tr><th>Tarih</th><th>Not</th><th>Ürün Sayısı</th><th>Toplam Maliyet</th><th>İşlemler</th></tr></thead>
           <tbody id="invHistoryBody"></tbody>
         </table>
       </div>
@@ -420,21 +420,21 @@ tr:hover td{background:var(--gray50)}
     <!-- STOCK -->
     <div id="page-stock" class="page">
       <div class="page-header">
-        <div><div class="page-title">Stok Takibi</div><div class="page-subtitle">ÃœrÃ¼n bazlÄ± stok miktarÄ± ve uyarÄ± eÅŸiÄŸi</div></div>
-        <button class="btn btn-success" onclick="saveAllStock()">ğŸ’¾ TÃ¼m Stoku Kaydet</button>
+        <div><div class="page-title">Stok Takibi</div><div class="page-subtitle">Ürün bazlı stok miktarı ve uyarı eşiği</div></div>
+        <button class="btn btn-success" onclick="saveAllStock()">💾 Tüm Stoku Kaydet</button>
       </div>
       <div class="filter-bar">
-        <input type="text" id="stockSearch" placeholder="ÃœrÃ¼n ara..." oninput="renderStock()">
+        <input type="text" id="stockSearch" placeholder="Ürün ara..." oninput="renderStock()">
         <select id="stockFilter" onchange="renderStock()">
-          <option value="">TÃ¼m Durumlar</option>
-          <option value="out">ğŸ”´ TÃ¼kendi</option>
-          <option value="low">ğŸŸ¡ Kritik</option>
-          <option value="ok">ğŸŸ¢ Yeterli</option>
+          <option value="">Tüm Durumlar</option>
+          <option value="out">🔴 Tükendi</option>
+          <option value="low">🟡 Kritik</option>
+          <option value="ok">🟢 Yeterli</option>
         </select>
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>ÃœrÃ¼n</th><th class="hide-mob">Kategori</th><th>Stok Adedi</th><th class="hide-mob">Min. EÅŸik</th><th>Durum</th></tr></thead>
+          <thead><tr><th>Ürün</th><th class="hide-mob">Kategori</th><th>Stok Adedi</th><th class="hide-mob">Min. Eşik</th><th>Durum</th></tr></thead>
           <tbody id="stockTableBody"></tbody>
         </table>
       </div>
@@ -443,12 +443,12 @@ tr:hover td{background:var(--gray50)}
     <!-- COUPONS -->
     <div id="page-coupons" class="page">
       <div class="page-header">
-        <div><div class="page-title">Kuponlar</div><div class="page-subtitle">Ä°ndirim ve hediye kupon kodlarÄ±</div></div>
+        <div><div class="page-title">Kuponlar</div><div class="page-subtitle">İndirim ve hediye kupon kodları</div></div>
         <button class="btn btn-primary" onclick="openCouponModal()">+ Kupon Ekle</button>
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Kupon Kodu</th><th>Ä°ndirim %</th><th>Hediye ÃœrÃ¼n</th><th>Mesaj</th><th>Ä°ÅŸlemler</th></tr></thead>
+          <thead><tr><th>Kupon Kodu</th><th>İndirim %</th><th>Hediye Ürün</th><th>Mesaj</th><th>İşlemler</th></tr></thead>
           <tbody id="couponTableBody"></tbody>
         </table>
       </div>
@@ -457,52 +457,52 @@ tr:hover td{background:var(--gray50)}
     <!-- SETTINGS -->
     <div id="page-settings" class="page">
       <div class="page-header">
-        <div><div class="page-title">Ayarlar</div><div class="page-subtitle">Site ve uygulama ayarlarÄ±</div></div>
+        <div><div class="page-title">Ayarlar</div><div class="page-subtitle">Site ve uygulama ayarları</div></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
         <div class="card">
           <div class="dash-card-title" style="margin-bottom:16px">Genel Ayarlar</div>
-          <div class="form-group" style="margin-bottom:12px"><label>Ãœcretsiz Teslimat EÅŸiÄŸi (â‚º)</label><input type="number" id="setThreshold" placeholder="1000"></div>
-          <div class="form-group" style="margin-bottom:12px"><label>WhatsApp NumarasÄ± (90 ile baÅŸlayan)</label><input type="text" id="setWa" placeholder="905444789461"></div>
-          <div class="form-group" style="margin-bottom:16px"><label>Duyuru Metinleri (her satÄ±r ayrÄ± duyuru)</label><textarea id="setAnn" rows="4" placeholder="BugÃ¼n taze sebze indirimde!"></textarea></div>
-          <button class="btn btn-primary" onclick="saveSettings()">AyarlarÄ± Kaydet</button>
+          <div class="form-group" style="margin-bottom:12px"><label>Ücretsiz Teslimat Eşiği (₺)</label><input type="number" id="setThreshold" placeholder="1000"></div>
+          <div class="form-group" style="margin-bottom:12px"><label>WhatsApp Numarası (90 ile başlayan)</label><input type="text" id="setWa" placeholder="905444789461"></div>
+          <div class="form-group" style="margin-bottom:16px"><label>Duyuru Metinleri (her satır ayrı duyuru)</label><textarea id="setAnn" rows="4" placeholder="Bugün taze sebze indirimde!"></textarea></div>
+          <button class="btn btn-primary" onclick="saveSettings()">Ayarları Kaydet</button>
         </div>
         <div class="card">
-          <div class="dash-card-title" style="margin-bottom:16px">Åube Bilgileri</div>
-          <div class="form-group" style="margin-bottom:12px"><label>Åube 1 AdÄ±</label><input type="text" id="setBranch1" placeholder="Geyras (Merkez) Åube"></div>
-          <div class="form-group" style="margin-bottom:12px"><label>Åube 1 Adres</label><input type="text" id="setBranch1Addr" placeholder="Åube 1 adresi"></div>
-          <div class="form-group" style="margin-bottom:12px"><label>Åube 2 AdÄ±</label><input type="text" id="setBranch2" placeholder="Åube 2 adÄ±"></div>
-          <div class="form-group" style="margin-bottom:16px"><label>Åube 2 Adres</label><input type="text" id="setBranch2Addr" placeholder="Åube 2 adresi"></div>
+          <div class="dash-card-title" style="margin-bottom:16px">Şube Bilgileri</div>
+          <div class="form-group" style="margin-bottom:12px"><label>Şube 1 Adı</label><input type="text" id="setBranch1" placeholder="Geyras (Merkez) Şube"></div>
+          <div class="form-group" style="margin-bottom:12px"><label>Şube 1 Adres</label><input type="text" id="setBranch1Addr" placeholder="Şube 1 adresi"></div>
+          <div class="form-group" style="margin-bottom:12px"><label>Şube 2 Adı</label><input type="text" id="setBranch2" placeholder="Şube 2 adı"></div>
+          <div class="form-group" style="margin-bottom:16px"><label>Şube 2 Adres</label><input type="text" id="setBranch2Addr" placeholder="Şube 2 adresi"></div>
           <button class="btn btn-primary" onclick="saveSettings()">Kaydet</button>
         </div>
         <div class="card">
-          <div class="dash-card-title" style="margin-bottom:16px">Åifre DeÄŸiÅŸtir</div>
-          <div class="form-group" style="margin-bottom:12px"><label>Yeni Åifre</label><input type="password" id="setNewPass" placeholder="Yeni ÅŸifre"></div>
-          <div class="form-group" style="margin-bottom:16px"><label>Åifre Tekrar</label><input type="password" id="setNewPass2" placeholder="Åifre tekrar"></div>
-          <button class="btn btn-primary" onclick="changePass()">Åifreyi DeÄŸiÅŸtir</button>
+          <div class="dash-card-title" style="margin-bottom:16px">Şifre Değiştir</div>
+          <div class="form-group" style="margin-bottom:12px"><label>Yeni Şifre</label><input type="password" id="setNewPass" placeholder="Yeni şifre"></div>
+          <div class="form-group" style="margin-bottom:16px"><label>Şifre Tekrar</label><input type="password" id="setNewPass2" placeholder="Şifre tekrar"></div>
+          <button class="btn btn-primary" onclick="changePass()">Şifreyi Değiştir</button>
         </div>
         <div class="card">
-          <div class="dash-card-title" style="margin-bottom:16px">Veri YÃ¶netimi</div>
-          <p style="font-size:13px;color:var(--gray500);margin-bottom:12px">TÃ¼m localStorage verilerini yedekle veya sÄ±fÄ±rla.</p>
+          <div class="dash-card-title" style="margin-bottom:16px">Veri Yönetimi</div>
+          <p style="font-size:13px;color:var(--gray500);margin-bottom:12px">Tüm localStorage verilerini yedekle veya sıfırla.</p>
           <div style="display:flex;flex-direction:column;gap:8px">
-            <button class="btn btn-ghost" onclick="exportData()">ğŸ“¥ Veriyi DÄ±ÅŸa Aktar (JSON)</button>
-            <button class="btn btn-ghost" onclick="document.getElementById('importFile').click()">ğŸ“¤ Veri Ä°Ã§e Aktar</button>
+            <button class="btn btn-ghost" onclick="exportData()">📥 Veriyi Dışa Aktar (JSON)</button>
+            <button class="btn btn-ghost" onclick="document.getElementById('importFile').click()">📤 Veri İçe Aktar</button>
             <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(this)">
-            <button class="btn btn-danger btn-sm" onclick="nukeData()">âš ï¸ TÃ¼m Veriyi Sil</button>
+            <button class="btn btn-danger btn-sm" onclick="nukeData()">⚠️ Tüm Veriyi Sil</button>
           </div>
         </div>
 
-        <!-- RAKÄ°P FÄ°YAT ANALÄ°ZÄ° â€” tam geniÅŸlik -->
+        <!-- RAKİP FİYAT ANALİZİ — tam genişlik -->
         <div class="card" style="grid-column:1/-1;border:2px solid var(--orange-light)">
           <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px">
             <div>
-              <div class="dash-card-title" style="margin-bottom:4px">ğŸª Rakip Fiyat Analizi</div>
-              <p style="font-size:13px;color:var(--gray500)">Erenler Cep fiyatlarÄ±yla karÅŸÄ±laÅŸtÄ±r, pahalÄ± kaldÄ±ÄŸÄ±n Ã¼rÃ¼nlerde uyarÄ± al.</p>
+              <div class="dash-card-title" style="margin-bottom:4px">🏪 Rakip Fiyat Analizi</div>
+              <p style="font-size:13px;color:var(--gray500)">Erenler Cep fiyatlarıyla karşılaştır, pahalı kaldığın ürünlerde uyarı al.</p>
             </div>
             <div style="display:flex;gap:8px;flex-wrap:wrap">
               <span id="compLastUpdateLabel" style="font-size:12px;color:var(--gray400);align-self:center"></span>
-              <button class="btn btn-ghost btn-sm" id="compLiveBtn" onclick="fetchLiveErenler()">ğŸ”„ CanlÄ± Fiyat Ã‡ek</button>
-              <button class="btn btn-primary" onclick="openCompetitorModal()">ğŸ“Š Analizi GÃ¶rÃ¼ntÃ¼le</button>
+              <button class="btn btn-ghost btn-sm" id="compLiveBtn" onclick="fetchLiveErenler()">🔄 Canlı Fiyat Çek</button>
+              <button class="btn btn-primary" onclick="openCompetitorModal()">📊 Analizi Görüntüle</button>
             </div>
           </div>
           <div id="compSummaryBar"></div>
@@ -520,54 +520,54 @@ tr:hover td{background:var(--gray50)}
   <div class="modal" style="max-width:820px">
     <div class="modal-header">
       <div>
-        <div class="modal-title">ğŸ“Š Rakip Fiyat Analizi â€” Erenler Cep</div>
+        <div class="modal-title">📊 Rakip Fiyat Analizi — Erenler Cep</div>
         <div style="font-size:12px;color:var(--gray400);margin-top:2px" id="compModalDate"></div>
       </div>
-      <button class="modal-close" onclick="closeModal('competitorModal')">âœ•</button>
+      <button class="modal-close" onclick="closeModal('competitorModal')">✕</button>
     </div>
     <div class="modal-body">
       <div id="compAlertBanner" style="margin-bottom:16px"></div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px" id="compSummaryCards"></div>
       <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
         <select id="compCatFilter" onchange="renderCompTableRows()" style="padding:6px 10px;border:1px solid var(--gray200);border-radius:6px;font-size:13px;background:var(--white)">
-          <option value="">TÃ¼m Kategoriler</option>
+          <option value="">Tüm Kategoriler</option>
           <option value="manav">Manav</option>
           <option value="kasap">Kasap</option>
-          <option value="sut-sarkuteri">SÃ¼t & ÅarkÃ¼teri</option>
-          <option value="temel-gida">Temel GÄ±da</option>
-          <option value="atistirmalik">AtÄ±ÅŸtÄ±rmalÄ±k</option>
-          <option value="icecek">Ä°Ã§ecek</option>
+          <option value="sut-sarkuteri">Süt & Şarküteri</option>
+          <option value="temel-gida">Temel Gıda</option>
+          <option value="atistirmalik">Atıştırmalık</option>
+          <option value="icecek">İçecek</option>
           <option value="temizlik">Temizlik</option>
           <option value="kozmetik">Kozmetik</option>
         </select>
         <select id="compStatusFilter" onchange="renderCompTableRows()" style="padding:6px 10px;border:1px solid var(--gray200);border-radius:6px;font-size:13px;background:var(--white)">
-          <option value="">TÃ¼m Durumlar</option>
-          <option value="expensive">âš ï¸ PahalÄ±</option>
-          <option value="near">â‰ˆ YakÄ±n</option>
-          <option value="cheap">âœ… Ucuz</option>
+          <option value="">Tüm Durumlar</option>
+          <option value="expensive">⚠️ Pahalı</option>
+          <option value="near">≈ Yakın</option>
+          <option value="cheap">✅ Ucuz</option>
         </select>
         <span id="compFilterInfo" style="font-size:12px;color:var(--gray400);align-self:center;margin-left:4px"></span>
       </div>
       <div class="table-wrap">
         <table id="compTable">
           <thead><tr>
-            <th>ÃœrÃ¼n</th>
+            <th>Ürün</th>
             <th>Kategori</th>
-            <th>AydÄ±n Gros</th>
+            <th>Aydın Gros</th>
             <th>Erenler Cep</th>
-            <th>Fark (â‚º)</th>
+            <th>Fark (₺)</th>
             <th>Fark (%)</th>
             <th>Durum</th>
           </tr></thead>
           <tbody id="compTableBody"></tbody>
         </table>
       </div>
-      <p style="font-size:12px;color:var(--gray400);margin-top:12px">* Erenler Cep fiyatlarÄ± otomatik eÅŸleÅŸtirme ile karÅŸÄ±laÅŸtÄ±rÄ±lÄ±r. Son gÃ¼ncelleme: <span id="compModalLastCheck">â€”</span></p>
+      <p style="font-size:12px;color:var(--gray400);margin-top:12px">* Erenler Cep fiyatları otomatik eşleştirme ile karşılaştırılır. Son güncelleme: <span id="compModalLastCheck">—</span></p>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('competitorModal')">Kapat</button>
-      <button class="btn btn-ghost" id="compModalLiveBtn" onclick="fetchLiveErenler()">ğŸ”„ CanlÄ± GÃ¼ncelle</button>
-      <button class="btn btn-primary" onclick="exportCompAnalysis()">â¬‡ï¸ Excel'e Aktar</button>
+      <button class="btn btn-ghost" id="compModalLiveBtn" onclick="fetchLiveErenler()">🔄 Canlı Güncelle</button>
+      <button class="btn btn-primary" onclick="exportCompAnalysis()">⬇️ Excel'e Aktar</button>
     </div>
   </div>
 </div>
@@ -576,55 +576,55 @@ tr:hover td{background:var(--gray50)}
 <div class="modal-overlay" id="productModal">
   <div class="modal" style="max-width:520px">
     <div class="modal-header">
-      <div class="modal-title" id="productModalTitle">ÃœrÃ¼n Ekle</div>
-      <button class="modal-close" onclick="closeModal('productModal')">âœ•</button>
+      <div class="modal-title" id="productModalTitle">Ürün Ekle</div>
+      <button class="modal-close" onclick="closeModal('productModal')">✕</button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="editProdId">
       <div class="form-row cols2">
-        <div class="form-group"><label>ÃœrÃ¼n AdÄ± *</label><input type="text" id="prodName" placeholder="ÃœrÃ¼n adÄ±"></div>
+        <div class="form-group"><label>Ürün Adı *</label><input type="text" id="prodName" placeholder="Ürün adı"></div>
         <div class="form-group"><label>Kategori *</label>
           <select id="prodCat">
-            <option value="manav">ğŸ¥¦ Manav</option>
-            <option value="temel-gida">ğŸŒ¾ Temel GÄ±da</option>
-            <option value="sut-sarkuteri">ğŸ§€ SÃ¼t & ÅarkÃ¼teri</option>
-            <option value="atistirmalik">ğŸ¿ AtÄ±ÅŸtÄ±rmalÄ±k</option>
-            <option value="temizlik">ğŸ§¹ Temizlik</option>
-            <option value="icecek">ğŸ§ƒ Ä°Ã§ecek</option>
-            <option value="kasap">ğŸ¥© Kasap & Et</option>
-            <option value="kahvaltilik">ğŸ³ KahvaltÄ±lÄ±k</option>
-            <option value="kozmetik">ğŸ’„ Kozmetik</option>
-            <option value="anne-bebek">ğŸ‘¶ Anne & Bebek</option>
-            <option value="ev-gerecleri">ğŸ  Ev GereÃ§leri</option>
+            <option value="manav">🥦 Manav</option>
+            <option value="temel-gida">🌾 Temel Gıda</option>
+            <option value="sut-sarkuteri">🧀 Süt & Şarküteri</option>
+            <option value="atistirmalik">🍿 Atıştırmalık</option>
+            <option value="temizlik">🧹 Temizlik</option>
+            <option value="icecek">🧃 İçecek</option>
+            <option value="kasap">🥩 Kasap & Et</option>
+            <option value="kahvaltilik">🍳 Kahvaltılık</option>
+            <option value="kozmetik">💄 Kozmetik</option>
+            <option value="anne-bebek">👶 Anne & Bebek</option>
+            <option value="ev-gerecleri">🏠 Ev Gereçleri</option>
           </select>
         </div>
       </div>
       <div class="form-row cols3">
-        <div class="form-group"><label>Fiyat (â‚º) *</label><input type="number" id="prodPrice" placeholder="0.00" step="0.01"></div>
+        <div class="form-group"><label>Fiyat (₺) *</label><input type="number" id="prodPrice" placeholder="0.00" step="0.01"></div>
         <div class="form-group"><label>Birim</label><input type="text" id="prodUnit" placeholder="kg, adet, lt..."></div>
-        <div class="form-group"><label>Emoji/Ä°kon</label><input type="text" id="prodEmoji" placeholder="ğŸ"></div>
+        <div class="form-group"><label>Emoji/İkon</label><input type="text" id="prodEmoji" placeholder="🍎"></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>GÃ¶rsel URL (opsiyonel)</label>
+        <div class="form-group"><label>Görsel URL (opsiyonel)</label>
           <div style="display:flex;gap:8px;">
             <input type="text" id="prodImg" placeholder="https://..." style="flex:1">
             <label class="btn btn-ghost" style="cursor:pointer;white-space:nowrap;padding:8px 12px;margin:0;">
               <input type="file" id="prodImgFile" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
-              ğŸ“· YÃ¼kle
+              📷 Yükle
             </label>
           </div>
         </div>
       </div>
       <div class="form-row cols2">
-        <div class="form-group"><label>Etiket (opsiyonel)</label><input type="text" id="prodBadge" placeholder="Yeni, Ä°ndirim, Taze..."></div>
+        <div class="form-group"><label>Etiket (opsiyonel)</label><input type="text" id="prodBadge" placeholder="Yeni, İndirim, Taze..."></div>
         <div class="form-group" style="display:flex;align-items:center;gap:8px;padding-top:20px">
           <label class="toggle"><input type="checkbox" id="prodFeatured"><span class="toggle-track"></span></label>
-          <span style="font-size:13px;font-weight:600;color:var(--gray700)">Ã–ne Ã‡Ä±kan</span>
+          <span style="font-size:13px;font-weight:600;color:var(--gray700)">Öne Çıkan</span>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('productModal')">Ä°ptal</button>
+      <button class="btn btn-ghost" onclick="closeModal('productModal')">İptal</button>
       <button class="btn btn-primary" onclick="saveProduct()">Kaydet</button>
     </div>
   </div>
@@ -634,8 +634,8 @@ tr:hover td{background:var(--gray50)}
 <div class="modal-overlay" id="orderModal">
   <div class="modal" style="max-width:500px">
     <div class="modal-header">
-      <div class="modal-title">SipariÅŸ DetayÄ±</div>
-      <button class="modal-close" onclick="closeModal('orderModal')">âœ•</button>
+      <div class="modal-title">Sipariş Detayı</div>
+      <button class="modal-close" onclick="closeModal('orderModal')">✕</button>
     </div>
     <div class="modal-body" id="orderModalBody"></div>
     <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('orderModal')">Kapat</button></div>
@@ -647,65 +647,65 @@ tr:hover td{background:var(--gray50)}
   <div class="modal" style="max-width:560px">
     <div class="modal-header">
       <div class="modal-title" id="campModalTitle">Kampanya Ekle</div>
-      <button class="modal-close" onclick="closeModal('campaignModal')">âœ•</button>
+      <button class="modal-close" onclick="closeModal('campaignModal')">✕</button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="editCampId">
       <div class="form-row">
-        <div class="form-group"><label>Kampanya AdÄ± *</label><input type="text" id="campName" placeholder="Yaz Ä°ndirimi, Haftasonu FÄ±rsatÄ±..."></div>
+        <div class="form-group"><label>Kampanya Adı *</label><input type="text" id="campName" placeholder="Yaz İndirimi, Haftasonu Fırsatı..."></div>
       </div>
       <div class="form-row cols2">
-        <div class="form-group"><label>Kampanya TÃ¼rÃ¼</label>
+        <div class="form-group"><label>Kampanya Türü</label>
           <select id="campType" onchange="updateCampTypeUI()">
-            <option value="pct">YÃ¼zde Ä°ndirim (%)</option>
-            <option value="fixed">Sabit Ä°ndirim (â‚º)</option>
-            <option value="gift">Hediye ÃœrÃ¼n</option>
-            <option value="free_delivery">Ãœcretsiz Teslimat</option>
+            <option value="pct">Yüzde İndirim (%)</option>
+            <option value="fixed">Sabit İndirim (₺)</option>
+            <option value="gift">Hediye Ürün</option>
+            <option value="free_delivery">Ücretsiz Teslimat</option>
           </select>
         </div>
-        <div class="form-group" id="campDiscountGroup"><label>Ä°ndirim DeÄŸeri</label><input type="number" id="campDiscount" placeholder="10"></div>
+        <div class="form-group" id="campDiscountGroup"><label>İndirim Değeri</label><input type="number" id="campDiscount" placeholder="10"></div>
       </div>
       <div class="form-row cols2">
         <div class="form-group"><label>Hedef</label>
           <select id="campTarget" onchange="updateCampTargetUI()">
-            <option value="all">TÃ¼m ÃœrÃ¼nler</option>
+            <option value="all">Tüm Ürünler</option>
             <option value="cat">Kategori</option>
-            <option value="prod">Belirli ÃœrÃ¼n</option>
-            <option value="cart">Min. Sepet TutarÄ±</option>
+            <option value="prod">Belirli Ürün</option>
+            <option value="cart">Min. Sepet Tutarı</option>
           </select>
         </div>
         <div class="form-group">
-          <label id="campTargetValLabel">Hedef DeÄŸer</label>
+          <label id="campTargetValLabel">Hedef Değer</label>
           <select id="campTargetCat" style="display:none">
             <option value="manav">Manav</option>
-            <option value="temel-gida">Temel GÄ±da</option>
-            <option value="sut-sarkuteri">SÃ¼t & ÅarkÃ¼teri</option>
-            <option value="atistirmalik">AtÄ±ÅŸtÄ±rmalÄ±k</option>
+            <option value="temel-gida">Temel Gıda</option>
+            <option value="sut-sarkuteri">Süt & Şarküteri</option>
+            <option value="atistirmalik">Atıştırmalık</option>
             <option value="temizlik">Temizlik</option>
-            <option value="icecek">Ä°Ã§ecek</option>
+            <option value="icecek">İçecek</option>
             <option value="kasap">Kasap & Et</option>
-            <option value="kahvaltilik">KahvaltÄ±lÄ±k</option>
+            <option value="kahvaltilik">Kahvaltılık</option>
             <option value="kozmetik">Kozmetik</option>
             <option value="anne-bebek">Anne & Bebek</option>
-            <option value="ev-gerecleri">Ev GereÃ§leri</option>
+            <option value="ev-gerecleri">Ev Gereçleri</option>
           </select>
-          <input type="number" id="campCartMin" placeholder="Min. sepet (â‚º)" style="display:none">
-          <input type="text" id="campTargetProd" placeholder="ÃœrÃ¼n adÄ±" style="display:none">
+          <input type="number" id="campCartMin" placeholder="Min. sepet (₺)" style="display:none">
+          <input type="text" id="campTargetProd" placeholder="Ürün adı" style="display:none">
         </div>
       </div>
       <div class="form-row" id="campGiftGroup" style="display:none">
-        <div class="form-group"><label>Hediye ÃœrÃ¼n AdÄ±</label><input type="text" id="campGiftItem" placeholder="Hediye Ã¼rÃ¼n adÄ±"></div>
+        <div class="form-group"><label>Hediye Ürün Adı</label><input type="text" id="campGiftItem" placeholder="Hediye ürün adı"></div>
       </div>
       <div class="form-row cols2">
-        <div class="form-group"><label>BaÅŸlangÄ±Ã§ Tarihi</label><input type="date" id="campStart"></div>
-        <div class="form-group"><label>BitiÅŸ Tarihi</label><input type="date" id="campEnd"></div>
+        <div class="form-group"><label>Başlangıç Tarihi</label><input type="date" id="campStart"></div>
+        <div class="form-group"><label>Bitiş Tarihi</label><input type="date" id="campEnd"></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>AÃ§Ä±klama (duyuru metninde gÃ¶sterilir)</label><input type="text" id="campDesc" placeholder="TÃ¼m manav Ã¼rÃ¼nlerinde %20 indirim!"></div>
+        <div class="form-group"><label>Açıklama (duyuru metninde gösterilir)</label><input type="text" id="campDesc" placeholder="Tüm manav ürünlerinde %20 indirim!"></div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('campaignModal')">Ä°ptal</button>
+      <button class="btn btn-ghost" onclick="closeModal('campaignModal')">İptal</button>
       <button class="btn btn-primary" onclick="saveCampaign()">Kaydet</button>
     </div>
   </div>
@@ -715,8 +715,8 @@ tr:hover td{background:var(--gray50)}
 <div class="modal-overlay" id="invoiceDetailModal">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title">Fatura DetayÄ±</div>
-      <button class="modal-close" onclick="closeModal('invoiceDetailModal')">âœ•</button>
+      <div class="modal-title">Fatura Detayı</div>
+      <button class="modal-close" onclick="closeModal('invoiceDetailModal')">✕</button>
     </div>
     <div class="modal-body" id="invoiceDetailBody"></div>
     <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('invoiceDetailModal')">Kapat</button></div>
@@ -727,31 +727,31 @@ tr:hover td{background:var(--gray50)}
 <div class="modal-overlay" id="globalMarginModal">
   <div class="modal" style="max-width:420px">
     <div class="modal-header">
-      <div class="modal-title">Global Kar MarjÄ± Uygula</div>
-      <button class="modal-close" onclick="closeModal('globalMarginModal')">âœ•</button>
+      <div class="modal-title">Global Kar Marjı Uygula</div>
+      <button class="modal-close" onclick="closeModal('globalMarginModal')">✕</button>
     </div>
     <div class="modal-body">
-      <div class="alert alert-warn" style="margin-bottom:16px">âš ï¸ Bu iÅŸlem seÃ§ilen kategorideki tÃ¼m Ã¼rÃ¼nlerin satÄ±ÅŸ fiyatÄ±nÄ± gÃ¼nceller. AlÄ±ÅŸ fiyatÄ± girilmiÅŸ Ã¼rÃ¼nler baz alÄ±nÄ±r.</div>
-      <div class="form-group" style="margin-bottom:12px"><label>Kar MarjÄ± (%)</label><input type="number" id="globalMarginPct" placeholder="30" min="0" max="500"></div>
-      <div class="form-group"><label>Uygulama KapsamÄ±</label>
+      <div class="alert alert-warn" style="margin-bottom:16px">⚠️ Bu işlem seçilen kategorideki tüm ürünlerin satış fiyatını günceller. Alış fiyatı girilmiş ürünler baz alınır.</div>
+      <div class="form-group" style="margin-bottom:12px"><label>Kar Marjı (%)</label><input type="number" id="globalMarginPct" placeholder="30" min="0" max="500"></div>
+      <div class="form-group"><label>Uygulama Kapsamı</label>
         <select id="globalMarginScope">
-          <option value="all">TÃ¼m ÃœrÃ¼nler</option>
+          <option value="all">Tüm Ürünler</option>
           <option value="manav">Manav</option>
-          <option value="temel-gida">Temel GÄ±da</option>
-          <option value="sut-sarkuteri">SÃ¼t & ÅarkÃ¼teri</option>
-          <option value="atistirmalik">AtÄ±ÅŸtÄ±rmalÄ±k</option>
+          <option value="temel-gida">Temel Gıda</option>
+          <option value="sut-sarkuteri">Süt & Şarküteri</option>
+          <option value="atistirmalik">Atıştırmalık</option>
           <option value="temizlik">Temizlik</option>
-          <option value="icecek">Ä°Ã§ecek</option>
+          <option value="icecek">İçecek</option>
           <option value="kasap">Kasap & Et</option>
-          <option value="kahvaltilik">KahvaltÄ±lÄ±k</option>
+          <option value="kahvaltilik">Kahvaltılık</option>
           <option value="kozmetik">Kozmetik</option>
           <option value="anne-bebek">Anne & Bebek</option>
-          <option value="ev-gerecleri">Ev GereÃ§leri</option>
+          <option value="ev-gerecleri">Ev Gereçleri</option>
         </select>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('globalMarginModal')">Ä°ptal</button>
+      <button class="btn btn-ghost" onclick="closeModal('globalMarginModal')">İptal</button>
       <button class="btn btn-success" onclick="applyGlobalMargin()">Uygula</button>
     </div>
   </div>
@@ -762,23 +762,23 @@ tr:hover td{background:var(--gray50)}
   <div class="modal" style="max-width:460px">
     <div class="modal-header">
       <div class="modal-title" id="couponModalTitle">Kupon Ekle</div>
-      <button class="modal-close" onclick="closeModal('couponModal')">âœ•</button>
+      <button class="modal-close" onclick="closeModal('couponModal')">✕</button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="editCouponKey">
       <div class="form-row cols2">
         <div class="form-group"><label>Kupon Kodu *</label><input type="text" id="couponCode" placeholder="INDIRIM10" style="text-transform:uppercase"></div>
-        <div class="form-group"><label>Ä°ndirim % (0 = sadece hediye)</label><input type="number" id="couponPct" placeholder="10" min="0" max="100"></div>
+        <div class="form-group"><label>İndirim % (0 = sadece hediye)</label><input type="number" id="couponPct" placeholder="10" min="0" max="100"></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Hediye ÃœrÃ¼n (opsiyonel)</label><input type="text" id="couponGift" placeholder="ÃœrÃ¼n adÄ± veya boÅŸ bÄ±rak"></div>
+        <div class="form-group"><label>Hediye Ürün (opsiyonel)</label><input type="text" id="couponGift" placeholder="Ürün adı veya boş bırak"></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>BaÅŸarÄ± MesajÄ±</label><input type="text" id="couponText" placeholder="%10 Ä°NDÄ°RÄ°M UYGULANDI!"></div>
+        <div class="form-group"><label>Başarı Mesajı</label><input type="text" id="couponText" placeholder="%10 İNDİRİM UYGULANDI!"></div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('couponModal')">Ä°ptal</button>
+      <button class="btn btn-ghost" onclick="closeModal('couponModal')">İptal</button>
       <button class="btn btn-primary" onclick="saveCoupon()">Kaydet</button>
     </div>
   </div>
@@ -787,220 +787,220 @@ tr:hover td{background:var(--gray50)}
 <div id="toast"></div>
 
 <script>
-/* â”€â”€ DEFAULT DATA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── DEFAULT DATA ─────────────────────────────────────────────────────── */
 const DEFAULT_PRODUCTS=[
-  {id:1,name:'Domates',cat:'manav',price:24.90,unit:'kg',emoji:'ğŸ…',img:'',badge:'Taze',featured:true},
-  {id:2,name:'SalatalÄ±k',cat:'manav',price:19.90,unit:'kg',emoji:'ğŸ¥’',img:'',badge:'',featured:false},
-  {id:3,name:'Biber',cat:'manav',price:29.90,unit:'kg',emoji:'ğŸ«‘',img:'',badge:'',featured:false},
-  {id:4,name:'PatlÄ±can',cat:'manav',price:22.90,unit:'kg',emoji:'ğŸ†',img:'',badge:'',featured:false},
-  {id:5,name:'Patates',cat:'manav',price:17.90,unit:'kg',emoji:'ğŸ¥”',img:'',badge:'',featured:true},
-  {id:6,name:'SoÄŸan',cat:'manav',price:14.90,unit:'kg',emoji:'ğŸ§…',img:'',badge:'',featured:false},
-  {id:7,name:'SarÄ±msak',cat:'manav',price:89.90,unit:'kg',emoji:'ğŸ§„',img:'',badge:'',featured:false},
-  {id:8,name:'Muz',cat:'manav',price:34.90,unit:'kg',emoji:'ğŸŒ',img:'',badge:'Ä°thal',featured:false},
-  {id:9,name:'Elma',cat:'manav',price:27.90,unit:'kg',emoji:'ğŸ',img:'',badge:'Taze',featured:true},
-  {id:10,name:'Portakal',cat:'manav',price:19.90,unit:'kg',emoji:'ğŸŠ',img:'',badge:'',featured:false},
-  {id:11,name:'Un (1 kg)',cat:'temel-gida',price:29.90,unit:'paket',emoji:'ğŸŒ¾',img:'',badge:'',featured:false},
-  {id:12,name:'Åeker (1 kg)',cat:'temel-gida',price:34.90,unit:'paket',emoji:'ğŸ¬',img:'',badge:'',featured:false},
-  {id:13,name:'Tuz (1 kg)',cat:'temel-gida',price:12.90,unit:'paket',emoji:'ğŸ§‚',img:'',badge:'',featured:false},
-  {id:14,name:'Makarna (500g)',cat:'temel-gida',price:19.90,unit:'paket',emoji:'ğŸ',img:'',badge:'',featured:true},
-  {id:15,name:'PirinÃ§ (1 kg)',cat:'temel-gida',price:44.90,unit:'paket',emoji:'ğŸš',img:'',badge:'',featured:false},
-  {id:16,name:'Mercimek (1 kg)',cat:'temel-gida',price:39.90,unit:'paket',emoji:'ğŸ«˜',img:'',badge:'',featured:false},
-  {id:17,name:'Bulgur (1 kg)',cat:'temel-gida',price:32.90,unit:'paket',emoji:'ğŸŒ¾',img:'',badge:'',featured:false},
-  {id:18,name:'ZeytinyaÄŸÄ± (1 lt)',cat:'temel-gida',price:249.90,unit:'ÅŸiÅŸe',emoji:'ğŸ«™',img:'',badge:'',featured:true},
-  {id:19,name:'Domates SalÃ§asÄ± (830g)',cat:'temel-gida',price:44.90,unit:'teneke',emoji:'ğŸ¥«',img:'',badge:'',featured:false},
-  {id:20,name:'Nohut (1 kg)',cat:'temel-gida',price:42.90,unit:'paket',emoji:'ğŸ«˜',img:'',badge:'',featured:false},
-  {id:21,name:'SÃ¼t (1 lt)',cat:'sut-sarkuteri',price:29.90,unit:'lt',emoji:'ğŸ¥›',img:'',badge:'',featured:true},
-  {id:22,name:'YoÄŸurt (1 kg)',cat:'sut-sarkuteri',price:44.90,unit:'kg',emoji:'ğŸ¥›',img:'',badge:'',featured:false},
-  {id:23,name:'Beyaz Peynir (500g)',cat:'sut-sarkuteri',price:89.90,unit:'paket',emoji:'ğŸ§€',img:'',badge:'',featured:true},
-  {id:24,name:'KaÅŸar Peynir (400g)',cat:'sut-sarkuteri',price:119.90,unit:'paket',emoji:'ğŸ§€',img:'',badge:'',featured:false},
-  {id:25,name:'TereyaÄŸÄ± (250g)',cat:'sut-sarkuteri',price:74.90,unit:'paket',emoji:'ğŸ§ˆ',img:'',badge:'',featured:false},
-  {id:26,name:'Yumurta (10\'lu)',cat:'sut-sarkuteri',price:49.90,unit:'koli',emoji:'ğŸ¥š',img:'',badge:'',featured:true},
-  {id:27,name:'Sucuk (200g)',cat:'sut-sarkuteri',price:84.90,unit:'paket',emoji:'ğŸŒ­',img:'',badge:'',featured:false},
-  {id:28,name:'Zeytin (400g)',cat:'sut-sarkuteri',price:64.90,unit:'paket',emoji:'ğŸ«’',img:'',badge:'',featured:false},
-  {id:29,name:'Cips (200g)',cat:'atistirmalik',price:39.90,unit:'paket',emoji:'ğŸ¿',img:'',badge:'',featured:false},
-  {id:30,name:'Ã‡ikolata (100g)',cat:'atistirmalik',price:34.90,unit:'adet',emoji:'ğŸ«',img:'',badge:'',featured:false},
-  {id:31,name:'BiskÃ¼vi (150g)',cat:'atistirmalik',price:19.90,unit:'paket',emoji:'ğŸª',img:'',badge:'',featured:false},
-  {id:32,name:'KuruyemiÅŸ KarÄ±ÅŸÄ±k (200g)',cat:'atistirmalik',price:79.90,unit:'paket',emoji:'ğŸ¥œ',img:'',badge:'',featured:true},
-  {id:33,name:'Gofret (4\'lÃ¼)',cat:'atistirmalik',price:24.90,unit:'paket',emoji:'ğŸ§‡',img:'',badge:'',featured:false},
-  {id:34,name:'Kek (400g)',cat:'atistirmalik',price:44.90,unit:'adet',emoji:'ğŸ°',img:'',badge:'',featured:false},
-  {id:35,name:'BulaÅŸÄ±k DeterjanÄ± (1 lt)',cat:'temizlik',price:54.90,unit:'ÅŸiÅŸe',emoji:'ğŸ§´',img:'',badge:'',featured:false},
-  {id:36,name:'Ã‡amaÅŸÄ±r Suyu (3 lt)',cat:'temizlik',price:39.90,unit:'ÅŸiÅŸe',emoji:'ğŸ§´',img:'',badge:'',featured:true},
-  {id:37,name:'Deterjan (3 kg)',cat:'temizlik',price:149.90,unit:'paket',emoji:'ğŸ§º',img:'',badge:'',featured:false},
-  {id:38,name:'Tuvalet KaÄŸÄ±dÄ± (32\'li)',cat:'temizlik',price:119.90,unit:'paket',emoji:'ğŸ§»',img:'',badge:'',featured:true},
-  {id:39,name:'KaÄŸÄ±t Havlu (8\'li)',cat:'temizlik',price:74.90,unit:'paket',emoji:'ğŸ§»',img:'',badge:'',featured:false},
-  {id:40,name:'BulaÅŸÄ±k SÃ¼nger (5\'li)',cat:'temizlik',price:24.90,unit:'paket',emoji:'ğŸ§½',img:'',badge:'',featured:false},
-  {id:41,name:'Su (1.5 lt)',cat:'icecek',price:9.90,unit:'ÅŸiÅŸe',emoji:'ğŸ’§',img:'',badge:'',featured:false},
-  {id:42,name:'Meyve Suyu (1 lt)',cat:'icecek',price:34.90,unit:'kutu',emoji:'ğŸ§ƒ',img:'',badge:'',featured:true},
-  {id:43,name:'Kola (1 lt)',cat:'icecek',price:29.90,unit:'ÅŸiÅŸe',emoji:'ğŸ¥¤',img:'',badge:'',featured:false},
-  {id:44,name:'Ayran (500 ml)',cat:'icecek',price:12.90,unit:'ÅŸiÅŸe',emoji:'ğŸ¥›',img:'',badge:'',featured:false},
-  {id:45,name:'Ã‡ay (500g)',cat:'icecek',price:89.90,unit:'paket',emoji:'ğŸµ',img:'',badge:'',featured:true},
-  {id:46,name:'Kahve (250g)',cat:'icecek',price:119.90,unit:'paket',emoji:'â˜•',img:'',badge:'',featured:false},
-  {id:47,name:'Gazoz (1 lt)',cat:'icecek',price:19.90,unit:'ÅŸiÅŸe',emoji:'ğŸ«§',img:'',badge:'',featured:false},
-  {id:48,name:'Enerji Ä°Ã§eceÄŸi (250ml)',cat:'icecek',price:29.90,unit:'kutu',emoji:'âš¡',img:'',badge:'',featured:false},
-  /* â”€â”€ MANAV EK ÃœRÃœNLER â”€â”€ */
-  {id:49,name:'HavuÃ§',cat:'manav',price:34.90,unit:'kg',emoji:'ğŸ¥•',img:'',badge:'Taze',featured:false},
-  {id:50,name:'Kabak',cat:'manav',price:29.90,unit:'kg',emoji:'ğŸ¥¬',img:'',badge:'',featured:false},
-  {id:51,name:'Karpuz',cat:'manav',price:14.90,unit:'kg',emoji:'ğŸ‰',img:'',badge:'Mevsim',featured:true},
-  {id:52,name:'Limon',cat:'manav',price:49.90,unit:'kg',emoji:'ğŸ‹',img:'',badge:'',featured:false},
-  {id:53,name:'Kivi',cat:'manav',price:89.90,unit:'kg',emoji:'ğŸ¥',img:'',badge:'Ä°thal',featured:false},
-  {id:54,name:'Avokado',cat:'manav',price:54.90,unit:'adet',emoji:'ğŸ¥‘',img:'',badge:'',featured:false},
-  {id:55,name:'Biber Sivri',cat:'manav',price:39.90,unit:'kg',emoji:'ğŸŒ¶ï¸',img:'',badge:'Taze',featured:false},
-  {id:56,name:'Biber Dolma',cat:'manav',price:49.90,unit:'kg',emoji:'ğŸ«‘',img:'',badge:'',featured:false},
-  {id:57,name:'Marul KÄ±vÄ±rcÄ±k',cat:'manav',price:34.90,unit:'adet',emoji:'ğŸ¥¬',img:'',badge:'Taze',featured:false},
-  {id:58,name:'Maydanoz',cat:'manav',price:14.90,unit:'baÄŸ',emoji:'ğŸŒ¿',img:'',badge:'',featured:false},
-  {id:59,name:'Nane',cat:'manav',price:14.90,unit:'baÄŸ',emoji:'ğŸŒ¿',img:'',badge:'',featured:false},
-  {id:60,name:'Roka',cat:'manav',price:14.90,unit:'baÄŸ',emoji:'ğŸŒ¿',img:'',badge:'',featured:false},
-  {id:61,name:'SoÄŸan YeÅŸil',cat:'manav',price:19.90,unit:'baÄŸ',emoji:'ğŸŒ±',img:'',badge:'',featured:false},
-  {id:62,name:'Mantar',cat:'manav',price:99.90,unit:'kg',emoji:'ğŸ„',img:'',badge:'',featured:false},
-  {id:63,name:'Pirasa',cat:'manav',price:24.90,unit:'kg',emoji:'ğŸŒ¿',img:'',badge:'',featured:false},
-  {id:64,name:'Domates Pembe',cat:'manav',price:39.90,unit:'kg',emoji:'ğŸ…',img:'',badge:'',featured:false},
-  {id:65,name:'Erik',cat:'manav',price:39.90,unit:'kg',emoji:'ğŸ‘',img:'',badge:'Mevsim',featured:false},
-  /* â”€â”€ TEMEL GIDA EK ÃœRÃœNLER â”€â”€ */
-  {id:66,name:'Fasulye Kuru (1 kg)',cat:'temel-gida',price:54.90,unit:'paket',emoji:'ğŸ«˜',img:'',badge:'',featured:false},
-  {id:67,name:'AyÃ§iÃ§ek YaÄŸÄ± (5 lt)',cat:'temel-gida',price:299.90,unit:'bidon',emoji:'ğŸ«™',img:'',badge:'',featured:true},
-  {id:68,name:'Biber SalÃ§asÄ± (830g)',cat:'temel-gida',price:44.90,unit:'teneke',emoji:'ğŸ¥«',img:'',badge:'',featured:false},
-  {id:69,name:'Ã‡orba Tarhana (500g)',cat:'temel-gida',price:39.90,unit:'paket',emoji:'ğŸ²',img:'',badge:'',featured:false},
-  {id:70,name:'Domates Konservesi (800g)',cat:'temel-gida',price:34.90,unit:'teneke',emoji:'ğŸ¥«',img:'',badge:'',featured:false},
-  {id:71,name:'Baharat KarÄ±ÅŸÄ±k (50g)',cat:'temel-gida',price:19.90,unit:'paket',emoji:'ğŸŒ¶ï¸',img:'',badge:'',featured:false},
-  {id:72,name:'KetÃ§ap (800g)',cat:'temel-gida',price:54.90,unit:'ÅŸiÅŸe',emoji:'ğŸ…',img:'',badge:'',featured:false},
-  /* â”€â”€ SÃœT & ÅARKÃœTERÄ° EK ÃœRÃœNLER â”€â”€ */
-  {id:73,name:'Siyah Zeytin (400g)',cat:'sut-sarkuteri',price:59.90,unit:'paket',emoji:'ğŸ«’',img:'',badge:'',featured:false},
-  {id:74,name:'Tahin (300g)',cat:'sut-sarkuteri',price:69.90,unit:'kavanoz',emoji:'ğŸ«™',img:'',badge:'',featured:false},
-  {id:75,name:'Bal (250g)',cat:'sut-sarkuteri',price:139.90,unit:'kavanoz',emoji:'ğŸ¯',img:'',badge:'',featured:true},
-  {id:76,name:'Salam Hindi (60g)',cat:'sut-sarkuteri',price:34.90,unit:'paket',emoji:'ğŸ¥©',img:'',badge:'',featured:false},
-  {id:77,name:'Kasap KÃ¶fte (350g)',cat:'sut-sarkuteri',price:99.90,unit:'paket',emoji:'ğŸ–',img:'',badge:'Taze',featured:false},
-  {id:78,name:'Tavuk DÃ¶ner (300g)',cat:'sut-sarkuteri',price:79.90,unit:'paket',emoji:'ğŸ—',img:'',badge:'',featured:false},
-  {id:79,name:'KaÅŸar Dilimli (200g)',cat:'sut-sarkuteri',price:79.90,unit:'paket',emoji:'ğŸ§€',img:'',badge:'',featured:false},
-  {id:80,name:'Helva Sade (200g)',cat:'sut-sarkuteri',price:44.90,unit:'paket',emoji:'ğŸ®',img:'',badge:'',featured:false},
-  /* â”€â”€ ATIÅTIRMALIK EK ÃœRÃœNLER â”€â”€ */
-  {id:81,name:'Leblebi (200g)',cat:'atistirmalik',price:29.90,unit:'paket',emoji:'ğŸ«˜',img:'',badge:'',featured:false},
-  {id:82,name:'Kraker (70g)',cat:'atistirmalik',price:19.90,unit:'paket',emoji:'ğŸ˜',img:'',badge:'',featured:false},
-  {id:83,name:'Ã‡erez KarÄ±ÅŸÄ±k (100g)',cat:'atistirmalik',price:34.90,unit:'paket',emoji:'ğŸ¥œ',img:'',badge:'',featured:false},
-  {id:84,name:'HelvalÄ± Gofret (4\'lÃ¼)',cat:'atistirmalik',price:19.90,unit:'paket',emoji:'ğŸ«',img:'',badge:'',featured:false},
-  /* â”€â”€ TEMÄ°ZLÄ°K EK ÃœRÃœNLER â”€â”€ */
-  {id:85,name:'Cam Temizleyici (500ml)',cat:'temizlik',price:44.90,unit:'ÅŸiÅŸe',emoji:'ğŸ§´',img:'',badge:'',featured:false},
-  {id:86,name:'SÄ±vÄ± Sabun (400ml)',cat:'temizlik',price:39.90,unit:'ÅŸiÅŸe',emoji:'ğŸ§´',img:'',badge:'',featured:false},
-  {id:87,name:'DuÅŸ Jeli (500ml)',cat:'temizlik',price:54.90,unit:'ÅŸiÅŸe',emoji:'ğŸ§´',img:'',badge:'',featured:false},
-  {id:88,name:'KaÄŸÄ±t Mendil (10\'lu)',cat:'temizlik',price:24.90,unit:'paket',emoji:'ğŸ§»',img:'',badge:'',featured:false},
-  /* â”€â”€ Ä°Ã‡ECEK EK ÃœRÃœNLER â”€â”€ */
-  {id:89,name:'Maden Suyu (200ml)',cat:'icecek',price:9.90,unit:'ÅŸiÅŸe',emoji:'ğŸ’§',img:'',badge:'',featured:false},
-  {id:90,name:'Limonata (1 lt)',cat:'icecek',price:29.90,unit:'ÅŸiÅŸe',emoji:'ğŸ‹',img:'',badge:'',featured:false},
-  {id:91,name:'Åalgam (1 lt)',cat:'icecek',price:24.90,unit:'ÅŸiÅŸe',emoji:'ğŸŸ£',img:'',badge:'',featured:false},
-  {id:92,name:'Ice Tea (1.5 lt)',cat:'icecek',price:39.90,unit:'ÅŸiÅŸe',emoji:'ğŸµ',img:'',badge:'',featured:false},
-  {id:93,name:'Kola (2.5 lt)',cat:'icecek',price:44.90,unit:'ÅŸiÅŸe',emoji:'ğŸ¥¤',img:'',badge:'',featured:false},
-  /* â”€â”€ KOZMETÄ°K (YENÄ° KATEGORÄ°) â”€â”€ */
-  {id:94,name:'DiÅŸ Macunu (75ml)',cat:'kozmetik',price:39.90,unit:'tÃ¼p',emoji:'ğŸ¦·',img:'',badge:'',featured:true},
-  {id:95,name:'Åampuan (400ml)',cat:'kozmetik',price:74.90,unit:'ÅŸiÅŸe',emoji:'ğŸ§´',img:'',badge:'',featured:false},
-  {id:96,name:'SaÃ§ Kremi (400ml)',cat:'kozmetik',price:69.90,unit:'ÅŸiÅŸe',emoji:'ğŸ§´',img:'',badge:'',featured:false},
-  {id:97,name:'Deodorant Roll-On (50ml)',cat:'kozmetik',price:89.90,unit:'adet',emoji:'âœ¨',img:'',badge:'',featured:false},
-  {id:98,name:'El Kremi (75ml)',cat:'kozmetik',price:39.90,unit:'tÃ¼p',emoji:'ğŸ§´',img:'',badge:'',featured:false},
-  {id:99,name:'Kolonya (400ml)',cat:'kozmetik',price:99.90,unit:'ÅŸiÅŸe',emoji:'ğŸ’«',img:'',badge:'',featured:true},
-  {id:100,name:'TÄ±raÅŸ KÃ¶pÃ¼ÄŸÃ¼ (200ml)',cat:'kozmetik',price:59.90,unit:'kutu',emoji:'ğŸª’',img:'',badge:'',featured:false},
-  {id:101,name:'Dudak BalsamÄ±',cat:'kozmetik',price:29.90,unit:'adet',emoji:'ğŸ’„',img:'',badge:'',featured:false},
-  /* â”€â”€ ANNE & BEBEK (YENÄ° KATEGORÄ°) â”€â”€ */
-  {id:102,name:'Bebek Bezi S (54\'lÃ¼)',cat:'anne-bebek',price:249.90,unit:'paket',emoji:'ğŸ‘¶',img:'',badge:'',featured:true},
-  {id:103,name:'Bebek Bezi M (44\'lÃ¼)',cat:'anne-bebek',price:279.90,unit:'paket',emoji:'ğŸ‘¶',img:'',badge:'',featured:false},
-  {id:104,name:'Bebek Bezi L (36\'lÄ±)',cat:'anne-bebek',price:299.90,unit:'paket',emoji:'ğŸ‘¶',img:'',badge:'',featured:false},
-  {id:105,name:'Bebek Islak Mendil (72\'li)',cat:'anne-bebek',price:39.90,unit:'paket',emoji:'ğŸ§»',img:'',badge:'',featured:false},
-  {id:106,name:'Bebek MamasÄ± TahÄ±llÄ± (400g)',cat:'anne-bebek',price:189.90,unit:'kutu',emoji:'ğŸ¼',img:'',badge:'',featured:false},
-  {id:107,name:'Bebek ÅampuanÄ± (200ml)',cat:'anne-bebek',price:89.90,unit:'ÅŸiÅŸe',emoji:'ğŸ§´',img:'',badge:'',featured:false},
-  {id:108,name:'PirinÃ§ Unu Bebek (400g)',cat:'anne-bebek',price:79.90,unit:'kutu',emoji:'ğŸš',img:'',badge:'',featured:false},
-  /* â”€â”€ EV GEREÃ‡LERÄ° (YENÄ° KATEGORÄ°) â”€â”€ */
-  {id:109,name:'Ã‡Ã¶p TorbasÄ± (10\'li)',cat:'ev-gerecleri',price:39.90,unit:'rulo',emoji:'ğŸ—‘ï¸',img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400',badge:'',featured:false},
-  {id:110,name:'Mutfak Temizlik Bezi (5\'li)',cat:'ev-gerecleri',price:29.90,unit:'paket',emoji:'ğŸ§¹',img:'https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400',badge:'',featured:false},
-  {id:111,name:'Folyo (30m)',cat:'ev-gerecleri',price:49.90,unit:'rulo',emoji:'ğŸ“¦',img:'https://images.unsplash.com/photo-1584990347449-39ce4c9af92a?w=400',badge:'',featured:false},
-  {id:112,name:'Pil AA (4\'lÃ¼)',cat:'ev-gerecleri',price:59.90,unit:'paket',emoji:'ğŸ”‹',img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400',badge:'YENÄ°',featured:true},
-  {id:113,name:'Cam Bardak Seti (6\'lÄ±)',cat:'ev-gerecleri',price:149.90,unit:'set',emoji:'ğŸ¥ƒ',img:'https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=400',badge:'-%17',featured:true},
-  {id:114,name:'Plastik Saklama KabÄ±',cat:'ev-gerecleri',price:49.90,unit:'adet',emoji:'ğŸ“¦',img:'https://images.unsplash.com/photo-1584990347449-39ce4c9af92a?w=400',badge:'',featured:false},
-  {id:115,name:'Ã‡ay BardaÄŸÄ± Seti (6\'lÄ±)',cat:'ev-gerecleri',price:129.90,unit:'set',emoji:'â˜•',img:'https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=400',badge:'',featured:false},
-  {id:116,name:'Mutfak MakasÄ±',cat:'ev-gerecleri',price:89.90,unit:'adet',emoji:'âœ‚ï¸',img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400',badge:'',featured:false},
-  {id:117,name:'Dana KÄ±yma',cat:'kasap',price:189.90,unit:'500g',emoji:'ğŸ¥©',img:'https://images.unsplash.com/photo-1588347818481-27bd27e77b4e?w=400',badge:'TAZE',featured:true},
-  {id:118,name:'Kasap KÃ¶fte',cat:'kasap',price:134.90,unit:'350g',emoji:'ğŸ¥©',img:'https://images.unsplash.com/photo-1529694157872-4e0c0f3b238b?w=400',badge:'Ã‡OK SATAN',featured:true},
-  {id:119,name:'PiliÃ§ DÃ¶ner',cat:'kasap',price:84.90,unit:'300g',emoji:'ğŸ—',img:'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=400',badge:'-%5',featured:false},
-  {id:120,name:'Tavuk But',cat:'kasap',price:179.90,unit:'1kg',emoji:'ğŸ—',img:'https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=400',badge:'TAZE',featured:true},
-  {id:121,name:'BÃ¼tÃ¼n PiliÃ§',cat:'kasap',price:149.90,unit:'1kg',emoji:'ğŸ”',img:'https://images.unsplash.com/photo-1600891964599-f61ba0e24092?w=400',badge:'',featured:false},
-  {id:122,name:'Hamburger KÃ¶fte',cat:'kasap',price:264.90,unit:'500g',emoji:'ğŸ”',img:'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=400',badge:'',featured:false},
-  {id:123,name:'Parmak KÃ¶fte',cat:'kasap',price:134.90,unit:'400g',emoji:'ğŸ¢',img:'https://images.unsplash.com/photo-1529694157872-4e0c0f3b238b?w=400',badge:'-%10',featured:false},
-  {id:124,name:'Dana Sucuk Ä°nce',cat:'kasap',price:124.90,unit:'200g',emoji:'ğŸŒ­',img:'https://images.unsplash.com/photo-1562967915-6ba607ff7d05?w=400',badge:'',featured:false},
-  {id:125,name:'Ã‡am BalÄ±',cat:'kahvaltilik',price:344.90,unit:'460g',emoji:'ğŸ¯',img:'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400',badge:'-%9',featured:true},
-  {id:126,name:'KayÄ±sÄ± ReÃ§eli',cat:'kahvaltilik',price:79.90,unit:'380g',emoji:'ğŸ«™',img:'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=400',badge:'',featured:false},
-  {id:127,name:'Sele Zeytin',cat:'kahvaltilik',price:134.90,unit:'800g',emoji:'ğŸ«’',img:'https://images.unsplash.com/photo-1572635148818-ef6fd45eb394?w=400',badge:'-%10',featured:true},
-  {id:128,name:'KaÅŸar Peyniri',cat:'kahvaltilik',price:194.90,unit:'300g',emoji:'ğŸ§€',img:'https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=400',badge:'Ä°NDÄ°RÄ°M',featured:false},
-  {id:129,name:'Yumurta',cat:'kahvaltilik',price:59.90,unit:'10\'lu',emoji:'ğŸ¥š',img:'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=400',badge:'TAZE',featured:true},
-  {id:130,name:'Tahin Pekmez',cat:'kahvaltilik',price:84.90,unit:'350g',emoji:'ğŸ«™',img:'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400',badge:'',featured:false},
-  {id:131,name:'FÄ±stÄ±k Ezmesi',cat:'kahvaltilik',price:124.90,unit:'350g',emoji:'ğŸ¥œ',img:'https://images.unsplash.com/photo-1567218360-a7898e9b8bcc?w=400',badge:'YENÄ°',featured:false},
-  {id:132,name:'Ã‡ilek ReÃ§eli',cat:'kahvaltilik',price:74.90,unit:'380g',emoji:'ğŸ“',img:'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=400',badge:'',featured:false},
-  {id:133,name:'Enginar',cat:'manav',price:64.90,unit:'adet',emoji:'ğŸŒ¿',img:'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400',badge:'MEVSÄ°M',featured:false},
-  {id:134,name:'SarÄ±msak',cat:'manav',price:134.90,unit:'1kg',emoji:'ğŸ§„',img:'https://images.unsplash.com/photo-1540148426945-6cf22a6b2383?w=400',badge:'-%10',featured:false},
-  {id:135,name:'Elma Granny Smith',cat:'manav',price:94.90,unit:'1kg',emoji:'ğŸ',img:'https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=400',badge:'',featured:false},
-  {id:136,name:'PatlÄ±can',cat:'manav',price:59.90,unit:'1kg',emoji:'ğŸ†',img:'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400',badge:'KAMPANYA',featured:false},
-  {id:137,name:'RedBull Enerji',cat:'icecek',price:64.90,unit:'250ml',emoji:'âš¡',img:'https://images.unsplash.com/photo-1570197571499-166b36435e9f?w=400',badge:'ENERJÄ°',featured:true},
-  {id:138,name:'Sprite',cat:'icecek',price:59.90,unit:'1.5L',emoji:'ğŸ¥¤',img:'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400',badge:'',featured:false},
-  {id:139,name:'Coca-Cola',cat:'icecek',price:69.90,unit:'2.5L',emoji:'ğŸ¥¤',img:'https://images.unsplash.com/photo-1629203851122-3726ecdf080e?w=400',badge:'AÄ°LE BOY',featured:false},
-  {id:140,name:'Fanta Portakal',cat:'icecek',price:39.90,unit:'500ml',emoji:'ğŸŸ ',img:'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400',badge:'',featured:false},
-  {id:141,name:'Powerade',cat:'icecek',price:64.90,unit:'500ml',emoji:'ğŸ’ª',img:'https://images.unsplash.com/photo-1571165936792-697b96b5f671?w=400',badge:'',featured:false},
-  {id:142,name:'Ajax Fabuloso Lavanta',cat:'temizlik',price:109.90,unit:'1L',emoji:'ğŸ§¹',img:'https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400',badge:'-%8',featured:false},
-  {id:143,name:'Fairy Platinum',cat:'temizlik',price:399.90,unit:'50 tablet',emoji:'ğŸ½ï¸',img:'https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?w=400',badge:'EKONOMÄ°K',featured:true},
-  {id:144,name:'Hijyenik Ped',cat:'temizlik',price:64.90,unit:'20\'li',emoji:'ğŸ©¹',img:'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=400',badge:'',featured:false},
-  {id:145,name:'Rexona Deo Erkek',cat:'kozmetik',price:119.90,unit:'150ml',emoji:'ğŸŒ¿',img:'https://images.unsplash.com/photo-1599305090598-fe179d501227?w=400',badge:'-%7',featured:false},
-  {id:146,name:'Gillette Fusion Yedek',cat:'kozmetik',price:544.90,unit:'2\'li',emoji:'ğŸª’',img:'https://images.unsplash.com/photo-1612817288484-6f916006741a?w=400',badge:'-%9',featured:false},
-  {id:147,name:'Parodontax DiÅŸ Macunu',cat:'kozmetik',price:284.90,unit:'75ml',emoji:'ğŸ¦·',img:'https://images.unsplash.com/photo-1585238342024-78d387f4a707?w=400',badge:'KORUYUCU',featured:false},
-  {id:148,name:'PaÅŸabahÃ§e Ã‡ay BardaÄŸÄ±',cat:'ev-gerecleri',price:119.90,unit:'6\'lÄ± set',emoji:'â˜•',img:'https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=400',badge:'-%20',featured:true},
-  {id:149,name:'Cam Kavanoz',cat:'ev-gerecleri',price:24.90,unit:'660ml',emoji:'ğŸ«™',img:'https://images.unsplash.com/photo-1584990347449-39ce4c9af92a?w=400',badge:'',featured:false},
-  {id:150,name:'Plastik Saklama KabÄ±',cat:'ev-gerecleri',price:49.90,unit:'1.6L',emoji:'ğŸ“¦',img:'https://images.unsplash.com/photo-1584990347449-39ce4c9af92a?w=400',badge:'',featured:false},
-  {id:151,name:'Ã‡ilek',cat:'manav',price:79.90,unit:'500g',emoji:'ğŸ“',img:'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=400',badge:'TAZE',featured:true},
-  {id:152,name:'Kiraz',cat:'manav',price:89.90,unit:'500g',emoji:'ğŸ’',img:'https://images.unsplash.com/photo-1559181567-c3190ca9959b?w=400',badge:'MEVSÄ°M',featured:false},
-  {id:153,name:'Ä°spanak',cat:'manav',price:19.90,unit:'demet',emoji:'ğŸ¥¬',img:'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400',badge:'TAZE',featured:false},
-  {id:154,name:'Brokoli',cat:'manav',price:34.90,unit:'adet',emoji:'ğŸ¥¦',img:'https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?w=400',badge:'',featured:false},
-  {id:155,name:'Åeftali',cat:'manav',price:59.90,unit:'1kg',emoji:'ğŸ‘',img:'https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=400',badge:'MEVSÄ°M',featured:false},
-  {id:156,name:'ÃœzÃ¼m Siyah',cat:'manav',price:79.90,unit:'1kg',emoji:'ğŸ‡',img:'https://images.unsplash.com/photo-1515706886582-54c73c5eaf41?w=400',badge:'',featured:false},
-  {id:157,name:'Kavun',cat:'manav',price:44.90,unit:'1 adet',emoji:'ğŸˆ',img:'https://images.unsplash.com/photo-1529563979-ab4b49c0cbc9?w=400',badge:'MEVSÄ°M',featured:false},
-  {id:158,name:'ZeytinyaÄŸÄ± Riviera',cat:'temel-gida',price:299.90,unit:'1L',emoji:'ğŸ«’',img:'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400',badge:'-%14',featured:true},
-  {id:159,name:'KÄ±rmÄ±zÄ± Mercimek',cat:'temel-gida',price:49.90,unit:'1kg',emoji:'ğŸŒ¾',img:'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=400',badge:'',featured:false},
-  {id:160,name:'Domates SalÃ§asÄ±',cat:'temel-gida',price:44.90,unit:'700g',emoji:'ğŸ…',img:'https://images.unsplash.com/photo-1561661741-9cb1b77fd4ba?w=400',badge:'EV YAPIMI',featured:false},
-  {id:161,name:'Elma Sirkesi',cat:'temel-gida',price:39.90,unit:'1L',emoji:'ğŸ',img:'https://images.unsplash.com/photo-1534353341884-c1d87ea7f7b7?w=400',badge:'',featured:false},
-  {id:162,name:'Mercimek Ã‡orbasÄ± HazÄ±r',cat:'temel-gida',price:29.90,unit:'2\'li paket',emoji:'ğŸµ',img:'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400',badge:'',featured:false},
-  {id:163,name:'Susam',cat:'temel-gida',price:34.90,unit:'250g',emoji:'ğŸŒ¿',img:'https://images.unsplash.com/photo-1506368249639-73a05d6f6488?w=400',badge:'',featured:false},
-  {id:164,name:'Ayran BÃ¼yÃ¼k',cat:'sut-sarkuteri',price:44.90,unit:'2L',emoji:'ğŸ¥›',img:'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400',badge:'BÃœYÃœK BOY',featured:false},
-  {id:165,name:'Lor Peyniri',cat:'sut-sarkuteri',price:69.90,unit:'500g',emoji:'ğŸ§€',img:'https://images.unsplash.com/photo-1631435342738-9dfb1de1c66c?w=400',badge:'TAZE',featured:false},
-  {id:166,name:'Sucuk Dilimli',cat:'sut-sarkuteri',price:79.90,unit:'200g',emoji:'ğŸŒ­',img:'https://images.unsplash.com/photo-1562967915-6ba607ff7d05?w=400',badge:'',featured:false},
-  {id:167,name:'Ã‡Ã¶kelek Taze',cat:'sut-sarkuteri',price:59.90,unit:'500g',emoji:'ğŸ«™',img:'https://images.unsplash.com/photo-1603569283847-aa295f0d4caf?w=400',badge:'TAZE',featured:false},
-  {id:168,name:'FÄ±ndÄ±k KavrulmuÅŸ',cat:'atistirmalik',price:129.90,unit:'250g',emoji:'ğŸŒ°',img:'https://images.unsplash.com/photo-1533738363-b7f9aef128ce?w=400',badge:'DOÄAL',featured:true},
-  {id:169,name:'SÃ¼tlÃ¼ Ã‡ikolata',cat:'atistirmalik',price:49.90,unit:'100g',emoji:'ğŸ«',img:'https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=400',badge:'',featured:false},
-  {id:170,name:'Meyveli Kek Dilimi',cat:'atistirmalik',price:29.90,unit:'4\'lÃ¼ paket',emoji:'ğŸ°',img:'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400',badge:'',featured:false},
-  {id:171,name:'Badem Ã‡iÄŸ',cat:'atistirmalik',price:79.90,unit:'100g',emoji:'ğŸ¥œ',img:'https://images.unsplash.com/photo-1547414368-ac947d00b91d?w=400',badge:'SAÄLIKLI',featured:false},
-  {id:172,name:'WC Temizleyici',cat:'temizlik',price:44.90,unit:'750ml',emoji:'ğŸš¿',img:'https://images.unsplash.com/photo-1607344645866-009c320b63e0?w=400',badge:'',featured:false},
-  {id:173,name:'Ã‡amaÅŸÄ±r Suyu Klorlu',cat:'temizlik',price:49.90,unit:'3L',emoji:'ğŸ§´',img:'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=400',badge:'EKONOMÄ°K',featured:false},
-  {id:174,name:'BulaÅŸÄ±k SÃ¼ngeri',cat:'temizlik',price:24.90,unit:'5\'li paket',emoji:'ğŸ§½',img:'https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?w=400',badge:'',featured:false},
-  {id:175,name:'Islak Mendil Limonlu',cat:'temizlik',price:34.90,unit:'72\'li paket',emoji:'ğŸ§»',img:'https://images.unsplash.com/photo-1584515933487-779824d29309?w=400',badge:'',featured:false},
-  {id:176,name:'Taze Portakal Suyu',cat:'icecek',price:49.90,unit:'1L',emoji:'ğŸŠ',img:'https://images.unsplash.com/photo-1504509546545-e000b4a62425?w=400',badge:'TAZE',featured:true},
-  {id:177,name:'NescafÃ© Klasik',cat:'icecek',price:149.90,unit:'100g',emoji:'â˜•',img:'https://images.unsplash.com/photo-1494314671902-399b18174975?w=400',badge:'-%16',featured:false},
-  {id:178,name:'Portakal Limonata',cat:'icecek',price:34.90,unit:'1L',emoji:'ğŸ‹',img:'https://images.unsplash.com/photo-1621263764928-df1444c5e859?w=400',badge:'',featured:false},
-  {id:179,name:'Soda Naneli',cat:'icecek',price:34.90,unit:'6x200ml',emoji:'ğŸ«§',img:'https://images.unsplash.com/photo-1608885898957-a599fb1698d6?w=400',badge:'',featured:false},
-  {id:180,name:'Dana Bonfile',cat:'kasap',price:349.90,unit:'500g',emoji:'ğŸ¥©',img:'https://images.unsplash.com/photo-1558030006-450675393462?w=400',badge:'PREMÄ°UM',featured:true},
-  {id:181,name:'PiliÃ§ Kanat',cat:'kasap',price:99.90,unit:'1kg',emoji:'ğŸ—',img:'https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=400',badge:'TAZE',featured:false},
-  {id:182,name:'Kuzu Pirzola',cat:'kasap',price:299.90,unit:'500g',emoji:'ğŸ¥©',img:'https://images.unsplash.com/photo-1544025162-d76538b2a681?w=400',badge:'SEÃ‡Ä°M',featured:false},
-  {id:183,name:'FÄ±ndÄ±k KremasÄ±',cat:'kahvaltilik',price:149.90,unit:'400g',emoji:'ğŸ«',img:'https://images.unsplash.com/photo-1567206563114-c179906b52b8?w=400',badge:'Ã‡OK SATAN',featured:true},
-  {id:184,name:'Ã‡ay PoÅŸeti',cat:'kahvaltilik',price:79.90,unit:'40\'lÄ±',emoji:'ğŸµ',img:'https://images.unsplash.com/photo-1564890369478-c89ca3d9cde8?w=400',badge:'',featured:false},
-  {id:185,name:'TereyaÄŸlÄ± BiskÃ¼vi',cat:'kahvaltilik',price:39.90,unit:'200g',emoji:'ğŸª',img:'https://images.unsplash.com/photo-1603532648955-039310d9ed75?w=400',badge:'',featured:false},
+  {id:1,name:'Domates',cat:'manav',price:24.90,unit:'kg',emoji:'🍅',img:'',badge:'Taze',featured:true},
+  {id:2,name:'Salatalık',cat:'manav',price:19.90,unit:'kg',emoji:'🥒',img:'',badge:'',featured:false},
+  {id:3,name:'Biber',cat:'manav',price:29.90,unit:'kg',emoji:'🫑',img:'',badge:'',featured:false},
+  {id:4,name:'Patlıcan',cat:'manav',price:22.90,unit:'kg',emoji:'🍆',img:'',badge:'',featured:false},
+  {id:5,name:'Patates',cat:'manav',price:17.90,unit:'kg',emoji:'🥔',img:'',badge:'',featured:true},
+  {id:6,name:'Soğan',cat:'manav',price:14.90,unit:'kg',emoji:'🧅',img:'',badge:'',featured:false},
+  {id:7,name:'Sarımsak',cat:'manav',price:89.90,unit:'kg',emoji:'🧄',img:'',badge:'',featured:false},
+  {id:8,name:'Muz',cat:'manav',price:34.90,unit:'kg',emoji:'🍌',img:'',badge:'İthal',featured:false},
+  {id:9,name:'Elma',cat:'manav',price:27.90,unit:'kg',emoji:'🍎',img:'',badge:'Taze',featured:true},
+  {id:10,name:'Portakal',cat:'manav',price:19.90,unit:'kg',emoji:'🍊',img:'',badge:'',featured:false},
+  {id:11,name:'Un (1 kg)',cat:'temel-gida',price:29.90,unit:'paket',emoji:'🌾',img:'',badge:'',featured:false},
+  {id:12,name:'Şeker (1 kg)',cat:'temel-gida',price:34.90,unit:'paket',emoji:'🍬',img:'',badge:'',featured:false},
+  {id:13,name:'Tuz (1 kg)',cat:'temel-gida',price:12.90,unit:'paket',emoji:'🧂',img:'',badge:'',featured:false},
+  {id:14,name:'Makarna (500g)',cat:'temel-gida',price:19.90,unit:'paket',emoji:'🍝',img:'',badge:'',featured:true},
+  {id:15,name:'Pirinç (1 kg)',cat:'temel-gida',price:44.90,unit:'paket',emoji:'🍚',img:'',badge:'',featured:false},
+  {id:16,name:'Mercimek (1 kg)',cat:'temel-gida',price:39.90,unit:'paket',emoji:'🫘',img:'',badge:'',featured:false},
+  {id:17,name:'Bulgur (1 kg)',cat:'temel-gida',price:32.90,unit:'paket',emoji:'🌾',img:'',badge:'',featured:false},
+  {id:18,name:'Zeytinyağı (1 lt)',cat:'temel-gida',price:249.90,unit:'şişe',emoji:'🫙',img:'',badge:'',featured:true},
+  {id:19,name:'Domates Salçası (830g)',cat:'temel-gida',price:44.90,unit:'teneke',emoji:'🥫',img:'',badge:'',featured:false},
+  {id:20,name:'Nohut (1 kg)',cat:'temel-gida',price:42.90,unit:'paket',emoji:'🫘',img:'',badge:'',featured:false},
+  {id:21,name:'Süt (1 lt)',cat:'sut-sarkuteri',price:29.90,unit:'lt',emoji:'🥛',img:'',badge:'',featured:true},
+  {id:22,name:'Yoğurt (1 kg)',cat:'sut-sarkuteri',price:44.90,unit:'kg',emoji:'🥛',img:'',badge:'',featured:false},
+  {id:23,name:'Beyaz Peynir (500g)',cat:'sut-sarkuteri',price:89.90,unit:'paket',emoji:'🧀',img:'',badge:'',featured:true},
+  {id:24,name:'Kaşar Peynir (400g)',cat:'sut-sarkuteri',price:119.90,unit:'paket',emoji:'🧀',img:'',badge:'',featured:false},
+  {id:25,name:'Tereyağı (250g)',cat:'sut-sarkuteri',price:74.90,unit:'paket',emoji:'🧈',img:'',badge:'',featured:false},
+  {id:26,name:'Yumurta (10\'lu)',cat:'sut-sarkuteri',price:49.90,unit:'koli',emoji:'🥚',img:'',badge:'',featured:true},
+  {id:27,name:'Sucuk (200g)',cat:'sut-sarkuteri',price:84.90,unit:'paket',emoji:'🌭',img:'',badge:'',featured:false},
+  {id:28,name:'Zeytin (400g)',cat:'sut-sarkuteri',price:64.90,unit:'paket',emoji:'🫒',img:'',badge:'',featured:false},
+  {id:29,name:'Cips (200g)',cat:'atistirmalik',price:39.90,unit:'paket',emoji:'🍿',img:'',badge:'',featured:false},
+  {id:30,name:'Çikolata (100g)',cat:'atistirmalik',price:34.90,unit:'adet',emoji:'🍫',img:'',badge:'',featured:false},
+  {id:31,name:'Bisküvi (150g)',cat:'atistirmalik',price:19.90,unit:'paket',emoji:'🍪',img:'',badge:'',featured:false},
+  {id:32,name:'Kuruyemiş Karışık (200g)',cat:'atistirmalik',price:79.90,unit:'paket',emoji:'🥜',img:'',badge:'',featured:true},
+  {id:33,name:'Gofret (4\'lü)',cat:'atistirmalik',price:24.90,unit:'paket',emoji:'🧇',img:'',badge:'',featured:false},
+  {id:34,name:'Kek (400g)',cat:'atistirmalik',price:44.90,unit:'adet',emoji:'🍰',img:'',badge:'',featured:false},
+  {id:35,name:'Bulaşık Deterjanı (1 lt)',cat:'temizlik',price:54.90,unit:'şişe',emoji:'🧴',img:'',badge:'',featured:false},
+  {id:36,name:'Çamaşır Suyu (3 lt)',cat:'temizlik',price:39.90,unit:'şişe',emoji:'🧴',img:'',badge:'',featured:true},
+  {id:37,name:'Deterjan (3 kg)',cat:'temizlik',price:149.90,unit:'paket',emoji:'🧺',img:'',badge:'',featured:false},
+  {id:38,name:'Tuvalet Kağıdı (32\'li)',cat:'temizlik',price:119.90,unit:'paket',emoji:'🧻',img:'',badge:'',featured:true},
+  {id:39,name:'Kağıt Havlu (8\'li)',cat:'temizlik',price:74.90,unit:'paket',emoji:'🧻',img:'',badge:'',featured:false},
+  {id:40,name:'Bulaşık Sünger (5\'li)',cat:'temizlik',price:24.90,unit:'paket',emoji:'🧽',img:'',badge:'',featured:false},
+  {id:41,name:'Su (1.5 lt)',cat:'icecek',price:9.90,unit:'şişe',emoji:'💧',img:'',badge:'',featured:false},
+  {id:42,name:'Meyve Suyu (1 lt)',cat:'icecek',price:34.90,unit:'kutu',emoji:'🧃',img:'',badge:'',featured:true},
+  {id:43,name:'Kola (1 lt)',cat:'icecek',price:29.90,unit:'şişe',emoji:'🥤',img:'',badge:'',featured:false},
+  {id:44,name:'Ayran (500 ml)',cat:'icecek',price:12.90,unit:'şişe',emoji:'🥛',img:'',badge:'',featured:false},
+  {id:45,name:'Çay (500g)',cat:'icecek',price:89.90,unit:'paket',emoji:'🍵',img:'',badge:'',featured:true},
+  {id:46,name:'Kahve (250g)',cat:'icecek',price:119.90,unit:'paket',emoji:'☕',img:'',badge:'',featured:false},
+  {id:47,name:'Gazoz (1 lt)',cat:'icecek',price:19.90,unit:'şişe',emoji:'🫧',img:'',badge:'',featured:false},
+  {id:48,name:'Enerji İçeceği (250ml)',cat:'icecek',price:29.90,unit:'kutu',emoji:'⚡',img:'',badge:'',featured:false},
+  /* ── MANAV EK ÜRÜNLER ── */
+  {id:49,name:'Havuç',cat:'manav',price:34.90,unit:'kg',emoji:'🥕',img:'',badge:'Taze',featured:false},
+  {id:50,name:'Kabak',cat:'manav',price:29.90,unit:'kg',emoji:'🥬',img:'',badge:'',featured:false},
+  {id:51,name:'Karpuz',cat:'manav',price:14.90,unit:'kg',emoji:'🍉',img:'',badge:'Mevsim',featured:true},
+  {id:52,name:'Limon',cat:'manav',price:49.90,unit:'kg',emoji:'🍋',img:'',badge:'',featured:false},
+  {id:53,name:'Kivi',cat:'manav',price:89.90,unit:'kg',emoji:'🥝',img:'',badge:'İthal',featured:false},
+  {id:54,name:'Avokado',cat:'manav',price:54.90,unit:'adet',emoji:'🥑',img:'',badge:'',featured:false},
+  {id:55,name:'Biber Sivri',cat:'manav',price:39.90,unit:'kg',emoji:'🌶️',img:'',badge:'Taze',featured:false},
+  {id:56,name:'Biber Dolma',cat:'manav',price:49.90,unit:'kg',emoji:'🫑',img:'',badge:'',featured:false},
+  {id:57,name:'Marul Kıvırcık',cat:'manav',price:34.90,unit:'adet',emoji:'🥬',img:'',badge:'Taze',featured:false},
+  {id:58,name:'Maydanoz',cat:'manav',price:14.90,unit:'bağ',emoji:'🌿',img:'',badge:'',featured:false},
+  {id:59,name:'Nane',cat:'manav',price:14.90,unit:'bağ',emoji:'🌿',img:'',badge:'',featured:false},
+  {id:60,name:'Roka',cat:'manav',price:14.90,unit:'bağ',emoji:'🌿',img:'',badge:'',featured:false},
+  {id:61,name:'Soğan Yeşil',cat:'manav',price:19.90,unit:'bağ',emoji:'🌱',img:'',badge:'',featured:false},
+  {id:62,name:'Mantar',cat:'manav',price:99.90,unit:'kg',emoji:'🍄',img:'',badge:'',featured:false},
+  {id:63,name:'Pirasa',cat:'manav',price:24.90,unit:'kg',emoji:'🌿',img:'',badge:'',featured:false},
+  {id:64,name:'Domates Pembe',cat:'manav',price:39.90,unit:'kg',emoji:'🍅',img:'',badge:'',featured:false},
+  {id:65,name:'Erik',cat:'manav',price:39.90,unit:'kg',emoji:'🍑',img:'',badge:'Mevsim',featured:false},
+  /* ── TEMEL GIDA EK ÜRÜNLER ── */
+  {id:66,name:'Fasulye Kuru (1 kg)',cat:'temel-gida',price:54.90,unit:'paket',emoji:'🫘',img:'',badge:'',featured:false},
+  {id:67,name:'Ayçiçek Yağı (5 lt)',cat:'temel-gida',price:299.90,unit:'bidon',emoji:'🫙',img:'',badge:'',featured:true},
+  {id:68,name:'Biber Salçası (830g)',cat:'temel-gida',price:44.90,unit:'teneke',emoji:'🥫',img:'',badge:'',featured:false},
+  {id:69,name:'Çorba Tarhana (500g)',cat:'temel-gida',price:39.90,unit:'paket',emoji:'🍲',img:'',badge:'',featured:false},
+  {id:70,name:'Domates Konservesi (800g)',cat:'temel-gida',price:34.90,unit:'teneke',emoji:'🥫',img:'',badge:'',featured:false},
+  {id:71,name:'Baharat Karışık (50g)',cat:'temel-gida',price:19.90,unit:'paket',emoji:'🌶️',img:'',badge:'',featured:false},
+  {id:72,name:'Ketçap (800g)',cat:'temel-gida',price:54.90,unit:'şişe',emoji:'🍅',img:'',badge:'',featured:false},
+  /* ── SÜT & ŞARKÜTERİ EK ÜRÜNLER ── */
+  {id:73,name:'Siyah Zeytin (400g)',cat:'sut-sarkuteri',price:59.90,unit:'paket',emoji:'🫒',img:'',badge:'',featured:false},
+  {id:74,name:'Tahin (300g)',cat:'sut-sarkuteri',price:69.90,unit:'kavanoz',emoji:'🫙',img:'',badge:'',featured:false},
+  {id:75,name:'Bal (250g)',cat:'sut-sarkuteri',price:139.90,unit:'kavanoz',emoji:'🍯',img:'',badge:'',featured:true},
+  {id:76,name:'Salam Hindi (60g)',cat:'sut-sarkuteri',price:34.90,unit:'paket',emoji:'🥩',img:'',badge:'',featured:false},
+  {id:77,name:'Kasap Köfte (350g)',cat:'sut-sarkuteri',price:99.90,unit:'paket',emoji:'🍖',img:'',badge:'Taze',featured:false},
+  {id:78,name:'Tavuk Döner (300g)',cat:'sut-sarkuteri',price:79.90,unit:'paket',emoji:'🍗',img:'',badge:'',featured:false},
+  {id:79,name:'Kaşar Dilimli (200g)',cat:'sut-sarkuteri',price:79.90,unit:'paket',emoji:'🧀',img:'',badge:'',featured:false},
+  {id:80,name:'Helva Sade (200g)',cat:'sut-sarkuteri',price:44.90,unit:'paket',emoji:'🍮',img:'',badge:'',featured:false},
+  /* ── ATIŞTIRMALIK EK ÜRÜNLER ── */
+  {id:81,name:'Leblebi (200g)',cat:'atistirmalik',price:29.90,unit:'paket',emoji:'🫘',img:'',badge:'',featured:false},
+  {id:82,name:'Kraker (70g)',cat:'atistirmalik',price:19.90,unit:'paket',emoji:'🍘',img:'',badge:'',featured:false},
+  {id:83,name:'Çerez Karışık (100g)',cat:'atistirmalik',price:34.90,unit:'paket',emoji:'🥜',img:'',badge:'',featured:false},
+  {id:84,name:'Helvalı Gofret (4\'lü)',cat:'atistirmalik',price:19.90,unit:'paket',emoji:'🍫',img:'',badge:'',featured:false},
+  /* ── TEMİZLİK EK ÜRÜNLER ── */
+  {id:85,name:'Cam Temizleyici (500ml)',cat:'temizlik',price:44.90,unit:'şişe',emoji:'🧴',img:'',badge:'',featured:false},
+  {id:86,name:'Sıvı Sabun (400ml)',cat:'temizlik',price:39.90,unit:'şişe',emoji:'🧴',img:'',badge:'',featured:false},
+  {id:87,name:'Duş Jeli (500ml)',cat:'temizlik',price:54.90,unit:'şişe',emoji:'🧴',img:'',badge:'',featured:false},
+  {id:88,name:'Kağıt Mendil (10\'lu)',cat:'temizlik',price:24.90,unit:'paket',emoji:'🧻',img:'',badge:'',featured:false},
+  /* ── İÇECEK EK ÜRÜNLER ── */
+  {id:89,name:'Maden Suyu (200ml)',cat:'icecek',price:9.90,unit:'şişe',emoji:'💧',img:'',badge:'',featured:false},
+  {id:90,name:'Limonata (1 lt)',cat:'icecek',price:29.90,unit:'şişe',emoji:'🍋',img:'',badge:'',featured:false},
+  {id:91,name:'Şalgam (1 lt)',cat:'icecek',price:24.90,unit:'şişe',emoji:'🟣',img:'',badge:'',featured:false},
+  {id:92,name:'Ice Tea (1.5 lt)',cat:'icecek',price:39.90,unit:'şişe',emoji:'🍵',img:'',badge:'',featured:false},
+  {id:93,name:'Kola (2.5 lt)',cat:'icecek',price:44.90,unit:'şişe',emoji:'🥤',img:'',badge:'',featured:false},
+  /* ── KOZMETİK (YENİ KATEGORİ) ── */
+  {id:94,name:'Diş Macunu (75ml)',cat:'kozmetik',price:39.90,unit:'tüp',emoji:'🦷',img:'',badge:'',featured:true},
+  {id:95,name:'Şampuan (400ml)',cat:'kozmetik',price:74.90,unit:'şişe',emoji:'🧴',img:'',badge:'',featured:false},
+  {id:96,name:'Saç Kremi (400ml)',cat:'kozmetik',price:69.90,unit:'şişe',emoji:'🧴',img:'',badge:'',featured:false},
+  {id:97,name:'Deodorant Roll-On (50ml)',cat:'kozmetik',price:89.90,unit:'adet',emoji:'✨',img:'',badge:'',featured:false},
+  {id:98,name:'El Kremi (75ml)',cat:'kozmetik',price:39.90,unit:'tüp',emoji:'🧴',img:'',badge:'',featured:false},
+  {id:99,name:'Kolonya (400ml)',cat:'kozmetik',price:99.90,unit:'şişe',emoji:'💫',img:'',badge:'',featured:true},
+  {id:100,name:'Tıraş Köpüğü (200ml)',cat:'kozmetik',price:59.90,unit:'kutu',emoji:'🪒',img:'',badge:'',featured:false},
+  {id:101,name:'Dudak Balsamı',cat:'kozmetik',price:29.90,unit:'adet',emoji:'💄',img:'',badge:'',featured:false},
+  /* ── ANNE & BEBEK (YENİ KATEGORİ) ── */
+  {id:102,name:'Bebek Bezi S (54\'lü)',cat:'anne-bebek',price:249.90,unit:'paket',emoji:'👶',img:'',badge:'',featured:true},
+  {id:103,name:'Bebek Bezi M (44\'lü)',cat:'anne-bebek',price:279.90,unit:'paket',emoji:'👶',img:'',badge:'',featured:false},
+  {id:104,name:'Bebek Bezi L (36\'lı)',cat:'anne-bebek',price:299.90,unit:'paket',emoji:'👶',img:'',badge:'',featured:false},
+  {id:105,name:'Bebek Islak Mendil (72\'li)',cat:'anne-bebek',price:39.90,unit:'paket',emoji:'🧻',img:'',badge:'',featured:false},
+  {id:106,name:'Bebek Maması Tahıllı (400g)',cat:'anne-bebek',price:189.90,unit:'kutu',emoji:'🍼',img:'',badge:'',featured:false},
+  {id:107,name:'Bebek Şampuanı (200ml)',cat:'anne-bebek',price:89.90,unit:'şişe',emoji:'🧴',img:'',badge:'',featured:false},
+  {id:108,name:'Pirinç Unu Bebek (400g)',cat:'anne-bebek',price:79.90,unit:'kutu',emoji:'🍚',img:'',badge:'',featured:false},
+  /* ── EV GEREÇLERİ (YENİ KATEGORİ) ── */
+  {id:109,name:'Çöp Torbası (10\'li)',cat:'ev-gerecleri',price:39.90,unit:'rulo',emoji:'🗑️',img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400',badge:'',featured:false},
+  {id:110,name:'Mutfak Temizlik Bezi (5\'li)',cat:'ev-gerecleri',price:29.90,unit:'paket',emoji:'🧹',img:'https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400',badge:'',featured:false},
+  {id:111,name:'Folyo (30m)',cat:'ev-gerecleri',price:49.90,unit:'rulo',emoji:'📦',img:'https://images.unsplash.com/photo-1584990347449-39ce4c9af92a?w=400',badge:'',featured:false},
+  {id:112,name:'Pil AA (4\'lü)',cat:'ev-gerecleri',price:59.90,unit:'paket',emoji:'🔋',img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400',badge:'YENİ',featured:true},
+  {id:113,name:'Cam Bardak Seti (6\'lı)',cat:'ev-gerecleri',price:149.90,unit:'set',emoji:'🥃',img:'https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=400',badge:'-%17',featured:true},
+  {id:114,name:'Plastik Saklama Kabı',cat:'ev-gerecleri',price:49.90,unit:'adet',emoji:'📦',img:'https://images.unsplash.com/photo-1584990347449-39ce4c9af92a?w=400',badge:'',featured:false},
+  {id:115,name:'Çay Bardağı Seti (6\'lı)',cat:'ev-gerecleri',price:129.90,unit:'set',emoji:'☕',img:'https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=400',badge:'',featured:false},
+  {id:116,name:'Mutfak Makası',cat:'ev-gerecleri',price:89.90,unit:'adet',emoji:'✂️',img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400',badge:'',featured:false},
+  {id:117,name:'Dana Kıyma',cat:'kasap',price:189.90,unit:'500g',emoji:'🥩',img:'https://images.unsplash.com/photo-1588347818481-27bd27e77b4e?w=400',badge:'TAZE',featured:true},
+  {id:118,name:'Kasap Köfte',cat:'kasap',price:134.90,unit:'350g',emoji:'🥩',img:'https://images.unsplash.com/photo-1529694157872-4e0c0f3b238b?w=400',badge:'ÇOK SATAN',featured:true},
+  {id:119,name:'Piliç Döner',cat:'kasap',price:84.90,unit:'300g',emoji:'🍗',img:'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=400',badge:'-%5',featured:false},
+  {id:120,name:'Tavuk But',cat:'kasap',price:179.90,unit:'1kg',emoji:'🍗',img:'https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=400',badge:'TAZE',featured:true},
+  {id:121,name:'Bütün Piliç',cat:'kasap',price:149.90,unit:'1kg',emoji:'🐔',img:'https://images.unsplash.com/photo-1600891964599-f61ba0e24092?w=400',badge:'',featured:false},
+  {id:122,name:'Hamburger Köfte',cat:'kasap',price:264.90,unit:'500g',emoji:'🍔',img:'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=400',badge:'',featured:false},
+  {id:123,name:'Parmak Köfte',cat:'kasap',price:134.90,unit:'400g',emoji:'🍢',img:'https://images.unsplash.com/photo-1529694157872-4e0c0f3b238b?w=400',badge:'-%10',featured:false},
+  {id:124,name:'Dana Sucuk İnce',cat:'kasap',price:124.90,unit:'200g',emoji:'🌭',img:'https://images.unsplash.com/photo-1562967915-6ba607ff7d05?w=400',badge:'',featured:false},
+  {id:125,name:'Çam Balı',cat:'kahvaltilik',price:344.90,unit:'460g',emoji:'🍯',img:'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400',badge:'-%9',featured:true},
+  {id:126,name:'Kayısı Reçeli',cat:'kahvaltilik',price:79.90,unit:'380g',emoji:'🫙',img:'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=400',badge:'',featured:false},
+  {id:127,name:'Sele Zeytin',cat:'kahvaltilik',price:134.90,unit:'800g',emoji:'🫒',img:'https://images.unsplash.com/photo-1572635148818-ef6fd45eb394?w=400',badge:'-%10',featured:true},
+  {id:128,name:'Kaşar Peyniri',cat:'kahvaltilik',price:194.90,unit:'300g',emoji:'🧀',img:'https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=400',badge:'İNDİRİM',featured:false},
+  {id:129,name:'Yumurta',cat:'kahvaltilik',price:59.90,unit:'10\'lu',emoji:'🥚',img:'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=400',badge:'TAZE',featured:true},
+  {id:130,name:'Tahin Pekmez',cat:'kahvaltilik',price:84.90,unit:'350g',emoji:'🫙',img:'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400',badge:'',featured:false},
+  {id:131,name:'Fıstık Ezmesi',cat:'kahvaltilik',price:124.90,unit:'350g',emoji:'🥜',img:'https://images.unsplash.com/photo-1567218360-a7898e9b8bcc?w=400',badge:'YENİ',featured:false},
+  {id:132,name:'Çilek Reçeli',cat:'kahvaltilik',price:74.90,unit:'380g',emoji:'🍓',img:'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=400',badge:'',featured:false},
+  {id:133,name:'Enginar',cat:'manav',price:64.90,unit:'adet',emoji:'🌿',img:'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400',badge:'MEVSİM',featured:false},
+  {id:134,name:'Sarımsak',cat:'manav',price:134.90,unit:'1kg',emoji:'🧄',img:'https://images.unsplash.com/photo-1540148426945-6cf22a6b2383?w=400',badge:'-%10',featured:false},
+  {id:135,name:'Elma Granny Smith',cat:'manav',price:94.90,unit:'1kg',emoji:'🍏',img:'https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=400',badge:'',featured:false},
+  {id:136,name:'Patlıcan',cat:'manav',price:59.90,unit:'1kg',emoji:'🍆',img:'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400',badge:'KAMPANYA',featured:false},
+  {id:137,name:'RedBull Enerji',cat:'icecek',price:64.90,unit:'250ml',emoji:'⚡',img:'https://images.unsplash.com/photo-1570197571499-166b36435e9f?w=400',badge:'ENERJİ',featured:true},
+  {id:138,name:'Sprite',cat:'icecek',price:59.90,unit:'1.5L',emoji:'🥤',img:'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400',badge:'',featured:false},
+  {id:139,name:'Coca-Cola',cat:'icecek',price:69.90,unit:'2.5L',emoji:'🥤',img:'https://images.unsplash.com/photo-1629203851122-3726ecdf080e?w=400',badge:'AİLE BOY',featured:false},
+  {id:140,name:'Fanta Portakal',cat:'icecek',price:39.90,unit:'500ml',emoji:'🟠',img:'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400',badge:'',featured:false},
+  {id:141,name:'Powerade',cat:'icecek',price:64.90,unit:'500ml',emoji:'💪',img:'https://images.unsplash.com/photo-1571165936792-697b96b5f671?w=400',badge:'',featured:false},
+  {id:142,name:'Ajax Fabuloso Lavanta',cat:'temizlik',price:109.90,unit:'1L',emoji:'🧹',img:'https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400',badge:'-%8',featured:false},
+  {id:143,name:'Fairy Platinum',cat:'temizlik',price:399.90,unit:'50 tablet',emoji:'🍽️',img:'https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?w=400',badge:'EKONOMİK',featured:true},
+  {id:144,name:'Hijyenik Ped',cat:'temizlik',price:64.90,unit:'20\'li',emoji:'🩹',img:'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=400',badge:'',featured:false},
+  {id:145,name:'Rexona Deo Erkek',cat:'kozmetik',price:119.90,unit:'150ml',emoji:'🌿',img:'https://images.unsplash.com/photo-1599305090598-fe179d501227?w=400',badge:'-%7',featured:false},
+  {id:146,name:'Gillette Fusion Yedek',cat:'kozmetik',price:544.90,unit:'2\'li',emoji:'🪒',img:'https://images.unsplash.com/photo-1612817288484-6f916006741a?w=400',badge:'-%9',featured:false},
+  {id:147,name:'Parodontax Diş Macunu',cat:'kozmetik',price:284.90,unit:'75ml',emoji:'🦷',img:'https://images.unsplash.com/photo-1585238342024-78d387f4a707?w=400',badge:'KORUYUCU',featured:false},
+  {id:148,name:'Paşabahçe Çay Bardağı',cat:'ev-gerecleri',price:119.90,unit:'6\'lı set',emoji:'☕',img:'https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=400',badge:'-%20',featured:true},
+  {id:149,name:'Cam Kavanoz',cat:'ev-gerecleri',price:24.90,unit:'660ml',emoji:'🫙',img:'https://images.unsplash.com/photo-1584990347449-39ce4c9af92a?w=400',badge:'',featured:false},
+  {id:150,name:'Plastik Saklama Kabı',cat:'ev-gerecleri',price:49.90,unit:'1.6L',emoji:'📦',img:'https://images.unsplash.com/photo-1584990347449-39ce4c9af92a?w=400',badge:'',featured:false},
+  {id:151,name:'Çilek',cat:'manav',price:79.90,unit:'500g',emoji:'🍓',img:'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=400',badge:'TAZE',featured:true},
+  {id:152,name:'Kiraz',cat:'manav',price:89.90,unit:'500g',emoji:'🍒',img:'https://images.unsplash.com/photo-1559181567-c3190ca9959b?w=400',badge:'MEVSİM',featured:false},
+  {id:153,name:'İspanak',cat:'manav',price:19.90,unit:'demet',emoji:'🥬',img:'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400',badge:'TAZE',featured:false},
+  {id:154,name:'Brokoli',cat:'manav',price:34.90,unit:'adet',emoji:'🥦',img:'https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?w=400',badge:'',featured:false},
+  {id:155,name:'Şeftali',cat:'manav',price:59.90,unit:'1kg',emoji:'🍑',img:'https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=400',badge:'MEVSİM',featured:false},
+  {id:156,name:'Üzüm Siyah',cat:'manav',price:79.90,unit:'1kg',emoji:'🍇',img:'https://images.unsplash.com/photo-1515706886582-54c73c5eaf41?w=400',badge:'',featured:false},
+  {id:157,name:'Kavun',cat:'manav',price:44.90,unit:'1 adet',emoji:'🍈',img:'https://images.unsplash.com/photo-1529563979-ab4b49c0cbc9?w=400',badge:'MEVSİM',featured:false},
+  {id:158,name:'Zeytinyağı Riviera',cat:'temel-gida',price:299.90,unit:'1L',emoji:'🫒',img:'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400',badge:'-%14',featured:true},
+  {id:159,name:'Kırmızı Mercimek',cat:'temel-gida',price:49.90,unit:'1kg',emoji:'🌾',img:'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=400',badge:'',featured:false},
+  {id:160,name:'Domates Salçası',cat:'temel-gida',price:44.90,unit:'700g',emoji:'🍅',img:'https://images.unsplash.com/photo-1561661741-9cb1b77fd4ba?w=400',badge:'EV YAPIMI',featured:false},
+  {id:161,name:'Elma Sirkesi',cat:'temel-gida',price:39.90,unit:'1L',emoji:'🍎',img:'https://images.unsplash.com/photo-1534353341884-c1d87ea7f7b7?w=400',badge:'',featured:false},
+  {id:162,name:'Mercimek Çorbası Hazır',cat:'temel-gida',price:29.90,unit:'2\'li paket',emoji:'🍵',img:'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400',badge:'',featured:false},
+  {id:163,name:'Susam',cat:'temel-gida',price:34.90,unit:'250g',emoji:'🌿',img:'https://images.unsplash.com/photo-1506368249639-73a05d6f6488?w=400',badge:'',featured:false},
+  {id:164,name:'Ayran Büyük',cat:'sut-sarkuteri',price:44.90,unit:'2L',emoji:'🥛',img:'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400',badge:'BÜYÜK BOY',featured:false},
+  {id:165,name:'Lor Peyniri',cat:'sut-sarkuteri',price:69.90,unit:'500g',emoji:'🧀',img:'https://images.unsplash.com/photo-1631435342738-9dfb1de1c66c?w=400',badge:'TAZE',featured:false},
+  {id:166,name:'Sucuk Dilimli',cat:'sut-sarkuteri',price:79.90,unit:'200g',emoji:'🌭',img:'https://images.unsplash.com/photo-1562967915-6ba607ff7d05?w=400',badge:'',featured:false},
+  {id:167,name:'Çökelek Taze',cat:'sut-sarkuteri',price:59.90,unit:'500g',emoji:'🫙',img:'https://images.unsplash.com/photo-1603569283847-aa295f0d4caf?w=400',badge:'TAZE',featured:false},
+  {id:168,name:'Fındık Kavrulmuş',cat:'atistirmalik',price:129.90,unit:'250g',emoji:'🌰',img:'https://images.unsplash.com/photo-1533738363-b7f9aef128ce?w=400',badge:'DOĞAL',featured:true},
+  {id:169,name:'Sütlü Çikolata',cat:'atistirmalik',price:49.90,unit:'100g',emoji:'🍫',img:'https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=400',badge:'',featured:false},
+  {id:170,name:'Meyveli Kek Dilimi',cat:'atistirmalik',price:29.90,unit:'4\'lü paket',emoji:'🍰',img:'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400',badge:'',featured:false},
+  {id:171,name:'Badem Çiğ',cat:'atistirmalik',price:79.90,unit:'100g',emoji:'🥜',img:'https://images.unsplash.com/photo-1547414368-ac947d00b91d?w=400',badge:'SAĞLIKLI',featured:false},
+  {id:172,name:'WC Temizleyici',cat:'temizlik',price:44.90,unit:'750ml',emoji:'🚿',img:'https://images.unsplash.com/photo-1607344645866-009c320b63e0?w=400',badge:'',featured:false},
+  {id:173,name:'Çamaşır Suyu Klorlu',cat:'temizlik',price:49.90,unit:'3L',emoji:'🧴',img:'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=400',badge:'EKONOMİK',featured:false},
+  {id:174,name:'Bulaşık Süngeri',cat:'temizlik',price:24.90,unit:'5\'li paket',emoji:'🧽',img:'https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?w=400',badge:'',featured:false},
+  {id:175,name:'Islak Mendil Limonlu',cat:'temizlik',price:34.90,unit:'72\'li paket',emoji:'🧻',img:'https://images.unsplash.com/photo-1584515933487-779824d29309?w=400',badge:'',featured:false},
+  {id:176,name:'Taze Portakal Suyu',cat:'icecek',price:49.90,unit:'1L',emoji:'🍊',img:'https://images.unsplash.com/photo-1504509546545-e000b4a62425?w=400',badge:'TAZE',featured:true},
+  {id:177,name:'Nescafé Klasik',cat:'icecek',price:149.90,unit:'100g',emoji:'☕',img:'https://images.unsplash.com/photo-1494314671902-399b18174975?w=400',badge:'-%16',featured:false},
+  {id:178,name:'Portakal Limonata',cat:'icecek',price:34.90,unit:'1L',emoji:'🍋',img:'https://images.unsplash.com/photo-1621263764928-df1444c5e859?w=400',badge:'',featured:false},
+  {id:179,name:'Soda Naneli',cat:'icecek',price:34.90,unit:'6x200ml',emoji:'🫧',img:'https://images.unsplash.com/photo-1608885898957-a599fb1698d6?w=400',badge:'',featured:false},
+  {id:180,name:'Dana Bonfile',cat:'kasap',price:349.90,unit:'500g',emoji:'🥩',img:'https://images.unsplash.com/photo-1558030006-450675393462?w=400',badge:'PREMİUM',featured:true},
+  {id:181,name:'Piliç Kanat',cat:'kasap',price:99.90,unit:'1kg',emoji:'🍗',img:'https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=400',badge:'TAZE',featured:false},
+  {id:182,name:'Kuzu Pirzola',cat:'kasap',price:299.90,unit:'500g',emoji:'🥩',img:'https://images.unsplash.com/photo-1544025162-d76538b2a681?w=400',badge:'SEÇİM',featured:false},
+  {id:183,name:'Fındık Kreması',cat:'kahvaltilik',price:149.90,unit:'400g',emoji:'🍫',img:'https://images.unsplash.com/photo-1567206563114-c179906b52b8?w=400',badge:'ÇOK SATAN',featured:true},
+  {id:184,name:'Çay Poşeti',cat:'kahvaltilik',price:79.90,unit:'40\'lı',emoji:'🍵',img:'https://images.unsplash.com/photo-1564890369478-c89ca3d9cde8?w=400',badge:'',featured:false},
+  {id:185,name:'Tereyağlı Bisküvi',cat:'kahvaltilik',price:39.90,unit:'200g',emoji:'🍪',img:'https://images.unsplash.com/photo-1603532648955-039310d9ed75?w=400',badge:'',featured:false},
 ];
 const DEFAULT_PROMOS={
-  'AYDIN5':{pct:5,gift:null,text:'%5 Ä°NDÄ°RÄ°M UYGULANDI!'},
-  'AYDIN10':{pct:10,gift:null,text:'%10 Ä°NDÄ°RÄ°M UYGULANDI!'},
-  'EKMEK':{pct:0,gift:'SÄ±cak Somun Ekmek (Hediye)',text:'HEDÄ°YE EKMEK UYGULANDI!'},
-  'HEDIYE':{pct:0,gift:'Ãœlker Ã‡ikolatalÄ± Gofret (Hediye)',text:'HEDÄ°YE Ã‡Ä°KOLATA UYGULANDI!'},
-  'CIKO':{pct:0,gift:'Ãœlker Ã‡ikolatalÄ± Gofret (Hediye)',text:'HEDÄ°YE Ã‡Ä°KOLATA UYGULANDI!'},
-  'BEDAVA':{pct:0,gift:'Ãœcretsiz Adrese Teslimat',text:'ÃœCRETSÄ°Z KARGO UYGULANDI!'},
+  'AYDIN5':{pct:5,gift:null,text:'%5 İNDİRİM UYGULANDI!'},
+  'AYDIN10':{pct:10,gift:null,text:'%10 İNDİRİM UYGULANDI!'},
+  'EKMEK':{pct:0,gift:'Sıcak Somun Ekmek (Hediye)',text:'HEDİYE EKMEK UYGULANDI!'},
+  'HEDIYE':{pct:0,gift:'Ülker Çikolatalı Gofret (Hediye)',text:'HEDİYE ÇİKOLATA UYGULANDI!'},
+  'CIKO':{pct:0,gift:'Ülker Çikolatalı Gofret (Hediye)',text:'HEDİYE ÇİKOLATA UYGULANDI!'},
+  'BEDAVA':{pct:0,gift:'Ücretsiz Adrese Teslimat',text:'ÜCRETSİZ KARGO UYGULANDI!'},
 };
 const DEFAULT_SETTINGS={
   threshold:1000,waNumber:'905444789461',
-  announcements:'ğŸš€ 1000â‚º Ã¼zeri sipariÅŸlerde ÃœCRETSÄ°Z TESLÄ°MAT!\nğŸ¥¬ Taze meyve sebze her gÃ¼n!\nğŸ AYDIN10 kodu ile %10 indirim!',
-  branch1Name:'Geyras (Merkez) Åube',branch1Addr:'Geyras Mah. AydÄ±n Cad. No:1',
-  branch2Name:'Efeler Åube',branch2Addr:'Efeler Mah. Gros Cad. No:5',
+  announcements:'🚀 1000₺ üzeri siparişlerde ÜCRETSİZ TESLİMAT!\n🥬 Taze meyve sebze her gün!\n🎁 AYDIN10 kodu ile %10 indirim!',
+  branch1Name:'Geyras (Merkez) Şube',branch1Addr:'Geyras Mah. Aydın Cad. No:1',
+  branch2Name:'Efeler Şube',branch2Addr:'Efeler Mah. Gros Cad. No:5',
   adminPass:'aydin2026'
 };
 
-/* â”€â”€ STATE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── STATE ───────────────────────────────────────────────────────────── */
 let products=[],orders=[],promos={},settings={},campaigns=[],stock={},invoices=[];
 let invLineCounter=0;
 
@@ -1018,7 +1018,7 @@ async function saveDb(coll, data) {
     let full = {};
     if(r.ok) full = await r.json();
     full[coll] = data;
-    await fetch(DB_URL, { method:'PUT', headers:{'Content-Type':'application/json', 'Accept':'application/json'}, body:JSON.stringify(full) });
+    await fetch(DB_URL, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(full) });
   } catch(e) {}
 }
 async function initBackendData() {
@@ -1048,7 +1048,7 @@ function persistSettings(){
   localStorage.setItem('ag_settings',JSON.stringify(settings));
 }
 
-/* â”€â”€ UTILS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── UTILS ──────────────────────────────────────────────────────────── */
 function toast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg;
@@ -1058,12 +1058,12 @@ function toast(msg){
 }
 function esc(s){const d=document.createElement('div');d.textContent=String(s??'');return d.innerHTML;}
 function fmtDate(ts){if(!ts)return'-';const d=new Date(ts);return d.toLocaleDateString('tr-TR')+' '+d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});}
-function fmtPrice(n){return(parseFloat(n)||0).toFixed(2).replace('.',',')+' â‚º';}
+function fmtPrice(n){return(parseFloat(n)||0).toFixed(2).replace('.',',')+' ₺';}
 function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
-function catLabel(c){return({'manav':'ğŸ¥¦ Manav','kasap':'ğŸ¥© Kasap','temel-gida':'ğŸŒ¾ Temel GÄ±da','sut-sarkuteri':'ğŸ§€ SÃ¼t & ÅarkÃ¼teri','atistirmalik':'ğŸ¿ AtÄ±ÅŸtÄ±rmalÄ±k','temizlik':'ğŸ§¹ Temizlik','icecek':'ğŸ§ƒ Ä°Ã§ecek','kozmetik':'ğŸ’„ Kozmetik','anne-bebek':'ğŸ‘¶ Anne & Bebek','ev-gerecleri':'ğŸ  Ev GereÃ§leri'})[c]||c;}
+function catLabel(c){return({'manav':'🥦 Manav','kasap':'🥩 Kasap','temel-gida':'🌾 Temel Gıda','sut-sarkuteri':'🧀 Süt & Şarküteri','atistirmalik':'🍿 Atıştırmalık','temizlik':'🧹 Temizlik','icecek':'🧃 İçecek','kozmetik':'💄 Kozmetik','anne-bebek':'👶 Anne & Bebek','ev-gerecleri':'🏠 Ev Gereçleri'})[c]||c;}
 function getStockStatus(p){const s=stock[p.id]||{qty:50,min:5};if(s.qty<=0)return'out';if(s.qty<=s.min)return'low';return'ok';}
-function stockBadge(p){return({'out':'<span class="badge badge-red">ğŸ”´ TÃ¼kendi</span>','low':'<span class="badge badge-yellow">ğŸŸ¡ Kritik</span>','ok':'<span class="badge badge-green">ğŸŸ¢ Yeterli</span>'})[getStockStatus(p)];}
+function stockBadge(p){return({'out':'<span class="badge badge-red">🔴 Tükendi</span>','low':'<span class="badge badge-yellow">🟡 Kritik</span>','ok':'<span class="badge badge-green">🟢 Yeterli</span>'})[getStockStatus(p)];}
 function isActiveCampaign(c){
   if(!c.active)return false;
   const now=new Date();
@@ -1072,7 +1072,7 @@ function isActiveCampaign(c){
   return true;
 }
 
-/* â”€â”€ LOGIN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── LOGIN ──────────────────────────────────────────────────────────── */
 function doLogin(){
   const u=document.getElementById('loginUser').value.trim();
   const p=document.getElementById('loginPass').value;
@@ -1091,16 +1091,16 @@ function doLogout(){location.reload();}
 function changePass(){
   const n=document.getElementById('setNewPass').value;
   const n2=document.getElementById('setNewPass2').value;
-  if(!n){toast('Åifre boÅŸ olamaz');return;}
-  if(n!==n2){toast('Åifreler eÅŸleÅŸmiyor');return;}
+  if(!n){toast('Şifre boş olamaz');return;}
+  if(n!==n2){toast('Şifreler eşleşmiyor');return;}
   settings.adminPass=n;
   persistSettings();
   document.getElementById('setNewPass').value='';
   document.getElementById('setNewPass2').value='';
-  toast('Åifre gÃ¼ncellendi âœ“');
+  toast('Şifre güncellendi ✓');
 }
 
-/* â”€â”€ NAVIGATION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── NAVIGATION ─────────────────────────────────────────────────────── */
 const PAGE_RENDERERS={dash:renderDash,products:renderProducts,orders:renderOrders,campaigns:renderCampaigns,invoices:renderInvoices,stock:renderStock,coupons:renderCoupons,settings:renderSettingsForm};
 const PAGE_INDICES={dash:0,products:1,orders:2,campaigns:3,invoices:4,stock:5,coupons:6,settings:7};
 function showPage(id){
@@ -1124,7 +1124,7 @@ function closeSidebar(){
   document.getElementById('hamburgerBtn')?.classList.remove('open');
 }
 
-/* â”€â”€ DASHBOARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── DASHBOARD ──────────────────────────────────────────────────────── */
 function renderDash(){
   loadData();
   processOrderStock();
@@ -1134,24 +1134,24 @@ function renderDash(){
   const criticalStock=products.filter(p=>getStockStatus(p)!=='ok').length;
   const activeCamps=campaigns.filter(isActiveCampaign).length;
   document.getElementById('dashStats').innerHTML=`
-    <div class="stat-card"><div class="stat-icon orange">ğŸ›’</div><div class="stat-val">${orders.length}</div><div class="stat-label">Toplam SipariÅŸ</div></div>
-    <div class="stat-card"><div class="stat-icon green">ğŸ’°</div><div class="stat-val">${fmtPrice(revenue)}</div><div class="stat-label">Toplam Ciro</div></div>
-    <div class="stat-card"><div class="stat-icon blue">ğŸ“¦</div><div class="stat-val">${products.length}</div><div class="stat-label">ÃœrÃ¼n SayÄ±sÄ±</div></div>
-    <div class="stat-card"><div class="stat-icon purple">ğŸ“…</div><div class="stat-val">${activeCamps}</div><div class="stat-label">Aktif Kampanya</div></div>
-    <div class="stat-card"><div class="stat-icon ${criticalStock>0?'red':'green'}">${criticalStock>0?'âš ï¸':'âœ…'}</div><div class="stat-val">${criticalStock}</div><div class="stat-label">Kritik Stok</div></div>
-    <div class="stat-card"><div class="stat-icon yellow">ğŸŸï¸</div><div class="stat-val">${Object.keys(promos).length}</div><div class="stat-label">Aktif Kupon</div></div>
+    <div class="stat-card"><div class="stat-icon orange">🛒</div><div class="stat-val">${orders.length}</div><div class="stat-label">Toplam Sipariş</div></div>
+    <div class="stat-card"><div class="stat-icon green">💰</div><div class="stat-val">${fmtPrice(revenue)}</div><div class="stat-label">Toplam Ciro</div></div>
+    <div class="stat-card"><div class="stat-icon blue">📦</div><div class="stat-val">${products.length}</div><div class="stat-label">Ürün Sayısı</div></div>
+    <div class="stat-card"><div class="stat-icon purple">📅</div><div class="stat-val">${activeCamps}</div><div class="stat-label">Aktif Kampanya</div></div>
+    <div class="stat-card"><div class="stat-icon ${criticalStock>0?'red':'green'}">${criticalStock>0?'⚠️':'✅'}</div><div class="stat-val">${criticalStock}</div><div class="stat-label">Kritik Stok</div></div>
+    <div class="stat-card"><div class="stat-icon yellow">🎟️</div><div class="stat-val">${Object.keys(promos).length}</div><div class="stat-label">Aktif Kupon</div></div>
   `;
   const outProds=products.filter(p=>getStockStatus(p)==='out');
   const lowProds=products.filter(p=>getStockStatus(p)==='low');
   let alerts='';
-  if(outProds.length) alerts+=`<div class="alert alert-danger">ğŸ”´ ${outProds.length} Ã¼rÃ¼n tÃ¼kendi: ${outProds.slice(0,5).map(p=>esc(p.name)).join(', ')}${outProds.length>5?'...':''}</div>`;
-  if(lowProds.length) alerts+=`<div class="alert alert-warn">ğŸŸ¡ ${lowProds.length} Ã¼rÃ¼n kritik stokta: ${lowProds.slice(0,5).map(p=>esc(p.name)).join(', ')}${lowProds.length>5?'...':''}</div>`;
+  if(outProds.length) alerts+=`<div class="alert alert-danger">🔴 ${outProds.length} ürün tükendi: ${outProds.slice(0,5).map(p=>esc(p.name)).join(', ')}${outProds.length>5?'...':''}</div>`;
+  if(lowProds.length) alerts+=`<div class="alert alert-warn">🟡 ${lowProds.length} ürün kritik stokta: ${lowProds.slice(0,5).map(p=>esc(p.name)).join(', ')}${lowProds.length>5?'...':''}</div>`;
   const expCamps=campaigns.filter(c=>c.end&&new Date(c.end)<new Date());
-  if(expCamps.length) alerts+=`<div class="alert alert-info">ğŸ“… ${expCamps.length} kampanya sÃ¼resi doldu.</div>`;
+  if(expCamps.length) alerts+=`<div class="alert alert-info">📅 ${expCamps.length} kampanya süresi doldu.</div>`;
   document.getElementById('dashAlerts').innerHTML=alerts;
 
   const recent=[...orders].reverse().slice(0,5);
-  const sLabel=['AlÄ±ndÄ±','HazÄ±rlanÄ±yor','Yolda','Teslim Edildi'];
+  const sLabel=['Alındı','Hazırlanıyor','Yolda','Teslim Edildi'];
   const sCls=['badge-yellow','badge-orange','badge-blue','badge-green'];
   document.getElementById('dashOrders').innerHTML=recent.length?
     `<div style="overflow-x:auto"><table><tbody>${recent.map(o=>`<tr>
@@ -1160,35 +1160,35 @@ function renderDash(){
       <td style="font-weight:700;color:var(--orange)">${fmtPrice(o.total)}</td>
       <td><span class="badge ${sCls[o.status||0]}">${sLabel[o.status||0]}</span></td>
     </tr>`).join('')}</tbody></table></div>`:
-    '<p style="color:var(--gray400);font-size:13px;text-align:center;padding:20px">HenÃ¼z sipariÅŸ yok</p>';
+    '<p style="color:var(--gray400);font-size:13px;text-align:center;padding:20px">Henüz sipariş yok</p>';
 
   const salesMap={};
   orders.forEach(o=>(o.items||[]).forEach(i=>{salesMap[i.name]=(salesMap[i.name]||0)+i.quantity;}));
   const top=Object.entries(salesMap).sort((a,b)=>b[1]-a[1]).slice(0,5);
   document.getElementById('dashBestSellers').innerHTML=top.length?
     top.map(([name,qty],i)=>`<div class="bestseller-row"><div class="bs-rank">${i+1}</div><div style="flex:1;font-size:13px;font-weight:500">${esc(name)}</div><div style="font-size:12px;color:var(--gray500)">${qty} adet</div></div>`).join(''):
-    '<p style="color:var(--gray400);font-size:13px;text-align:center;padding:20px">SipariÅŸ verisi yok</p>';
+    '<p style="color:var(--gray400);font-size:13px;text-align:center;padding:20px">Sipariş verisi yok</p>';
 
   try{renderWeeklyChart();}catch(e){}
   const crit=[...outProds,...lowProds];
   document.getElementById('dashStockAlerts').innerHTML=crit.length?
-    `<div style="overflow-x:auto"><table><thead><tr><th>ÃœrÃ¼n</th><th>Kategori</th><th>Stok</th><th>Durum</th></tr></thead>
+    `<div style="overflow-x:auto"><table><thead><tr><th>Ürün</th><th>Kategori</th><th>Stok</th><th>Durum</th></tr></thead>
     <tbody>${crit.map(p=>{const s=stock[p.id]||{qty:0};return`<tr><td>${esc(p.emoji||'')} ${esc(p.name)}</td><td>${catLabel(p.cat)}</td><td style="font-weight:700">${s.qty}</td><td>${stockBadge(p)}</td></tr>`;}).join('')}</tbody></table></div>`:
-    '<p style="color:var(--green);font-size:13px"><strong>âœ… TÃ¼m Ã¼rÃ¼nler yeterli stokta.</strong></p>';
+    '<p style="color:var(--green);font-size:13px"><strong>✅ Tüm ürünler yeterli stokta.</strong></p>';
 }
 
-/* â”€â”€ PRODUCTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── PRODUCTS ───────────────────────────────────────────────────────── */
 function renderProducts(){
   loadData();
   const q=(document.getElementById('prodSearch')?.value||'').toLowerCase();
   const cat=document.getElementById('prodCatFilter')?.value||'';
   const list=products.filter(p=>(!q||(p.name||'').toLowerCase().includes(q))&&(!cat||p.cat===cat));
-  document.getElementById('prodCount').textContent=`${list.length} Ã¼rÃ¼n`;
+  document.getElementById('prodCount').textContent=`${list.length} ürün`;
   const tbody=document.getElementById('prodTableBody');
-  if(!list.length){tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--gray400)">ÃœrÃ¼n bulunamadÄ±</td></tr>`;return;}
+  if(!list.length){tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--gray400)">Ürün bulunamadı</td></tr>`;return;}
   tbody.innerHTML=list.map(p=>`<tr>
     <td><div style="display:flex;align-items:center;gap:10px">
-      ${p.img?`<img src="${esc(p.img)}" style="width:40px;height:40px;object-fit:cover;border-radius:6px" onerror="this.style.display='none'">`:`<div class="prod-thumb">${p.emoji||'ğŸ“¦'}</div>`}
+      ${p.img?`<img src="${esc(p.img)}" style="width:40px;height:40px;object-fit:cover;border-radius:6px" onerror="this.style.display='none'">`:`<div class="prod-thumb">${p.emoji||'📦'}</div>`}
       <div><div style="font-weight:600;font-size:13px">${esc(p.name)}</div>${p.badge?`<span class="badge badge-orange" style="font-size:10px">${esc(p.badge)}</span>`:''}</div>
     </div></td>
     <td class="hide-mob">${catLabel(p.cat)}</td>
@@ -1196,15 +1196,15 @@ function renderProducts(){
     <td class="hide-mob">${stockBadge(p)} <span style="font-size:12px;color:var(--gray500)">${(stock[p.id]||{qty:0}).qty} ${p.unit||'adet'}</span></td>
     <td class="hide-mob"><label class="toggle"><input type="checkbox" ${p.featured?'checked':''} onchange="toggleFeatured(${p.id},this.checked)"><span class="toggle-track"></span></label></td>
     <td><div style="display:flex;gap:4px">
-      <button class="btn btn-ghost btn-xs" onclick="openProductModal(${p.id})">âœï¸</button>
-      <button class="btn btn-danger btn-xs" onclick="deleteProduct(${p.id})">ğŸ—‘ï¸</button>
+      <button class="btn btn-ghost btn-xs" onclick="openProductModal(${p.id})">✏️</button>
+      <button class="btn btn-danger btn-xs" onclick="deleteProduct(${p.id})">🗑️</button>
     </div></td>
   </tr>`).join('');
 }
 function toggleFeatured(id,val){const p=products.find(x=>x.id===id);if(p){p.featured=val;saveProducts();}}
 function openProductModal(id){
   const p=id?products.find(x=>x.id===id):null;
-  document.getElementById('productModalTitle').textContent=p?'ÃœrÃ¼n DÃ¼zenle':'ÃœrÃ¼n Ekle';
+  document.getElementById('productModalTitle').textContent=p?'Ürün Düzenle':'Ürün Ekle';
   document.getElementById('editProdId').value=id||'';
   ['prodName','prodUnit','prodEmoji','prodImg','prodBadge'].forEach(f=>document.getElementById(f).value=p?.[f.replace('prod','').toLowerCase()]||'');
   document.getElementById('prodName').value=p?.name||'';
@@ -1220,18 +1220,18 @@ function openProductModal(id){
 function saveProduct(){
   const id=parseInt(document.getElementById('editProdId').value)||null;
   const name=document.getElementById('prodName').value.trim();
-  if(!name){toast('ÃœrÃ¼n adÄ± gerekli');return;}
+  if(!name){toast('Ürün adı gerekli');return;}
   const price=parseFloat(document.getElementById('prodPrice').value);
   if(!price){toast('Fiyat gerekli');return;}
   const obj={id:id||(Math.max(0,...products.map(p=>p.id))+1),name,cat:document.getElementById('prodCat').value,price,unit:document.getElementById('prodUnit').value.trim(),emoji:document.getElementById('prodEmoji').value.trim(),img:document.getElementById('prodImg').value.trim(),badge:document.getElementById('prodBadge').value.trim(),featured:document.getElementById('prodFeatured').checked};
   if(id){const idx=products.findIndex(p=>p.id===id);const existing=products[idx];products[idx]={...existing,...obj};}
   else{products.push(obj);if(!stock[obj.id])stock[obj.id]={qty:0,min:5};saveStock();}
-  saveProducts();closeModal('productModal');renderProducts();toast(id?'ÃœrÃ¼n gÃ¼ncellendi âœ“':'ÃœrÃ¼n eklendi âœ“');
+  saveProducts();closeModal('productModal');renderProducts();toast(id?'Ürün güncellendi ✓':'Ürün eklendi ✓');
 }
-function deleteProduct(id){if(!confirm('Bu Ã¼rÃ¼nÃ¼ silmek istiyor musunuz?'))return;products=products.filter(p=>p.id!==id);saveProducts();renderProducts();toast('ÃœrÃ¼n silindi');}
-function resetProducts(){if(!confirm('TÃ¼m Ã¼rÃ¼nler varsayÄ±lana dÃ¶necek. Emin misiniz?'))return;products=JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));saveProducts();renderProducts();toast('ÃœrÃ¼nler sÄ±fÄ±rlandÄ± âœ“');}
+function deleteProduct(id){if(!confirm('Bu ürünü silmek istiyor musunuz?'))return;products=products.filter(p=>p.id!==id);saveProducts();renderProducts();toast('Ürün silindi');}
+function resetProducts(){if(!confirm('Tüm ürünler varsayılana dönecek. Emin misiniz?'))return;products=JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));saveProducts();renderProducts();toast('Ürünler sıfırlandı ✓');}
 
-/* â”€â”€ ORDERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── ORDERS ─────────────────────────────────────────────────────────── */
 function renderOrders(){
   loadData();
   const q=(document.getElementById('orderSearch')?.value||'').toLowerCase();
@@ -1246,11 +1246,11 @@ function renderOrders(){
     if(df==='month'&&new Date(o.ts)<new Date(now.getFullYear(),now.getMonth(),1))return false;
     return true;
   });
-  document.getElementById('orderCount').textContent=`${orders.length} sipariÅŸ`;
-  const sLabel=['AlÄ±ndÄ±','HazÄ±rlanÄ±yor','Yolda','Teslim Edildi'];
+  document.getElementById('orderCount').textContent=`${orders.length} sipariş`;
+  const sLabel=['Alındı','Hazırlanıyor','Yolda','Teslim Edildi'];
   const sCls=['badge-yellow','badge-orange','badge-blue','badge-green'];
   const tbody=document.getElementById('orderTableBody');
-  if(!list.length){tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--gray400)">SipariÅŸ bulunamadÄ±</td></tr>`;return;}
+  if(!list.length){tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--gray400)">Sipariş bulunamadı</td></tr>`;return;}
   tbody.innerHTML=list.map((o)=>{
     const realIdx=orders.indexOf(o);
     return`<tr>
@@ -1262,9 +1262,9 @@ function renderOrders(){
       ${sLabel.map((l,i)=>`<option value="${i}"${(o.status||0)===i?' selected':''}>${l}</option>`).join('')}
     </select></td>
     <td><div style="display:flex;gap:4px">
-      <button class="btn btn-ghost btn-xs" onclick="viewOrder(${realIdx})">ğŸ‘ï¸</button>
-      <a href="https://wa.me/${settings.waNumber||'905444789461'}?text=${encodeURIComponent('SayÄ±n mÃ¼ÅŸterimiz, sipariÅŸinizin durumu gÃ¼ncellendi: '+sLabel[o.status||0])}" target="_blank" class="btn btn-success btn-xs">WA</a>
-      <button class="btn btn-danger btn-xs" onclick="deleteOrder(${realIdx})">ğŸ—‘ï¸</button>
+      <button class="btn btn-ghost btn-xs" onclick="viewOrder(${realIdx})">👁️</button>
+      <a href="https://wa.me/${settings.waNumber||'905444789461'}?text=${encodeURIComponent('Sayın müşterimiz, siparişinizin durumu güncellendi: '+sLabel[o.status||0])}" target="_blank" class="btn btn-success btn-xs">WA</a>
+      <button class="btn btn-danger btn-xs" onclick="deleteOrder(${realIdx})">🗑️</button>
     </div></td>
   </tr>`;}).join('');
 }
@@ -1293,32 +1293,32 @@ function changeOrderStatus(idx,val){
       saveStock();
     }
     saveOrders();
-    toast('Durum gÃ¼ncellendi âœ“');
+    toast('Durum güncellendi ✓');
   }
 }
 function viewOrder(idx){
   const o=orders[idx];if(!o)return;
-  const sLabel=['AlÄ±ndÄ±','HazÄ±rlanÄ±yor','Yolda','Teslim Edildi'];
+  const sLabel=['Alındı','Hazırlanıyor','Yolda','Teslim Edildi'];
   document.getElementById('orderModalBody').innerHTML=`
     <div style="display:grid;gap:12px">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div><p style="font-size:11px;color:var(--gray400)">MÃœÅTERÄ°</p><p style="font-weight:600">${esc(o.name||'Misafir')}</p></div>
+        <div><p style="font-size:11px;color:var(--gray400)">MÜŞTERİ</p><p style="font-weight:600">${esc(o.name||'Misafir')}</p></div>
         <div><p style="font-size:11px;color:var(--gray400)">DURUM</p><p><span class="badge badge-blue">${sLabel[o.status||0]}</span></p></div>
-        <div><p style="font-size:11px;color:var(--gray400)">TARÄ°H</p><p style="font-size:13px">${fmtDate(o.ts)}</p></div>
+        <div><p style="font-size:11px;color:var(--gray400)">TARİH</p><p style="font-size:13px">${fmtDate(o.ts)}</p></div>
         <div><p style="font-size:11px;color:var(--gray400)">TUTAR</p><p style="font-weight:700;color:var(--orange);font-size:16px">${fmtPrice(o.total)}</p></div>
       </div>
-      <div><p style="font-size:11px;color:var(--gray400)">TESLÄ°MAT ADRESÄ°</p><p style="font-size:13px">${esc(o.addr||'-')}</p></div>
+      <div><p style="font-size:11px;color:var(--gray400)">TESLİMAT ADRESİ</p><p style="font-size:13px">${esc(o.addr||'-')}</p></div>
       ${o.note?`<div><p style="font-size:11px;color:var(--gray400)">NOT</p><p style="font-size:13px">${esc(o.note)}</p></div>`:''}
-      ${o.mapLink?`<div><p style="font-size:11px;color:var(--gray400)">KONUM</p><a href="${esc(o.mapLink)}" target="_blank" class="btn btn-ghost btn-sm" style="margin-top:4px">ğŸ—ºï¸ Haritada GÃ¶r</a></div>`:''}
-      <div><p style="font-size:11px;color:var(--gray400);margin-bottom:8px">ÃœRÃœNLER</p>
-        <div class="table-wrap" style="border:none"><table><thead><tr><th>ÃœrÃ¼n</th><th>Adet</th><th>Fiyat</th></tr></thead>
+      ${o.mapLink?`<div><p style="font-size:11px;color:var(--gray400)">KONUM</p><a href="${esc(o.mapLink)}" target="_blank" class="btn btn-ghost btn-sm" style="margin-top:4px">🗺️ Haritada Gör</a></div>`:''}
+      <div><p style="font-size:11px;color:var(--gray400);margin-bottom:8px">ÜRÜNLER</p>
+        <div class="table-wrap" style="border:none"><table><thead><tr><th>Ürün</th><th>Adet</th><th>Fiyat</th></tr></thead>
         <tbody>${(o.items||[]).map(item=>{const q=item.quantity||item.qty||1;return`<tr><td>${esc(item.name)}</td><td>${q}</td><td>${fmtPrice(item.price*q)}</td></tr>`;}).join('')}</tbody></table></div>
       </div>
     </div>`;
   openModal('orderModal');
 }
 function deleteOrder(idx){
-  if(!confirm('SipariÅŸi sil?'))return;
+  if(!confirm('Siparişi sil?'))return;
   if(orders[idx] && orders[idx].stockDeducted && orders[idx].items){
     orders[idx].items.forEach(i => {
       if (i.id && stock[i.id]) {
@@ -1330,39 +1330,39 @@ function deleteOrder(idx){
   orders.splice(idx,1);
   saveOrders();
   renderOrders();
-  toast('SipariÅŸ silindi');
+  toast('Sipariş silindi');
 }
-function clearOrders(){if(!confirm('TÃ¼m sipariÅŸler silinecek. Emin misiniz?'))return;orders=[];saveOrders();renderOrders();toast('TÃ¼m sipariÅŸler silindi');}
+function clearOrders(){if(!confirm('Tüm siparişler silinecek. Emin misiniz?'))return;orders=[];saveOrders();renderOrders();toast('Tüm siparişler silindi');}
 
-/* â”€â”€ CAMPAIGNS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── CAMPAIGNS ──────────────────────────────────────────────────────── */
 function renderCampaigns(){
   loadData();
   const tbody=document.getElementById('campTableBody');
-  if(!campaigns.length){tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--gray400)">Kampanya bulunamadÄ±. + Kampanya Ekle butonuna tÄ±klayÄ±n.</td></tr>`;return;}
-  const tLabel={pct:'% Ä°ndirim',fixed:'â‚º Ä°ndirim',gift:'Hediye',free_delivery:'Ãœcretsiz Teslimat'};
+  if(!campaigns.length){tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--gray400)">Kampanya bulunamadı. + Kampanya Ekle butonuna tıklayın.</td></tr>`;return;}
+  const tLabel={pct:'% İndirim',fixed:'₺ İndirim',gift:'Hediye',free_delivery:'Ücretsiz Teslimat'};
   tbody.innerHTML=campaigns.map((c,i)=>{
     const active=isActiveCampaign(c);
-    const discText=c.type==='pct'?`%${c.discount}`:c.type==='fixed'?`${c.discount}â‚º`:c.type==='gift'?esc(c.giftItem||'-'):'Ãœcretsiz';
-    const targetText=c.target==='cat'?catLabel(c.targetCat):c.target==='cart'?'Min '+fmtPrice(c.cartMin):c.target==='prod'?esc(c.targetProd||'-'):'TÃ¼m ÃœrÃ¼nler';
+    const discText=c.type==='pct'?`%${c.discount}`:c.type==='fixed'?`${c.discount}₺`:c.type==='gift'?esc(c.giftItem||'-'):'Ücretsiz';
+    const targetText=c.target==='cat'?catLabel(c.targetCat):c.target==='cart'?'Min '+fmtPrice(c.cartMin):c.target==='prod'?esc(c.targetProd||'-'):'Tüm Ürünler';
     return`<tr>
       <td style="font-weight:600">${esc(c.name)}</td>
       <td><span class="badge badge-blue">${tLabel[c.type]||c.type}</span></td>
       <td>${discText}</td>
       <td style="font-size:12px">${targetText}</td>
-      <td style="font-size:12px;color:var(--gray500)">${c.start||'â€”'}</td>
-      <td style="font-size:12px;color:var(--gray500)">${c.end||'â€”'}</td>
+      <td style="font-size:12px;color:var(--gray500)">${c.start||'—'}</td>
+      <td style="font-size:12px;color:var(--gray500)">${c.end||'—'}</td>
       <td>
         <label class="toggle"><input type="checkbox" ${c.active?'checked':''} onchange="toggleCampaign(${i},this.checked)"><span class="toggle-track"></span></label>
         <span style="font-size:11px;color:var(--gray400);margin-left:4px">${active?'Aktif':'Pasif'}</span>
       </td>
       <td><div style="display:flex;gap:4px">
-        <button class="btn btn-ghost btn-xs" onclick="openCampaignModal(${i})">âœï¸</button>
-        <button class="btn btn-danger btn-xs" onclick="deleteCampaign(${i})">ğŸ—‘ï¸</button>
+        <button class="btn btn-ghost btn-xs" onclick="openCampaignModal(${i})">✏️</button>
+        <button class="btn btn-danger btn-xs" onclick="deleteCampaign(${i})">🗑️</button>
       </div></td>
     </tr>`;
   }).join('');
 }
-function toggleCampaign(i,val){campaigns[i].active=val;saveCampaigns();updateAnnouncementsFromCampaigns();toast(val?'Kampanya aktif edildi':'Kampanya pasife alÄ±ndÄ±');}
+function toggleCampaign(i,val){campaigns[i].active=val;saveCampaigns();updateAnnouncementsFromCampaigns();toast(val?'Kampanya aktif edildi':'Kampanya pasife alındı');}
 function updateAnnouncementsFromCampaigns(){
   const activDescs=campaigns.filter(isActiveCampaign).filter(c=>c.desc).map(c=>c.desc);
   if(!activDescs.length)return;
@@ -1372,7 +1372,7 @@ function updateAnnouncementsFromCampaigns(){
 }
 function openCampaignModal(idx){
   const c=idx!==undefined?campaigns[idx]:null;
-  document.getElementById('campModalTitle').textContent=c?'Kampanya DÃ¼zenle':'Kampanya Ekle';
+  document.getElementById('campModalTitle').textContent=c?'Kampanya Düzenle':'Kampanya Ekle';
   document.getElementById('editCampId').value=idx!==undefined?idx:'';
   document.getElementById('campName').value=c?.name||'';
   document.getElementById('campType').value=c?.type||'pct';
@@ -1404,14 +1404,14 @@ function saveCampaign(){
   const rawIdx=document.getElementById('editCampId').value;
   const idx=rawIdx!==''?parseInt(rawIdx):null;
   const name=document.getElementById('campName').value.trim();
-  if(!name){toast('Kampanya adÄ± gerekli');return;}
+  if(!name){toast('Kampanya adı gerekli');return;}
   const obj={name,active:idx!==null?campaigns[idx].active:true,type:document.getElementById('campType').value,discount:parseFloat(document.getElementById('campDiscount').value)||0,target:document.getElementById('campTarget').value,targetCat:document.getElementById('campTargetCat').value,cartMin:parseFloat(document.getElementById('campCartMin').value)||0,targetProd:document.getElementById('campTargetProd').value.trim(),giftItem:document.getElementById('campGiftItem').value.trim(),start:document.getElementById('campStart').value,end:document.getElementById('campEnd').value,desc:document.getElementById('campDesc').value.trim()};
   if(idx!==null)campaigns[idx]=obj;else campaigns.push(obj);
-  saveCampaigns();updateAnnouncementsFromCampaigns();closeModal('campaignModal');renderCampaigns();toast(idx!==null?'Kampanya gÃ¼ncellendi âœ“':'Kampanya eklendi âœ“');
+  saveCampaigns();updateAnnouncementsFromCampaigns();closeModal('campaignModal');renderCampaigns();toast(idx!==null?'Kampanya güncellendi ✓':'Kampanya eklendi ✓');
 }
-function deleteCampaign(i){if(!confirm('KampanyayÄ± sil?'))return;campaigns.splice(i,1);saveCampaigns();renderCampaigns();toast('Kampanya silindi');}
+function deleteCampaign(i){if(!confirm('Kampanyayı sil?'))return;campaigns.splice(i,1);saveCampaigns();renderCampaigns();toast('Kampanya silindi');}
 
-/* â”€â”€ INVOICES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── INVOICES ───────────────────────────────────────────────────────── */
 function renderInvoices(){
   loadData();
   const tbody=document.getElementById('invLines');
@@ -1430,7 +1430,7 @@ function addInvLine(){
     <td><input type="number" id="ilCost_${id}" placeholder="0.00" step="0.01" style="width:100px;padding:6px;border:1.5px solid var(--gray200);border-radius:4px;font-size:13px;outline:none" oninput="calcInvLine(${id})"></td>
     <td><input type="number" id="ilMargin_${id}" value="30" step="0.1" style="width:80px;padding:6px;border:1.5px solid var(--gray200);border-radius:4px;font-size:13px;outline:none" oninput="calcInvLine(${id})"></td>
     <td><input type="number" id="ilSell_${id}" placeholder="0.00" step="0.01" style="width:100px;padding:6px;border:1.5px solid var(--gray200);border-radius:4px;font-size:13px;font-weight:700;color:var(--orange);outline:none" oninput="calcInvLineReverse(${id})"></td>
-    <td><button onclick="removeInvLine(${id})" style="width:26px;height:26px;border:none;border-radius:4px;background:var(--red-light);color:var(--red);cursor:pointer;font-size:13px">âœ•</button></td>`;
+    <td><button onclick="removeInvLine(${id})" style="width:26px;height:26px;border:none;border-radius:4px;background:var(--red-light);color:var(--red);cursor:pointer;font-size:13px">✕</button></td>`;
   document.getElementById('invLines').appendChild(tr);
   onProdSelectChange(id);
 }
@@ -1468,36 +1468,36 @@ function saveInvoice(){
     if(!stock[pid])stock[pid]={qty:0,min:5};
     stock[pid].qty+=qty;
   }
-  if(!lines.length){toast('En az bir Ã¼rÃ¼n satÄ±rÄ± doldurun');return;}
+  if(!lines.length){toast('En az bir ürün satırı doldurun');return;}
   invoices.unshift({ts:Date.now(),note:document.getElementById('invNote').value.trim(),lines,totalCost});
   saveProducts();saveStock();saveInvoiceData();
   document.getElementById('invLines').innerHTML='';
   invLineCounter=0;addInvLine();
   document.getElementById('invNote').value='';
   renderInvHistory();
-  toast(`Fatura kaydedildi. ${lines.length} Ã¼rÃ¼n gÃ¼ncellendi âœ“`);
+  toast(`Fatura kaydedildi. ${lines.length} ürün güncellendi ✓`);
 }
 function renderInvHistory(){
   const tbody=document.getElementById('invHistoryBody');
-  if(!invoices.length){tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--gray400)">Fatura kaydÄ± yok</td></tr>`;return;}
+  if(!invoices.length){tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--gray400)">Fatura kaydı yok</td></tr>`;return;}
   tbody.innerHTML=invoices.map((inv,i)=>`<tr>
     <td style="font-size:12px;color:var(--gray500)">${fmtDate(inv.ts)}</td>
-    <td>${esc(inv.note||'â€”')}</td>
-    <td>${inv.lines?.length||0} Ã¼rÃ¼n</td>
+    <td>${esc(inv.note||'—')}</td>
+    <td>${inv.lines?.length||0} ürün</td>
     <td style="font-weight:700">${fmtPrice(inv.totalCost)}</td>
     <td><div style="display:flex;gap:4px">
-      <button class="btn btn-ghost btn-xs" onclick="viewInvoice(${i})">ğŸ‘ï¸</button>
-      <button class="btn btn-ghost btn-xs" onclick="printInvoice(${i})">ğŸ–¨ï¸</button>
-      <button class="btn btn-danger btn-xs" onclick="deleteInvoice(${i})">ğŸ—‘ï¸</button>
+      <button class="btn btn-ghost btn-xs" onclick="viewInvoice(${i})">👁️</button>
+      <button class="btn btn-ghost btn-xs" onclick="printInvoice(${i})">🖨️</button>
+      <button class="btn btn-danger btn-xs" onclick="deleteInvoice(${i})">🗑️</button>
     </div></td>
   </tr>`).join('');
 }
 function viewInvoice(i){
   const inv=invoices[i];if(!inv)return;
   document.getElementById('invoiceDetailBody').innerHTML=`
-    <p style="font-size:12px;color:var(--gray400);margin-bottom:12px">${fmtDate(inv.ts)} â€” ${esc(inv.note||'Not yok')}</p>
+    <p style="font-size:12px;color:var(--gray400);margin-bottom:12px">${fmtDate(inv.ts)} — ${esc(inv.note||'Not yok')}</p>
     <div class="table-wrap"><table>
-      <thead><tr><th>ÃœrÃ¼n</th><th>Miktar</th><th>AlÄ±ÅŸ (â‚º)</th><th>Marj (%)</th><th>SatÄ±ÅŸ (â‚º)</th></tr></thead>
+      <thead><tr><th>Ürün</th><th>Miktar</th><th>Alış (₺)</th><th>Marj (%)</th><th>Satış (₺)</th></tr></thead>
       <tbody>${(inv.lines||[]).map(l=>{const p=products.find(x=>x.id===l.pid);return`<tr>
         <td>${p?esc(p.name):'(Silindi)'}</td><td>${l.qty}</td><td>${fmtPrice(l.cost)}</td>
         <td>%${(l.margin||0).toFixed(1)}</td><td style="font-weight:700;color:var(--orange)">${fmtPrice(l.sell)}</td>
@@ -1506,12 +1506,12 @@ function viewInvoice(i){
     </table></div>`;
   openModal('invoiceDetailModal');
 }
-function deleteInvoice(i){if(!confirm('Fatura kaydÄ±nÄ± sil?'))return;invoices.splice(i,1);saveInvoiceData();renderInvHistory();toast('Fatura silindi');}
+function deleteInvoice(i){if(!confirm('Fatura kaydını sil?'))return;invoices.splice(i,1);saveInvoiceData();renderInvHistory();toast('Fatura silindi');}
 function openGlobalMarginModal(){openModal('globalMarginModal');}
 function applyGlobalMargin(){
   const pct=parseFloat(document.getElementById('globalMarginPct').value);
   const scope=document.getElementById('globalMarginScope').value;
-  if(!pct||pct<=0){toast('GeÃ§erli bir marj deÄŸeri girin');return;}
+  if(!pct||pct<=0){toast('Geçerli bir marj değeri girin');return;}
   const costMap={};
   invoices.forEach(inv=>(inv.lines||[]).forEach(l=>{if(l.cost&&l.cost>0)costMap[l.pid]=l.cost;}));
   let updated=0;
@@ -1521,10 +1521,10 @@ function applyGlobalMargin(){
     if(cost){p.price=parseFloat((cost*(1+pct/100)).toFixed(2));updated++;}
   });
   saveProducts();closeModal('globalMarginModal');
-  toast(`${updated} Ã¼rÃ¼n fiyatÄ± gÃ¼ncellendi (%${pct} marj) âœ“`);
+  toast(`${updated} ürün fiyatı güncellendi (%${pct} marj) ✓`);
 }
 
-/* â”€â”€ ORDER â†’ STOCK DEDUCTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── ORDER → STOCK DEDUCTION ───────────────────────────────────────── */
 function processOrderStock(){
   let changed=false;
   orders.forEach(o=>{
@@ -1557,7 +1557,7 @@ function updateSidebarStockBadge(){
   }
 }
 
-/* â”€â”€ STOCK â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── STOCK ──────────────────────────────────────────────────────────── */
 function renderStock(){
   loadData();
   updateSidebarStockBadge();
@@ -1569,17 +1569,17 @@ function renderStock(){
     return true;
   });
   const tbody=document.getElementById('stockTableBody');
-  if(!list.length){tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--gray400)">ÃœrÃ¼n bulunamadÄ±</td></tr>`;return;}
+  if(!list.length){tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--gray400)">Ürün bulunamadı</td></tr>`;return;}
   tbody.innerHTML=list.map(p=>{
     const s=stock[p.id]||{qty:0,min:5};
     return`<tr>
       <td><div style="display:flex;align-items:center;gap:8px">
-        <span style="font-size:18px">${p.emoji||'ğŸ“¦'}</span>
+        <span style="font-size:18px">${p.emoji||'📦'}</span>
         <div><div style="font-weight:600;font-size:13px">${esc(p.name)}</div><div style="font-size:11px;color:var(--gray400)">${fmtPrice(p.price)} / ${p.unit||'adet'}</div></div>
       </div></td>
       <td class="hide-mob">${catLabel(p.cat)}</td>
       <td><div class="stock-input-wrap">
-        <button class="stock-adj" onclick="adjustStock(${p.id},-1)">âˆ’</button>
+        <button class="stock-adj" onclick="adjustStock(${p.id},-1)">−</button>
         <input class="stock-qty-input" type="number" id="stk_${p.id}" value="${s.qty}" min="0" onchange="onStockChange(${p.id},this.value)">
         <button class="stock-adj" onclick="adjustStock(${p.id},1)">+</button>
       </div></td>
@@ -1608,29 +1608,29 @@ function saveAllStock(){
     if(qi)stock[p.id].qty=Math.max(0,parseInt(qi.value)||0);
     if(mi)stock[p.id].min=Math.max(0,parseInt(mi.value)||0);
   });
-  saveStock();toast('Stok kaydedildi âœ“');
+  saveStock();toast('Stok kaydedildi ✓');
 }
 
-/* â”€â”€ COUPONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── COUPONS ────────────────────────────────────────────────────────── */
 function renderCoupons(){
   loadData();
   const entries=Object.entries(promos);
   const tbody=document.getElementById('couponTableBody');
-  if(!entries.length){tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--gray400)">Kupon bulunamadÄ±</td></tr>`;return;}
+  if(!entries.length){tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--gray400)">Kupon bulunamadı</td></tr>`;return;}
   tbody.innerHTML=entries.map(([code,v])=>`<tr>
     <td><span style="font-family:'Outfit',sans-serif;font-weight:700;font-size:14px;background:var(--orange-light);color:var(--orange);padding:3px 10px;border-radius:4px">${esc(code)}</span></td>
-    <td>${v.pct>0?`<span class="badge badge-green">%${v.pct}</span>`:'<span class="badge badge-gray">â€”</span>'}</td>
-    <td style="font-size:13px">${v.gift?esc(v.gift):'<span style="color:var(--gray400)">â€”</span>'}</td>
+    <td>${v.pct>0?`<span class="badge badge-green">%${v.pct}</span>`:'<span class="badge badge-gray">—</span>'}</td>
+    <td style="font-size:13px">${v.gift?esc(v.gift):'<span style="color:var(--gray400)">—</span>'}</td>
     <td style="font-size:12px;color:var(--gray600)">${esc(v.text||'')}</td>
     <td><div style="display:flex;gap:4px">
-      <button class="btn btn-ghost btn-xs" onclick="openCouponModal('${esc(code)}')">âœï¸</button>
-      <button class="btn btn-danger btn-xs" onclick="deleteCoupon('${esc(code)}')">ğŸ—‘ï¸</button>
+      <button class="btn btn-ghost btn-xs" onclick="openCouponModal('${esc(code)}')">✏️</button>
+      <button class="btn btn-danger btn-xs" onclick="deleteCoupon('${esc(code)}')">🗑️</button>
     </div></td>
   </tr>`).join('');
 }
 function openCouponModal(code){
   const v=code?promos[code]:null;
-  document.getElementById('couponModalTitle').textContent=v?'Kupon DÃ¼zenle':'Kupon Ekle';
+  document.getElementById('couponModalTitle').textContent=v?'Kupon Düzenle':'Kupon Ekle';
   document.getElementById('editCouponKey').value=code||'';
   document.getElementById('couponCode').value=code||'';
   document.getElementById('couponPct').value=v?.pct||0;
@@ -1645,11 +1645,11 @@ function saveCoupon(){
   const obj={pct:parseInt(document.getElementById('couponPct').value)||0,gift:document.getElementById('couponGift').value.trim()||null,text:document.getElementById('couponText').value.trim()||code+' UYGULANDI!'};
   if(oldKey&&oldKey!==code)delete promos[oldKey];
   promos[code]=obj;
-  savePromos();closeModal('couponModal');renderCoupons();toast(oldKey?'Kupon gÃ¼ncellendi âœ“':'Kupon eklendi âœ“');
+  savePromos();closeModal('couponModal');renderCoupons();toast(oldKey?'Kupon güncellendi ✓':'Kupon eklendi ✓');
 }
 function deleteCoupon(code){if(!confirm(`"${code}" kuponunu sil?`))return;delete promos[code];savePromos();renderCoupons();toast('Kupon silindi');}
 
-/* â”€â”€ SETTINGS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── SETTINGS ───────────────────────────────────────────────────────── */
 function renderSettingsForm(){
   loadData();
   renderCompSummaryBar();
@@ -1670,7 +1670,7 @@ function saveSettings(){
   settings.branch2Name=document.getElementById('setBranch2').value;
   settings.branch2Addr=document.getElementById('setBranch2Addr').value;
   persistSettings();
-  toast('Ayarlar kaydedildi âœ“');
+  toast('Ayarlar kaydedildi ✓');
 }
 function exportData(){
   const data={products,orders,promos,settings,campaigns,stock,invoices};
@@ -1678,7 +1678,7 @@ function exportData(){
   a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
   a.download='aydingros-backup-'+new Date().toISOString().slice(0,10)+'.json';
   a.click();
-  toast('Veri dÄ±ÅŸa aktarÄ±ldÄ± âœ“');
+  toast('Veri dışa aktarıldı ✓');
 }
 function importData(input){
   const file=input.files[0];if(!file)return;
@@ -1693,26 +1693,26 @@ function importData(input){
       if(d.campaigns)localStorage.setItem('ag_campaigns',JSON.stringify(d.campaigns));
       if(d.stock)localStorage.setItem('ag_stock',JSON.stringify(d.stock));
       if(d.invoices)localStorage.setItem('ag_invoices',JSON.stringify(d.invoices));
-      loadData();toast('Veri baÅŸarÄ±yla iÃ§e aktarÄ±ldÄ± âœ“');
-    }catch(err){toast('GeÃ§ersiz JSON dosyasÄ±');}
+      loadData();toast('Veri başarıyla içe aktarıldı ✓');
+    }catch(err){toast('Geçersiz JSON dosyası');}
   };
   reader.readAsText(file);
   input.value='';
 }
 function nukeData(){
-  if(!confirm('TÃœM VERÄ° SÄ°LÄ°NECEK! Geri alÄ±namaz. Emin misiniz?'))return;
-  if(!confirm('Son kez onaylÄ±yor musunuz?'))return;
+  if(!confirm('TÜM VERİ SİLİNECEK! Geri alınamaz. Emin misiniz?'))return;
+  if(!confirm('Son kez onaylıyor musunuz?'))return;
   ['ag_products','ag_orders','ag_promos','ag_settings','ag_campaigns','ag_stock','ag_invoices'].forEach(k=>localStorage.removeItem(k));
-  toast('TÃ¼m veri silindi. Yenileniyor...');
+  toast('Tüm veri silindi. Yenileniyor...');
   setTimeout(()=>location.reload(),2000);
 }
 
-/* â”€â”€ RAKÄ°P FÄ°YAT ANALÄ°ZÄ° â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── RAKİP FİYAT ANALİZİ ───────────────────────────────────────────── */
 
-// Erenler Ã¼rÃ¼nleri cache â€” server'dan yÃ¼klenir
+// Erenler ürünleri cache — server'dan yüklenir
 let erenlerData = [];
 
-// Sunucudan Erenler fiyat listesini yÃ¼kle
+// Sunucudan Erenler fiyat listesini yükle
 async function loadErenlerData(){
   try{
     const resp = await fetch('/api/erenler-products');
@@ -1720,18 +1720,18 @@ async function loadErenlerData(){
   } catch(e){ erenlerData = []; }
 }
 
-// TÃ¼rkÃ§e karakterleri ASCII'ye normalize et (Ä±â†’i, ÅŸâ†’s vb.)
+// Türkçe karakterleri ASCII'ye normalize et (ı→i, ş→s vb.)
 function trNorm(s){
   return (s||'').toLowerCase()
-    .replace(/Ä±/g,'i').replace(/Ä°/g,'i').replace(/I/g,'i')
-    .replace(/ÄŸ/g,'g').replace(/Ä/g,'g')
-    .replace(/ÅŸ/g,'s').replace(/Å/g,'s')
-    .replace(/Ã§/g,'c').replace(/Ã‡/g,'c')
-    .replace(/Ã¶/g,'o').replace(/Ã–/g,'o')
-    .replace(/Ã¼/g,'u').replace(/Ãœ/g,'u');
+    .replace(/ı/g,'i').replace(/İ/g,'i').replace(/I/g,'i')
+    .replace(/ğ/g,'g').replace(/Ğ/g,'g')
+    .replace(/ş/g,'s').replace(/Ş/g,'s')
+    .replace(/ç/g,'c').replace(/Ç/g,'c')
+    .replace(/ö/g,'o').replace(/Ö/g,'o')
+    .replace(/ü/g,'u').replace(/Ü/g,'u');
 }
 
-// TÃ¼rkÃ§e ada gÃ¶re kelime tabanlÄ± eÅŸleÅŸtirme skoru
+// Türkçe ada göre kelime tabanlı eşleştirme skoru
 function compMatchScore(agName, erName){
   const clean = s => trNorm(s)
     .replace(/[().,\/\\]/g,' ')
@@ -1741,26 +1741,26 @@ function compMatchScore(agName, erName){
   const er = clean(erName);
   if(ag === er) return 100;
 
-  // String iÃ§erme kontrolÃ¼ â€” kÄ±sa kelimeler iÃ§in yanlÄ±ÅŸ eÅŸleÅŸmeyi Ã¶nlemek amacÄ±yla
-  // oran eÅŸiÄŸi uygulanÄ±r (Ã¶rn. "Ã§ay" â†’ "doÄŸuÅŸ Ã§ay": 3/9=0.33 â†’ geÃ§mez)
+  // String içerme kontrolü — kısa kelimeler için yanlış eşleşmeyi önlemek amacıyla
+  // oran eşiği uygulanır (örn. "çay" → "doğuş çay": 3/9=0.33 → geçmez)
   if(ag.includes(er) || er.includes(ag)){
     const shorter = Math.min(ag.length, er.length);
     const longer  = Math.max(ag.length, er.length);
     const ratio   = shorter / longer;
-    if(ratio >= 0.45) return 88;  // yeterli Ã¶rtÃ¼ÅŸme
-    // Orana gÃ¶re kÄ±smi puan (0.45 altÄ±)
+    if(ratio >= 0.45) return 88;  // yeterli örtüşme
+    // Orana göre kısmi puan (0.45 altı)
     if(ratio >= 0.3) return Math.round(55 + ratio * 50);
-    return 0; // Ã§ok kÄ±sa substring
+    return 0; // çok kısa substring
   }
 
-  // Kelime Ã¶rtÃ¼ÅŸmesi
+  // Kelime örtüşmesi
   const agW = ag.split(' ').filter(w=>w.length>2);
   const erW = er.split(' ').filter(w=>w.length>2);
   if(agW.length===0 || erW.length===0) return 0;
   let hits = 0;
-  agW.forEach(w=>{ if(erW.some(e=>e===w)) hits++; }); // sadece tam kelime eÅŸleÅŸmesi
+  agW.forEach(w=>{ if(erW.some(e=>e===w)) hits++; }); // sadece tam kelime eşleşmesi
   if(hits===0){
-    // Altdize eÅŸleÅŸmesi (daha dÃ¼ÅŸÃ¼k gÃ¼ven)
+    // Altdize eşleşmesi (daha düşük güven)
     agW.forEach(w=>{ if(erW.some(e=>e.includes(w)||w.includes(e))) hits+=0.5; });
     if(hits<1) return 0;
   }
@@ -1768,29 +1768,29 @@ function compMatchScore(agName, erName){
   return Math.round(coverage * 75);
 }
 
-// Erenler Ã¼rÃ¼nÃ¼nÃ¼ AydÄ±nGros Ã¼rÃ¼nÃ¼yle eÅŸleÅŸtir (products array dÄ±ÅŸarÄ±dan verilir)
+// Erenler ürününü AydınGros ürünüyle eşleştir (products array dışarıdan verilir)
 function matchErenlerToAydin(erItem, productList){
   let best=null, bestScore=0;
   (productList||products).forEach(p=>{
     const sc = compMatchScore(p.name, erItem.name);
     if(sc>bestScore){ bestScore=sc; best=p; }
   });
-  // EÅŸik: tek kelime eÅŸleÅŸmesinde yanlÄ±ÅŸ pozitifi Ã¶nlemek iÃ§in 50 gerektir
+  // Eşik: tek kelime eşleşmesinde yanlış pozitifi önlemek için 50 gerektir
   return bestScore>=50 ? {product:best, score:bestScore} : null;
 }
 
-// Kategori etiketi (kÄ±sa)
-const CAT_LABELS={'manav':'Manav','kasap':'Kasap','sut-sarkuteri':'SÃ¼t&Åark.','temel-gida':'GÄ±da','atistirmalik':'AtÄ±ÅŸtÄ±r.','icecek':'Ä°Ã§ecek','temizlik':'Temizlik','kozmetik':'Kozmetik','kahvaltilik':'KahvaltÄ±','anne-bebek':'Anne-Bebek','ev-gerecleri':'Ev GereÃ§'};
+// Kategori etiketi (kısa)
+const CAT_LABELS={'manav':'Manav','kasap':'Kasap','sut-sarkuteri':'Süt&Şark.','temel-gida':'Gıda','atistirmalik':'Atıştır.','icecek':'İçecek','temizlik':'Temizlik','kozmetik':'Kozmetik','kahvaltilik':'Kahvaltı','anne-bebek':'Anne-Bebek','ev-gerecleri':'Ev Gereç'};
 function shortCat(c){ return CAT_LABELS[c]||c; }
 
-// EÅŸleÅŸme sonuÃ§larÄ± Ã¶nbelleÄŸi (her modal aÃ§Ä±lÄ±ÅŸÄ±nda hesaplama yapmamak iÃ§in)
+// Eşleşme sonuçları önbelleği (her modal açılışında hesaplama yapmamak için)
 let _compRows = [];
 
 function buildCompRows(){
   loadData();
-  // Her AydÄ±nGros Ã¼rÃ¼nÃ¼ iÃ§in en iyi Erenler eÅŸleÅŸmesini bul (dedup by ag.id)
+  // Her AydınGros ürünü için en iyi Erenler eşleşmesini bul (dedup by ag.id)
   const bestByAgId = {};
-  const prodList = products; // loadData sonrasÄ± sabit referans
+  const prodList = products; // loadData sonrası sabit referans
   erenlerData.forEach(er=>{
     const m=matchErenlerToAydin(er, prodList);
     if(!m) return;
@@ -1809,7 +1809,7 @@ function buildCompRows(){
     else status='near';
     return{ag,er,diff,diffPct,status,score};
   });
-  // PahalÄ±dan ucuza sÄ±rala
+  // Pahalıdan ucuza sırala
   _compRows.sort((a,b)=>{
     const ord={expensive:0,near:1,cheap:2};
     return (ord[a.status]||0)-(ord[b.status]||0);
@@ -1825,16 +1825,16 @@ function renderCompSummaryBar(){
   const cheap=_compRows.filter(r=>r.status==='cheap').length;
   const near=_compRows.filter(r=>r.status==='near').length;
   const total=_compRows.length;
-  el.textContent=total>0?`${total} eÅŸleÅŸme bulundu`:'Fiyatlar yÃ¼kleniyor...';
+  el.textContent=total>0?`${total} eşleşme bulundu`:'Fiyatlar yükleniyor...';
   bar.innerHTML=`<div style="display:flex;gap:10px;flex-wrap:wrap">
     <div style="display:flex;align-items:center;gap:6px;background:var(--green-light);color:var(--green);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600">
-      âœ… ${cheap} Ã¼rÃ¼nde ÃœCUZsunuz
+      ✅ ${cheap} üründe ÜCUZsunuz
     </div>
     <div style="display:flex;align-items:center;gap:6px;background:var(--red-light);color:var(--red);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600">
-      âš ï¸ ${expensive} Ã¼rÃ¼nde PAHALIsÄ±nÄ±z
+      ⚠️ ${expensive} üründe PAHALIsınız
     </div>
     <div style="display:flex;align-items:center;gap:6px;background:var(--yellow-light);color:var(--yellow);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600">
-      â‰ˆ ${near} Ã¼rÃ¼nde yakÄ±nsÄ±nÄ±z
+      ≈ ${near} üründe yakınsınız
     </div>
   </div>`;
 }
@@ -1846,23 +1846,23 @@ function renderCompTableRows(){
   if(catFilter) rows=rows.filter(r=>r.ag.cat===catFilter);
   if(statusFilter) rows=rows.filter(r=>r.status===statusFilter);
   const info=document.getElementById('compFilterInfo');
-  if(info) info.textContent=`${rows.length} Ã¼rÃ¼n gÃ¶steriliyor`;
+  if(info) info.textContent=`${rows.length} ürün gösteriliyor`;
   const body=document.getElementById('compTableBody');
   if(!body) return;
   if(rows.length===0){
-    body.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--gray400)">Bu filtre iÃ§in eÅŸleÅŸen Ã¼rÃ¼n bulunamadÄ±.</td></tr>`;
+    body.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--gray400)">Bu filtre için eşleşen ürün bulunamadı.</td></tr>`;
     return;
   }
   body.innerHTML=rows.map(r=>{
     const {ag,er,diff,diffPct,status}=r;
     let badge,rowStyle='';
     if(status==='expensive'){
-      badge=`<span class="badge badge-red">âš ï¸ PahalÄ±yÄ±z</span>`;
+      badge=`<span class="badge badge-red">⚠️ Pahalıyız</span>`;
       rowStyle='background:#FFF5F5';
     } else if(status==='cheap'){
-      badge=`<span class="badge badge-green">âœ… Ucuzuz</span>`;
+      badge=`<span class="badge badge-green">✅ Ucuzuz</span>`;
     } else {
-      badge=`<span class="badge badge-yellow">â‰ˆ YakÄ±n</span>`;
+      badge=`<span class="badge badge-yellow">≈ Yakın</span>`;
     }
     const diffCol=diff>0?'var(--red)':diff<0?'var(--green)':'var(--gray500)';
     const diffSign=diff>0?'+':'';
@@ -1884,7 +1884,7 @@ async function openCompetitorModal(){
   const dateEl=document.getElementById('compModalDate');
   const lastCheckEl=document.getElementById('compModalLastCheck');
   const body=document.getElementById('compTableBody');
-  if(body) body.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--gray400)"><div style="display:flex;align-items:center;justify-content:center;gap:8px">â³ Erenler Cep fiyatlarÄ± yÃ¼kleniyor...</div></td></tr>`;
+  if(body) body.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--gray400)"><div style="display:flex;align-items:center;justify-content:center;gap:8px">⏳ Erenler Cep fiyatları yükleniyor...</div></td></tr>`;
 
   if(erenlerData.length===0) await loadErenlerData();
   buildCompRows();
@@ -1896,42 +1896,42 @@ async function openCompetitorModal(){
 
   const now=new Date();
   const ds=now.toLocaleDateString('tr-TR')+' '+now.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
-  if(dateEl) dateEl.textContent='Kaynak: erenlercep.com â€” '+total+' Ã¼rÃ¼n eÅŸleÅŸtirildi';
+  if(dateEl) dateEl.textContent='Kaynak: erenlercep.com — '+total+' ürün eşleştirildi';
   if(lastCheckEl) lastCheckEl.textContent=ds;
 
   document.getElementById('compSummaryCards').innerHTML=`
     <div style="background:var(--red-light);border-radius:8px;padding:14px;text-align:center">
       <div style="font-size:28px;font-weight:800;color:var(--red)">${expensive}</div>
-      <div style="font-size:12px;color:var(--red);font-weight:600">âš ï¸ PahalÄ±</div>
+      <div style="font-size:12px;color:var(--red);font-weight:600">⚠️ Pahalı</div>
       <div style="font-size:11px;color:var(--gray500);margin-top:2px">Rakipten %5+ fazla</div>
     </div>
     <div style="background:var(--yellow-light);border-radius:8px;padding:14px;text-align:center">
       <div style="font-size:28px;font-weight:800;color:var(--yellow)">${near}</div>
-      <div style="font-size:12px;color:var(--yellow);font-weight:600">â‰ˆ YakÄ±n</div>
-      <div style="font-size:11px;color:var(--gray500);margin-top:2px">Â±%5 aralÄ±ÄŸÄ±nda</div>
+      <div style="font-size:12px;color:var(--yellow);font-weight:600">≈ Yakın</div>
+      <div style="font-size:11px;color:var(--gray500);margin-top:2px">±%5 aralığında</div>
     </div>
     <div style="background:var(--green-light);border-radius:8px;padding:14px;text-align:center">
       <div style="font-size:28px;font-weight:800;color:var(--green)">${cheap}</div>
-      <div style="font-size:12px;color:var(--green);font-weight:600">âœ… Ucuz</div>
+      <div style="font-size:12px;color:var(--green);font-weight:600">✅ Ucuz</div>
       <div style="font-size:11px;color:var(--gray500);margin-top:2px">Rakipten %5+ ucuz</div>
     </div>
     <div style="background:var(--gray100);border-radius:8px;padding:14px;text-align:center">
       <div style="font-size:28px;font-weight:800;color:var(--gray600)">${total}</div>
-      <div style="font-size:12px;color:var(--gray600);font-weight:600">ğŸ“Š Toplam</div>
-      <div style="font-size:11px;color:var(--gray500);margin-top:2px">EÅŸleÅŸen Ã¼rÃ¼n</div>
+      <div style="font-size:12px;color:var(--gray600);font-weight:600">📊 Toplam</div>
+      <div style="font-size:11px;color:var(--gray500);margin-top:2px">Eşleşen ürün</div>
     </div>`;
 
   const alertEl=document.getElementById('compAlertBanner');
   if(expensive>0){
     const worst=_compRows.filter(r=>r.status==='expensive').sort((a,b)=>b.diffPct-a.diffPct).slice(0,3).map(r=>`${r.ag.name} (+${r.diffPct.toFixed(0)}%)`).join(', ');
-    alertEl.innerHTML=`<div class="alert alert-danger">âš ï¸ <strong>${expensive} Ã¼rÃ¼nÃ¼nÃ¼zÃ¼n fiyatÄ± Erenler Cep'ten yÃ¼ksek!</strong> En pahalÄ±lar: ${esc(worst)}</div>`;
+    alertEl.innerHTML=`<div class="alert alert-danger">⚠️ <strong>${expensive} ürününüzün fiyatı Erenler Cep'ten yüksek!</strong> En pahalılar: ${esc(worst)}</div>`;
   } else if(total===0){
-    alertEl.innerHTML=`<div class="alert alert-info">â„¹ï¸ Erenler Cep fiyat verisi yÃ¼klenemedi. Sunucuyu kontrol edin veya "CanlÄ± GÃ¼ncelle"ye basÄ±n.</div>`;
+    alertEl.innerHTML=`<div class="alert alert-info">ℹ️ Erenler Cep fiyat verisi yüklenemedi. Sunucuyu kontrol edin veya "Canlı Güncelle"ye basın.</div>`;
   } else {
-    alertEl.innerHTML=`<div class="alert alert-success">âœ… Harika! ${cheap} Ã¼rÃ¼nde rakibinizden ucuzsunuz. TÃ¼m Ã¼rÃ¼nlerde rekabetÃ§isiniz.</div>`;
+    alertEl.innerHTML=`<div class="alert alert-success">✅ Harika! ${cheap} üründe rakibinizden ucuzsunuz. Tüm ürünlerde rekabetçisiniz.</div>`;
   }
 
-  // Kategori filtrelerini sÄ±fÄ±rla ve tabloyu Ã§iz
+  // Kategori filtrelerini sıfırla ve tabloyu çiz
   const catSel=document.getElementById('compCatFilter');
   const stSel=document.getElementById('compStatusFilter');
   if(catSel) catSel.value='';
@@ -1940,11 +1940,11 @@ async function openCompetitorModal(){
   renderCompSummaryBar();
 }
 
-// CanlÄ± fiyat Ã§ekme â€” server proxy Ã¼zerinden
+// Canlı fiyat çekme — server proxy üzerinden
 async function fetchLiveErenler(){
   const btn=document.getElementById('compLiveBtn')||document.getElementById('compModalLiveBtn');
-  if(btn){ btn.disabled=true; btn.textContent='â³ BaÄŸlanÄ±lÄ±yor...'; }
-  toast('Erenler Cep\'e baÄŸlanÄ±lÄ±yor...');
+  if(btn){ btn.disabled=true; btn.textContent='⏳ Bağlanılıyor...'; }
+  toast('Erenler Cep\'e bağlanılıyor...');
   const cats=['meyve-sebze','gida','et-tavuk','temizlik','kozmetik'];
   let totalNew=0;
   try{
@@ -1962,34 +1962,34 @@ async function fetchLiveErenler(){
     buildCompRows();
     renderCompSummaryBar();
     if(totalNew>0){
-      toast(`âœ… ${totalNew} canlÄ± fiyat Ã§ekildi! Analiz gÃ¼ncellendi.`);
+      toast(`✅ ${totalNew} canlı fiyat çekildi! Analiz güncellendi.`);
     } else {
-      toast('âš ï¸ Erenler Cep eriÅŸim engeli aktif. KayÄ±tlÄ± fiyatlar kullanÄ±lÄ±yor.');
+      toast('⚠️ Erenler Cep erişim engeli aktif. Kayıtlı fiyatlar kullanılıyor.');
     }
   } catch(e){
-    toast('âš ï¸ CanlÄ± baÄŸlantÄ± baÅŸarÄ±sÄ±z. KayÄ±tlÄ± fiyatlar kullanÄ±lÄ±yor.');
+    toast('⚠️ Canlı bağlantı başarısız. Kayıtlı fiyatlar kullanılıyor.');
   }
-  if(btn){ btn.disabled=false; btn.textContent='ğŸ”„ CanlÄ± Fiyat Ã‡ek'; }
+  if(btn){ btn.disabled=false; btn.textContent='🔄 Canlı Fiyat Çek'; }
 }
 
-// Excel benzeri CSV dÄ±ÅŸa aktarma
+// Excel benzeri CSV dışa aktarma
 function exportCompAnalysis(){
-  if(_compRows.length===0){ toast('DÄ±ÅŸa aktarÄ±lacak veri yok.'); return; }
-  const header='ÃœrÃ¼n AdÄ±;Birim;Kategori;AydÄ±n Gros â‚º;Erenler Cep â‚º;Fark â‚º;Fark %;Durum\n';
-  const statusTR={expensive:'PahalÄ±',near:'YakÄ±n',cheap:'Ucuz'};
+  if(_compRows.length===0){ toast('Dışa aktarılacak veri yok.'); return; }
+  const header='Ürün Adı;Birim;Kategori;Aydın Gros ₺;Erenler Cep ₺;Fark ₺;Fark %;Durum\n';
+  const statusTR={expensive:'Pahalı',near:'Yakın',cheap:'Ucuz'};
   const rows=_compRows.map(r=>{
     const sign=r.diff>0?'+':'';
     return[r.ag.name,r.ag.unit||'adet',shortCat(r.ag.cat),r.ag.price.toFixed(2),r.er.price.toFixed(2),(sign+r.diff.toFixed(2)),(sign+r.diffPct.toFixed(1)+'%'),statusTR[r.status]].join(';');
   }).join('\n');
-  const blob=new Blob(['ï»¿'+header+rows],{type:'text/csv;charset=utf-8'});
+  const blob=new Blob(['﻿'+header+rows],{type:'text/csv;charset=utf-8'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
   a.href=url; a.download='rakip-analizi.csv'; a.click();
   URL.revokeObjectURL(url);
-  toast('CSV indirildi âœ“');
+  toast('CSV indirildi ✓');
 }
 
-/* â”€â”€ YENÄ° SÄ°PARÄ°Å BÄ°LDÄ°RÄ°MÄ° â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── YENİ SİPARİŞ BİLDİRİMİ ────────────────────────────────────────── */
 let lastOrderCount = 0;
 function startOrderPolling(){
   lastOrderCount = orders.length;
@@ -2002,7 +2002,7 @@ function startOrderPolling(){
       showNewOrderAlert(diff, current[current.length-1]);
       loadData();
       updateSidebarStockBadge();
-      // Dashboard aÃ§Ä±ksa yenile
+      // Dashboard açıksa yenile
       if(document.getElementById('page-dash').classList.contains('active')) renderDash();
       if(document.getElementById('page-orders').classList.contains('active')) renderOrders();
     }
@@ -2011,19 +2011,19 @@ function startOrderPolling(){
 function showNewOrderAlert(count, lastOrder){
   const div=document.createElement('div');
   div.style.cssText='position:fixed;top:20px;right:20px;background:#16A34A;color:#fff;border-radius:12px;padding:16px 20px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.2);max-width:300px;animation:slideIn .3s ease';
-  div.innerHTML=`<div style="font-weight:700;font-size:15px;margin-bottom:4px">ğŸ›’ ${count} Yeni SipariÅŸ!</div>
-    <div style="font-size:12px;opacity:.9">${lastOrder?.name||'Misafir'} â€” ${fmtPrice(lastOrder?.total||0)}</div>
-    <button onclick="this.parentElement.remove();showPage('orders')" style="margin-top:10px;background:rgba(255,255,255,.2);border:none;color:#fff;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600">SipariÅŸlere Git â†’</button>
-    <button onclick="this.parentElement.remove()" style="position:absolute;top:8px;right:8px;background:none;border:none;color:rgba(255,255,255,.7);cursor:pointer;font-size:16px">âœ•</button>`;
+  div.innerHTML=`<div style="font-weight:700;font-size:15px;margin-bottom:4px">🛒 ${count} Yeni Sipariş!</div>
+    <div style="font-size:12px;opacity:.9">${lastOrder?.name||'Misafir'} — ${fmtPrice(lastOrder?.total||0)}</div>
+    <button onclick="this.parentElement.remove();showPage('orders')" style="margin-top:10px;background:rgba(255,255,255,.2);border:none;color:#fff;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600">Siparişlere Git →</button>
+    <button onclick="this.parentElement.remove()" style="position:absolute;top:8px;right:8px;background:none;border:none;color:rgba(255,255,255,.7);cursor:pointer;font-size:16px">✕</button>`;
   div.style.position='fixed';
   document.body.appendChild(div);
   setTimeout(()=>div.remove(), 8000);
   try{ new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAA...').play(); }catch(e){}
 }
 
-/* â”€â”€ HAFTALÄ°K CÄ°RO GRAFÄ°ÄÄ° â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── HAFTALİK CİRO GRAFİĞİ ─────────────────────────────────────────── */
 function renderWeeklyChart(){
-  const days=['Pzt','Sal','Ã‡ar','Per','Cum','Cmt','Paz'];
+  const days=['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
   const now=new Date();
   const weekData=Array(7).fill(0);
   orders.forEach(o=>{
@@ -2040,7 +2040,7 @@ function renderWeeklyChart(){
       const h=Math.max(4,Math.round((v/max)*90));
       const isToday=i===todayIdx;
       return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
-        <div style="font-size:10px;color:var(--gray-500);font-weight:600">${v>0?fmtPrice(v).replace(' â‚º',''):'â€”'}</div>
+        <div style="font-size:10px;color:var(--gray-500);font-weight:600">${v>0?fmtPrice(v).replace(' ₺',''):'—'}</div>
         <div style="width:100%;height:${h}px;background:${isToday?'var(--orange)':'var(--orange-light)'};border-radius:4px 4px 0 0;transition:.3s"></div>
         <div style="font-size:10px;color:${isToday?'var(--orange)':'var(--gray-400)'};font-weight:${isToday?700:400}">${days[(now.getDay()+6-todayIdx+i)%7]}</div>
       </div>`;
@@ -2048,7 +2048,7 @@ function renderWeeklyChart(){
   </div>`;
 }
 
-/* â”€â”€ FATURA YAZDIR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── FATURA YAZDIR ───────────────────────────────────────────────────── */
 function printInvoice(idx){
   const inv=invoices[idx];if(!inv)return;
   const win=window.open('','_blank');
@@ -2059,24 +2059,24 @@ function printInvoice(idx){
   win.document.write(`<!DOCTYPE html><html><head><title>Fatura</title>
     <style>body{font-family:sans-serif;padding:24px;max-width:700px;margin:0 auto}h2{color:#F97316}table{width:100%;border-collapse:collapse;margin-top:16px}th,td{padding:8px 12px;border:1px solid #e5e7eb;text-align:left}th{background:#f9fafb}tfoot td{font-weight:700;background:#fef3e9}@media print{button{display:none}}</style>
     </head><body>
-    <h2>AydÄ±n Gros â€” Fatura</h2>
+    <h2>Aydın Gros — Fatura</h2>
     <p style="color:#6b7280">${fmtDate(inv.ts)} | ${inv.note||'Not yok'}</p>
-    <table><thead><tr><th>ÃœrÃ¼n</th><th>Miktar</th><th>AlÄ±ÅŸ</th><th>Marj</th><th>SatÄ±ÅŸ</th></tr></thead>
+    <table><thead><tr><th>Ürün</th><th>Miktar</th><th>Alış</th><th>Marj</th><th>Satış</th></tr></thead>
     <tbody>${rows}</tbody>
     <tfoot><tr><td colspan="4">Toplam Maliyet</td><td>${fmtPrice(inv.totalCost)}</td></tr></tfoot></table>
-    <br><button onclick="window.print()">ğŸ–¨ï¸ YazdÄ±r</button>
+    <br><button onclick="window.print()">🖨️ Yazdır</button>
     </body></html>`);
   win.document.close();
 }
 
-/* â”€â”€ INIT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── INIT ───────────────────────────────────────────────────────────── */
 initBackendData().then(() => {
   try{loadData();}catch(e){console.error('loadData error:',e);}
   startOrderPolling();
   if(document.getElementById('page-dash').classList.contains('active')) renderDash();
   if(document.getElementById('page-orders').classList.contains('active')) renderOrders();
 }).catch(console.error);
-// Erenler fiyatlarÄ±nÄ± arka planda yÃ¼kle
+// Erenler fiyatlarını arka planda yükle
 loadErenlerData().then(()=>{buildCompRows();renderCompSummaryBar();}).catch(()=>{});
 
 function handleImageUpload(event) {
