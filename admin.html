@@ -271,7 +271,10 @@ tr:hover td{background:var(--gray50)}
     <div id="page-dash" class="page active">
       <div class="page-header">
         <div><div class="page-title">Özet</div><div class="page-subtitle">Genel durum ve hızlı erişim</div></div>
-        <button class="btn btn-ghost btn-sm" onclick="renderDash()">↻ Yenile</button>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div id="backendStatus" style="display:none"></div>
+          <button class="btn btn-ghost btn-sm" onclick="renderDash()">↻ Yenile</button>
+        </div>
       </div>
       <div class="stats-grid" id="dashStats"></div>
       <div id="dashAlerts"></div>
@@ -1026,6 +1029,15 @@ async function initBackendData() {
   campaigns = await fetchDb('campaigns', []);
   stock = await fetchDb('stock', {});
   invoices = await fetchDb('invoices', []);
+  console.log(
+    '[AydınGros] Veri yüklendi —',
+    `products:${products.length}`,
+    `orders:${orders.length}`,
+    `promos:${Object.keys(promos).length}`,
+    `campaigns:${campaigns.length}`,
+    `stock:${Object.keys(stock).length}`,
+    `invoices:${invoices.length}`
+  );
 }
 
 function loadData(){
@@ -1101,6 +1113,7 @@ function hideLoginErr() {
 function showApp() {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('appWrap').style.display = 'block';
+  checkBackendStatus();
 }
 
 function showLogin() {
@@ -1202,6 +1215,25 @@ async function doLogout() {
 document.getElementById('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 document.getElementById('loginUser').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 
+/* ── BACKEND DURUM TESTİ ─────────────────────────────────────────────── */
+async function checkBackendStatus() {
+  const el = document.getElementById('backendStatus');
+  if (!el) return;
+  try {
+    const r = await fetch('/api/db?coll=settings');
+    const backend = r.headers.get('X-Backend') || 'unknown';
+    const isSupabase = backend === 'supabase';
+    console.log('[AydınGros] Backend:', backend);
+    el.innerHTML = isSupabase
+      ? '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;background:var(--green-light);color:var(--green)">⚡ Supabase</span>'
+      : '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;background:var(--gray100);color:var(--gray500)">📦 JSONBlob</span>';
+    el.style.display = 'block';
+  } catch (_) {
+    el.innerHTML = '<span style="font-size:11px;color:var(--gray400)">⚠ bağlantı hatası</span>';
+    el.style.display = 'block';
+  }
+}
+
 // Sprint 3C'de Supabase'den yönetilecek; şimdilik devre dışı
 function changePass() {
   toast('Şifre değiştirme artık Supabase üzerinden yönetilmektedir.');
@@ -1233,6 +1265,7 @@ function closeSidebar(){
 
 /* ── DASHBOARD ──────────────────────────────────────────────────────── */
 function renderDash(){
+  checkBackendStatus();
   loadData();
   processOrderStock();
   updateSidebarStockBadge();
