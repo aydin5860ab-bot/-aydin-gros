@@ -2706,3 +2706,1339 @@ v1.0 — 27 Haziran 2026 — İlk taslak oluşturuldu
 *Her teknik karar bu belgeyle uyumlu olmak zorundadır.*
 *Belge, sistem geliştikçe güncellenecek ve versiyonlanacaktır.*
 
+
+---
+
+# BÖLÜM 31 — POS DONANIM KATMANI
+
+## 31.1 Desteklenen Donanım Ailesi
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    POS DONANIM EKOSİSTEMİ                   │
+│                                                             │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────┐  │
+│  │ Barkod       │  │ Fiş Yazıcı   │  │ Elektronik       │  │
+│  │ Okuyucu      │  │ (Termal)     │  │ Terazi           │  │
+│  └──────┬───────┘  └──────┬───────┘  └────────┬─────────┘  │
+│         │                 │                    │            │
+│         └─────────────────┴────────────────────┘            │
+│                           │                                 │
+│              ┌────────────▼────────────┐                    │
+│              │      POS Yazılımı       │                    │
+│              │  (Tarayıcı / PWA)       │                    │
+│              └────────────┬────────────┘                    │
+│                           │                                 │
+│  ┌──────────┐  ┌──────────┴──────────┐  ┌───────────────┐  │
+│  │ Para     │  │  Kart / QR Okuyucu  │  │ Yazarkasa     │  │
+│  │ Çekmecesi│  │  (Temassız Ödeme)   │  │ ÖKC           │  │
+│  └──────────┘  └─────────────────────┘  └───────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## 31.2 Barkod Okuyucu
+
+```
+Bağlantı yöntemleri:
+  USB HID: Klavye gibi davranır, tarama = metin girişi
+           Ek sürücü gerekmez, en yaygın yöntem
+  Bluetooth: Kablosuz, belirli mesafe kısıtı var
+  Serial/COM: Eski model cihazlar için
+
+Desteklenecek barkod tipleri:
+  EAN-13 / EAN-8    → Standart ürün barkodları
+  Code 128          → Değişken uzunlukta alfanümerik
+  QR Code           → Müşteri kuponu, ödeme
+  Code 39           → İç kullanım etiketleri
+  DataMatrix        → Küçük ürünler (ilaç vb.)
+
+Uygulama entegrasyonu:
+  POS ekranında "Ürün Ara" kutusu her zaman odakta
+  Barkod okunduğunda → ürün otomatik sepete eklenir
+  Bilinmeyen barkod → "Yeni ürün ekle?" modal gösterilir
+  Tartılı ürün barkodu (20 prefix) → ağırlık ayrıştırılır
+
+Yazılım gereksinimleri:
+  input focus yönetimi (barkod kutusu her zaman aktif)
+  debounce: 50ms (hızlı seri okumada karışmayı önler)
+  minimum barkod uzunluğu: 6 karakter
+  Enter veya CR/LF: okuma tamamlandı sinyali
+```
+
+## 31.3 Fiş Yazıcı (Termal)
+
+```
+Bağlantı: USB veya Network (Ethernet/WiFi)
+Protokol: ESC/POS (Epson standardı — en yaygın)
+Genişlik: 80mm (standart) veya 58mm (kompakt)
+
+Fiş içeriği:
+  ┌─────────────────────────────────┐
+  │       AYDIN GROS                │
+  │   Geyras Mah. Aydın Cad. No:1  │
+  │   Tel: 0344 XXX XX XX           │
+  ├─────────────────────────────────┤
+  │ Tarih: 27.06.2026  Saat: 14:35  │
+  │ Kasa: Kasa 1  Kasiyer: Mehmet   │
+  │ Fiş No: AG-2026-000123          │
+  ├─────────────────────────────────┤
+  │ Salkım Domates 1kg    24,00 TL  │
+  │ İçim Süt 1L           29,90 TL  │
+  │ Ekmek 1 adet           5,00 TL  │
+  ├─────────────────────────────────┤
+  │ ARA TOPLAM:           58,90 TL  │
+  │ KDV (%1):              0,59 TL  │
+  │ KDV (%8):              4,21 TL  │
+  │ TOPLAM:               58,90 TL  │
+  ├─────────────────────────────────┤
+  │ NAKİT:                60,00 TL  │
+  │ PARA ÜSTÜ:             1,10 TL  │
+  ├─────────────────────────────────┤
+  │ Bizi tercih ettiğiniz için      │
+  │ teşekkür ederiz!                │
+  │                                 │
+  │ [QR — Sipariş takip]            │
+  └─────────────────────────────────┘
+
+Yazılım gereksinimleri:
+  Web Serial API (Chrome/Edge) veya
+  Yerel ağda print sunucu (Node.js + PrintNode)
+  ESC/POS komut kütüphanesi (escpos-js)
+  Fiş şablonu yapılandırılabilir (logo, footer, teşekkür mesajı)
+  Yeniden yazdırma: son 5 fiş önbellekte
+```
+
+## 31.4 Elektronik Terazi
+
+```
+Senaryo: Manav + Kasap ürünleri gramaj bazlı satış
+
+Entegrasyon yöntemi: Barkod tabanlı ağırlık etiketi
+  Terazide ürün tartılır
+  Terazi barkod etiketi basar
+  POS barkodu okur, ağırlığı çözer, fiyat hesaplar
+
+Barkod format — EAN-13 ağırlık kodu:
+  [2][PPPPP][WWWWW][C]
+   2 = tartılı ürün prefix (GS1 standardı)
+   PPPPP = ürün kodu (5 hane)
+   WWWWW = ağırlık (gram, 5 hane, örn: 00500 = 500g)
+   C = checksum
+
+Örnek:
+  Domates (kod: 00123), 750g tartılır
+  Barkod: 2001230007500X
+  POS çözer: Domates + 750g
+  Fiyat: 750g × (24 TL/kg) = 18 TL
+
+Sistem gereksinimleri:
+  products tablosunda: is_weighted BOOLEAN, price_per_gram NUMERIC
+  Barkod parser modülü (Faz 2'de geliştirilir)
+  Ağırlık birimi: gram (dönüşüm hesabı sistem yapar)
+
+Doğrudan seri port entegrasyonu (ileride):
+  Terazi → RS-232/USB Serial → POS
+  Real-time ağırlık okuma
+  "Tart ve Ekle" butonu
+  Web Serial API veya yerel proxy gerektirir
+```
+
+## 31.5 Para Çekmecesi
+
+```
+Tetikleme: Fiş yazıcıya bağlı (fiş baskısıyla otomatik açılır)
+Protokol: RJ11/RJ12 üzerinden yazıcıya bağlantı
+           ESC/POS komutu ile açılır (BEL veya ESC p komutu)
+
+Yazılım gereksinimi:
+  Nakit ödeme seçildiğinde fiş baskısıyla çekmece açılır
+  Kart ödemede çekmece açılmaz (gereksiz açık bırakmamak için)
+  Manuel açma: Müdür izniyle (kasa farkı durumunda sayım için)
+  Her açılış: audit_log kaydı (otomatik mi, manuel mi)
+```
+
+## 31.6 QR / Temassız Ödeme
+
+```
+Kısa vade (mevcut):
+  Banka POS terminali: Bağımsız cihaz, tutarı elle POS'a girilir
+  Entegrasyon: Manuel (yazılım tarafı sadece kayıt tutar)
+
+Orta vade (Faz 3):
+  Iyzico veya PayTR POS entegrasyonu
+  Sistem tutarı terminale iletir (serial/network)
+  Terminal onay/red bilgisini sisteme döner
+
+QR Ödeme (müşteri kendi telefonu):
+  Sistem ödeme QR kodu üretir (Iyzico/Stripe)
+  Müşteri okutunca ödeme gelir
+  Sistem otomatik "ödeme alındı" yakalar
+  Kasa işlemi kaydedilir
+
+Yazılım hazırlık gereksinimleri:
+  orders.payment_method: 'qr' değeri eklenecek
+  cash_transactions.method: 'qr' değeri eklenecek
+  Ödeme sağlayıcı webhook handler (Faz 3)
+```
+
+## 31.7 Yazarkasa (ÖKC)
+
+```
+Türkiye yasal zorunluluğu:
+  Vergi mükellefleri için ÖKC (Ödeme Kaydedici Cihaz) zorunlu
+  Yeni nesil ÖKC: İnternet bağlantılı, GİB'e otomatik raporlama
+
+Entegrasyon stratejisi:
+  Faz 1-2: Bağımsız çalışır, günlük satış tutarı elle girilir
+  Faz 3: Üretici API'si varsa entegrasyon (Hugin, Epson ÖKC)
+  Faz 3: e-Fatura ile birleşik akış
+
+Donanım uyumluluğu testi gereken modeller:
+  Hugin EC-5100 / EC-5200
+  Epson TM-T88VII
+  Ingenico / Verifone terminal ailesi
+
+Yazılım hazırlık:
+  Her satış: ÖKC'ye iletilecek veri formatı hazır olmalı
+  KDV oranı: Tüm ürünlerde tanımlanmalı (eksik şu an)
+  Günlük kapanış: ÖKC Z raporu + Sistem Z raporu aynı tutarı göstermeli
+```
+
+---
+
+# BÖLÜM 32 — GELİŞMİŞ TEDARİKÇİ ERP
+
+## 32.1 Tedarikçi Veri Modeli
+
+```
+suppliers tablosu:
+  id, tenant_id
+  company_name       → Şirket adı
+  contact_person     → Yetkili kişi
+  phone, email
+  tax_number         → Vergi numarası
+  tax_office         → Vergi dairesi
+  address
+  payment_terms      → Ödeme vadesi (gün: 0=peşin, 7, 30, 60)
+  delivery_days      → Ortalama teslimat günü
+  categories         → Hangi kategorileri tedarik ediyor (JSON array)
+  notes
+  is_active
+  created_at
+
+supplier_price_lists tablosu:
+  id, supplier_id, product_id
+  unit_price         → Tedarikçinin alış fiyatı
+  min_order_qty      → Minimum sipariş miktarı
+  valid_from, valid_until
+  currency           → TRY (ileride çoklu para birimi)
+```
+
+## 32.2 Tedarikçi Sipariş Akışı (Purchase Order)
+
+```
+purchase_orders tablosu:
+  id (UUID), po_number (PO-2026-000001)
+  tenant_id, branch_id, supplier_id
+  status: draft → sent → partial → received → completed → cancelled
+  expected_delivery_date
+  notes
+  created_by → users.id
+  sent_at, received_at
+  total_amount, paid_amount, due_amount
+  payment_status: unpaid → partial → paid → overdue
+
+purchase_order_items tablosu:
+  id, purchase_order_id, product_id
+  ordered_qty
+  received_qty       → Gerçekte teslim alınan
+  unit_price         → Sipariş anındaki fiyat (değişmemeli)
+  total
+  notes
+```
+
+## 32.3 Tedarikçi Sipariş Akışı (İş Akışı)
+
+```
+1. SİPARİŞ OLUŞTURMA
+   Müdür / Depo → "Tedarikçiye Sipariş Ver" ekranı
+   ├── Tedarikçi seçilir
+   ├── Sipariş kalemleri eklenir (ürün + miktar)
+   ├── Beklenen teslimat tarihi girilir
+   └── Sipariş taslak olarak kaydedilir (status: draft)
+
+2. SİPARİŞ GÖNDERİMİ
+   Müdür siparişi onaylar → status: sent
+   ├── Tedarikçiye email gönderilir (PDF eklentisi)
+   ├── WhatsApp mesajı (opsiyonel)
+   └── Bekleme durumuna geçer
+
+3. MAL KABUL
+   Mal geldiğinde depo personeli sistemi açar:
+   ├── İlgili PO seçilir
+   ├── Her kalem için gerçekte gelen miktar girilir
+   │   ├── Tam geldi → received_qty = ordered_qty
+   │   ├── Eksik geldi → received_qty < ordered_qty
+   │   └── Fazla geldi → received_qty > ordered_qty (uyarı)
+   ├── Stok hareketi otomatik oluşur (type: purchase)
+   └── PO status: received (tam) veya partial (eksik)
+
+4. EKSİK TESLİM YÖNETİMİ
+   Eksik teslimat durumunda:
+   ├── Eksik kalemler "bekleniyor" olarak işaretlenir
+   ├── Tedarikçi uyarısı gönderilir (otomatik veya manuel)
+   ├── Yeni teslimat tarihi beklenir
+   └── PO açık kalır, kısmi fatura kesilebilir
+
+5. FATURA KONTROLÜ
+   Tedarikçi fatura gönderdiğinde:
+   ├── Fatura PO ile eşleştirilir
+   ├── Sistem kontrol eder:
+   │   ├── Fatura tutarı = PO tutarı mı?
+   │   ├── KDV oranları doğru mu?
+   │   └── Teslim edilmeyen ürünler faturalandırılmış mı?
+   ├── Uyuşmazlık varsa → Tedarikçi uyarısı + açıklama
+   └── Fatura onaylanınca ödeme planına girer
+```
+
+## 32.4 Cari Hesap Yönetimi
+
+```
+supplier_accounts tablosu:
+  supplier_id, tenant_id
+  total_purchase      → Toplam alış tutarı (kümülatif)
+  total_paid          → Toplam ödenen
+  balance             → Bakiye (borç = +, alacak = -)
+  credit_limit        → Tedarikçinin verdiği kredi limiti
+  last_purchase_date
+  last_payment_date
+
+supplier_payments tablosu:
+  id, supplier_id, tenant_id
+  amount
+  payment_method: cash / bank_transfer / check
+  payment_date
+  reference           → Havale dekontu / çek no
+  purchase_order_id   → Hangi siparişe karşılık
+  notes
+  recorded_by → users.id
+
+Cari hesap hareketleri:
+  Her alış → borç artışı
+  Her ödeme → borç azalışı
+  Vade geçen bakiye → "Vadesi geçmiş" uyarısı
+```
+
+## 32.5 Alış Fiyat Geçmişi
+
+```
+supplier_price_history tablosu:
+  id, supplier_id, product_id
+  unit_price
+  effective_date
+  source: invoice / negotiated / catalog
+  recorded_by
+
+Kullanım senaryoları:
+  "Geçen ay bu üründen kaçtan aldık?" → Hızlı yanıt
+  "Domates fiyatı 6 ayda nasıl değişti?" → Grafik
+  "En ucuz tedarikçi kim bu ürün için?" → Karşılaştırma
+  Hermes AI: Fiyat trend analizi → Alış zamanı önerisi
+```
+
+## 32.6 Tedarikçi İadesi
+
+```
+supplier_returns tablosu:
+  id, supplier_id, purchase_order_id
+  reason: defective / wrong_item / excess / expired
+  status: pending → approved → shipped → refunded
+  items (JSON) → iade edilen ürün + miktar
+  credit_note_number → Tedarikçinin iadeye karşılık verdiği belge
+  refund_amount
+  refund_date
+
+İade akışı:
+  Müdür iade talebi oluşturur
+  → Stok hareketi: type=transfer_out (tedarikçiye iade)
+  → Tedarikçi iade kabul ederse: alacak notu oluşur
+  → Alacak, sonraki siparişten düşülür veya nakit iade
+  → supplier_accounts güncellenir
+```
+
+---
+
+# BÖLÜM 33 — FİNANS MODÜLÜ
+
+## 33.1 Finans Modülünün Kapsamı
+
+```
+Aydın Gros OS, tam muhasebe yazılımı DEĞILDIR.
+Amacı: Market sahibinin kendi parasının nerede olduğunu görmesi.
+
+Kapsam:
+  ✅ Günlük/haftalık/aylık gelir takibi
+  ✅ Nakit/kart/banka ayırımı
+  ✅ Gider kaydı (kira, fatura, maaş vb.)
+  ✅ Tedarikçi borç takibi
+  ✅ Basit kâr-zarar görünümü
+  ✅ Kasa sayımı ve fark takibi
+
+  ❌ Çift kayıt muhasebesi (çift taraflı kayıt)
+  ❌ Bilanço ve muhasebe raporları
+  ❌ Vergi beyannamesi hazırlığı
+  (Bunlar için muhasebe yazılımına entegrasyon — Faz 4)
+```
+
+## 33.2 Finans Tabloları
+
+```
+financial_accounts tablosu (kasa ve banka hesapları):
+  id, tenant_id, branch_id
+  type: cash / bank / card_terminal / online
+  name: "Merkez Kasa", "İş Bankası Vadesiz", "POS Terminali"
+  current_balance: NUMERIC(12,2)
+  currency: TRY
+  is_active
+
+financial_transactions tablosu:
+  id, tenant_id, branch_id
+  account_id → financial_accounts.id
+  type: income / expense / transfer / adjustment
+  category: (income için) sales / return_in / other_income
+             (expense için) rent / utility / salary / purchase /
+                            maintenance / marketing / other
+  amount: NUMERIC(12,2)
+  direction: debit / credit
+  reference_type: order / invoice / manual / salary / rent
+  reference_id
+  description
+  transaction_date
+  recorded_by → users.id
+  created_at
+```
+
+## 33.3 Gelir Akışı
+
+```
+Otomatik gelir kaydı:
+  POS satış tamamlandığında:
+  → cash_transactions → financial_transactions (type: income, category: sales)
+  → Ödeme yöntemine göre doğru account'a yazar
+
+  Nakit satış → "Merkez Kasa" hesabına
+  Kart satışı → "POS Terminali" hesabına (T+1 banka hesabına geçer)
+  Online ödeme → "Online" hesabına
+
+Manuel gelir:
+  Kira geliri (eğer varsa)
+  Hurda/fire satışı
+  Diğer gelir
+```
+
+## 33.4 Gider Akışı
+
+```
+Gider kategorileri:
+  Kira          → Aylık otomatik hatırlatma
+  Elektrik/Su   → Fatura geldiğinde manuel giriş
+  Maaşlar       → Aylık dönemsel
+  Tedarikçi ödemesi → purchase_orders ile bağlantılı
+  Bakım-onarım  → Tek seferlik
+  Pazarlama     → Kampanya maliyeti
+  Diğer         → Serbest metin
+
+Gider onay eşikleri (yapılandırılabilir):
+  < 500 TL: Kasiyer/müdür girebilir
+  500 - 5000 TL: Müdür onayı
+  > 5000 TL: Admin onayı
+```
+
+## 33.5 Kâr-Zarar Özeti
+
+```
+Hesaplama mantığı (basitleştirilmiş):
+
+Brüt Satış                → orders.total toplamı
+- İadeler                 → return_amount toplamı
+= Net Satış
+
+- Satılan Malın Maliyeti  → order_items.cost_price × quantity toplamı
+= Brüt Kâr
+
+- Giderler                → financial_transactions (expense)
+= Net Kâr / Zarar
+
+Görüntüleme:
+  Günlük / Haftalık / Aylık seçeneği
+  Şube bazlı veya toplu
+  Grafik (çubuk veya çizgi)
+  PDF dışa aktarma
+```
+
+## 33.6 Nakit Akışı Takibi
+
+```
+Nakit döngüsü izleme:
+  Sabah: Kasa açılış bakiyesi
+  Gün içi: Satışlar (+ nakit) + Ödemeler (- nakit)
+  Akşam: Kasa kapanış + Z raporu
+
+Banka mutabakatı:
+  Kart satışları T+1 banka hesabına geçer
+  Sistem "banka transferi bekleniyor" olarak işaretler
+  Banka hesabı güncellendiğinde müdür onaylar (karşılaştırma)
+
+Kasa limiti:
+  Kasada 10.000 TL birikince → "Kasadan Çekim" uyarısı
+  Çekilen para: financial_transaction (type: transfer, cash → bank)
+```
+
+---
+
+# BÖLÜM 34 — RAPOR MERKEZİ
+
+## 34.1 Rapor Hiyerarşisi
+
+```
+RAPOR MERKEZİ
+│
+├── SATIŞ RAPORLARI
+│   ├── Saatlik satış dağılımı
+│   ├── Günlük satış özeti
+│   ├── Haftalık trend
+│   ├── Aylık karşılaştırma (geçen ay)
+│   └── Yıllık büyüme
+│
+├── ÜRÜN RAPORLARI
+│   ├── En çok satan ürünler (Top 20)
+│   ├── En az satan ürünler (Alt 20)
+│   ├── Kategori bazlı satış
+│   ├── Marka bazlı satış
+│   ├── Karlılık sıralaması
+│   └── Stok devir hızı
+│
+├── STOK RAPORLARI
+│   ├── Anlık stok durumu
+│   ├── Kritik stok uyarıları
+│   ├── Fire raporu (dönemsel)
+│   ├── Transfer geçmişi
+│   └── Stok hareket özeti
+│
+├── KASA RAPORLARI
+│   ├── Günlük Z raporları
+│   ├── Kasa bazlı gelir
+│   ├── Ödeme yöntemi dağılımı
+│   ├── İptal ve iade oranları
+│   └── Kasiyer performansı
+│
+├── PERSONEL RAPORLARI
+│   ├── Kasiyer satış toplamları
+│   ├── Ortalama sepet değeri (kasiyer bazlı)
+│   ├── İşlem sayısı (kasiyer bazlı)
+│   ├── İptal oranı (kasiyer bazlı)
+│   └── Vardiya özeti
+│
+├── ŞUBE RAPORLARI
+│   ├── Şube karşılaştırması (yan yana)
+│   ├── Şube bazlı karlılık
+│   ├── En iyi/kötü performanslı şube
+│   └── Transferler dahil konsolide görünüm
+│
+├── TEDARİKÇİ RAPORLARI
+│   ├── Tedarikçi bazlı alış özeti
+│   ├── Alış fiyat değişim grafiği
+│   ├── Vadesi geçen ödemeler
+│   └── Tedarikçi iade geçmişi
+│
+└── FİNANS RAPORLARI
+    ├── Gelir-Gider özeti
+    ├── Kâr-Zarar raporu
+    ├── Nakit akışı
+    └── KDV özeti (e-Fatura hazırlığı)
+```
+
+## 34.2 Rapor Üretim Mimarisi
+
+```
+İki tip rapor:
+
+1. ANLIK (Real-time):
+   Kullanıcı istediğinde veritabanından çekilir
+   Max veri aralığı: 90 gün (performans için)
+   Kullanım: Günlük operasyonel raporlar
+
+2. ÖN-HESAPLANMIŞ (Pre-computed):
+   Her gece 02:00'da hesaplanır
+   daily_reports tablosunda saklanır
+   Hızlı yükleme, geçmiş karşılaştırma için
+   Kullanım: Aylık/yıllık trend analizleri
+
+Raporlama motoru:
+  Supabase PostgreSQL: Complex JOIN + GROUP BY sorgular
+  Materialized view: Ay sonu raporları için
+  Redis cache: Tekrarlı rapor isteklerinde (30 dakika)
+```
+
+## 34.3 Rapor Dışa Aktarma
+
+```
+Desteklenen formatlar:
+  PDF: Fiş/rapor görünümü, yazdırma için
+  CSV: Excel'e açılabilir, analiz için
+  Excel (XLSX): Doğrudan Excel formatı
+  JSON: API üzerinden (entegrasyon için)
+
+Zamanlanmış gönderim:
+  Günlük: Kasa kapanış raporu → Müdüre email
+  Haftalık: Satış özeti → Admin'e email
+  Aylık: Tam rapor → Admin + Muhasebeci email
+```
+
+## 34.4 Dashboard Bileşenleri
+
+```
+Admin Dashboard (Üst Bölüm):
+  Bugünkü satış: [TL tutarı] [dünle karşılaştırma +/- %]
+  Açık siparişler: [sayı]
+  Kritik stok uyarısı: [ürün sayısı]
+  Aktif kasalar: [X / toplam Y]
+
+Saatlik Satış Grafiği (Çizgi):
+  Bugün (mavi) vs Geçen hafta aynı gün (gri)
+  X ekseni: 08:00-22:00 (saat)
+  Y ekseni: TL
+
+Kategori Pasta Grafiği:
+  Her kategorinin toplam satıştaki payı
+
+Top 5 Ürün (Çubuk):
+  Bugün en çok satılan 5 ürün
+
+Son 10 Sipariş (Tablo):
+  Canlı güncellenen sipariş listesi
+```
+
+---
+
+# BÖLÜM 35 — BİLDİRİM KURAL MOTORU
+
+## 35.1 Kural Motoru Nedir?
+
+Bildirim Kural Motoru, sistem içinde belirli olaylar gerçekleştiğinde veya belirli eşikler aşıldığında otomatik bildirim üreten bir yapıdır. Geliştiricinin her bildirim senaryosu için ayrı kod yazmasını önler. Market sahibi kendi kurallarını tanımlayabilir.
+
+## 35.2 Kural Yapısı
+
+```
+notification_rules tablosu:
+  id, tenant_id
+  name            → "Kritik Stok Uyarısı"
+  is_active       → açık/kapalı
+  trigger_type    → stock / order / cash / finance / custom
+  conditions      → JSON (kural koşulları)
+  actions         → JSON (tetiklenecek aksiyonlar)
+  cooldown_minutes → Tekrar tetikleme için bekleme süresi
+  recipients      → JSON (kime gönderilsin: roller listesi)
+  priority        → low / medium / high / critical
+
+notification_rule_logs tablosu:
+  id, rule_id, triggered_at
+  context         → JSON (tetikleyen veriyi saklar)
+  actions_taken   → JSON (ne yapıldığı)
+```
+
+## 35.3 Hazır Kural Şablonları
+
+### Kural 1: Kritik Stok Uyarısı
+```json
+{
+  "name": "Kritik Stok Uyarısı",
+  "trigger_type": "stock",
+  "conditions": {
+    "event": "stock_below_threshold",
+    "level": "critical"
+  },
+  "actions": [
+    { "type": "notification", "channel": "in_app", "priority": "high" },
+    { "type": "email", "template": "low_stock_alert" }
+  ],
+  "recipients": ["branch_manager", "warehouse"],
+  "cooldown_minutes": 60
+}
+```
+
+### Kural 2: Kasa Farkı Uyarısı
+```json
+{
+  "name": "Kasa Farkı Uyarısı",
+  "trigger_type": "cash",
+  "conditions": {
+    "event": "session_closed",
+    "difference_above": 100
+  },
+  "actions": [
+    { "type": "notification", "channel": "in_app", "priority": "critical" },
+    { "type": "email", "template": "cash_discrepancy" },
+    { "type": "audit_flag", "severity": "high" }
+  ],
+  "recipients": ["branch_manager", "tenant_admin"],
+  "cooldown_minutes": 0
+}
+```
+
+### Kural 3: Yüksek İade Oranı
+```json
+{
+  "name": "Yüksek İade Oranı Uyarısı",
+  "trigger_type": "order",
+  "conditions": {
+    "event": "return_rate_check",
+    "period": "daily",
+    "threshold_pct": 5
+  },
+  "actions": [
+    { "type": "notification", "channel": "in_app" },
+    { "type": "report", "template": "return_analysis" }
+  ],
+  "recipients": ["tenant_admin"],
+  "cooldown_minutes": 1440
+}
+```
+
+### Kural 4: Son Kullanma Tarihi Yaklaşan Ürün
+```json
+{
+  "name": "SKT Uyarısı",
+  "trigger_type": "stock",
+  "conditions": {
+    "event": "expiry_approaching",
+    "days_before": 7
+  },
+  "actions": [
+    { "type": "notification", "channel": "in_app" },
+    { "type": "hermes_suggest", "action": "flash_sale_or_waste" }
+  ],
+  "recipients": ["branch_manager", "warehouse"],
+  "cooldown_minutes": 1440
+}
+```
+
+### Kural 5: Olağandışı Satış Düşüşü
+```json
+{
+  "name": "Satış Düşüşü Tespiti",
+  "trigger_type": "custom",
+  "conditions": {
+    "event": "sales_drop",
+    "comparison": "last_week_same_day",
+    "threshold_pct": -30
+  },
+  "actions": [
+    { "type": "notification", "channel": "in_app" },
+    { "type": "hermes_analyze", "module": "sales_anomaly" }
+  ],
+  "recipients": ["tenant_admin"],
+  "cooldown_minutes": 360
+}
+```
+
+### Kural 6: Mesai Dışı Giriş
+```json
+{
+  "name": "Mesai Dışı Sistem Girişi",
+  "trigger_type": "auth",
+  "conditions": {
+    "event": "login_outside_hours",
+    "working_hours": { "start": "07:00", "end": "23:00" }
+  },
+  "actions": [
+    { "type": "notification", "channel": "in_app", "priority": "critical" },
+    { "type": "email", "template": "after_hours_login" },
+    { "type": "audit_flag", "severity": "medium" }
+  ],
+  "recipients": ["tenant_admin"],
+  "cooldown_minutes": 30
+}
+```
+
+## 35.4 Kural Motoru Çalışma Mekanizması
+
+```
+Olay Gerçekleşir (örn: stok düşer)
+   │
+   ▼
+Event Bus'a yayınlanır (dahili kuyruk)
+   │
+   ▼
+Kural Motoru İlgili Kuralları Filtreler
+   ├── trigger_type eşleşiyor mu?
+   ├── Tenant'a ait kural mı?
+   ├── Kural aktif mi?
+   └── Cooldown süresi geçti mi?
+   │
+   ▼
+Koşullar Değerlendirilir
+   ├── Tüm koşullar sağlandıysa → Tetikle
+   └── Sağlanmadıysa → Geç
+   │
+   ▼
+Aksiyonlar Çalıştırılır (paralel)
+   ├── in_app bildirim → notifications tablosuna yaz
+   ├── email → Resend API
+   ├── audit_flag → audit_logs'a özel işaret
+   └── hermes_suggest → AI Service Layer'a istek
+   │
+   ▼
+notification_rule_logs'a kayıt
+```
+
+---
+
+# BÖLÜM 36 — WORKFLOW MOTORU
+
+## 36.1 Workflow Motoru Nedir?
+
+Workflow Motoru, sistemdeki çok adımlı iş süreçlerini yönetir. Her sürecin hangi adımda olduğunu, kimin onay beklediğini, ne zaman zaman aşımına uğrayacağını takip eder.
+
+```
+workflows tablosu:
+  id, tenant_id, type
+  status: active / completed / cancelled / failed
+  current_step
+  context       → JSON (akış boyunca taşınan veri)
+  created_by
+  created_at, completed_at
+
+workflow_steps tablosu:
+  id, workflow_id
+  step_name
+  step_order
+  status: pending / in_progress / completed / skipped / failed
+  assigned_to   → users.id (onay beklenen kişi)
+  completed_by
+  completed_at
+  due_at        → zaman aşımı süresi
+  notes
+```
+
+## 36.2 Sipariş İş Akışı (Detaylı)
+
+```
+Workflow: ORDER_FLOW
+Adımlar:
+
+1. ORDER_CREATED
+   Tetikleyici: Müşteri sipariş verir (web / POS / WhatsApp)
+   Sistem aksiyonu:
+     - Stok rezerve edilir (reserved_quantity++)
+     - Sipariş numarası üretilir
+     - Bildirim tetiklenir (Kural Motoru)
+   Sonraki adım: ORDER_VALIDATION
+
+2. ORDER_VALIDATION (otomatik, < 30 saniye)
+   Kontroller:
+     - Tüm ürünler stokta var mı?
+     - Teslimat adresi kapsama alanında mı?
+     - Minimum sipariş tutarı sağlandı mı?
+   Başarılı → ORDER_CONFIRMED
+   Başarısız → ORDER_CANCELLED (otomatik, müşteriye bildirim)
+
+3. ORDER_CONFIRMED
+   Sistem aksiyonu:
+     - Müşteriye onay bildirimi (email + WhatsApp)
+     - Admin panelde görünür
+   Manuel aksiyon: Müdür/personel siparişi alır
+   Sonraki adım: ORDER_PREPARING
+
+4. ORDER_PREPARING
+   Depo/personel sipariş hazırlıyor
+   Zaman aşımı: 30 dakika (yapılandırılabilir)
+   Zaman aşımı durumu: Müdüre uyarı
+   Sonraki adım: ORDER_ON_WAY
+
+5. ORDER_ON_WAY
+   Kurye/araç çıktı olarak işaretlendi
+   Müşteriye "yola çıktı" bildirimi
+   Zaman aşımı: Teslimat süresi (yapılandırılabilir: 45 dk)
+   Sonraki adım: ORDER_DELIVERED
+
+6. ORDER_DELIVERED
+   Terminal durum (başarılı)
+   Stok rezervasyonu kalıcı düşürülür
+   Sadakat puanı eklenir (kayıtlı müşteri)
+   Fatura oluşturulur (e-Fatura hazır olunca)
+```
+
+## 36.3 Stok Transfer İş Akışı
+
+```
+Workflow: STOCK_TRANSFER
+
+1. TRANSFER_REQUESTED
+   Kaynak şube müdürü oluşturur
+   Hedef şube + ürün + miktar belirlenir
+   Kaynak stokta rezervasyon
+
+2. TRANSFER_APPROVED
+   Hedef şube müdürü onaylar
+   Zaman aşımı: 24 saat (onaylanmadan iptal edilebilir)
+
+3. TRANSFER_IN_TRANSIT
+   Fiziksel taşıma başladı
+   Kaynak stoktan düşülür
+   Tahmini varış tarihi
+
+4. TRANSFER_RECEIVED
+   Hedef şube teslim alır
+   Fiili miktar girilir (eksiksiz veya eksik)
+   Hedef stok artar
+
+5. TRANSFER_COMPLETED veya TRANSFER_PARTIAL
+   Eksikse: Kaynak şubeye bildirim + eksik stok raporu
+```
+
+## 36.4 Satın Alma İş Akışı
+
+```
+Workflow: PURCHASE_ORDER
+
+1. PO_DRAFT
+   Müdür/Depo oluşturur
+   Onay gerekmez (belirli tutarın altında)
+
+2. PO_APPROVAL_PENDING (büyük siparişlerde)
+   Belirli eşiğin üstünde → Yönetici onayı
+   Zaman aşımı: 48 saat
+
+3. PO_SENT
+   Tedarikçiye iletildi
+   Bekleme
+
+4. PO_PARTIAL_RECEIVED
+   Eksik teslimat
+   Açık kalır, kalan bekleniyor
+
+5. PO_FULLY_RECEIVED
+   Tüm ürünler teslim alındı
+   Fatura eşleştirmesi bekleniyor
+
+6. PO_COMPLETED
+   Fatura onaylandı, ödeme planlandı
+```
+
+## 36.5 İade İş Akışı
+
+```
+Workflow: RETURN_FLOW
+
+1. RETURN_REQUESTED
+   Müşteri / Kasiyer oluşturur
+
+2. RETURN_APPROVAL (tutar eşiğine göre)
+   Küçük tutar → otomatik onay (adım atlanır)
+   Büyük tutar → Müdür onayı
+   Zaman aşımı: 2 saat
+
+3. RETURN_PRODUCT_INSPECTION
+   Ürün incelendi
+   Kararlar: stoka al / fire yaz
+
+4. RETURN_REFUND_PROCESSED
+   Para iadesi yapıldı (nakit / kart)
+
+5. RETURN_COMPLETED
+   Stok güncellendi
+   Müşteriye bildirim
+```
+
+## 36.6 Fire İş Akışı
+
+```
+Workflow: WASTE_FLOW
+
+1. WASTE_REPORTED
+   Personel tespit eder, form doldurur
+
+2. WASTE_APPROVAL
+   Değer eşiğine göre:
+   - Küçük: Müdür onayı (Faz 2'de otomatik)
+   - Büyük: Admin onayı
+
+3. WASTE_RECORDED
+   Stok hareketi yazılır
+   Maliyet etkisi hesaplanır
+
+4. WASTE_COMPLETED
+   Rapor güncellenir
+   Hermes AI uyarısı tetiklenebilir (eşik aşıldıysa)
+```
+
+---
+
+# BÖLÜM 37 — API MARKETPLACE
+
+## 37.1 Kapsamı ve Amacı
+
+```
+API Marketplace, Kurumsal plan müşterilerin
+Aydın Gros OS verilerine ve işlevlerine programatik
+erişim sağlamasına izin verir.
+
+Kullanım senaryoları:
+  - Muhasebe yazılımıyla otomatik entegrasyon
+  - E-ticaret platformuyla stok senkronizasyonu
+  - Özel raporlama uygulamaları
+  - Üçüncü taraf analitik araçları
+  - Kargo entegrasyonu
+  - CRM entegrasyonu
+```
+
+## 37.2 API Key Yönetimi
+
+```
+api_keys tablosu:
+  id, tenant_id
+  name            → "Muhasebe Entegrasyonu"
+  key_hash        → SHA-256 hash (plain text saklanmaz)
+  key_prefix      → "ag_live_" (gösterim için)
+  permissions     → JSON array (hangi endpoint'ler)
+  rate_limit      → İstek/dakika limiti
+  allowed_ips     → IP whitelist (opsiyonel)
+  last_used_at
+  expires_at      → Süreli veya süresiz
+  is_active
+  created_by
+
+API Key formatı:
+  ag_live_XXXXXXXXXXXXXXXXXXXXXXXXXXXX (32 random karakter)
+  ag_test_XXXXXXXXXXXXXXXXXXXXXXXXXXXX (test ortamı)
+
+Güvenlik:
+  Key oluşturulduğunda bir kez gösterilir
+  Sonra asla plain text gösterilmez
+  Kaybedilirse yeni key üretilmeli
+```
+
+## 37.3 Webhook Sistemi
+
+```
+webhook_endpoints tablosu:
+  id, tenant_id
+  url             → https://muhasebe.com/api/webhook
+  secret          → HMAC imzalama anahtarı
+  events          → JSON array (hangi olayları dinleyecek)
+  is_active
+  last_triggered_at
+  failure_count   → Ardışık başarısız deneme sayısı
+
+Desteklenen webhook olayları:
+  order.created          order.status_changed
+  order.delivered        order.cancelled
+  stock.low_alert        stock.movement_created
+  payment.received       invoice.created
+  product.price_changed  supplier.invoice_due
+
+webhook_deliveries tablosu:
+  id, endpoint_id
+  event_type
+  payload         → JSON (gönderilen veri)
+  status          → pending / delivered / failed
+  http_status     → 200, 404, 500 vb.
+  attempts        → Deneme sayısı
+  next_retry_at
+  delivered_at
+```
+
+## 37.4 Webhook Güvenliği (HMAC İmzalama)
+
+```
+Her webhook isteğinde:
+  1. Payload JSON'u oluştur
+  2. HMAC-SHA256 ile secret key kullanarak imzala
+  3. İmzayı header'a ekle:
+     X-AydinGros-Signature: sha256=XXXX
+  4. Alıcı aynı hesaplamayı yaparak doğrular
+  5. İmza uyuşmuyorsa → isteği reddet (güvenlik)
+
+Yeniden deneme stratejisi:
+  Başarısız webhook → 1dk, 5dk, 30dk, 2sa, 24sa arayla tekrar
+  5 ardışık başarısızlık → endpoint devre dışı + admin bildirimi
+```
+
+## 37.5 OAuth 2.0 Hazırlığı
+
+```
+Faz 4 için hazırlık (şimdi tasarlanacak, sonra uygulanacak):
+
+Hedef: Üçüncü taraf uygulamalar, tenant izniyle
+       Aydın Gros verilerine erişebilsin
+
+OAuth 2.0 Authorization Code Flow:
+  1. Uygulama → Aydın Gros auth sayfasına yönlendir
+  2. Market sahibi izin verir (hangi yetkiler)
+  3. Auth code döner
+  4. Uygulama auth code → access token değiştirir
+  5. Access token ile API çağrıları yapılır
+
+Scope örnekleri:
+  read:products   → Ürünleri okuyabilir
+  read:orders     → Siparişleri okuyabilir
+  write:orders    → Sipariş durumu güncelleyebilir
+  read:reports    → Raporları okuyabilir
+
+Schema hazırlığı:
+  oauth_clients tablosu (Faz 4'te oluşturulacak)
+  oauth_tokens tablosu
+```
+
+## 37.6 API Dokümantasyonu
+
+```
+Araç: Swagger/OpenAPI 3.0 (otomatik üretilir)
+URL: /api/docs (giriş gerektirmez)
+İçerik:
+  Her endpoint için: metot, URL, parametreler, örnek response
+  Authentication: API key nasıl kullanılır
+  Webhook: Nasıl kurulur, örnek payload'lar
+  Rate limit: Limitler ve aşım durumu
+  Sandbox: Test ortamı bilgileri
+
+SDK (ileride):
+  JavaScript/TypeScript SDK
+  Python SDK
+  (Açık kaynak, GitHub'da yayınlanır)
+```
+
+---
+
+# BÖLÜM 38 — AI SERVICE LAYER
+
+## 38.1 Neden Ayrı Bir AI Service Layer?
+
+```
+Sorun: Hermes AI doğrudan veritabanına bağlanırsa:
+  ❌ Tenant izolasyonu zayıflar (RLS tek başına yetmez)
+  ❌ AI hangi veriyi gördüğü belirsizleşir
+  ❌ PII (kişisel veri) AI modeline gidebilir
+  ❌ Hata durumunda rollback zorlaşır
+  ❌ Audit edilemez (AI ne gördü?)
+
+Çözüm: AI Service Layer
+  ✅ Veritabanı ile AI arasında kontrollü geçit
+  ✅ Veri tenant bazlı ve konu bazlı filtrelenir
+  ✅ PII veritabanında kalır, AI'ya sadece sayısal veri gider
+  ✅ Her AI isteği loglanır
+  ✅ AI'ya giden veri denetlenebilir
+```
+
+## 38.2 AI Service Layer Mimarisi
+
+```
+┌──────────────────────────────────────────────────────────┐
+│                    UYGULAMA KATMANI                      │
+│              (Admin Panel / API Route)                   │
+└───────────────────────────┬──────────────────────────────┘
+                            │ "Stok tahmini istiyorum"
+                            ▼
+┌──────────────────────────────────────────────────────────┐
+│                   AI SERVICE LAYER                       │
+│                                                          │
+│  ┌─────────────────────────────────────────────────┐    │
+│  │              REQUEST VALIDATOR                   │    │
+│  │  - Tenant doğrulama                             │    │
+│  │  - İzin kontrolü (bu feature plan'a dahil mi?)  │    │
+│  │  - Rate limiting (AI kullanım kotası)           │    │
+│  └─────────────────┬───────────────────────────────┘    │
+│                    │                                     │
+│  ┌─────────────────▼───────────────────────────────┐    │
+│  │              DATA FETCHER                        │    │
+│  │  - Veritabanından sadece gerekli veriyi çeker   │    │
+│  │  - tenant_id ile izole                          │    │
+│  │  - PII alanları çıkarılır                       │    │
+│  │  - Sadece sayısal + kategorik veri               │    │
+│  └─────────────────┬───────────────────────────────┘    │
+│                    │                                     │
+│  ┌─────────────────▼───────────────────────────────┐    │
+│  │              PAYLOAD BUILDER                     │    │
+│  │  - Veriyi AI'ya uygun formata dönüştürür        │    │
+│  │  - Prompt şablonu doldurulur                    │    │
+│  │  - Token sayısı optimize edilir                 │    │
+│  └─────────────────┬───────────────────────────────┘    │
+│                    │                                     │
+│  ┌─────────────────▼───────────────────────────────┐    │
+│  │              AI GATEWAY                          │    │
+│  │  - Claude API çağrısı                           │    │
+│  │  - Timeout: 30 saniye                           │    │
+│  │  - Fallback: önbellekteki eski öneri            │    │
+│  └─────────────────┬───────────────────────────────┘    │
+│                    │                                     │
+│  ┌─────────────────▼───────────────────────────────┐    │
+│  │              RESPONSE VALIDATOR                  │    │
+│  │  - AI çıktısını JSON şemasına uyarlar           │    │
+│  │  - Mantıksız öneri filtrelenir                  │    │
+│  │  - (örn: "1 milyon kg sipariş ver" → reddedilir)│    │
+│  └─────────────────┬───────────────────────────────┘    │
+│                    │                                     │
+│  ┌─────────────────▼───────────────────────────────┐    │
+│  │              AI AUDIT LOG                        │    │
+│  │  - İstek zamanı, tenant, modül                  │    │
+│  │  - Gönderilen veri özeti (PII yok)              │    │
+│  │  - Alınan öneri                                 │    │
+│  │  - Kullanıcının kararı (kabul/red)              │    │
+│  └─────────────────────────────────────────────────┘    │
+└──────────────────────────┬───────────────────────────────┘
+                           │ Öneri
+                           ▼
+┌──────────────────────────────────────────────────────────┐
+│                    UYGULAMA KATMANI                      │
+│               Öneri gösterilir → Kullanıcı karar verir  │
+└──────────────────────────────────────────────────────────┘
+```
+
+## 38.3 Veri Filtreleme Kuralları
+
+```
+AI'ya GİDEBİLECEK veriler:
+  ✅ Ürün adı, kategorisi, birimi
+  ✅ Satış miktarları (dönemsel toplamlar)
+  ✅ Stok seviyeleri
+  ✅ Fiyat geçmişi (rakip fiyat dahil)
+  ✅ Fire miktarları
+  ✅ Tarih, gün, saat bilgisi
+  ✅ Kampanya etkinlik verileri
+
+AI'ya GİDEMEYECEK veriler:
+  ❌ Müşteri adı, soyadı
+  ❌ Müşteri telefonu, adresi
+  ❌ T.C. Kimlik numarası
+  ❌ Kart veya ödeme bilgisi
+  ❌ Kasiyer adı/soyadı (rol bilgisi geçebilir)
+  ❌ Herhangi bir tenant'ın başka tenant verisi
+```
+
+## 38.4 AI Service Layer Tabloları
+
+```
+ai_requests tablosu:
+  id, tenant_id
+  module          → stock_forecast / price_suggest / anomaly / chat
+  input_summary   → JSON (PII olmayan veri özeti)
+  model_used      → claude-haiku-4-5 / claude-sonnet-4-6
+  tokens_used
+  latency_ms
+  status          → success / error / timeout
+  output_summary  → JSON (öneri özeti)
+  created_at
+
+ai_suggestions tablosu:
+  id, tenant_id, request_id
+  type
+  product_id      (eğer ürün spesifikse)
+  suggestion      → JSON (yapılandırılmış öneri)
+  confidence      → 0.0-1.0 (AI güven skoru)
+  user_action     → accepted / rejected / ignored / pending
+  acted_by        → users.id
+  acted_at
+  created_at
+
+ai_usage_quotas tablosu:
+  tenant_id, period (YYYY-MM)
+  requests_used
+  tokens_used
+  quota_limit     → Plana göre
+  last_reset_at
+```
+
+## 38.5 Modül Bazlı AI Veri Sözleşmesi
+
+### Stok Tahmini
+```
+Giriş (AI'ya gönderilen):
+  {
+    "product_name": "Salkım Domates",
+    "unit": "kg",
+    "category": "manav",
+    "sales_history": [
+      {"date": "2026-06-20", "qty": 45},
+      {"date": "2026-06-21", "qty": 52},
+      ...
+    ],
+    "current_stock": 30,
+    "min_threshold": 10,
+    "avg_supplier_lead_days": 1
+  }
+
+Çıkış (AI'dan beklenen):
+  {
+    "days_until_stockout": 3,
+    "suggested_order_qty": 60,
+    "reasoning": "Hafta sonu yaklaştığı için satış artışı bekleniyor...",
+    "confidence": 0.82
+  }
+```
+
+### Fiyat Önerisi
+```
+Giriş:
+  {
+    "product_name": "Salkım Domates",
+    "current_price": 24.00,
+    "cost_price": 15.00,
+    "competitor_prices": [22.90, 25.50, 23.00],
+    "stock_level": "high",
+    "sales_velocity": "slow"
+  }
+
+Çıkış:
+  {
+    "suggested_price": 21.90,
+    "reasoning": "Stok yüksek, satış yavaş. Rakip ortalamasının altında fiyat sat...",
+    "expected_margin_pct": 31.5,
+    "confidence": 0.75
+  }
+```
+
+## 38.6 Chatbot (Serbest Metin Sorgu)
+
+```
+Kullanıcı soruları ve beklenen yanıtlar:
+
+"Bu hafta en çok ne sattım?"
+→ AI Service, orders tablosundan haftalık top 10 çeker
+→ PII filtrelenir, sadece ürün + miktar + tutar
+→ Claude: Doğal dil özeti üretir
+
+"Hangi ürünler kar marjını düşürüyor?"
+→ order_items.cost_price vs price karşılaştırması çekilir
+→ Claude: En düşük marjlı 5 ürün + öneri
+
+"Efeler şubesi neden bu ay düşük sattı?"
+→ Şube karşılaştırma verisi çekilir
+→ Claude: Olası sebepler listeler (stok sorunu? kampanya yok? vb.)
+
+Kısıtlamalar:
+  Chatbot yalnızca okuduğu veriyi yorumlar
+  Eylem alamaz (silemez, fiyat değiştiremez)
+  Her soru AI audit log'a düşer
+  Aylık istek kotası var (plana göre)
+```
+
+---
+
+# REVİZYON GEÇMİŞİ (GÜNCELLENDİ)
+
+```
+v1.0 — 27 Haziran 2026 — İlk taslak (30 bölüm)
+v1.1 — 27 Haziran 2026 — 8 bölüm eklendi:
+  Bölüm 31: POS Donanım Katmanı
+  Bölüm 32: Gelişmiş Tedarikçi ERP
+  Bölüm 33: Finans Modülü
+  Bölüm 34: Rapor Merkezi
+  Bölüm 35: Bildirim Kural Motoru
+  Bölüm 36: Workflow Motoru
+  Bölüm 37: API Marketplace
+  Bölüm 38: AI Service Layer
+
+Toplam bölüm: 38
+```
+
