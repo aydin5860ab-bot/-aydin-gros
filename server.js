@@ -3,6 +3,24 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 
+// .env.local — yerel geliştirme için ortam değişkenleri
+try {
+  const envPath = path.join(__dirname, '.env.local');
+  if (fs.existsSync(envPath)) {
+    for (const line of fs.readFileSync(envPath, 'utf8').split('\n')) {
+      const t = line.trim();
+      if (!t || t.startsWith('#')) continue;
+      const eq = t.indexOf('=');
+      if (eq > 0) {
+        const k = t.slice(0, eq).trim();
+        const v = t.slice(eq + 1).trim().replace(/^["']|["']$/g, '');
+        if (!process.env[k]) process.env[k] = v;
+      }
+    }
+    console.log('[env] .env.local yüklendi');
+  }
+} catch (_) {}
+
 const baseDir = 'C:/AYDIN GROS';
 const mime = {
   '.html':'text/html','.css':'text/css','.js':'text/javascript',
@@ -211,9 +229,9 @@ http.createServer(async (req, res) => {
     return;
   }
 
-  // === API: DB ===
-  if (pathname.startsWith('/api/db/')) {
-    const coll = pathname.split('/')[3];
+  // === API: DB (hem /api/db?coll=X hem /api/db/X formatını destekler) ===
+  if (pathname === '/api/db' || pathname.startsWith('/api/db/')) {
+    const coll = pathname.startsWith('/api/db/') ? pathname.split('/')[3] : url.searchParams.get('coll');
     if (!coll || !/^[a-z0-9_-]+$/i.test(coll)) {
       res.writeHead(400); res.end('Invalid collection');
       return;
