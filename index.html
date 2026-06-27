@@ -2863,21 +2863,16 @@ function genOrderNo(){
   return `AG-${ymd}-${rand}`;
 }
 
-const DB_URL = 'https://jsonblob.com/api/jsonBlob/019f0673-4992-7b6d-916a-3a0dd2181397';
 async function fetchDb(coll, def) {
   try {
-    const r = await fetch(DB_URL);
-    if(r.ok) { const d = await r.json(); if(d && d[coll]) return d[coll]; }
+    const r = await fetch('/api/db?coll='+coll);
+    if(r.ok) { const d = await r.json(); if(d) return d; }
   } catch(e) {}
   return def;
 }
 async function saveDb(coll, data) {
   try {
-    const r = await fetch(DB_URL);
-    let full = {};
-    if(r.ok) full = await r.json();
-    full[coll] = data;
-    await fetch(DB_URL, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(full) });
+    await fetch('/api/db?coll='+coll, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
   } catch(e) {}
 }
 async function syncBackend() {

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html><body>
+<script>
+fetch('https://jsonblob.com/api/jsonBlob/019f0673-4992-7b6d-916a-3a0dd2181397', {
+  method: 'PUT',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  },
+  body: JSON.stringify({test:123})
+}).then(r => console.log('PUT success:', r.status)).catch(e => console.error('PUT ERROR:', e));
+</script>
+</body></html>
