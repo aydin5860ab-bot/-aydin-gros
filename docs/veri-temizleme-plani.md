@@ -1,7 +1,8 @@
 # Aydın Gros — Veri Temizleme Planı
 **Tarih:** 27 Haziran 2026  
 **Referans:** data/analysis/data_quality_report.md  
-**Kural:** Bu belge karar ve analiz dokümanıdır. Hiçbir veri değiştirilmedi.
+**Kural:** Bu belge karar ve analiz dokümanıdır. Hiçbir veri değiştirilmedi.  
+**Manuel Kararlar:** 28 Haziran 2026 — Claude önerisiyle kapatıldı (sahip onayı bekliyor)
 
 ---
 
@@ -657,6 +658,27 @@ Hafta 5:  Production migration
 
 ---
 
+---
+
+## BÖLÜM 13 — MANUEL GRUP KARARLARI (C4 Kapanış)
+
+> 7 grubun tamamı Claude önerisiyle kapatıldı. Sahip onayı migration öncesi alınacak.
+
+| Grup | Ürün | Karar | Master ID | Fiyat | Silinecek ID'ler | Gerekçe |
+|------|------|-------|-----------|-------|-----------------|---------|
+| G05 | Enginar | **B — BİRLEŞTİR** | **791** | 69,95 TL | 133, 190 | En yüksek ID = en son fiyat; 3 farklı görsel ama aynı ürün |
+| G18 | Ritz Kraker | **B — BİRLEŞTİR** | **279** | 64,95 TL | 27 | Birim farkı yazım ("200 g" vs "200 gr"); +%124 = fiyat güncellemesi |
+| G40 | Elma Granny Smith | **B — BİRLEŞTİR** | **514** | 79,95 TL | 135 | Mevsimsel fiyat düşüşü mantıklı; en güncel fiyat ID 514 |
+| G41 | Patlıcan | **B — BİRLEŞTİR** | **380** | 49,95 TL | 136 | Mevsimsel ürün; fiyat düşüşü normal |
+| G42 | Tavuk But | **B — BİRLEŞTİR** | **521** | 149,95 TL | 120 | En güncel kayıt; kasap fiyatları değişken |
+| G60 | Sprite 330ml | **B — BİRLEŞTİR** | **902** | 24,95 TL | 301 | En son girilen fiyat master |
+| G61 | Karnabahar | **B — BİRLEŞTİR** | **796** | 59,95 TL | 381 | Mevsimsel ürün; fiyat düşüşü normal |
+
+**Özet:** 7 grubun tamamı BİRLEŞTİR kararıyla kapatıldı. Hiçbiri ayrı ürün değil.  
+**Silinecek toplam:** 13 ID (her gruptan 1–2 eski kayıt)
+
+---
+
 *Bu belge salt okunur analiz ve karar rehberidir.*  
 *Hiçbir ürün verisi değiştirilmedi.*  
-*Son güncelleme: 27 Haziran 2026*
+*Son güncelleme: 28 Haziran 2026*
