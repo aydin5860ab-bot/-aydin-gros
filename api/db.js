@@ -12,9 +12,9 @@ const TENANT_ID =
   process.env.SUPABASE_TENANT_ID ||
   '11111111-1111-1111-1111-111111111111'
 
-// Bu koleksiyonlar Supabase'e geçiş tamamlanana kadar JSONBlob'dan okunur.
-// Sebep: integer product ID ↔ UUID format farkı; veri migrasyonu sonrası kaldırılacak.
-const JSONBLOB_ONLY = new Set(['products', 'stock', 'invoices'])
+// stock ve invoices henüz Supabase'e geçmedi (integer ID bağımlılıkları var).
+// products Sprint 3C ile Supabase'den okunuyor (legacy_id → id adaptörü ile).
+const JSONBLOB_ONLY = new Set(['stock', 'invoices'])
 
 // ---------------------------------------------------------------------------
 // JSONBlob yardımcıları
@@ -119,6 +119,30 @@ async function supabaseRead(coll, supabase) {
         start: r.starts_at,
         end: r.ends_at,
         minAmount: r.min_order_amount,
+      }))
+    }
+
+    case 'products': {
+      // legacy_id → id adaptörü: frontend integer ID bekler.
+      // emoji/badge metadata JSONB'de, kategori slug categories tablosundan JOIN ile.
+      const { data, error } = await supabase
+        .from('products')
+        .select('legacy_id, name, price, unit, image_url, is_active, metadata, categories(slug)')
+        .eq('tenant_id', TENANT_ID)
+        .is('deleted_at', null)
+        .not('legacy_id', 'is', null)
+        .order('legacy_id')
+      if (error || !data?.length) return null
+      return data.map(r => ({
+        id: r.legacy_id,
+        name: r.name,
+        price: Number(r.price),
+        cat: r.categories?.slug || '',
+        img: r.image_url || '',
+        emoji: r.metadata?.emoji || '',
+        badge: r.metadata?.badge || '',
+        unit: r.unit || 'adet',
+        active: r.is_active !== false,
       }))
     }
 
