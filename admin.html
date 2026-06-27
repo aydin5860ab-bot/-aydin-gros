@@ -6,6 +6,7 @@
 <title>Aydın Gros – Yönetim Paneli</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -223,12 +224,12 @@ tr:hover td{background:var(--gray50)}
       <span>Aydın<em>Gros</em></span>
       <p>Yönetim Paneli</p>
     </div>
-    <label>Kullanıcı Adı</label>
-    <input type="text" id="loginUser" placeholder="admin" autocomplete="username">
+    <label>E-posta</label>
+    <input type="email" id="loginUser" placeholder="admin@aydinGros.com" autocomplete="email">
     <label>Şifre</label>
     <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password">
-    <button class="login-btn" onclick="doLogin()">Giriş Yap</button>
-    <div id="loginErr">Kullanıcı adı veya şifre hatalı.</div>
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">Giriş Yap</button>
+    <div id="loginErr"></div>
   </div>
 </div>
 
@@ -997,7 +998,7 @@ const DEFAULT_SETTINGS={
   announcements:'🚀 1000₺ üzeri siparişlerde ÜCRETSİZ TESLİMAT!\n🥬 Taze meyve sebze her gün!\n🎁 AYDIN10 kodu ile %10 indirim!',
   branch1Name:'Geyras (Merkez) Şube',branch1Addr:'Geyras Mah. Aydın Cad. No:1',
   branch2Name:'Efeler Şube',branch2Addr:'Efeler Mah. Gros Cad. No:5',
-  adminPass:'aydin2026'
+  // adminPass:'aydin2026' -- DEVRE DIŞI: Supabase Auth kullanılıyor (Sprint 3B)
 };
 
 /* ── STATE ───────────────────────────────────────────────────────────── */
@@ -1067,32 +1068,143 @@ function isActiveCampaign(c){
   return true;
 }
 
-/* ── LOGIN ──────────────────────────────────────────────────────────── */
-function doLogin(){
-  const u=document.getElementById('loginUser').value.trim();
-  const p=document.getElementById('loginPass').value;
-  const savedPass=(settings&&settings.adminPass)?settings.adminPass:'aydin2026';
-  if(u==='admin'&&(p===savedPass||p==='aydin2026')){
-    document.getElementById('loginScreen').style.display='none';
-    document.getElementById('appWrap').style.display='block';
-    try{renderDash();}catch(e){console.error('renderDash error:',e);}
-  } else {
-    document.getElementById('loginErr').style.display='block';
+/* ── AUTH (Supabase) ─────────────────────────────────────────────────── */
+let _sbClient = null;
+
+const AUTH_ERR_MAP = {
+  'Invalid login credentials': 'E-posta veya şifre hatalı.',
+  'Email not confirmed': 'E-posta adresi henüz onaylanmamış.',
+  'User not found': 'Bu e-posta ile kayıtlı kullanıcı bulunamadı.',
+  'Too many requests': 'Çok fazla deneme yapıldı. Lütfen bekleyin.',
+};
+
+function authErrMsg(msg) {
+  if (!msg) return 'Giriş başarısız. Lütfen tekrar deneyin.';
+  for (const [key, tr] of Object.entries(AUTH_ERR_MAP)) {
+    if (msg.includes(key)) return tr;
+  }
+  return 'Giriş başarısız: ' + msg;
+}
+
+function showLoginErr(msg) {
+  const el = document.getElementById('loginErr');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function hideLoginErr() {
+  const el = document.getElementById('loginErr');
+  el.textContent = '';
+  el.style.display = 'none';
+}
+
+function showApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appWrap').style.display = 'block';
+}
+
+function showLogin() {
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('appWrap').style.display = 'none';
+  hideLoginErr();
+  document.getElementById('loginPass').value = '';
+}
+
+async function getSbClient() {
+  if (_sbClient) return _sbClient;
+  try {
+    const r = await fetch('/api/config');
+    if (!r.ok) return null;
+    const { url, anonKey } = await r.json();
+    if (!url || !anonKey) return null;
+    _sbClient = window.supabase.createClient(url, anonKey, {
+      auth: { persistSession: true, autoRefreshToken: true },
+    });
+    return _sbClient;
+  } catch (_) {
+    return null;
   }
 }
-document.getElementById('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
-document.getElementById('loginUser').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
-function doLogout(){location.reload();}
-function changePass(){
-  const n=document.getElementById('setNewPass').value;
-  const n2=document.getElementById('setNewPass2').value;
-  if(!n){toast('Şifre boş olamaz');return;}
-  if(n!==n2){toast('Şifreler eşleşmiyor');return;}
-  settings.adminPass=n;
-  persistSettings();
-  document.getElementById('setNewPass').value='';
-  document.getElementById('setNewPass2').value='';
-  toast('Şifre güncellendi ✓');
+
+const ALLOWED_ROLES = ['admin', 'manager'];
+
+function extractUserMeta(session) {
+  if (!session) return null;
+  const meta = session.user?.user_metadata || {};
+  const appMeta = session.user?.app_metadata || {};
+  return {
+    email: session.user?.email || '',
+    role: meta.role || appMeta.role || 'viewer',
+    tenant_id: meta.tenant_id || appMeta.tenant_id || '',
+    branch_id: meta.branch_id || appMeta.branch_id || '',
+    register_id: meta.register_id || appMeta.register_id || '',
+  };
+}
+
+async function doLogin() {
+  const email = document.getElementById('loginUser').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  hideLoginErr();
+
+  if (!email || !pass) {
+    showLoginErr('E-posta ve şifre boş olamaz.');
+    return;
+  }
+
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true;
+  btn.textContent = 'Giriş yapılıyor…';
+
+  try {
+    const sb = await getSbClient();
+
+    // Supabase yapılandırılmamışsa → yetkisiz erişim engellenir
+    if (!sb) {
+      showLoginErr('Kimlik doğrulama servisi şu anda kullanılamıyor.');
+      return;
+    }
+
+    const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+    if (error) {
+      showLoginErr(authErrMsg(error.message));
+      return;
+    }
+
+    const userMeta = extractUserMeta(data.session);
+    if (!ALLOWED_ROLES.includes(userMeta.role)) {
+      await sb.auth.signOut();
+      showLoginErr('Bu hesabın yönetim paneline erişim yetkisi yok. (Rol: ' + userMeta.role + ')');
+      return;
+    }
+
+    // Oturum açıldı
+    showApp();
+    await initBackendData();
+    try { loadData(); } catch(e) {}
+    try { renderDash(); } catch(e) {}
+    startOrderPolling();
+  } catch (err) {
+    showLoginErr('Beklenmeyen hata: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Giriş Yap';
+  }
+}
+
+async function doLogout() {
+  try {
+    const sb = await getSbClient();
+    if (sb) await sb.auth.signOut();
+  } catch (_) {}
+  showLogin();
+}
+
+document.getElementById('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+document.getElementById('loginUser').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+// Sprint 3C'de Supabase'den yönetilecek; şimdilik devre dışı
+function changePass() {
+  toast('Şifre değiştirme artık Supabase üzerinden yönetilmektedir.');
 }
 
 /* ── NAVIGATION ─────────────────────────────────────────────────────── */
@@ -2065,14 +2177,34 @@ function printInvoice(idx){
 }
 
 /* ── INIT ───────────────────────────────────────────────────────────── */
-initBackendData().then(() => {
-  try{loadData();}catch(e){console.error('loadData error:',e);}
-  startOrderPolling();
-  if(document.getElementById('page-dash').classList.contains('active')) renderDash();
-  if(document.getElementById('page-orders').classList.contains('active')) renderOrders();
-}).catch(console.error);
-// Erenler fiyatlarını arka planda yükle
-loadErenlerData().then(()=>{buildCompRows();renderCompSummaryBar();}).catch(()=>{});
+(async function init() {
+  // Supabase session varsa direkt paneli aç, yoksa login ekranı göster
+  try {
+    const sb = await getSbClient();
+    if (sb) {
+      const { data } = await sb.auth.getSession();
+      const session = data?.session;
+      const userMeta = extractUserMeta(session);
+      if (session && ALLOWED_ROLES.includes(userMeta.role)) {
+        showApp();
+        await initBackendData().catch(console.error);
+        try { loadData(); } catch(e) {}
+        startOrderPolling();
+        if (document.getElementById('page-dash').classList.contains('active')) {
+          try { renderDash(); } catch(e) {}
+        }
+        if (document.getElementById('page-orders').classList.contains('active')) {
+          try { renderOrders(); } catch(e) {}
+        }
+        // Erenler fiyatlarını arka planda yükle
+        loadErenlerData().then(() => { buildCompRows(); renderCompSummaryBar(); }).catch(() => {});
+        return;
+      }
+    }
+  } catch (_) {}
+  // Session yok veya Supabase bağlanamadı → login ekranını göster
+  showLogin();
+})();
 
 function handleImageUpload(event) {
   const file = event.target.files[0];
