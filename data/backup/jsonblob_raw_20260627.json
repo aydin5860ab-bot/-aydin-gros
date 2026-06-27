@@ -1,0 +1,55 @@
+﻿{
+    "orders":  [
+                   {
+                       "no":  "AG-20260627-9749",
+                       "name":  "",
+                       "phone":  "",
+                       "addr":  "Belirtilmedi",
+                       "items":  [
+                                     {
+                                         "id":  2,
+                                         "name":  "KÄ±vÄ±rcÄ±k SalatalÄ±k",
+                                         "quantity":  1,
+                                         "qty":  1,
+                                         "price":  18
+                                     }
+                                 ],
+                       "total":  18,
+                       "ts":  1782520678809,
+                       "status":  0
+                   },
+                   {
+                       "no":  "AG-20260627-1256",
+                       "name":  "",
+                       "phone":  "",
+                       "addr":  "Belirtilmedi",
+                       "items":  [
+                                     {
+                                         "id":  17,
+                                         "name":  "Ä°Ã§im YarÄ±m YaÄlÄ± SÃ¼t",
+                                         "quantity":  1,
+                                         "qty":  1,
+                                         "price":  29.9
+                                     }
+                                 ],
+                       "total":  29.9,
+                       "ts":  1782556357868,
+                       "status":  0
+                   }
+               ],
+    "stock":  {
+
+              },
+    "products":  [
+
+                 ],
+    "promos":  {
+
+               },
+    "settings":  {
+
+                 },
+    "campaigns":  [
+
+                  ]
+}

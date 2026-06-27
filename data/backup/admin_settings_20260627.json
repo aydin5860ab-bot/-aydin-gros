@@ -1,0 +1,14 @@
+﻿{
+    "timestamp":  "20260627",
+    "data":  {
+                 "branch2Name":  "Efeler Sube",
+                 "branch2Addr":  "Efeler Mah. Gros Cad. No:5",
+                 "announcements":  "1000 ustu ucretsiz teslimat",
+                 "branch1Name":  "Geyras (Merkez) Sube",
+                 "adminPass":  "REDACTED_SEE_ADMIN_HTML_LINE_1000",
+                 "threshold":  1000,
+                 "waNumber":  "905444789461",
+                 "branch1Addr":  "Geyras Mah. Aydin Cad. No:1"
+             },
+    "source":  "admin.html DEFAULT_SETTINGS (hardcoded)"
+}
