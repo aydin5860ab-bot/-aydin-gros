@@ -1022,14 +1022,26 @@ async function saveDb(coll, data) {
 }
 async function initBackendData() {
   const _lsProds = JSON.parse(localStorage.getItem('ag_products') || 'null');
-  products = await fetchDb('products', null) || _lsProds || JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
-  categoriesList = await fetchDb('categories', []);
-  orders = await fetchDb('orders', []);
-  promos = await fetchDb('promos', null) || JSON.parse(JSON.stringify(DEFAULT_PROMOS));
-  settings = await fetchDb('settings', null) || JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
-  campaigns = await fetchDb('campaigns', []);
-  stock = await fetchDb('stock', {});
-  invoices = await fetchDb('invoices', []);
+  // Tüm koleksiyonları paralel çek
+  const [_prods, _cats, _orders, _promos, _settings, _campaigns, _stock, _invoices] =
+    await Promise.all([
+      fetchDb('products',   null),
+      fetchDb('categories', []),
+      fetchDb('orders',     []),
+      fetchDb('promos',     null),
+      fetchDb('settings',   null),
+      fetchDb('campaigns',  []),
+      fetchDb('stock',      {}),
+      fetchDb('invoices',   []),
+    ]);
+  products       = _prods     || _lsProds || JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+  categoriesList = _cats      || [];
+  orders         = _orders    || [];
+  promos         = _promos    || JSON.parse(JSON.stringify(DEFAULT_PROMOS));
+  settings       = _settings  || JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+  campaigns      = _campaigns || [];
+  stock          = _stock     || {};
+  invoices       = _invoices  || [];
   console.log(
     '[AydınGros] Veri yüklendi —',
     `products:${products.length}`,
