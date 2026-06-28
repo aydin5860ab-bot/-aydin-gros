@@ -1008,16 +1008,39 @@ const DEFAULT_SETTINGS={
 let products=[],orders=[],promos={},settings={},campaigns=[],stock={},invoices=[],categoriesList=[];
 let invLineCounter=0;
 
+async function getAuthHeader() {
+  try {
+    const sb = await getSbClient();
+    if (sb) {
+      const { data } = await sb.auth.getSession();
+      if (data?.session?.access_token) {
+        return { 'Authorization': `Bearer ${data.session.access_token}` };
+      }
+    }
+  } catch (e) {
+    console.error('[getAuthHeader] hata:', e);
+  }
+  return {};
+}
 async function fetchDb(coll, def) {
   try {
-    const r = await fetch('/api/db?coll='+coll);
+    const headers = await getAuthHeader();
+    const r = await fetch('/api/db?coll='+coll, { headers });
     if(r.ok) { const d = await r.json(); if(d) return d; }
   } catch(e) {}
   return def;
 }
 async function saveDb(coll, data) {
   try {
-    await fetch('/api/db?coll='+coll, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+    const authHeaders = await getAuthHeader();
+    await fetch('/api/db?coll='+coll, {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        ...authHeaders
+      },
+      body:JSON.stringify(data)
+    });
   } catch(e) {}
 }
 async function initBackendData() {

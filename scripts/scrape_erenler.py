@@ -40,16 +40,41 @@ BASE_URL     = "https://www.erenlercep.com"
 OUTPUT_FILE  = "erenler_urunler.csv"
 
 CATEGORIES = [
-    ("meyve-sebze",   "Meyve & Sebze"),
-    ("gida",          "Temel Gıda"),
-    ("et-tavuk",      "Et & Tavuk"),
-    ("sut-sarkuteri", "Süt & Şarküteri"),
-    ("temizlik",      "Temizlik"),
-    ("kozmetik",      "Kozmetik"),
-    ("atistirmalik",  "Atıştırmalık"),
-    ("icecek",        "İçecek"),
-    ("bebek",         "Bebek"),
-    ("ev-gerecleri",  "Ev Gereçleri"),
+    # MANAV
+    ("meyve-sebze",       "Meyve & Sebze"),
+    # GIDA — ana sayfa
+    ("gida",              "Temel Gıda"),
+    # GIDA — alt kategoriler
+    ("atistirmalik",      "Atıştırmalık"),
+    ("bakliyat",          "Bakliyat"),
+    ("makarna",           "Makarna"),
+    ("baharat",           "Baharat"),
+    ("konserve",          "Konserveler"),
+    ("dondurma",          "Dondurma"),
+    ("kahve",             "Çay & Kahve"),
+    ("hazir-corba",       "Hazır Çorba"),
+    ("unlu-mamuller",     "Unlu Mamuller"),
+    ("ekmek",             "Ekmek"),
+    ("tatli",             "Tatlı"),
+    ("recel",             "Reçel & Marmelat"),
+    ("sucuk",             "Sucuk"),
+    ("salam",             "Salam & Sosis"),
+    ("bal",               "Bal"),
+    ("yogurt",            "Yoğurt"),
+    # İÇECEKLER
+    ("icecek",            "İçecek"),
+    # SÜT & KAHVALTILIK
+    ("sut",               "Süt"),
+    # KASAP
+    ("kasap",             "Kasap"),
+    # TEMİZLİK — ana sayfa
+    ("temizlik",          "Temizlik"),
+    # TEMİZLİK — alt kategoriler
+    ("islak-havlu",       "Islak Havlu"),
+    ("kagit-havlu",       "Kağıt Havlu"),
+    # KİŞİSEL BAKIM
+    ("parfum",            "Parfüm"),
+    ("kisisel-bakim",     "Kişisel Bakım"),
 ]
 
 MAX_PAGES_PER_CATEGORY = 10  # Her kategori için maksimum sayfa

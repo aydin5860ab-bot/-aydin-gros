@@ -3,14 +3,22 @@ import { NextRequest, NextResponse } from 'next/server';
 const APIFY_BASE = 'https://api.apify.com/v2';
 
 const ERENLER_SLUGS = [
+  // MANAV
   'meyve-sebze',
-  'gida',
-  'et-tavuk',
-  'sut-sarkuteri',
-  'temizlik',
-  'kozmetik',
-  'atistirmalik',
+  // GIDA ana + alt
+  'gida', 'atistirmalik', 'bakliyat', 'makarna', 'baharat', 'konserve',
+  'dondurma', 'kahve', 'hazir-corba', 'unlu-mamuller', 'ekmek', 'tatli',
+  'recel', 'sucuk', 'salam', 'bal', 'yogurt',
+  // İÇECEKLER
   'icecek',
+  // SÜT
+  'sut',
+  // KASAP
+  'kasap',
+  // TEMİZLİK ana + alt
+  'temizlik', 'islak-havlu', 'kagit-havlu',
+  // KİŞİSEL BAKIM
+  'parfum', 'kisisel-bakim',
 ];
 
 const PAGE_FUNCTION = `
@@ -52,8 +60,6 @@ export async function POST(req: NextRequest) {
     pageFunction: PAGE_FUNCTION,
     maxConcurrency: 8,
     maxRequestRetries: 2,
-    maxRequestsPerCrawl: startUrls.length,
-    proxyConfiguration: { useApifyProxy: false },
   };
 
   const res = await fetch(
