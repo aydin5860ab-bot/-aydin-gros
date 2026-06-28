@@ -260,6 +260,10 @@ tr:hover td{background:var(--gray50)}
       <button class="nav-item" onclick="showPage('stock')"><span class="icon">📈</span> Stok Takibi</button>
       <button class="nav-item" onclick="showPage('coupons')"><span class="icon">🎟️</span> Kuponlar</button>
       <button class="nav-item" onclick="showPage('settings')"><span class="icon">⚙️</span> Ayarlar</button>
+      <button class="nav-item" onclick="showPage('customers')"><span class="icon">👤</span> Müşteri & Cari</button>
+      <button class="nav-item" onclick="showPage('registers')"><span class="icon">🔑</span> Kasa Oturumları</button>
+      <button class="nav-item" onclick="showPage('transfers')"><span class="icon">🔄</span> Şube & Transfer</button>
+      <button class="nav-item" onclick="showPage('reports')"><span class="icon">📊</span> Raporlar</button>
     </nav>
     <div class="sidebar-footer">
       <button class="logout-btn" onclick="doLogout()">🚪 Çıkış Yap</button>
@@ -531,10 +535,221 @@ tr:hover td{background:var(--gray50)}
       </div>
     </div>
 
+    <!-- CUSTOMERS / CARI -->
+    <div id="page-customers" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Müşteriler & Cari Kartlar</div><div class="page-subtitle">Veresiye borç bakiye ve tahsilat takibi</div></div>
+        <button class="btn btn-primary" onclick="openCustomerModal()">+ Yeni Müşteri</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Adı Soyadı</th>
+              <th>Telefon</th>
+              <th>E-posta</th>
+              <th>Notlar</th>
+              <th>Bakiye (Borç)</th>
+              <th>İşlemler</th>
+            </tr>
+          </thead>
+          <tbody id="customersTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- REGISTER SESSIONS -->
+    <div id="page-registers" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Kasa Oturum Logları</div><div class="page-subtitle">Kasa açılış, kapanış ve gün sonu mutabakat raporları</div></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Açılış Zamanı</th>
+              <th>Kapanış Zamanı</th>
+              <th>Açılış Nakit</th>
+              <th>Beklenen Nakit</th>
+              <th>Sayım Nakit</th>
+              <th>Fark (Variance)</th>
+              <th>Durum</th>
+            </tr>
+          </thead>
+          <tbody id="registersTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- STOCK TRANSFERS -->
+    <div id="page-transfers" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Şubeler & Stok Transferleri</div><div class="page-subtitle">Şubeler arası ürün sevk ve transfer yönetimi</div></div>
+        <button class="btn btn-primary" onclick="openTransferModal()">+ Yeni Transfer Talebi</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Kaynak Şube</th>
+              <th>Hedef Şube</th>
+              <th>Statü</th>
+              <th>Ürün Detayları</th>
+              <th>Oluşturma</th>
+              <th>İşlemler</th>
+            </tr>
+          </thead>
+          <tbody id="transfersTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- REPORTS -->
+    <div id="page-reports" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Detaylı Raporlar & Analizler</div><div class="page-subtitle">Satış, ciro, karlılık ve envanter analizleri</div></div>
+      </div>
+      <!-- Report metrics grid -->
+      <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:16px;margin-bottom:20px">
+        <div class="card">
+          <div style="font-size:12px;color:var(--gray500)">Toplam Ciro</div>
+          <div style="font-size:24px;font-weight:700;color:var(--emerald600);margin-top:6px" id="repTotalCiro">0.00 TL</div>
+        </div>
+        <div class="card">
+          <div style="font-size:12px;color:var(--gray500)">Tahmini Brüt Kar</div>
+          <div style="font-size:24px;font-weight:700;color:var(--blue-light);margin-top:6px" id="repTotalKar">0.00 TL</div>
+        </div>
+        <div class="card">
+          <div style="font-size:12px;color:var(--gray500)">Toplam Stok Değeri</div>
+          <div style="font-size:24px;font-weight:700;color:var(--orange-light);margin-top:6px" id="repStokDegeri">0.00 TL</div>
+        </div>
+        <div class="card">
+          <div style="font-size:12px;color:var(--gray500)">Kritik Stoktaki Ürünler</div>
+          <div style="font-size:24px;font-weight:700;color:var(--danger);margin-top:6px" id="repKritikStokCount">0</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <!-- Top Sellers -->
+        <div class="card">
+          <div class="dash-card-title" style="margin-bottom:12px">🏆 En Çok Satan 10 Ürün</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Ürün Adı</th><th>Satış Adedi</th></tr></thead>
+              <tbody id="topSellersTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Profitability list -->
+        <div class="card">
+          <div class="dash-card-title" style="margin-bottom:12px">💎 En Karlı Ürünler</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Ürün Adı</th><th>Karlılık</th></tr></thead>
+              <tbody id="profitTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </main>
 </div>
 
 <!-- MODALS -->
+
+<!-- Customer Form Modal -->
+<div class="modal-overlay" id="customerFormModal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <div class="modal-title">👤 Müşteri Cari Bilgileri</div>
+      <button class="modal-close" onclick="closeModal('customerFormModal')">✕</button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
+      <input type="hidden" id="custFormId">
+      <div class="form-group"><label>Adı Soyadı</label><input type="text" id="custFormName" placeholder="Müşteri Adı"></div>
+      <div class="form-group"><label>Telefon</label><input type="text" id="custFormPhone" placeholder="0555..."></div>
+      <div class="form-group"><label>E-posta</label><input type="email" id="custFormEmail" placeholder="ornek@mail.com"></div>
+      <div class="form-group"><label>Açıklama / Adres</label><input type="text" id="custFormNotes" placeholder="Adres veya Notlar"></div>
+      <div class="form-group"><label>Açılış Borcu (TL)</label><input type="number" id="custFormBalance" value="0"></div>
+      <button class="btn btn-primary" onclick="saveCustomer()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Cari History Modal -->
+<div class="modal-overlay" id="cariHistoryModal">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="cariCustName">Müşteri Cari Detayları</div>
+        <div style="font-size:12px;color:var(--gray500)">Mevcut Borç: <span id="cariCustBalance" class="font-bold text-danger">0.00 TL</span></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('cariHistoryModal')">✕</button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary btn-sm" onclick="addCariTransaction('payment')">💵 Tahsilat Yap</button>
+        <button class="btn btn-danger btn-sm" onclick="addCariTransaction('purchase')">➕ Borç Kaydet</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Tarih</th>
+              <th>Tür</th>
+              <th>Açıklama</th>
+              <th>Tutar</th>
+            </tr>
+          </thead>
+          <tbody id="cariHistoryTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Transfer Modal -->
+<div class="modal-overlay" id="transferModal">
+  <div class="modal" style="max-width:550px">
+    <div class="modal-header">
+      <div class="modal-title">🔄 Şubeler Arası Stok Sevk Emri</div>
+      <button class="modal-close" onclick="closeModal('transferModal')">✕</button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="form-group">
+          <label>Kaynak Şube</label>
+          <select id="transferFromBranch" style="width:100%;padding:8px;border:1px solid var(--gray300);border-radius:6px;background:var(--white)"><option value="22222222-2222-2222-2222-222222222222">Merkez Şube</option></select>
+        </div>
+        <div class="form-group">
+          <label>Hedef Şube (Depo)</label>
+          <select id="transferToBranch" style="width:100%;padding:8px;border:1px solid var(--gray300);border-radius:6px;background:var(--white)"><option value="33333333-3333-3333-3333-333333333333">Merkez Depo</option></select>
+        </div>
+      </div>
+      
+      <div style="display:flex;gap:8px;align-items:end">
+        <div class="form-group" style="flex-1">
+          <label>Ürün Seç</label>
+          <select id="transferProdPicker" style="width:100%;padding:8px;border:1px solid var(--gray300);border-radius:6px;background:var(--white)">
+            <!-- Populated via script -->
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="addProductToTransfer()" style="padding:10px 14px">Ekle</button>
+      </div>
+
+      <div id="transferItemsList" class="card" style="max-height:200px;overflow-y:auto;border:1px solid var(--gray200);padding:10px"></div>
+      
+      <div class="form-group">
+        <label>Transfer Notu</label>
+        <input type="text" id="transferNotesInput" placeholder="Açıklama girin...">
+      </div>
+
+      <button class="btn btn-primary" onclick="saveTransfer()" style="width:100%;padding:12px;font-weight:bold">Transfer Talebini Gönder</button>
+    </div>
+  </div>
+</div>
 
 <!-- Competitor Analysis Modal -->
 <div class="modal-overlay" id="competitorModal">
@@ -1316,8 +1531,8 @@ function changePass() {
 }
 
 /* ── NAVIGATION ─────────────────────────────────────────────────────── */
-const PAGE_RENDERERS={dash:renderDash,products:renderProducts,categories:renderCategories,orders:renderOrders,campaigns:renderCampaigns,invoices:renderInvoices,stock:renderStock,coupons:renderCoupons,settings:renderSettingsForm};
-const PAGE_INDICES={dash:0,products:1,categories:2,orders:3,campaigns:4,invoices:5,stock:6,coupons:7,settings:8};
+const PAGE_RENDERERS={dash:renderDash,products:renderProducts,categories:renderCategories,orders:renderOrders,campaigns:renderCampaigns,invoices:renderInvoices,stock:renderStock,coupons:renderCoupons,settings:renderSettingsForm,customers:renderCustomers,registers:renderRegisters,transfers:renderTransfers,reports:renderReports};
+const PAGE_INDICES={dash:0,products:1,categories:2,orders:3,campaigns:4,invoices:5,stock:6,coupons:7,settings:8,customers:9,registers:10,transfers:11,reports:12};
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
@@ -1338,6 +1553,11 @@ function populateCategoryDropdowns() {
   }
   if (catSelect) {
     catSelect.innerHTML = categoriesList.map(c => `<option value="${esc(c.slug)}">${esc(c.name)}</option>`).join('');
+  }
+
+  const transPicker = document.getElementById('transferProdPicker');
+  if (transPicker) {
+    transPicker.innerHTML = (products || []).map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('');
   }
 }
 
@@ -2519,6 +2739,482 @@ function handleImageUpload(event) {
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
+}
+
+// CUSTOMERS & CARI
+let selectedCariCustomerId = null;
+async function renderCustomers() {
+  const tbody = document.getElementById('customersTableBody');
+  if (!tbody) return;
+  
+  tbody.innerHTML = '<tr><td colspan="6" class="loading">Yükleniyor...</td></tr>';
+  try {
+    const res = await fetch('/api/db?coll=customers', { headers: getAuthHeader() });
+    const data = await res.json();
+    customersList = data || [];
+    
+    if (customersList.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray500)">Kayıtlı müşteri bulunamadı.</td></tr>';
+      return;
+    }
+    
+    tbody.innerHTML = customersList.map(c => `
+      <tr>
+        <td class="font-bold">${esc(c.name)}</td>
+        <td>${esc(c.phone)}</td>
+        <td>${esc(c.email)}</td>
+        <td>${esc(c.notes)}</td>
+        <td class="font-bold ${c.balance > 0 ? 'text-danger' : 'text-success'}">${Number(c.balance || 0).toFixed(2)} TL</td>
+        <td>
+          <div style="display:flex;gap:4px">
+            <button class="btn btn-ghost btn-xs" onclick="openCariHistory('${c.id}')">👤 Cari Hareketler</button>
+            <button class="btn btn-ghost btn-xs" onclick="editCustomer('${c.id}')">✏️ Düzenle</button>
+            <button class="btn btn-danger btn-xs" onclick="deleteCustomer('${c.id}')">🗑️ Sil</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="6" class="text-danger">Hata: ${esc(e.message)}</td></tr>`;
+  }
+}
+
+function openCustomerModal() {
+  document.getElementById('custFormId').value = '';
+  document.getElementById('custFormName').value = '';
+  document.getElementById('custFormPhone').value = '';
+  document.getElementById('custFormEmail').value = '';
+  document.getElementById('custFormNotes').value = '';
+  document.getElementById('custFormBalance').value = '0';
+  document.getElementById('custFormBalance').disabled = false;
+  
+  openModal('customerFormModal');
+}
+
+function editCustomer(id) {
+  const c = customersList.find(x => x.id === id);
+  if (!c) return;
+  
+  document.getElementById('custFormId').value = c.id;
+  document.getElementById('custFormName').value = c.name;
+  document.getElementById('custFormPhone').value = c.phone;
+  document.getElementById('custFormEmail').value = c.email;
+  document.getElementById('custFormNotes').value = c.notes;
+  document.getElementById('custFormBalance').value = c.balance;
+  document.getElementById('custFormBalance').disabled = true;
+  
+  openModal('customerFormModal');
+}
+
+async function saveCustomer() {
+  const id = document.getElementById('custFormId').value;
+  const name = document.getElementById('custFormName').value.trim();
+  const phone = document.getElementById('custFormPhone').value.trim();
+  const email = document.getElementById('custFormEmail').value.trim();
+  const notes = document.getElementById('custFormNotes').value.trim();
+  const balance = Number(document.getElementById('custFormBalance').value || 0);
+  
+  if (!name) {
+    alert("Ad Soyad alanı zorunludur!");
+    return;
+  }
+  
+  const payload = [{
+    id: id || genUUID(),
+    name,
+    phone,
+    email,
+    notes,
+    balance
+  }];
+  
+  try {
+    const res = await fetch('/api/db?coll=customers', {
+      method: 'POST',
+      headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error("API hatası");
+    closeModal('customerFormModal');
+    renderCustomers();
+  } catch(e) {
+    alert("Hata: " + e.message);
+  }
+}
+
+async function deleteCustomer(id) {
+  if (confirm("Bu müşteriyi silmek istediğinize emin misiniz?")) {
+    const payload = customersList.filter(c => c.id !== id);
+    try {
+      const res = await fetch('/api/db?coll=customers', {
+        method: 'POST',
+        headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error("API hatası");
+      renderCustomers();
+    } catch(e) {
+      alert("Hata: " + e.message);
+    }
+  }
+}
+
+async function openCariHistory(customerId) {
+  selectedCariCustomerId = customerId;
+  const c = customersList.find(x => x.id === customerId);
+  if (!c) return;
+  
+  document.getElementById('cariCustName').innerText = c.name;
+  document.getElementById('cariCustBalance').innerText = c.balance.toFixed(2) + " TL";
+  
+  openModal('cariHistoryModal');
+  renderCariHistoryTable();
+}
+
+async function renderCariHistoryTable() {
+  const tbody = document.getElementById('cariHistoryTableBody');
+  tbody.innerHTML = '<tr><td colspan="4" class="loading">Yükleniyor...</td></tr>';
+  
+  try {
+    const res = await fetch('/api/db?coll=customer_transactions', { headers: getAuthHeader() });
+    const data = await res.json();
+    const filtered = (data || []).filter(t => t.customerId === selectedCariCustomerId);
+    
+    if (filtered.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--gray500)">Cari hareket bulunamadı.</td></tr>';
+      return;
+    }
+    
+    tbody.innerHTML = filtered.map(t => `
+      <tr>
+        <td>${new Date(t.ts).toLocaleString()}</td>
+        <td>${t.amount > 0 ? '🛒 Satış (Borç)' : '💵 Tahsilat (Ödeme)'}</td>
+        <td>${esc(t.notes)}</td>
+        <td class="font-bold ${t.amount > 0 ? 'text-danger':'text-success'}">${Math.abs(t.amount).toFixed(2)} TL</td>
+      </tr>
+    `).join('');
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="4" class="text-danger">Hata: ${esc(e.message)}</td></tr>`;
+  }
+}
+
+async function addCariTransaction(type) {
+  const amountStr = prompt(type === 'payment' ? "Tahsilat miktarını girin (TL):" : "Borç miktarını girin (TL):");
+  if (!amountStr || isNaN(amountStr)) return;
+  
+  let amount = Number(amountStr);
+  if (type === 'payment') {
+    amount = -amount;
+  }
+  
+  const notes = prompt("Açıklama girin:", type === 'payment' ? "Ödeme tahsilatı" : "Manuel Borç girişi") || "";
+  
+  const payload = {
+    customerId: selectedCariCustomerId,
+    amount,
+    type,
+    notes,
+    ts: Date.now()
+  };
+  
+  try {
+    const res = await fetch('/api/db?coll=customer_transactions', {
+      method: 'POST',
+      headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error("API hatası");
+    
+    const custRes = await fetch('/api/db?coll=customers', { headers: getAuthHeader() });
+    customersList = await custRes.json();
+    const updated = customersList.find(x => x.id === selectedCariCustomerId);
+    if (updated) {
+      document.getElementById('cariCustBalance').innerText = updated.balance.toFixed(2) + " TL";
+    }
+    
+    renderCariHistoryTable();
+    renderCustomers();
+  } catch(e) {
+    alert("Hata: " + e.message);
+  }
+}
+
+// REGISTER SESSIONS
+async function renderRegisters() {
+  const tbody = document.getElementById('registersTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="7" class="loading">Yükleniyor...</td></tr>';
+  
+  try {
+    const res = await fetch('/api/db?coll=register_sessions', { headers: getAuthHeader() });
+    const data = await res.json();
+    
+    if (!data || data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray500)">Açılmış kasa oturumu bulunamadı.</td></tr>';
+      return;
+    }
+    
+    tbody.innerHTML = data.map(s => {
+      const variance = s.status === 'closed' ? (s.actualCash - s.expectedCash) : 0;
+      return `
+        <tr>
+          <td>${new Date(s.openedAt).toLocaleString()}</td>
+          <td>${s.closedAt ? new Date(s.closedAt).toLocaleString() : '-'}</td>
+          <td>${s.openingCash.toFixed(2)} TL</td>
+          <td>${s.expectedCash.toFixed(2)} TL</td>
+          <td>${s.status === 'closed' ? s.actualCash.toFixed(2) + ' TL' : '-'}</td>
+          <td class="font-bold ${variance < 0 ? 'text-danger' : (variance > 0 ? 'text-success' : '')}">${s.status === 'closed' ? variance.toFixed(2) + ' TL' : '-'}</td>
+          <td><span class="badge ${s.status === 'open' ? 'badge-primary':'badge-neutral'}">${s.status.toUpperCase()}</span></td>
+        </tr>
+      `;
+    }).join('');
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="7" class="text-danger">Hata: ${esc(e.message)}</td></tr>`;
+  }
+}
+
+// STOCK TRANSFERS
+let transferItems = [];
+async function renderTransfers() {
+  const tbody = document.getElementById('transfersTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="6" class="loading">Yükleniyor...</td></tr>';
+  
+  try {
+    const res = await fetch('/api/db?coll=stock_transfers', { headers: getAuthHeader() });
+    const data = await res.json();
+    
+    if (!data || data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray500)">Kayıtlı transfer talebi bulunamadı.</td></tr>';
+      return;
+    }
+    
+    tbody.innerHTML = data.map(t => {
+      const details = (t.items || []).map(i => `${esc(i.name)} (${i.qty} adet)`).join(', ');
+      const actions = t.status === 'pending' ? `
+        <button class="btn btn-primary btn-xs" onclick="completeTransfer('${t.id}')">✔️ Onayla</button>
+        <button class="btn btn-danger btn-xs" onclick="cancelTransfer('${t.id}')">✕ İptal</button>
+      ` : '-';
+      
+      return `
+        <tr>
+          <td>Merkez Şube</td>
+          <td>Merkez Depo</td>
+          <td><span class="badge ${t.status === 'pending' ? 'badge-primary' : (t.status === 'completed' ? 'badge-success' : 'badge-neutral')}">${t.status.toUpperCase()}</span></td>
+          <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${details}</td>
+          <td>${new Date(t.createdAt).toLocaleDateString()}</td>
+          <td>${actions}</td>
+        </tr>
+      `;
+    }).join('');
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="6" class="text-danger">Hata: ${esc(e.message)}</td></tr>`;
+  }
+}
+
+function openTransferModal() {
+  transferItems = [];
+  document.getElementById('transferNotesInput').value = '';
+  renderTransferItems();
+  openModal('transferModal');
+}
+
+function renderTransferItems() {
+  const div = document.getElementById('transferItemsList');
+  if (transferItems.length === 0) {
+    div.innerHTML = '<p style="font-size:12px;color:var(--gray500);text-align:center">Hiç ürün eklenmedi.</p>';
+    return;
+  }
+  
+  div.innerHTML = transferItems.map((item, idx) => `
+    <div style="display:flex;justify-content:space-between;align-items:center;background:var(--gray100);padding:8px;border-radius:4px;margin-bottom:6px;font-size:13px">
+      <span style="flex:1">${esc(item.name)}</span>
+      <div style="display:flex;align-items:center;gap:6px">
+        <input type="number" value="${item.qty}" min="1" onchange="updateTransferItemQty(${idx}, this.value)" style="width:60px;padding:3px;border:1px solid var(--gray300);text-align:center">
+        <button class="text-danger" onclick="removeTransferItem(${idx})" style="font-weight:bold">&times;</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addProductToTransfer() {
+  const select = document.getElementById('transferProdPicker');
+  const prodId = select.value;
+  if (!prodId) return;
+  
+  const prod = products.find(p => p.id == prodId);
+  if (!prod) return;
+  
+  if (transferItems.some(item => item.id == prodId)) return;
+  
+  transferItems.push({
+    id: prod.id,
+    name: prod.name,
+    qty: 10
+  });
+  renderTransferItems();
+}
+
+function removeTransferItem(idx) {
+  transferItems.splice(idx, 1);
+  renderTransferItems();
+}
+
+function updateTransferItemQty(idx, qty) {
+  transferItems[idx].qty = Number(qty);
+}
+
+async function saveTransfer() {
+  if (transferItems.length === 0) {
+    alert("Lütfen transfer edilecek ürünleri seçin!");
+    return;
+  }
+  
+  const notes = document.getElementById('transferNotesInput').value.trim();
+  const payload = {
+    id: genUUID(),
+    fromBranchId: '22222222-2222-2222-2222-222222222222',
+    toBranchId: '33333333-3333-3333-3333-333333333333',
+    status: 'pending',
+    items: transferItems,
+    notes,
+    createdAt: Date.now()
+  };
+  
+  try {
+    const res = await fetch('/api/db?coll=stock_transfers', {
+      method: 'POST',
+      headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error("API hatası");
+    closeModal('transferModal');
+    renderTransfers();
+  } catch(e) {
+    alert("Hata: " + e.message);
+  }
+}
+
+async function completeTransfer(id) {
+  try {
+    const res = await fetch('/api/db?coll=stock_transfers', { headers: getAuthHeader() });
+    const data = await res.json();
+    const trans = (data || []).find(t => t.id === id);
+    if (!trans) return;
+    
+    trans.status = 'completed';
+    trans.completedAt = Date.now();
+    
+    const updateRes = await fetch('/api/db?coll=stock_transfers', {
+      method: 'POST',
+      headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
+      body: JSON.stringify(trans)
+    });
+    if (!updateRes.ok) throw new Error("Tamamlama hatası");
+    renderTransfers();
+  } catch(e) {
+    alert("Hata: " + e.message);
+  }
+}
+
+async function cancelTransfer(id) {
+  try {
+    const res = await fetch('/api/db?coll=stock_transfers', { headers: getAuthHeader() });
+    const data = await res.json();
+    const trans = (data || []).find(t => t.id === id);
+    if (!trans) return;
+    
+    trans.status = 'cancelled';
+    
+    const updateRes = await fetch('/api/db?coll=stock_transfers', {
+      method: 'POST',
+      headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
+      body: JSON.stringify(trans)
+    });
+    if (!updateRes.ok) throw new Error("İptal hatası");
+    renderTransfers();
+  } catch(e) {
+    alert("Hata: " + e.message);
+  }
+}
+
+// ADVANCED REPORTS
+async function renderReports() {
+  let totalCiro = 0;
+  let totalCost = 0;
+  
+  orders.forEach(o => {
+    totalCiro += Number(o.total || 0);
+    (o.items || []).forEach(item => {
+      const prod = products.find(p => p.id == item.id);
+      const itemCost = (prod && prod.costPrice) ? prod.costPrice : (item.price * 0.7);
+      totalCost += itemCost * item.qty;
+    });
+  });
+  
+  const grossProfit = totalCiro - totalCost;
+  document.getElementById('repTotalCiro').innerText = totalCiro.toFixed(2) + ' TL';
+  document.getElementById('repTotalKar').innerText = Math.max(0, grossProfit).toFixed(2) + ' TL';
+  
+  let stockValue = 0;
+  let criticalCount = 0;
+  
+  try {
+    const stockRes = await fetch('/api/db?coll=stock');
+    const stockData = await stockRes.json();
+    
+    products.forEach(p => {
+      const s = stockData[p.id] || { qty: 50, min: 5 };
+      stockValue += s.qty * p.price;
+      if (s.qty <= s.min) {
+        criticalCount++;
+      }
+    });
+  } catch(e){}
+  
+  document.getElementById('repStokDegeri').innerText = stockValue.toFixed(2) + ' TL';
+  document.getElementById('repKritikStokCount').innerText = criticalCount;
+  
+  const salesMap = {};
+  orders.forEach(o => {
+    (o.items || []).forEach(i => {
+      salesMap[i.name] = (salesMap[i.name] || 0) + i.qty;
+    });
+  });
+  
+  const topSellers = Object.entries(salesMap)
+    .map(([name, qty]) => ({ name, qty }))
+    .sort((a, b) => b.qty - a.qty)
+    .slice(0, 10);
+    
+  document.getElementById('topSellersTableBody').innerHTML = topSellers.map(s => `
+    <tr>
+      <td class="font-bold">${esc(s.name)}</td>
+      <td>${s.qty} adet</td>
+    </tr>
+  `).join('');
+  
+  const profitMap = {};
+  orders.forEach(o => {
+    (o.items || []).forEach(i => {
+      const revenue = i.price * i.qty;
+      const cost = revenue * 0.7;
+      const profit = revenue - cost;
+      profitMap[i.name] = (profitMap[i.name] || 0) + profit;
+    });
+  });
+  
+  const topProfits = Object.entries(profitMap)
+    .map(([name, profit]) => ({ name, profit }))
+    .sort((a, b) => b.profit - a.profit)
+    .slice(0, 10);
+    
+  document.getElementById('profitTableBody').innerHTML = topProfits.map(s => `
+    <tr>
+      <td class="font-bold">${esc(s.name)}</td>
+      <td>${s.profit.toFixed(2)} TL</td>
+    </tr>
+  `).join('');
 }
 </script>
 </body>

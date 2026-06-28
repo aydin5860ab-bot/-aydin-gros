@@ -14,6 +14,11 @@ const nextConfig = {
         destination: '/admin.html',
         permanent: true,
       },
+      {
+        source: '/pos',
+        destination: '/pos.html',
+        permanent: true,
+      },
     ];
   }
 };

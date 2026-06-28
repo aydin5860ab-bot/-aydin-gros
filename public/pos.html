@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aydın Gros — Kasiyer POS</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS via CDN for rapid utility styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- JsBarcode CDN for printing barcodes -->
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+  <style>
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+    }
+    .glass {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    /* Thermal printing styling rules */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #print-receipt-area, #print-receipt-area * {
+        visibility: visible;
+      }
+      #print-receipt-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        color: #000;
+        background: #fff;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+  <!-- PRINT AREA (Hidden on UI, shown on Print) -->
+  <div id="print-receipt-area" class="hidden p-4"></div>
+
+  <!-- Header -->
+  <header class="glass px-6 py-4 flex items-center justify-between border-b border-slate-800">
+    <div class="flex items-center space-x-3">
+      <span class="text-2xl">🍏</span>
+      <div>
+        <h1 class="text-lg font-bold tracking-wide text-emerald-400">AYDIN GROS</h1>
+        <p class="text-xs text-slate-400">Satış Noktası (POS) Terminali</p>
+      </div>
+    </div>
+    
+    <!-- Status / Info -->
+    <div class="flex items-center space-x-6">
+      <!-- Active Branch -->
+      <div class="flex flex-col items-end">
+        <span class="text-xs text-slate-400">Aktif Şube</span>
+        <select id="posBranchSelect" class="bg-slate-800 text-slate-200 text-sm rounded border border-slate-700 px-2 py-1 focus:outline-none focus:border-emerald-500" onchange="changeBranch()">
+          <!-- Populated dynamically -->
+        </select>
+      </div>
+
+      <!-- Active Cash Register -->
+      <div class="flex flex-col items-end">
+        <span class="text-xs text-slate-400">Kasa Durumu</span>
+        <span id="registerStatusBadge" class="text-xs bg-red-500/20 text-red-400 px-2 py-0.5 rounded font-medium">Kapalı</span>
+      </div>
+
+      <!-- Network Status Badge -->
+      <div id="networkStatusBadge" class="flex items-center space-x-1.5 bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-xs font-semibold">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span>Online</span>
+      </div>
+
+      <!-- Logout/Admin link -->
+      <a href="/admin.html" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded text-sm transition font-medium">Yönetim Paneli</a>
+    </div>
+  </header>
+
+  <!-- Main Grid Area -->
+  <main class="flex-1 flex overflow-hidden">
+    <!-- Left Panel: Product Search & Categories -->
+    <section class="flex-1 flex flex-col p-6 overflow-hidden space-y-4">
+      <!-- Search Row -->
+      <div class="flex space-x-4">
+        <!-- Barcode / Search Box -->
+        <div class="flex-1 relative">
+          <input type="text" id="posSearchInput" placeholder="Barkod okutun veya hızlı ürün arayın (F2)..." 
+                 class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                 oninput="handleSearchInput(this.value)" onkeydown="handleSearchKeydown(event)">
+          <!-- Suggestions Dropdown -->
+          <div id="searchSuggestions" class="absolute left-0 right-0 top-full mt-1 bg-slate-900 border border-slate-800 rounded-lg shadow-xl z-30 max-h-60 overflow-y-auto hidden">
+            <!-- Populated via search -->
+          </div>
+        </div>
+        <button onclick="openCameraScanner()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 rounded-lg flex items-center space-x-2 border border-slate-700">
+          <span>📷</span>
+          <span>Kamera Tara</span>
+        </button>
+      </div>
+
+      <!-- Category Filter Tabs -->
+      <div id="posCategoryFilter" class="flex space-x-2 overflow-x-auto pb-2 scrollbar-thin">
+        <button onclick="filterCategory('')" class="cat-btn px-4 py-2 bg-emerald-600 text-slate-100 text-sm font-semibold rounded-lg shrink-0 transition">Hepsi</button>
+        <!-- Populated dynamically -->
+      </div>
+
+      <!-- Products Grid -->
+      <div id="posProductsGrid" class="flex-1 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 overflow-y-auto pr-1">
+        <!-- Populated dynamically -->
+      </div>
+    </section>
+
+    <!-- Right Panel: Cart Checkout & Totals -->
+    <section class="w-[450px] bg-slate-900/50 border-l border-slate-800 flex flex-col overflow-hidden">
+      <!-- Selected Customer Section -->
+      <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <span class="text-xl">👤</span>
+          <div id="selectedCustomerDisplay">
+            <span class="text-sm font-medium text-slate-300">Perakende Müşteri</span>
+            <span class="block text-xs text-slate-500">Cari Bakiye: 0.00 TL</span>
+          </div>
+        </div>
+        <button onclick="openCustomerSelectModal()" class="text-xs text-emerald-400 hover:underline">Müşteri Seç</button>
+      </div>
+
+      <!-- Cart Item List -->
+      <div id="posCartList" class="flex-1 overflow-y-auto p-4 space-y-3">
+        <!-- Populated dynamically -->
+        <div class="h-full flex flex-col items-center justify-center text-slate-500 space-y-2">
+          <span class="text-4xl">🛒</span>
+          <p class="text-sm">Sepetiniz Boş</p>
+        </div>
+      </div>
+
+      <!-- Checkout Actions / Totals -->
+      <div class="p-6 bg-slate-900 border-t border-slate-800 space-y-4">
+        <!-- Coupon / Discount Row -->
+        <div class="flex items-center justify-between text-sm">
+          <span class="text-slate-400">İskonto / Kupon (F4)</span>
+          <div class="flex items-center space-x-2">
+            <input type="text" id="discountInput" placeholder="% veya TL tutar" onchange="applyDiscount()"
+                   class="bg-slate-800 text-slate-100 text-right text-xs rounded border border-slate-700 w-24 px-2 py-1 focus:outline-none focus:border-emerald-500">
+          </div>
+        </div>
+
+        <!-- Price Details -->
+        <div class="space-y-1.5 border-t border-b border-slate-800/50 py-3">
+          <div class="flex justify-between text-sm text-slate-400">
+            <span>Ara Toplam</span>
+            <span id="posSubtotal">0.00 TL</span>
+          </div>
+          <div class="flex justify-between text-sm text-red-400">
+            <span>İndirim Tutarı</span>
+            <span id="posDiscount">0.00 TL</span>
+          </div>
+          <div class="flex justify-between text-lg font-bold text-slate-100 mt-1">
+            <span>Genel Toplam</span>
+            <span id="posTotal" class="text-emerald-400">0.00 TL</span>
+          </div>
+        </div>
+
+        <!-- Payment Calculations -->
+        <div id="changeCalcArea" class="hidden space-y-3 p-3 bg-slate-800/40 rounded-lg border border-slate-800">
+          <div class="flex justify-between text-sm">
+            <span class="text-slate-400">Ödenen Nakit</span>
+            <input type="number" id="cashReceivedInput" placeholder="Ödenen tutar" oninput="calcChange()"
+                   class="bg-slate-900 text-slate-100 text-right text-xs rounded border border-slate-700 w-28 px-2 py-1 focus:outline-none focus:border-emerald-500">
+          </div>
+          <div class="flex justify-between text-sm font-semibold">
+            <span class="text-slate-300">Para Üstü</span>
+            <span id="changeAmountDisplay" class="text-emerald-400">0.00 TL</span>
+          </div>
+        </div>
+
+        <!-- Payment Action Buttons -->
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="triggerPayment('cash')" class="bg-emerald-600 hover:bg-emerald-500 text-slate-100 py-3 rounded-lg flex flex-col items-center justify-center font-bold transition shadow-lg">
+            <span class="text-sm">💵 Nakit</span>
+            <span class="text-[10px] text-emerald-200">(F7)</span>
+          </button>
+          <button onclick="triggerPayment('card')" class="bg-sky-600 hover:bg-sky-500 text-slate-100 py-3 rounded-lg flex flex-col items-center justify-center font-bold transition shadow-lg">
+            <span class="text-sm">💳 Kart</span>
+            <span class="text-[10px] text-sky-200">(F8)</span>
+          </button>
+          <button onclick="openPaymentModal()" class="bg-amber-600 hover:bg-amber-500 text-slate-100 py-3 rounded-lg flex flex-col items-center justify-center font-bold transition shadow-lg">
+            <span class="text-sm">🔗 Çoklu</span>
+            <span class="text-[10px] text-amber-200">(F9)</span>
+          </button>
+        </div>
+
+        <!-- Cancel Transaction -->
+        <button onclick="cancelTransaction()" class="w-full bg-slate-800 hover:bg-red-950/20 hover:text-red-400 hover:border-red-950 text-slate-400 py-2.5 rounded-lg border border-slate-700 transition text-sm font-semibold">
+          🚫 İşlemi İptal Et (Esc)
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- KASA AÇILIŞ MODALI (Register Opening Modal) -->
+  <div id="registerOpenModal" class="fixed inset-0 bg-black/85 flex items-center justify-center z-50 hidden">
+    <div class="bg-slate-900 border border-slate-800 p-8 rounded-xl max-w-md w-full space-y-6">
+      <div class="text-center">
+        <span class="text-5xl">🔑</span>
+        <h3 class="text-xl font-bold mt-3 text-slate-100">Kasa Oturumu Aç</h3>
+        <p class="text-xs text-slate-400 mt-1">Lütfen kasadaki açılış nakit tutarını girin.</p>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Açılış Tutarı (TL)</label>
+          <input type="number" id="openingCashInput" value="500"
+                 class="w-full bg-slate-950 border border-slate-800 rounded px-3 py-2 text-slate-100 font-bold text-center text-xl focus:outline-none focus:border-emerald-500">
+        </div>
+        <button onclick="openRegisterSession()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-slate-100 py-3 rounded font-bold transition">
+          Kasayı Aç ve Satışa Başla
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MULTI PAYMENT MODAL -->
+  <div id="paymentModal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-40 hidden">
+    <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl max-w-md w-full space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-lg font-bold text-slate-100">Ödeme Detayları / Bölme</h3>
+        <button onclick="closePaymentModal()" class="text-slate-500 hover:text-slate-300 text-xl">&times;</button>
+      </div>
+      <div class="space-y-4 text-sm">
+        <div class="flex justify-between font-semibold text-slate-300">
+          <span>Kalan Tutar</span>
+          <span id="multiPaymentRemaining" class="text-lg text-emerald-400">0.00 TL</span>
+        </div>
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <span>💵 Nakit Payı</span>
+            <input type="number" id="multiCashPay" value="0" oninput="calcMultiPay()"
+                   class="bg-slate-950 text-slate-100 text-right rounded border border-slate-800 w-32 px-3 py-1.5 focus:outline-none focus:border-emerald-500">
+          </div>
+          <div class="flex items-center justify-between">
+            <span>💳 Kart Payı</span>
+            <input type="number" id="multiCardPay" value="0" oninput="calcMultiPay()"
+                   class="bg-slate-950 text-slate-100 text-right rounded border border-slate-800 w-32 px-3 py-1.5 focus:outline-none focus:border-emerald-500">
+          </div>
+          <div id="veresiyeSplitRow" class="flex items-center justify-between hidden">
+            <span>👤 Veresiye Cari Payı</span>
+            <input type="number" id="multiVeresiyePay" value="0" readonly
+                   class="bg-slate-950 text-slate-500 text-right rounded border border-slate-800 w-32 px-3 py-1.5 focus:outline-none">
+          </div>
+        </div>
+        <button id="completeMultiPayBtn" onclick="triggerMultiPayment()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-slate-100 py-3 rounded font-bold transition">
+          Ödemeyi Tamamla
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOMER SELECTION MODAL -->
+  <div id="customerModal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-40 hidden">
+    <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl max-w-lg w-full space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-lg font-bold text-slate-100">Cari Müşteri Seçimi</h3>
+        <button onclick="closeCustomerSelectModal()" class="text-slate-500 hover:text-slate-300 text-xl">&times;</button>
+      </div>
+      <div class="space-y-4">
+        <input type="text" id="custSearchInput" placeholder="Müşteri adı veya telefon numarası arayın..." oninput="searchCustomers(this.value)"
+               class="w-full bg-slate-950 border border-slate-800 rounded px-3 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+        <div id="custSelectGrid" class="space-y-2 max-h-60 overflow-y-auto">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CAMERA SCANNER MODAL -->
+  <div id="cameraScannerModal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-40 hidden">
+    <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl max-w-md w-full space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-bold text-slate-100">Kamera ile Barkod Tara</h3>
+        <button onclick="closeCameraScanner()" class="text-slate-500 hover:text-slate-300 text-xl">&times;</button>
+      </div>
+      <div class="bg-black rounded-lg aspect-video flex items-center justify-center relative overflow-hidden">
+        <video id="webcamPreview" class="w-full h-full object-cover"></video>
+        <span class="absolute inset-x-0 top-1/2 border-t border-red-500 border-dashed animate-pulse"></span>
+      </div>
+      <p class="text-xs text-slate-400 text-center">Barkodu kırmızı çizgiye hizalayın. (Kamera algılayıcı entegrasyonu)</p>
+    </div>
+  </div>
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    // Web Audio Synthesizer Beeps
+    const sound = {
+      beep: () => {
+        try {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(1200, ctx.currentTime);
+          gain.gain.setValueAtTime(0.1, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.1);
+        } catch(e){}
+      },
+      cash: () => {
+        try {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc1 = ctx.createOscillator();
+          const gain1 = ctx.createGain();
+          osc1.type = 'sine';
+          osc1.frequency.setValueAtTime(1500, ctx.currentTime);
+          gain1.gain.setValueAtTime(0.1, ctx.currentTime);
+          gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+          osc1.connect(gain1);
+          gain1.connect(ctx.destination);
+          osc1.start();
+          osc1.stop(ctx.currentTime + 0.3);
+          
+          const osc2 = ctx.createOscillator();
+          const gain2 = ctx.createGain();
+          osc2.type = 'triangle';
+          osc2.frequency.setValueAtTime(800, ctx.currentTime);
+          gain2.gain.setValueAtTime(0.08, ctx.currentTime);
+          gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+          osc2.connect(gain2);
+          gain2.connect(ctx.destination);
+          osc2.start();
+          osc2.stop(ctx.currentTime + 0.4);
+        } catch(e){}
+      },
+      error: () => {
+        try {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(150, ctx.currentTime);
+          gain.gain.setValueAtTime(0.15, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.3);
+        } catch(e){}
+      }
+    };
+
+    let supabase;
+    let productsList = [];
+    let categoriesList = [];
+    let customersList = [];
+    let cart = [];
+    let selectedCustomer = null;
+    let selectedBranch = '22222222-2222-2222-2222-222222222222';
+    let activeRegisterSession = null;
+    let categoryFilter = '';
+    let currentDiscount = 0; // can be % (e.g. 0.1) or flat amount (e.g. 10)
+    let isPercentageDiscount = false;
+
+    // USB barcode scanner aggregator variables
+    let barcodeBuffer = '';
+    let lastKeyTime = 0;
+
+    // Local Storage offline cache keys
+    const OFFLINE_ORDERS_KEY = 'ag_offline_orders';
+    const OFFLINE_REGISTERS_KEY = 'ag_offline_registers';
+
+    window.addEventListener('load', async () => {
+      // Initialize Supabase config from config API
+      try {
+        const confRes = await fetch('/api/config');
+        const conf = await confRes.json();
+        supabase = window.supabase.createClient(conf.SUPABASE_URL, conf.SUPABASE_ANON_KEY);
+      } catch(e) {
+        console.error("Config load failed, running local mock fallback", e);
+      }
+
+      await loadBackendData();
+      checkAuthAndRegister();
+      initKeyboardShortcuts();
+      initUSBScanner();
+      
+      // Sync loop for offline transactions
+      setInterval(syncOfflineTransactions, 30000);
+      window.addEventListener('online', syncOfflineTransactions);
+    });
+
+    async function loadBackendData() {
+      // Fetch branches
+      try {
+        const res = await fetch('/api/db?coll=branches');
+        const data = await res.json();
+        const sel = document.getElementById('posBranchSelect');
+        sel.innerHTML = (data && data.length > 0 ? data : [
+          { id: '22222222-2222-2222-2222-222222222222', name: 'Merkez Şube', slug: 'merkez-sube' },
+          { id: '33333333-3333-3333-3333-333333333333', name: 'Merkez Depo', slug: 'merkez-depo' }
+        ]).map(b => `<option value="${b.id}" ${b.id === selectedBranch ? 'selected':''}>${b.name}</option>`).join('');
+      } catch(e){}
+
+      // Fetch products
+      try {
+        const res = await fetch('/api/db?coll=products');
+        productsList = await res.json();
+      } catch(e){}
+
+      // Fetch categories
+      try {
+        const res = await fetch('/api/db?coll=categories');
+        categoriesList = await res.json();
+        
+        const catFilterDiv = document.getElementById('posCategoryFilter');
+        catFilterDiv.innerHTML = `<button onclick="filterCategory('')" class="cat-btn px-4 py-2 ${categoryFilter === '' ? 'bg-emerald-600':'bg-slate-800'} text-slate-100 text-sm font-semibold rounded-lg shrink-0 transition">Hepsi</button>` +
+          (categoriesList || []).map(c => `
+            <button onclick="filterCategory('${c.slug}')" class="cat-btn px-4 py-2 ${categoryFilter === c.slug ? 'bg-emerald-600':'bg-slate-800'} text-slate-100 text-sm font-semibold rounded-lg shrink-0 transition">${c.name}</button>
+          `).join('');
+      } catch(e){}
+
+      // Fetch customers
+      try {
+        const res = await fetch('/api/db?coll=customers');
+        customersList = await res.json();
+      } catch(e){}
+
+      renderProductsGrid();
+    }
+
+    function checkAuthAndRegister() {
+      // Retrieve active register session for selected branch
+      const stored = localStorage.getItem('ag_active_register_' + selectedBranch);
+      if (stored) {
+        activeRegisterSession = JSON.parse(stored);
+        document.getElementById('registerStatusBadge').innerText = 'Açık';
+        document.getElementById('registerStatusBadge').className = 'text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded font-medium';
+      } else {
+        document.getElementById('registerOpenModal').classList.remove('hidden');
+      }
+    }
+
+    async function changeBranch() {
+      selectedBranch = document.getElementById('posBranchSelect').value;
+      activeRegisterSession = null;
+      document.getElementById('registerStatusBadge').innerText = 'Kapalı';
+      document.getElementById('registerStatusBadge').className = 'text-xs bg-red-500/20 text-red-400 px-2 py-0.5 rounded font-medium';
+      
+      // Reload stock for new branch
+      try {
+        const res = await fetch('/api/db?coll=stock&branchId=' + selectedBranch);
+        const stocks = await res.json();
+        // Merge into productsList stocks
+        productsList.forEach(p => {
+          if (stocks[p.id]) {
+            p.stockQty = stocks[p.id].qty;
+          } else {
+            p.stockQty = 0;
+          }
+        });
+      } catch(e){}
+
+      checkAuthAndRegister();
+      renderProductsGrid();
+    }
+
+    async function openRegisterSession() {
+      const openingCash = Number(document.getElementById('openingCashInput').value || 0);
+      const session = {
+        id: crypto.randomUUID(),
+        branchId: selectedBranch,
+        openedBy: '00000000-0000-0000-0000-000000000000', // system user
+        openedAt: Date.now(),
+        openingCash: openingCash,
+        expectedCash: openingCash,
+        actualCash: 0,
+        status: 'open',
+        notes: 'POS Oturumu'
+      };
+
+      try {
+        const headers = { 'Content-Type': 'application/json' };
+        const res = await fetch('/api/db?coll=register_sessions', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(session)
+        });
+        if (!res.ok) throw new Error("API write failed");
+      } catch(e) {
+        // Save to offline registers list
+        const offline = JSON.parse(localStorage.getItem(OFFLINE_REGISTERS_KEY) || '[]');
+        offline.push(session);
+        localStorage.setItem(OFFLINE_REGISTERS_KEY, JSON.stringify(offline));
+      }
+
+      activeRegisterSession = session;
+      localStorage.setItem('ag_active_register_' + selectedBranch, JSON.stringify(session));
+
+      document.getElementById('registerStatusBadge').innerText = 'Açık';
+      document.getElementById('registerStatusBadge').className = 'text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded font-medium';
+      document.getElementById('registerOpenModal').classList.add('hidden');
+      
+      sound.beep();
+    }
+
+    function renderProductsGrid() {
+      const grid = document.getElementById('posProductsGrid');
+      let filtered = productsList;
+      if (categoryFilter) {
+        filtered = productsList.filter(p => p.cat === categoryFilter);
+      }
+
+      grid.innerHTML = (filtered || []).map(p => `
+        <div onclick="addToCart(${p.id})" class="glass hover:bg-slate-800 border border-slate-800 rounded-lg p-3 flex flex-col justify-between cursor-pointer transition transform hover:scale-[1.02]">
+          <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+            <span>📦 Stok: ${p.stockQty ?? 50}</span>
+            <span class="bg-slate-900 px-1.5 py-0.5 rounded">${p.unit}</span>
+          </div>
+          <div class="text-2xl my-2">${p.emoji || '📦'}</div>
+          <div class="text-sm font-semibold truncate text-slate-100">${p.name}</div>
+          <div class="text-emerald-400 font-bold mt-1 text-base">${p.price.toFixed(2)} TL</div>
+        </div>
+      `).join('');
+    }
+
+    function addToCart(productId) {
+      const prod = productsList.find(p => p.id === productId);
+      if (!prod) return;
+
+      const existing = cart.find(i => i.id === productId);
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        cart.push({
+          id: prod.id,
+          name: prod.name,
+          price: prod.price,
+          quantity: 1,
+          unit: prod.unit
+        });
+      }
+
+      sound.beep();
+      updateCartUI();
+    }
+
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      updateCartUI();
+    }
+
+    function updateCartUI() {
+      const list = document.getElementById('posCartList');
+      if (cart.length === 0) {
+        list.innerHTML = `
+          <div class="h-full flex flex-col items-center justify-center text-slate-500 space-y-2">
+            <span class="text-4xl">🛒</span>
+            <p class="text-sm">Sepetiniz Boş</p>
+          </div>
+        `;
+        document.getElementById('posSubtotal').innerText = '0.00 TL';
+        document.getElementById('posDiscount').innerText = '0.00 TL';
+        document.getElementById('posTotal').innerText = '0.00 TL';
+        document.getElementById('changeCalcArea').classList.add('hidden');
+        return;
+      }
+
+      let subtotal = 0;
+      list.innerHTML = cart.map((item, idx) => {
+        const itemTotal = item.price * item.quantity;
+        subtotal += itemTotal;
+        return `
+          <div class="flex items-center justify-between bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm">
+            <div class="flex-1 pr-2">
+              <span class="font-medium text-slate-200 block truncate">${item.name}</span>
+              <span class="text-xs text-slate-400">${item.price.toFixed(2)} TL x ${item.quantity} ${item.unit}</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <span class="font-bold text-slate-100 shrink-0">${itemTotal.toFixed(2)} TL</span>
+              <button onclick="removeFromCart(${idx})" class="text-red-400 hover:text-red-300 text-lg">&times;</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      let discountAmount = 0;
+      if (isPercentageDiscount) {
+        discountAmount = subtotal * currentDiscount;
+      } else {
+        discountAmount = currentDiscount;
+      }
+      if (discountAmount > subtotal) discountAmount = subtotal;
+
+      const total = subtotal - discountAmount;
+
+      document.getElementById('posSubtotal').innerText = subtotal.toFixed(2) + ' TL';
+      document.getElementById('posDiscount').innerText = discountAmount.toFixed(2) + ' TL';
+      document.getElementById('posTotal').innerText = total.toFixed(2) + ' TL';
+
+      calcChange();
+    }
+
+    function applyDiscount() {
+      const val = document.getElementById('discountInput').value.trim();
+      if (!val) {
+        currentDiscount = 0;
+        isPercentageDiscount = false;
+      } else if (val.endsWith('%')) {
+        currentDiscount = Number(val.slice(0, -1)) / 100;
+        isPercentageDiscount = true;
+      } else {
+        currentDiscount = Number(val);
+        isPercentageDiscount = false;
+      }
+      updateCartUI();
+    }
+
+    function calcChange() {
+      const totalStr = document.getElementById('posTotal').innerText;
+      const total = Number(totalStr.replace(' TL', ''));
+      if (total <= 0) return;
+
+      const received = Number(document.getElementById('cashReceivedInput').value || 0);
+      document.getElementById('changeCalcArea').classList.remove('hidden');
+
+      const change = Math.max(0, received - total);
+      document.getElementById('changeAmountDisplay').innerText = change.toFixed(2) + ' TL';
+    }
+
+    function filterCategory(slug) {
+      categoryFilter = slug;
+      loadBackendData();
+    }
+
+    function initKeyboardShortcuts() {
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'F2') {
+          e.preventDefault();
+          document.getElementById('posSearchInput').focus();
+        } else if (e.key === 'F4') {
+          e.preventDefault();
+          document.getElementById('discountInput').focus();
+        } else if (e.key === 'F7') {
+          e.preventDefault();
+          triggerPayment('cash');
+        } else if (e.key === 'F8') {
+          e.preventDefault();
+          triggerPayment('card');
+        } else if (e.key === 'F9') {
+          e.preventDefault();
+          openPaymentModal();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          cancelTransaction();
+        }
+      });
+    }
+
+    function initUSBScanner() {
+      window.addEventListener('keypress', (e) => {
+        const now = Date.now();
+        if (now - lastKeyTime < 35) {
+          if (e.key !== 'Enter') {
+            barcodeBuffer += e.key;
+          }
+        } else {
+          barcodeBuffer = e.key !== 'Enter' ? e.key : '';
+        }
+        lastKeyTime = now;
+
+        if (e.key === 'Enter' && barcodeBuffer.length >= 3) {
+          e.preventDefault();
+          const code = barcodeBuffer.trim();
+          barcodeBuffer = '';
+          handleScannedBarcode(code);
+        }
+      });
+    }
+
+    function handleScannedBarcode(barcode) {
+      const prod = productsList.find(p => p.sku === barcode || (p.metadata && p.metadata.barcode === barcode));
+      if (prod) {
+        addToCart(prod.id);
+      } else {
+        sound.error();
+        alert(`Barkod Bulunamadı: ${barcode}`);
+      }
+    }
+
+    function handleSearchInput(val) {
+      const suggestions = document.getElementById('searchSuggestions');
+      if (!val) {
+        suggestions.classList.add('hidden');
+        return;
+      }
+
+      const clean = val.toLowerCase();
+      const matched = productsList.filter(p => p.name.toLowerCase().includes(clean) || (p.sku && p.sku.includes(clean)));
+
+      if (matched.length === 0) {
+        suggestions.classList.add('hidden');
+        return;
+      }
+
+      suggestions.innerHTML = matched.slice(0, 10).map(p => `
+        <div onclick="selectSuggestion(${p.id})" class="px-4 py-2 hover:bg-slate-800 cursor-pointer flex items-center justify-between">
+          <span class="font-medium">${p.name}</span>
+          <span class="text-xs text-emerald-400">${p.price.toFixed(2)} TL</span>
+        </div>
+      `).join('');
+      suggestions.classList.remove('hidden');
+    }
+
+    function selectSuggestion(productId) {
+      addToCart(productId);
+      document.getElementById('posSearchInput').value = '';
+      document.getElementById('searchSuggestions').classList.add('hidden');
+    }
+
+    function handleSearchKeydown(e) {
+      if (e.key === 'Enter') {
+        const val = e.target.value.trim();
+        if (val) {
+          handleScannedBarcode(val);
+          e.target.value = '';
+        }
+      }
+    }
+
+    function openCustomerSelectModal() {
+      document.getElementById('customerModal').classList.remove('hidden');
+      searchCustomers('');
+    }
+
+    function closeCustomerSelectModal() {
+      document.getElementById('customerModal').classList.add('hidden');
+    }
+
+    function searchCustomers(val) {
+      const clean = val.toLowerCase();
+      const grid = document.getElementById('custSelectGrid');
+      const filtered = customersList.filter(c => c.name.toLowerCase().includes(clean) || c.phone.includes(clean));
+
+      grid.innerHTML = `
+        <div onclick="selectCustomer(null)" class="p-3 bg-slate-800/50 hover:bg-slate-800 rounded border border-slate-700 cursor-pointer text-xs font-semibold text-slate-400">
+          ❌ Perakende Müşteri (Cari Yok)
+        </div>
+      ` + filtered.map(c => `
+        <div onclick="selectCustomer(${JSON.stringify(c).replace(/"/g, '&quot;')})" class="p-3 bg-slate-800 hover:bg-slate-700 rounded border border-slate-700 cursor-pointer flex justify-between items-center">
+          <div>
+            <span class="font-bold text-slate-200 block">${c.name}</span>
+            <span class="text-xs text-slate-400">${c.phone}</span>
+          </div>
+          <div class="text-right">
+            <span class="text-xs text-slate-400 block">Cari Bakiye</span>
+            <span class="font-semibold ${c.balance > 0 ? 'text-red-400':'text-emerald-400'}">${c.balance.toFixed(2)} TL</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function selectCustomer(cust) {
+      selectedCustomer = cust;
+      const display = document.getElementById('selectedCustomerDisplay');
+      if (cust) {
+        display.innerHTML = `
+          <span class="text-sm font-semibold text-emerald-400">${cust.name}</span>
+          <span class="block text-xs text-slate-300">Borç Bakiyesi: ${cust.balance.toFixed(2)} TL</span>
+        `;
+        document.getElementById('veresiyeSplitRow').classList.remove('hidden');
+      } else {
+        display.innerHTML = `
+          <span class="text-sm font-medium text-slate-300">Perakende Müşteri</span>
+          <span class="block text-xs text-slate-500">Cari Bakiye: 0.00 TL</span>
+        `;
+        document.getElementById('veresiyeSplitRow').classList.add('hidden');
+      }
+      closeCustomerSelectModal();
+    }
+
+    function openPaymentModal() {
+      if (cart.length === 0) return;
+      const totalStr = document.getElementById('posTotal').innerText;
+      const total = Number(totalStr.replace(' TL', ''));
+      document.getElementById('multiPaymentRemaining').innerText = total.toFixed(2) + ' TL';
+      document.getElementById('multiCashPay').value = 0;
+      document.getElementById('multiCardPay').value = 0;
+      document.getElementById('multiVeresiyePay').value = 0;
+      
+      document.getElementById('paymentModal').classList.remove('hidden');
+    }
+
+    function closePaymentModal() {
+      document.getElementById('paymentModal').classList.add('hidden');
+    }
+
+    function calcMultiPay() {
+      const totalStr = document.getElementById('posTotal').innerText;
+      const total = Number(totalStr.replace(' TL', ''));
+      const cash = Number(document.getElementById('multiCashPay').value || 0);
+      const card = Number(document.getElementById('multiCardPay').value || 0);
+      
+      const sum = cash + card;
+      const remaining = Math.max(0, total - sum);
+      document.getElementById('multiPaymentRemaining').innerText = remaining.toFixed(2) + ' TL';
+      
+      if (selectedCustomer) {
+        document.getElementById('multiVeresiyePay').value = remaining.toFixed(2);
+      }
+    }
+
+    async function triggerPayment(method) {
+      if (cart.length === 0) return;
+      if (!activeRegisterSession) {
+        alert("Satış yapabilmek için lütfen kasayı açın!");
+        checkAuthAndRegister();
+        return;
+      }
+
+      const totalStr = document.getElementById('posTotal').innerText;
+      const total = Number(totalStr.replace(' TL', ''));
+
+      if (method === 'veresiye' && !selectedCustomer) {
+        alert("Cari/Veresiye ödeme için lütfen müşteri seçin!");
+        return;
+      }
+
+      const orderNo = `POS-${Date.now()}`;
+      const payload = {
+        no: orderNo,
+        name: selectedCustomer ? selectedCustomer.name : 'Perakende Müşteri',
+        phone: selectedCustomer ? selectedCustomer.phone : '',
+        addr: 'POS Terminali',
+        items: cart,
+        total: total,
+        ts: Date.now(),
+        status: 1, 
+        paymentMethod: method,
+        customerId: selectedCustomer ? selectedCustomer.id : null,
+        registerId: activeRegisterSession.id,
+        branchId: selectedBranch
+      };
+
+      printThermalReceipt(payload, method);
+
+      try {
+        const res = await fetch('/api/db?coll=orders&branchId=' + selectedBranch, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify([payload])
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error || "Sunucu sipariş yazma hatası");
+        }
+        sound.cash();
+      } catch(e) {
+        sound.error();
+        alert(`Sipariş offline moda kaydedildi: ${e.message}`);
+        const offline = JSON.parse(localStorage.getItem(OFFLINE_ORDERS_KEY) || '[]');
+        offline.push(payload);
+        localStorage.setItem(OFFLINE_ORDERS_KEY, JSON.stringify(offline));
+      }
+
+      cart = [];
+      selectCustomer(null);
+      currentDiscount = 0;
+      isPercentageDiscount = false;
+      document.getElementById('discountInput').value = '';
+      updateCartUI();
+      loadBackendData();
+    }
+
+    async function triggerMultiPayment() {
+      const totalStr = document.getElementById('posTotal').innerText;
+      const total = Number(totalStr.replace(' TL', ''));
+      const cash = Number(document.getElementById('multiCashPay').value || 0);
+      const card = Number(document.getElementById('multiCardPay').value || 0);
+      const veresiye = Number(document.getElementById('multiVeresiyePay').value || 0);
+
+      if (cash + card + veresiye < total) {
+        alert("Girilen ödeme tutarları genel toplamı karşılamıyor!");
+        return;
+      }
+
+      if (veresiye > 0 && !selectedCustomer) {
+        alert("Kalan veresiye borcu için müşteri seçilmesi zorunludur!");
+        return;
+      }
+
+      closePaymentModal();
+      await triggerPayment('mixed');
+    }
+
+    function cancelTransaction() {
+      if (confirm("Bu satışı iptal etmek istediğinize emin misiniz?")) {
+        cart = [];
+        selectCustomer(null);
+        currentDiscount = 0;
+        isPercentageDiscount = false;
+        document.getElementById('discountInput').value = '';
+        updateCartUI();
+        sound.beep();
+      }
+    }
+
+    function printThermalReceipt(order, method) {
+      const area = document.getElementById('print-receipt-area');
+      const date = new Date(order.ts).toLocaleString();
+      
+      let itemsLines = order.items.map(i => `
+${i.name.slice(0, 20).padEnd(20)} ${i.quantity.toString().padEnd(4)} ${(i.price * i.quantity).toFixed(2).padStart(8)}
+      `).join('');
+
+      area.innerHTML = `
+========================================
+             AYDIN GROS
+         Alışveriş Makbuzu
+========================================
+Tarih: ${date}
+Fiş No: ${order.no}
+Ödeme: ${method.toUpperCase()}
+Müşteri: ${order.name}
+----------------------------------------
+Ürün Adı             Adet    Tutar (TL)
+----------------------------------------
+${itemsLines}
+----------------------------------------
+Genel Toplam:              ${order.total.toFixed(2)} TL
+========================================
+      Teşekkür Ederiz, Yine Bekleriz.
+========================================
+      `;
+
+      window.print();
+    }
+
+    function openCameraScanner() {
+      document.getElementById('cameraScannerModal').classList.remove('hidden');
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          document.getElementById('webcamPreview').srcObject = stream;
+          document.getElementById('webcamPreview').play();
+        }).catch(err => {
+          console.error("Camera open failed", err);
+        });
+    }
+
+    function closeCameraScanner() {
+      const video = document.getElementById('webcamPreview');
+      if (video.srcObject) {
+        video.srcObject.getTracks().forEach(t => t.stop());
+      }
+      document.getElementById('cameraScannerModal').classList.add('hidden');
+    }
+
+    async function syncOfflineTransactions() {
+      if (!window.navigator.onLine) return;
+
+      const orders = JSON.parse(localStorage.getItem(OFFLINE_ORDERS_KEY) || '[]');
+      const registers = JSON.parse(localStorage.getItem(OFFLINE_REGISTERS_KEY) || '[]');
+
+      if (orders.length === 0 && registers.length === 0) return;
+
+      document.getElementById('networkStatusBadge').innerHTML = `
+        <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+        <span>Eşitleniyor...</span>
+      `;
+
+      try {
+        if (registers.length > 0) {
+          const res = await fetch('/api/db?coll=register_sessions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(registers)
+          });
+          if (res.ok) {
+            localStorage.setItem(OFFLINE_REGISTERS_KEY, '[]');
+          }
+        }
+
+        if (orders.length > 0) {
+          const res = await fetch('/api/db?coll=orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(orders)
+          });
+          if (res.ok) {
+            localStorage.setItem(OFFLINE_ORDERS_KEY, '[]');
+          }
+        }
+
+        document.getElementById('networkStatusBadge').innerHTML = `
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span>Online</span>
+        `;
+      } catch(e) {
+        console.error("Sync failed, will retry later", e);
+      }
+    }
+  </script>
+</body>
+</html>

@@ -58,8 +58,113 @@ async function checkAuth(req: NextRequest) {
   }
 }
 
-async function supabaseRead(coll: string, supabase: any, tenantId: string) {
+async function supabaseRead(coll: string, supabase: any, tenantId: string, branchId?: string) {
+  const activeBranch = branchId || '22222222-2222-2222-2222-222222222222';
   switch (coll) {
+    case 'branches': {
+      const { data, error } = await supabase
+        .from('branches')
+        .select('id, name, slug, is_main, is_active')
+        .eq('tenant_id', tenantId)
+        .is('deleted_at', null);
+      if (error) return [];
+      return (data || []).map((b: any) => ({
+        id: b.id,
+        name: b.name,
+        slug: b.slug,
+        isMain: b.is_main,
+        isActive: b.is_active
+      }));
+    }
+
+    case 'customers': {
+      const { data, error } = await supabase
+        .from('customers')
+        .select('id, full_name, phone, email, notes, balance')
+        .eq('tenant_id', tenantId)
+        .is('deleted_at', null)
+        .order('full_name');
+      if (error) {
+        if (error.code === '42P01') return [];
+        throw new Error('customers: ' + error.message);
+      }
+      return (data || []).map((c: any) => ({
+        id:      c.id,
+        name:    c.full_name,
+        phone:   c.phone || '',
+        email:   c.email || '',
+        notes:   c.notes || '',
+        balance: Number(c.balance || 0)
+      }));
+    }
+
+    case 'customer_transactions': {
+      const { data, error } = await supabase
+        .from('customer_transactions')
+        .select('id, customer_id, amount, type, reference_id, notes, created_at')
+        .eq('tenant_id', tenantId)
+        .order('created_at', { ascending: false });
+      if (error) {
+        if (error.code === '42P01') return [];
+        throw new Error('customer_transactions: ' + error.message);
+      }
+      return (data || []).map((t: any) => ({
+        id:          t.id,
+        customerId:  t.customer_id,
+        amount:      Number(t.amount),
+        type:        t.type,
+        referenceId: t.reference_id || '',
+        notes:       t.notes || '',
+        ts:          new Date(t.created_at).getTime()
+      }));
+    }
+
+    case 'register_sessions': {
+      const { data, error } = await supabase
+        .from('register_sessions')
+        .select('id, branch_id, opened_by, opened_at, closed_at, opening_cash, expected_cash, actual_cash, status, notes')
+        .eq('tenant_id', tenantId)
+        .order('opened_at', { ascending: false });
+      if (error) {
+        if (error.code === '42P01') return [];
+        throw new Error('register_sessions: ' + error.message);
+      }
+      return (data || []).map((s: any) => ({
+        id:          s.id,
+        branchId:    s.branch_id,
+        openedBy:    s.opened_by || '',
+        openedAt:    new Date(s.opened_at).getTime(),
+        closedAt:    s.closed_at ? new Date(s.closed_at).getTime() : null,
+        openingCash: Number(s.opening_cash),
+        expectedCash:Number(s.expected_cash),
+        actualCash:  Number(s.actual_cash),
+        status:      s.status,
+        notes:       s.notes || ''
+      }));
+    }
+
+    case 'stock_transfers': {
+      const { data, error } = await supabase
+        .from('stock_transfers')
+        .select('id, from_branch_id, to_branch_id, status, items, notes, created_at, completed_at')
+        .eq('tenant_id', tenantId)
+        .order('created_at', { ascending: false });
+      if (error) {
+        if (error.code === '42P01') return [];
+        throw new Error('stock_transfers: ' + error.message);
+      }
+      return (data || []).map((t: any) => ({
+        id:           t.id,
+        fromBranchId: t.from_branch_id,
+        toBranchId:   t.to_branch_id,
+        status:       t.status,
+        items:        t.items || [],
+        notes:        t.notes || '',
+        createdAt:    new Date(t.created_at).getTime(),
+        completedAt:  t.completed_at ? new Date(t.completed_at).getTime() : null
+      }));
+    }
+
     case 'products': {
       const rows: any[] = [];
       let from = 0;
@@ -111,16 +216,16 @@ async function supabaseRead(coll: string, supabase: any, tenantId: string) {
     case 'orders': {
       const { data, error } = await supabase
         .from('orders')
-        .select('id, order_number, customer_name, customer_phone, delivery_address, total, status, items_data, created_at')
+        .select('id, order_number, customer_name, customer_phone, delivery_address, total, status, items_data, created_at, payment_method, customer_id, register_id, branch_id')
         .eq('tenant_id', tenantId)
         .is('deleted_at', null)
         .order('created_at', { ascending: false });
       if (error) throw new Error('orders: ' + error.message);
       return (data || []).map((r: any) => ({
-        no:    r.order_number,
-        name:  r.customer_name || '',
-        phone: r.customer_phone || '',
-        addr:  r.delivery_address || '',
+        no:            r.order_number,
+        name:          r.customer_name || '',
+        phone:         r.customer_phone || '',
+        addr:          r.delivery_address || '',
         items: (r.items_data || []).map((i: any) => ({
           id:       i.id,
           name:     i.name,
@@ -128,9 +233,13 @@ async function supabaseRead(coll: string, supabase: any, tenantId: string) {
           quantity: Number(i.qty || i.quantity || 1),
           price:    Number(i.price),
         })),
-        total:  Number(r.total),
-        ts:     new Date(r.created_at).getTime(),
-        status: ORDER_STATUS[r.status] ?? 0,
+        total:         Number(r.total),
+        ts:            new Date(r.created_at).getTime(),
+        status:        ORDER_STATUS[r.status] ?? 0,
+        paymentMethod: r.payment_method || 'cash',
+        customerId:    r.customer_id || '',
+        registerId:    r.register_id || '',
+        branchId:      r.branch_id || ''
       }));
     }
 
@@ -192,8 +301,24 @@ async function supabaseRead(coll: string, supabase: any, tenantId: string) {
           .from('product_stock')
           .select('product_legacy_id, qty, min_qty')
           .eq('tenant_id', tenantId)
+          .eq('branch_id', activeBranch)
           .range(from, from + 499);
-        if (error) throw new Error('stock: ' + error.message);
+        if (error) {
+          if (error.code === '42703' || error.message.includes('column "branch_id"')) {
+            const { data: fallbackData, error: fbError } = await supabase
+              .from('product_stock')
+              .select('product_legacy_id, qty, min_qty')
+              .eq('tenant_id', tenantId)
+              .range(from, from + 499);
+            if (fbError) throw new Error('stock fallback: ' + fbError.message);
+            if (!fallbackData?.length) break;
+            rows.push(...fallbackData);
+            if (fallbackData.length < 500) break;
+            from += 500;
+            continue;
+          }
+          throw new Error('stock: ' + error.message);
+        }
         if (!data?.length) break;
         rows.push(...data);
         if (data.length < 500) break;
@@ -221,11 +346,15 @@ async function supabaseRead(coll: string, supabase: any, tenantId: string) {
   }
 }
 
-async function supabaseWrite(coll: string, body: any, supabase: any, tenantId: string) {
+async function supabaseWrite(coll: string, body: any, supabase: any, tenantId: string, branchId?: string) {
+  const activeBranch = branchId || '22222222-2222-2222-2222-222222222222';
   switch (coll) {
     case 'orders': {
       const rows = (Array.isArray(body) ? body : []).map(o => ({
         tenant_id:        tenantId,
+        branch_id:        o.branchId || activeBranch,
+        register_id:      o.registerId || null,
+        customer_id:      o.customerId || null,
         order_number:     o.no,
         customer_name:    o.name || '',
         customer_phone:   o.phone || '',
@@ -234,11 +363,12 @@ async function supabaseWrite(coll: string, body: any, supabase: any, tenantId: s
         subtotal:         o.total || 0,
         status:           STATUS_FROM_INT[o.status] || 'pending',
         items_data:       o.items || [],
+        payment_method:   o.paymentMethod || 'cash',
+        payment_status:   (o.paymentMethod === 'veresiye' ? 'pending' : 'paid'),
         created_at:       o.ts ? new Date(o.ts).toISOString() : new Date().toISOString(),
       }));
       if (!rows.length) return;
 
-      // Check which orders are new (to deduct stock only on creation)
       const orderNumbers = rows.map(r => r.order_number);
       const { data: existingOrders, error: existingError } = await supabase
         .from('orders')
@@ -254,7 +384,6 @@ async function supabaseWrite(coll: string, body: any, supabase: any, tenantId: s
       const newOrders = rows.filter(r => !existingNos.has(r.order_number));
 
       if (newOrders.length > 0) {
-        // Aggregate stock demands
         const demands: Record<number, number> = {};
         const itemNames: Record<number, string> = {};
         for (const order of newOrders) {
@@ -270,23 +399,34 @@ async function supabaseWrite(coll: string, body: any, supabase: any, tenantId: s
 
         const productIds = Object.keys(demands).map(Number);
         if (productIds.length > 0) {
-          // Fetch current stock
           const { data: stocks, error: stockError } = await supabase
             .from('product_stock')
             .select('product_legacy_id, qty')
             .eq('tenant_id', tenantId)
+            .eq('branch_id', activeBranch)
             .in('product_legacy_id', productIds);
           
+          let stockMap: Record<number, number> = {};
           if (stockError) {
-            throw new Error('Stok sorgulama hatası: ' + stockError.message);
+            if (stockError.code === '42703' || stockError.message.includes('column "branch_id"')) {
+              const { data: fallbackStocks, error: fbErr } = await supabase
+                .from('product_stock')
+                .select('product_legacy_id, qty')
+                .eq('tenant_id', tenantId)
+                .in('product_legacy_id', productIds);
+              if (fbErr) throw new Error('Stok sorgulama hatası: ' + fbErr.message);
+              (fallbackStocks || []).forEach((s: any) => {
+                stockMap[s.product_legacy_id] = s.qty || 0;
+              });
+            } else {
+              throw new Error('Stok sorgulama hatası: ' + stockError.message);
+            }
+          } else {
+            (stocks || []).forEach((s: any) => {
+              stockMap[s.product_legacy_id] = s.qty || 0;
+            });
           }
 
-          const stockMap: Record<number, number> = {};
-          (stocks || []).forEach((s: any) => {
-            stockMap[s.product_legacy_id] = s.qty || 0;
-          });
-
-          // Validate stock
           for (const pid of productIds) {
             const demand = demands[pid];
             const currentStock = stockMap[pid] ?? 0;
@@ -295,19 +435,69 @@ async function supabaseWrite(coll: string, body: any, supabase: any, tenantId: s
             }
           }
 
-          // Deduct stock
           for (const pid of productIds) {
             const demand = demands[pid];
             const currentStock = stockMap[pid] ?? 0;
             const newStock = currentStock - demand;
+            
             const { error: updateError } = await supabase
               .from('product_stock')
               .update({ qty: newStock, updated_at: new Date().toISOString() })
               .eq('tenant_id', tenantId)
+              .eq('branch_id', activeBranch)
               .eq('product_legacy_id', pid);
             
             if (updateError) {
-              throw new Error(`Stok düşme hatası (${itemNames[pid]}): ` + updateError.message);
+              const { error: fbErr } = await supabase
+                .from('product_stock')
+                .update({ qty: newStock, updated_at: new Date().toISOString() })
+                .eq('tenant_id', tenantId)
+                .eq('product_legacy_id', pid);
+              if (fbErr) throw new Error(`Stok düşme hatası (${itemNames[pid]}): ` + fbErr.message);
+            }
+          }
+        }
+
+        for (const order of newOrders) {
+          if (order.customer_id && (order.payment_method === 'veresiye' || order.payment_method === 'mixed')) {
+            const amount = Number(order.total || 0);
+            await supabase.from('customer_transactions').insert({
+              tenant_id: tenantId,
+              customer_id: order.customer_id,
+              amount: amount,
+              type: 'purchase',
+              reference_id: null,
+              notes: `Satış Noktası Sipariş: #${order.order_number}`
+            });
+
+            const { data: customer } = await supabase
+              .from('customers')
+              .select('balance')
+              .eq('id', order.customer_id)
+              .single();
+            if (customer) {
+              const newBal = Number(customer.balance || 0) + amount;
+              await supabase
+                .from('customers')
+                .update({ balance: newBal, updated_at: new Date().toISOString() })
+                .eq('id', order.customer_id);
+            }
+          }
+
+          if (order.register_id && order.payment_method === 'cash') {
+            const amount = Number(order.total || 0);
+            const { data: regSession } = await supabase
+              .from('register_sessions')
+              .select('expected_cash')
+              .eq('id', order.register_id)
+              .single();
+            
+            if (regSession) {
+              const newExpected = Number(regSession.expected_cash || 0) + amount;
+              await supabase
+                .from('register_sessions')
+                .update({ expected_cash: newExpected })
+                .eq('id', order.register_id);
             }
           }
         }
@@ -320,8 +510,185 @@ async function supabaseWrite(coll: string, body: any, supabase: any, tenantId: s
       return;
     }
 
+    case 'customers': {
+      const rows = (Array.isArray(body) ? body : []).map(c => ({
+        id:         c.id || undefined,
+        tenant_id:  tenantId,
+        full_name:  c.name || '',
+        phone:      c.phone || null,
+        email:      c.email || null,
+        notes:      c.notes || '',
+        balance:    Number(c.balance || 0),
+        updated_at: new Date().toISOString()
+      }));
+
+      const incomingIds = new Set(rows.map((r: any) => r.id).filter(Boolean));
+      const { data: existing, error: fetchErr } = await supabase
+        .from('customers')
+        .select('id')
+        .eq('tenant_id', tenantId)
+        .is('deleted_at', null);
+      
+      if (!fetchErr && existing) {
+        const deletedIds = (existing || []).map((r: any) => r.id).filter((id: any) => !incomingIds.has(id));
+        if (deletedIds.length > 0) {
+          await supabase
+            .from('customers')
+            .update({ deleted_at: new Date().toISOString() })
+            .in('id', deletedIds);
+        }
+      }
+
+      if (rows.length > 0) {
+        const { error } = await supabase
+          .from('customers')
+          .upsert(rows, { onConflict: 'id' });
+        if (error) throw new Error('customers write: ' + error.message);
+      }
+      return;
+    }
+
+    case 'customer_transactions': {
+      const items = Array.isArray(body) ? body : [body];
+      const rows = items.map(t => ({
+        tenant_id:    tenantId,
+        customer_id:  t.customerId,
+        amount:       Number(t.amount || 0),
+        type:         t.type || 'payment',
+        reference_id: t.referenceId || null,
+        notes:        t.notes || '',
+        created_at:   t.ts ? new Date(t.ts).toISOString() : new Date().toISOString()
+      }));
+
+      if (!rows.length) return;
+      const { error } = await supabase
+        .from('customer_transactions')
+        .insert(rows);
+      if (error) throw new Error('customer_transactions write: ' + error.message);
+
+      for (const row of rows) {
+        const { data: customer } = await supabase
+          .from('customers')
+          .select('balance')
+          .eq('id', row.customer_id)
+          .single();
+        if (customer) {
+          const newBal = Number(customer.balance || 0) + row.amount;
+          await supabase
+            .from('customers')
+            .update({ balance: newBal, updated_at: new Date().toISOString() })
+            .eq('id', row.customer_id);
+        }
+      }
+      return;
+    }
+
+    case 'register_sessions': {
+      const items = Array.isArray(body) ? body : [body];
+      const rows = items.map(s => ({
+        id:            s.id || undefined,
+        tenant_id:     tenantId,
+        branch_id:     s.branchId || activeBranch,
+        opened_by:     s.openedBy || null,
+        opened_at:     s.openedAt ? new Date(s.openedAt).toISOString() : new Date().toISOString(),
+        closed_at:     s.closedAt ? new Date(s.closedAt).toISOString() : null,
+        opening_cash:  Number(s.openingCash || 0),
+        expected_cash: Number(s.expectedCash || 0),
+        actual_cash:   Number(s.actualCash || 0),
+        status:        s.status || 'open',
+        notes:         s.notes || ''
+      }));
+
+      if (!rows.length) return;
+      const { error } = await supabase
+        .from('register_sessions')
+        .upsert(rows, { onConflict: 'id' });
+      if (error) throw new Error('register_sessions write: ' + error.message);
+      return;
+    }
+
+    case 'stock_transfers': {
+      const items = Array.isArray(body) ? body : [body];
+      const rows = items.map(t => ({
+        id:             t.id || undefined,
+        tenant_id:      tenantId,
+        from_branch_id: t.fromBranchId,
+        to_branch_id:   t.toBranchId,
+        status:         t.status || 'pending',
+        items:          t.items || [],
+        notes:          t.notes || '',
+        created_at:     t.createdAt ? new Date(t.createdAt).toISOString() : new Date().toISOString(),
+        completed_at:   t.completedAt ? new Date(t.completedAt).toISOString() : null
+      }));
+
+      if (!rows.length) return;
+
+      for (const row of rows) {
+        if (row.status === 'completed' && row.id) {
+          const { data: currentTransfer } = await supabase
+            .from('stock_transfers')
+            .select('status')
+            .eq('id', row.id)
+            .single();
+          
+          if (currentTransfer && currentTransfer.status !== 'completed') {
+            for (const item of (row.items || [])) {
+              const legacyId = Number(item.id || item.legacy_id);
+              const qty = Number(item.qty || item.quantity || 0);
+
+              if (legacyId && qty > 0) {
+                const { data: sStock } = await supabase
+                  .from('product_stock')
+                  .select('qty')
+                  .eq('tenant_id', tenantId)
+                  .eq('branch_id', row.from_branch_id)
+                  .eq('product_legacy_id', legacyId)
+                  .single();
+                
+                const sQty = Number(sStock?.qty || 0);
+                await supabase
+                  .from('product_stock')
+                  .upsert({
+                    tenant_id: tenantId,
+                    branch_id: row.from_branch_id,
+                    product_legacy_id: legacyId,
+                    qty: Math.max(0, sQty - qty),
+                    updated_at: new Date().toISOString()
+                  }, { onConflict: 'tenant_id,branch_id,product_legacy_id' });
+
+                const { data: tStock } = await supabase
+                  .from('product_stock')
+                  .select('qty')
+                  .eq('tenant_id', tenantId)
+                  .eq('branch_id', row.to_branch_id)
+                  .eq('product_legacy_id', legacyId)
+                  .single();
+                
+                const tQty = Number(tStock?.qty || 0);
+                await supabase
+                  .from('product_stock')
+                  .upsert({
+                    tenant_id: tenantId,
+                    branch_id: row.to_branch_id,
+                    product_legacy_id: legacyId,
+                    qty: tQty + qty,
+                    updated_at: new Date().toISOString()
+                  }, { onConflict: 'tenant_id,branch_id,product_legacy_id' });
+              }
+            }
+            row.completed_at = new Date().toISOString();
+          }
+        }
+      }
+
+      const { error } = await supabase
+        .from('stock_transfers')
+        .upsert(rows, { onConflict: 'id' });
+      if (error) throw new Error('stock_transfers write: ' + error.message);
+      return;
+    }
+
     case 'products': {
-      // Fetch categories map to convert slug to UUID
       const { data: categories, error: catError } = await supabase
         .from('categories')
         .select('id, slug')
@@ -333,7 +700,6 @@ async function supabaseWrite(coll: string, body: any, supabase: any, tenantId: s
         if (c.slug) categoryMap[c.slug] = c.id;
       });
 
-      // Get existing active products to map UUIDs and identify deletes
       const { data: existing, error: fetchErr } = await supabase
         .from('products')
         .select('id, legacy_id')
@@ -351,7 +717,6 @@ async function supabaseWrite(coll: string, body: any, supabase: any, tenantId: s
       const incomingProducts = (Array.isArray(body) ? body : []);
       const incomingIds = new Set(incomingProducts.map(p => Number(p.id)));
 
-      // Perform soft deletes for products missing from the incoming array
       const deletedUuids = Object.entries(uuidMap)
         .filter(([legacyId]) => !incomingIds.has(Number(legacyId)))
         .map(([, uuid]) => uuid);
@@ -364,7 +729,6 @@ async function supabaseWrite(coll: string, body: any, supabase: any, tenantId: s
         if (deleteErr) throw new Error('Ürün silme hatası: ' + deleteErr.message);
       }
 
-      // Map incoming items for upsert
       const rows = incomingProducts.map(p => {
         const catId = categoryMap[p.cat] || null;
         const resolvedUuid = uuidMap[Number(p.id)] || crypto.randomUUID();
@@ -387,7 +751,6 @@ async function supabaseWrite(coll: string, body: any, supabase: any, tenantId: s
         };
       });
 
-      // Deduplicate rows by UUID id to prevent PostgreSQL ON CONFLICT DO UPDATE cannot affect row a second time error
       const uniqueRowsMap = new Map<string, any>();
       rows.forEach(row => {
         if (row.id) {
@@ -406,30 +769,33 @@ async function supabaseWrite(coll: string, body: any, supabase: any, tenantId: s
     }
 
     case 'categories': {
-      const incomingCategories = (Array.isArray(body) ? body : []);
-      const incomingIds = new Set(incomingCategories.map(c => c.id).filter(Boolean));
-
-      // Get existing active categories
       const { data: existing, error: fetchErr } = await supabase
         .from('categories')
-        .select('id')
+        .select('id, slug')
         .eq('tenant_id', tenantId)
         .is('deleted_at', null);
       if (fetchErr) throw new Error('Kategoriler sorgulanamadı: ' + fetchErr.message);
 
-      const existingIds = new Set((existing || []).map((r: any) => r.id));
-      const deletedIds = Array.from(existingIds).filter(id => !incomingIds.has(id));
+      const uuidMap: Record<string, string> = {};
+      (existing || []).forEach((r: any) => {
+        if (r.slug) uuidMap[r.slug] = r.id;
+      });
 
-      // Soft delete categories missing from the incoming array
-      if (deletedIds.length > 0) {
+      const incomingCategories = (Array.isArray(body) ? body : []);
+      const incomingSlugs = new Set(incomingCategories.map(c => c.slug).filter(Boolean));
+
+      const deletedUuids = Object.entries(uuidMap)
+        .filter(([slug]) => !incomingSlugs.has(slug))
+        .map(([, uuid]) => uuid);
+
+      if (deletedUuids.length > 0) {
         const { error: deleteErr } = await supabase
           .from('categories')
           .update({ deleted_at: new Date().toISOString(), is_active: false })
-          .in('id', deletedIds);
+          .in('id', deletedUuids);
         if (deleteErr) throw new Error('Kategori silme hatası: ' + deleteErr.message);
       }
 
-      // Map incoming categories
       const rows = incomingCategories.map(c => ({
         id:            c.id || undefined,
         tenant_id:     tenantId,
@@ -500,6 +866,7 @@ async function supabaseWrite(coll: string, body: any, supabase: any, tenantId: s
     case 'stock': {
       const rows = Object.entries(body || {}).map(([legacyId, s]: [string, any]) => ({
         tenant_id:         tenantId,
+        branch_id:         activeBranch,
         product_legacy_id: parseInt(legacyId, 10),
         qty:               s.qty ?? 50,
         min_qty:           s.min ?? 5,
@@ -508,8 +875,21 @@ async function supabaseWrite(coll: string, body: any, supabase: any, tenantId: s
       if (!rows.length) return;
       const { error } = await supabase
         .from('product_stock')
-        .upsert(rows, { onConflict: 'tenant_id,product_legacy_id' });
-      if (error) throw new Error('stock write: ' + error.message);
+        .upsert(rows, { onConflict: 'tenant_id,branch_id,product_legacy_id' });
+      if (error) {
+        if (error.code === '42703' || error.message.includes('column "branch_id"')) {
+          const oldRows = rows.map(r => {
+            const { branch_id, ...rest } = r as any;
+            return rest;
+          });
+          const { error: oldErr } = await supabase
+            .from('product_stock')
+            .upsert(oldRows, { onConflict: 'tenant_id,product_legacy_id' });
+          if (oldErr) throw new Error('stock write fallback: ' + oldErr.message);
+          return;
+        }
+        throw new Error('stock write: ' + error.message);
+      }
       return;
     }
 
@@ -538,26 +918,24 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Geçersiz koleksiyon adı' }, { status: 400 });
   }
 
-  // 1. Authenticate user and verify staff status
   const auth = await checkAuth(req);
   const isStaff = auth.isAuthenticated && ['admin', 'manager', 'branch_manager', 'cashier', 'warehouse_person'].includes(auth.role);
 
-  // Anon / Public GET permission check
   const publicReadCollections = ['products', 'categories', 'campaigns', 'promos', 'settings', 'stock'];
   if (!isStaff && !publicReadCollections.includes(coll)) {
     return NextResponse.json({ error: 'Bu koleksiyonu okumak için yetkiniz yok' }, { status: 403 });
   }
 
-  // 2. Initialize admin client and resolve tenant ID
   const supabase = createAdminClient();
   if (!supabase) {
     return NextResponse.json({ error: 'Supabase yapılandırılmamış' }, { status: 503 });
   }
 
   const tenantIdToUse = auth.tenantId || TENANT_ID;
+  const branchId = req.nextUrl.searchParams.get('branchId') || req.nextUrl.searchParams.get('branch_id') || '22222222-2222-2222-2222-222222222222';
 
   try {
-    const data = await supabaseRead(coll, supabase, tenantIdToUse);
+    const data = await supabaseRead(coll, supabase, tenantIdToUse, branchId);
     return NextResponse.json(data, {
       headers: {
         'X-Backend': 'supabase',
@@ -576,27 +954,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Geçersiz koleksiyon adı' }, { status: 400 });
   }
 
-  // 1. Authenticate user and verify staff status
   const auth = await checkAuth(req);
   const isStaff = auth.isAuthenticated && ['admin', 'manager', 'branch_manager', 'cashier', 'warehouse_person'].includes(auth.role);
 
-  // Anon / Public POST permission check (only orders can be written anonymously)
   const publicWriteCollections = ['orders'];
   if (!isStaff && !publicWriteCollections.includes(coll)) {
     return NextResponse.json({ error: 'Bu koleksiyonu yazmak için yetkiniz yok' }, { status: 403 });
   }
 
-  // 2. Initialize admin client and resolve tenant ID
   const supabase = createAdminClient();
   if (!supabase) {
     return NextResponse.json({ error: 'Supabase yapılandırılmamış' }, { status: 503 });
   }
 
   const tenantIdToUse = auth.tenantId || TENANT_ID;
+  const branchId = req.nextUrl.searchParams.get('branchId') || req.nextUrl.searchParams.get('branch_id') || '22222222-2222-2222-2222-222222222222';
 
   try {
     const body = await req.json();
-    await supabaseWrite(coll, body, supabase, tenantIdToUse);
+    await supabaseWrite(coll, body, supabase, tenantIdToUse, branchId);
     return NextResponse.json({ success: true }, {
       headers: {
         'X-Backend': 'supabase',
