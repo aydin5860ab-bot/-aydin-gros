@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient, createAdminClient } from '@/lib/supabase/server';
+import crypto from 'crypto';
 
 const TENANT_ID =
   process.env.SUPABASE_TENANT_ID ||
@@ -366,7 +367,7 @@ async function supabaseWrite(coll: string, body: any, supabase: any, tenantId: s
       // Map incoming items for upsert
       const rows = incomingProducts.map(p => {
         const catId = categoryMap[p.cat] || null;
-        const resolvedUuid = uuidMap[Number(p.id)] || undefined;
+        const resolvedUuid = uuidMap[Number(p.id)] || crypto.randomUUID();
         return {
           id:          resolvedUuid,
           tenant_id:   tenantId,
@@ -386,10 +387,19 @@ async function supabaseWrite(coll: string, body: any, supabase: any, tenantId: s
         };
       });
 
-      if (rows.length > 0) {
+      // Deduplicate rows by UUID id to prevent PostgreSQL ON CONFLICT DO UPDATE cannot affect row a second time error
+      const uniqueRowsMap = new Map<string, any>();
+      rows.forEach(row => {
+        if (row.id) {
+          uniqueRowsMap.set(row.id, row);
+        }
+      });
+      const uniqueRows = Array.from(uniqueRowsMap.values());
+
+      if (uniqueRows.length > 0) {
         const { error: upsertErr } = await supabase
           .from('products')
-          .upsert(rows, { onConflict: 'id' });
+          .upsert(uniqueRows, { onConflict: 'id' });
         if (upsertErr) throw new Error('Ürün kaydetme hatası: ' + upsertErr.message);
       }
       return;
@@ -594,7 +604,8 @@ export async function POST(req: NextRequest) {
     });
   } catch (error: any) {
     console.error(`[api/db] POST ${coll} hatası:`, error.message);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const status = error.message.includes('Stok yetersiz') ? 400 : 500;
+    return NextResponse.json({ error: error.message }, { status });
   }
 }
 
