@@ -4,38 +4,60 @@ const APIFY_BASE = 'https://api.apify.com/v2';
 
 const ERENLER_SLUGS = [
   // MANAV
-  'meyve-sebze',
-  // GIDA ana + alt
-  'gida', 'atistirmalik', 'bakliyat', 'makarna', 'baharat', 'konserve',
-  'dondurma', 'kahve', 'hazir-corba', 'unlu-mamuller', 'ekmek', 'tatli',
-  'recel', 'sucuk', 'salam', 'bal', 'yogurt',
-  // İÇECEKLER
-  'icecek',
-  // SÜT
-  'sut',
+  'meyve-sebze', 'meyve', 'sebze',
+  // GIDA genel + alt
+  'gida', 'atiştirmalik', 'bakliyat', 'makarna', 'baharat', 'konserve',
+  'dondurma', 'çay-kahve', 'çorbalar-ve-hazir-yemekler', 'un-ve-irmikler',
+  'pasta-malzemeleri', 'ekmek', 'reçel', 'pekmez', 'salça', 'tuz',
+  'toz-ve-küp-şeker', 'margarin', 'tereyağ',
+  // SÜT & KAHVALTILIK
+  'süt-kahvaltilik', 'süt', 'yoğurt', 'bal', 'helva', 'zeytin',
+  'kaşar-peyniri', 'beyaz-peynir', 'özel-peynirler', 'süzme-peynir',
+  'labne-peyniri', 'krem-çikolata', 'krem-peynir', 'marmelat', 'tahin',
+  // ŞARKÜTERI / ET
+  'sucuk', 'salam', 'sosis', 'et-balik-kümes', 'kirmizi-et-dana', 'kirmizi-et-kuzu',
   // KASAP
   'kasap',
-  // TEMİZLİK ana + alt
-  'temizlik', 'islak-havlu', 'kagit-havlu',
+  // İÇECEKLER
+  'icecek', 'toz-içecek', 'soğuk-çay', 'su',
+  // BEBEK
+  'mama', 'bebe-bisküviler', 'bebek-bakim-ürünleri', 'çocuk-bezi',
+  // BİSKÜVİ & ÇİKOLATA (gida alt kategorileri — top-level yoktur)
+  'gida/bisküvi-çikolata-cips/cips', 'gida/bisküvi-çikolata-cips/çikolatalar',
+  'gida/bisküvi-çikolata-cips/gofretler', 'gida/bisküvi-çikolata-cips/kekler',
+  'gida/bisküvi-çikolata-cips/krakerler', 'gida/bisküvi-çikolata-cips/şekerleme',
+  'gida/bisküvi-çikolata-cips/sakiz', 'gida/bisküvi-çikolata-cips/gevrek',
+  'gida/çay-kahve/bitki-ve-meyve-çaylari',
+  // TEMİZLİK
+  'temizlik', 'çamaşir-yikama', 'bulaşik-yikama', 'banyo-ve-duş-ürünleri',
+  'sprey-temizleyici', 'temizlik-ürünleri', 'temizlik-bezi', 'camsil',
+  'oda-kokusu-ve-koku-gidericiler', 'kullan-at',
+  // KAĞIT ÜRÜNLERİ
+  'islak-havlu', 'kağit-havlu', 'tuvalet-kağidi', 'peçete',
   // KİŞİSEL BAKIM
-  'parfum', 'kisisel-bakim',
+  'ağiz-bakim', 'deodorant', 'şampuan', 'saç-bakim-kremi', 'hijyenik-pedler',
+  'traş-ürünleri', 'parfum', 'kisisel-bakim',
+  // HIRDAVAT
+  'hirdavat-züccaciye-oyuncak',
 ];
 
 const PAGE_FUNCTION = `
 async function pageFunction(context) {
   const { $, request, pushData } = context;
   const url = request.url;
-  const m = url.match(/erenlercep\\.com\\/([^/?]+)/);
-  const cat = m ? m[1] : '';
-  const items = [];
+  const m = url.match(/erenlercep\\.com\\/([^?]+)/);
+  const cat = m ? m[1].replace(/\\/$/, '') : '';
   $('.product-thumb').each(function() {
     const name = $(this).find('.name a').text().trim() || $(this).find('.name').first().text().trim();
     if (!name || name.length < 2) return;
-    const priceRaw = $(this).find('.price-normal').first().text().trim();
-    const price = parseFloat(priceRaw.replace(/\\./g,'').replace(',','.').replace(/[^0-9.]/g,''));
-    if (price > 0) items.push({ name, price, cat });
+    const priceEl = $(this).find('.price-new').first().text() || $(this).find('.price-normal').first().text();
+    const price = parseFloat(priceEl.replace(/\\./g,'').replace(',','.').replace(/[^0-9.]/g,''));
+    if (isNaN(price) || price <= 0) return;
+    const imgEl = $(this).find('img').first();
+    const img = imgEl.attr('data-src') || imgEl.attr('src') || '';
+    const href = $(this).find('a').first().attr('href') || '';
+    pushData({ name, price, cat, img: img.startsWith('data:') ? '' : img, url: href });
   });
-  for (const item of items) await pushData(item);
 }
 `.trim();
 
