@@ -1228,7 +1228,7 @@ async function checkBackendStatus() {
     console.log('[AydınGros] Backend:', backend);
     el.innerHTML = isSupabase
       ? '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;background:var(--green-light);color:var(--green)">⚡ Supabase</span>'
-      : '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;background:var(--gray100);color:var(--gray500)">📦 JSONBlob</span>';
+      : '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;background:var(--gray100);color:var(--gray500)">⚠ Bağlantı yok</span>';
     el.style.display = 'block';
   } catch (_) {
     el.innerHTML = '<span style="font-size:11px;color:var(--gray400)">⚠ bağlantı hatası</span>';

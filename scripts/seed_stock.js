@@ -20,30 +20,40 @@ async function main() {
   const sb = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY,
     { auth: { persistSession: false, autoRefreshToken: false } });
 
-  // Ürünleri al
+  // Tüm ürünleri paginate ile al (Supabase'in 1000 satır limitini aş)
   log('Ürünler okunuyor...');
-  const { data: products, error: prodErr } = await sb
-    .from('products').select('legacy_id').eq('tenant_id', TENANT_ID).not('legacy_id', 'is', null);
-  if (prodErr) throw new Error('products okunamadı: ' + prodErr.message);
-  log(`✓ ${products.length} ürün bulundu`);
-
-  // Mevcut stok kayıtlarını kontrol et
-  const { count: existing } = await sb
-    .from('product_stock').select('*', { count: 'exact', head: true }).eq('tenant_id', TENANT_ID);
-  log(`Mevcut stok kaydı: ${existing ?? 0}`);
-
-  if (existing > 0) {
-    log('⚠  Stok zaten mevcut. Sadece eksik olanlar eklenecek...');
-    const { data: existingIds } = await sb
-      .from('product_stock').select('product_legacy_id').eq('tenant_id', TENANT_ID);
-    const seen = new Set((existingIds || []).map(r => r.product_legacy_id));
-    const missing = products.filter(p => !seen.has(p.legacy_id));
-    log(`Eksik: ${missing.length} ürün`);
-    if (!missing.length) { log('✓ Tüm stok kayıtları mevcut.'); return; }
-    await insertBatches(sb, missing.map(p => p.legacy_id));
-  } else {
-    await insertBatches(sb, products.map(p => p.legacy_id));
+  const allProducts = [];
+  let from = 0;
+  while (true) {
+    const { data, error } = await sb
+      .from('products').select('legacy_id').eq('tenant_id', TENANT_ID).not('legacy_id', 'is', null)
+      .range(from, from + BATCH - 1);
+    if (error) throw new Error('products okunamadı: ' + error.message);
+    if (!data || !data.length) break;
+    allProducts.push(...data);
+    if (data.length < BATCH) break;
+    from += BATCH;
   }
+  log(`✓ ${allProducts.length} ürün bulundu`);
+
+  // Mevcut stok kayıtlarını kontrol et (paginate)
+  const existingSet = new Set();
+  from = 0;
+  while (true) {
+    const { data } = await sb
+      .from('product_stock').select('product_legacy_id').eq('tenant_id', TENANT_ID)
+      .range(from, from + BATCH - 1);
+    if (!data || !data.length) break;
+    data.forEach(r => existingSet.add(r.product_legacy_id));
+    if (data.length < BATCH) break;
+    from += BATCH;
+  }
+  log(`Mevcut stok kaydı: ${existingSet.size}`);
+
+  const missing = allProducts.filter(p => !existingSet.has(p.legacy_id));
+  if (!missing.length) { log('✓ Tüm stok kayıtları zaten mevcut.'); return; }
+  log(`Eksik: ${missing.length} ürün ekleniyor...`);
+  await insertBatches(sb, missing.map(p => p.legacy_id));
 }
 
 async function insertBatches(sb, legacyIds) {

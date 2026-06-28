@@ -4,41 +4,9 @@ import { createServerClient } from '../lib/supabase/server.js'
 // Sabitler
 // ---------------------------------------------------------------------------
 
-const JSONBLOB_URL =
-  process.env.JSONBLOB_URL ||
-  'https://jsonblob.com/api/jsonBlob/019f0673-4992-7b6d-916a-3a0dd2181397'
-
 const TENANT_ID =
   process.env.SUPABASE_TENANT_ID ||
   '11111111-1111-1111-1111-111111111111'
-
-// Sprint 3F: tüm koleksiyonlar Supabase'den okunuyor.
-// JSONBlob sadece Supabase başarısız olursa fallback olarak devrede.
-const JSONBLOB_ONLY = new Set([])
-
-// ---------------------------------------------------------------------------
-// JSONBlob yardımcıları (fallback)
-// ---------------------------------------------------------------------------
-
-async function jsonblobRead(coll) {
-  const r = await fetch(JSONBLOB_URL, { headers: { Accept: 'application/json' } })
-  if (!r.ok) throw new Error(`JSONBlob GET ${r.status}`)
-  const data = await r.json()
-  return coll ? (data[coll] ?? null) : data
-}
-
-async function jsonblobWrite(coll, body) {
-  const r = await fetch(JSONBLOB_URL, { headers: { Accept: 'application/json' } })
-  let full = r.ok ? await r.json() : {}
-  if (coll) full[coll] = body
-  else full = body
-  const put = await fetch(JSONBLOB_URL, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify(full),
-  })
-  if (!put.ok) throw new Error(`JSONBlob PUT ${put.status}`)
-}
 
 // ---------------------------------------------------------------------------
 // Supabase format adaptörleri
@@ -70,15 +38,24 @@ async function supabaseRead(coll, supabase) {
   switch (coll) {
 
     case 'products': {
-      const { data, error } = await supabase
-        .from('products')
-        .select('legacy_id, name, price, unit, image_url, is_active, metadata, categories(slug)')
-        .eq('tenant_id', TENANT_ID)
-        .is('deleted_at', null)
-        .not('legacy_id', 'is', null)
-        .order('legacy_id')
-      if (error || !data?.length) return null
-      return data.map(r => ({
+      const rows = []
+      let from = 0
+      while (true) {
+        const { data, error } = await supabase
+          .from('products')
+          .select('legacy_id, name, price, unit, image_url, is_active, metadata, categories(slug)')
+          .eq('tenant_id', TENANT_ID)
+          .is('deleted_at', null)
+          .not('legacy_id', 'is', null)
+          .order('legacy_id')
+          .range(from, from + 499)
+        if (error) throw new Error('products: ' + error.message)
+        if (!data?.length) break
+        rows.push(...data)
+        if (data.length < 500) break
+        from += 500
+      }
+      return rows.map(r => ({
         id:     r.legacy_id,
         name:   r.name,
         price:  Number(r.price),
@@ -99,8 +76,8 @@ async function supabaseRead(coll, supabase) {
         .is('deleted_at', null)
         .eq('is_active', true)
         .order('display_order')
-      if (error || !data?.length) return null
-      return data.map(r => ({
+      if (error) throw new Error('categories: ' + error.message)
+      return (data || []).map(r => ({
         id:    r.id,
         name:  r.name,
         slug:  r.slug,
@@ -115,14 +92,13 @@ async function supabaseRead(coll, supabase) {
         .eq('tenant_id', TENANT_ID)
         .is('deleted_at', null)
         .order('created_at', { ascending: false })
-      if (error) return null
-      if (!data?.length) return []
-      return data.map(r => ({
-        no:     r.order_number,
-        name:   r.customer_name || '',
-        phone:  r.customer_phone || '',
-        addr:   r.delivery_address || '',
-        items:  (r.items_data || []).map(i => ({
+      if (error) throw new Error('orders: ' + error.message)
+      return (data || []).map(r => ({
+        no:    r.order_number,
+        name:  r.customer_name || '',
+        phone: r.customer_phone || '',
+        addr:  r.delivery_address || '',
+        items: (r.items_data || []).map(i => ({
           id:       i.id,
           name:     i.name,
           qty:      Number(i.qty || i.quantity || 1),
@@ -140,9 +116,8 @@ async function supabaseRead(coll, supabase) {
         .from('tenant_settings')
         .select('key, value')
         .eq('tenant_id', TENANT_ID)
-      if (error) return null
-      if (!data?.length) return {}
-      return data.reduce((acc, { key, value }) => {
+      if (error) throw new Error('settings: ' + error.message)
+      return (data || []).reduce((acc, { key, value }) => {
         const mapped = SETTINGS_KEY_MAP[key]
         if (mapped) acc[mapped] = isNaN(value) ? value : Number(value)
         return acc
@@ -155,9 +130,8 @@ async function supabaseRead(coll, supabase) {
         .select('id, name, type, discount_value, is_active, start_date, end_date')
         .eq('tenant_id', TENANT_ID)
         .is('deleted_at', null)
-      if (error) return null
-      if (!data?.length) return []
-      return data.map(r => ({
+      if (error) throw new Error('campaigns: ' + error.message)
+      return (data || []).map(r => ({
         id:        r.id,
         name:      r.name,
         type:      r.type,
@@ -175,9 +149,8 @@ async function supabaseRead(coll, supabase) {
         .select('code, type, discount_value, is_active')
         .eq('tenant_id', TENANT_ID)
         .is('deleted_at', null)
-      if (error) return null
-      if (!data?.length) return {}
-      return data.reduce((acc, r) => {
+      if (error) throw new Error('promos: ' + error.message)
+      return (data || []).reduce((acc, r) => {
         acc[r.code] = {
           pct:      r.type === 'percentage' ? Number(r.discount_value) : 0,
           gift:     null,
@@ -189,13 +162,21 @@ async function supabaseRead(coll, supabase) {
     }
 
     case 'stock': {
-      const { data, error } = await supabase
-        .from('product_stock')
-        .select('product_legacy_id, qty, min_qty')
-        .eq('tenant_id', TENANT_ID)
-      if (error) return null
-      if (!data?.length) return {}
-      return data.reduce((acc, r) => {
+      const rows = []
+      let from = 0
+      while (true) {
+        const { data, error } = await supabase
+          .from('product_stock')
+          .select('product_legacy_id, qty, min_qty')
+          .eq('tenant_id', TENANT_ID)
+          .range(from, from + 499)
+        if (error) throw new Error('stock: ' + error.message)
+        if (!data?.length) break
+        rows.push(...data)
+        if (data.length < 500) break
+        from += 500
+      }
+      return rows.reduce((acc, r) => {
         acc[r.product_legacy_id] = { qty: r.qty, min: r.min_qty }
         return acc
       }, {})
@@ -208,13 +189,12 @@ async function supabaseRead(coll, supabase) {
         .eq('tenant_id', TENANT_ID)
         .not('data', 'is', null)
         .order('created_at', { ascending: false })
-      if (error) return null
-      if (!data?.length) return []
-      return data.map(r => r.data)
+      if (error) throw new Error('invoices: ' + error.message)
+      return (data || []).map(r => r.data)
     }
 
     default:
-      return null
+      throw new Error(`Bilinmeyen koleksiyon: ${coll}`)
   }
 }
 
@@ -227,16 +207,16 @@ async function supabaseWrite(coll, body, supabase) {
 
     case 'orders': {
       const rows = (Array.isArray(body) ? body : []).map(o => ({
-        tenant_id:     TENANT_ID,
-        order_number:  o.no,
-        customer_name: o.name || '',
-        customer_phone:o.phone || '',
+        tenant_id:        TENANT_ID,
+        order_number:     o.no,
+        customer_name:    o.name || '',
+        customer_phone:   o.phone || '',
         delivery_address: o.addr || '',
-        total:         o.total || 0,
-        subtotal:      o.total || 0,
-        status:        STATUS_FROM_INT[o.status] || 'pending',
-        items_data:    o.items || [],
-        created_at:    o.ts ? new Date(o.ts).toISOString() : new Date().toISOString(),
+        total:            o.total || 0,
+        subtotal:         o.total || 0,
+        status:           STATUS_FROM_INT[o.status] || 'pending',
+        items_data:       o.items || [],
+        created_at:       o.ts ? new Date(o.ts).toISOString() : new Date().toISOString(),
       }))
       if (!rows.length) return
       const { error } = await supabase
@@ -324,7 +304,7 @@ async function supabaseWrite(coll, body, supabase) {
     }
 
     default:
-      return null // bilinmeyen koleksiyon → JSONBlob'a düşer
+      throw new Error(`Bilinmeyen koleksiyon: ${coll}`)
   }
 }
 
@@ -335,60 +315,29 @@ async function supabaseWrite(coll, body, supabase) {
 export default async function handler(req, res) {
   const coll = req.query.coll
 
-  if (coll && !/^[a-z0-9_-]+$/i.test(coll)) {
+  if (!coll || !/^[a-z0-9_-]+$/i.test(coll)) {
     return res.status(400).json({ error: 'Geçersiz koleksiyon adı' })
   }
 
+  const supabase = createServerClient()
+  if (!supabase) {
+    return res.status(503).json({ error: 'Supabase yapılandırılmamış' })
+  }
+
   try {
-    // ── GET ────────────────────────────────────────────────────────────────
     if (req.method === 'GET') {
-      if (!coll || JSONBLOB_ONLY.has(coll)) {
-        const data = await jsonblobRead(coll)
-        res.setHeader('X-Backend', 'jsonblob')
-        return res.status(200).json(data)
-      }
-
-      const supabase = createServerClient()
-      if (supabase) {
-        try {
-          const result = await supabaseRead(coll, supabase)
-          if (result !== null) {
-            res.setHeader('X-Backend', 'supabase')
-            return res.status(200).json(result)
-          }
-        } catch (sbErr) {
-          console.warn('[api/db] Supabase okuma hatası, JSONBlob fallback:', sbErr.message)
-        }
-      }
-
-      const data = await jsonblobRead(coll)
-      res.setHeader('X-Backend', 'jsonblob')
+      const data = await supabaseRead(coll, supabase)
       return res.status(200).json(data)
     }
 
-    // ── POST / PUT ─────────────────────────────────────────────────────────
     if (req.method === 'POST' || req.method === 'PUT') {
-      const supabase = createServerClient()
-      if (supabase && coll) {
-        try {
-          const result = await supabaseWrite(coll, req.body, supabase)
-          if (result !== null) {          // null = bilinmeyen koleksiyon
-            res.setHeader('X-Backend', 'supabase')
-            return res.status(200).json({ success: true })
-          }
-        } catch (sbErr) {
-          console.warn('[api/db] Supabase yazma hatası, JSONBlob fallback:', sbErr.message)
-        }
-      }
-
-      await jsonblobWrite(coll, req.body)
-      res.setHeader('X-Backend', 'jsonblob')
+      await supabaseWrite(coll, req.body, supabase)
       return res.status(200).json({ success: true })
     }
 
     return res.status(405).json({ error: 'Method not allowed' })
   } catch (error) {
-    console.error('[api/db] Hata:', error.message)
+    console.error(`[api/db] ${coll} hatası:`, error.message)
     return res.status(500).json({ error: error.message })
   }
 }
