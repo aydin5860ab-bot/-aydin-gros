@@ -4,3 +4,35 @@ node_modules/
 .env.local
 .env.*.local
 scripts/.migrate_progress.json
+
+# Next.js build output
+.next/
+
+# Runtime data files
+erenler-products.json
+new-products.json
+db_test.json
+erenler_urunler.csv
+
+# Server state
+server.err
+server.log
+server.ready
+
+# Temp/scratch
+scratch/
+env.local/
+
+# Old/test files
+old_index.html
+original_index.html
+test_dump.html
+test_index.html
+restore_emojis.js
+restore_emojis2.js
+restore_emojis3.js
+
+# One-time utility scripts
+generate_rls.js
+generate_schema.js
+generate_supabase_rls.js

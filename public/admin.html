@@ -1,0 +1,2383 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aydın Gros – Yönetim Paneli</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --orange:#F97316;--orange-light:#FEF3E9;--orange-dark:#EA6C10;
+  --green:#16A34A;--green-light:#DCFCE7;
+  --red:#DC2626;--red-light:#FEE2E2;
+  --yellow:#D97706;--yellow-light:#FEF3C7;
+  --navy:#1C1917;--navy2:#292524;
+  --gray50:#F9FAFB;--gray100:#F3F4F6;--gray200:#E5E7EB;--gray300:#D1D5DB;
+  --gray400:#9CA3AF;--gray500:#6B7280;--gray600:#4B5563;--gray700:#374151;
+  --white:#FFFFFF;
+  --sidebar-w:240px;
+  --radius:10px;--radius-sm:6px;
+  --shadow:0 2px 8px rgba(0,0,0,.08);--shadow-md:0 4px 16px rgba(0,0,0,.12);
+}
+body{font-family:'Inter',sans-serif;background:var(--gray50);color:var(--gray700);min-height:100vh}
+h1,h2,h3,h4{font-family:'Outfit',sans-serif}
+
+/* LOGIN */
+#loginScreen{position:fixed;inset:0;background:linear-gradient(135deg,var(--navy) 0%,#3C2A1A 100%);display:flex;align-items:center;justify-content:center;z-index:999}
+.login-box{background:var(--white);border-radius:16px;padding:48px 40px;width:380px;box-shadow:0 24px 64px rgba(0,0,0,.3)}
+.login-logo{text-align:center;margin-bottom:32px}
+.login-logo span{font-family:'Outfit',sans-serif;font-size:26px;font-weight:800;color:var(--navy)}
+.login-logo span em{color:var(--orange);font-style:normal}
+.login-logo p{color:var(--gray500);font-size:13px;margin-top:4px}
+.login-box label{display:block;font-size:13px;font-weight:600;color:var(--gray700);margin-bottom:6px}
+.login-box input{width:100%;padding:10px 14px;border:2px solid var(--gray200);border-radius:var(--radius-sm);font-size:14px;outline:none;transition:.2s;margin-bottom:16px}
+.login-box input:focus{border-color:var(--orange)}
+.login-btn{width:100%;padding:12px;background:var(--orange);color:var(--white);border:none;border-radius:var(--radius-sm);font-size:15px;font-weight:700;font-family:'Outfit',sans-serif;cursor:pointer;transition:.2s}
+.login-btn:hover{background:var(--orange-dark)}
+#loginErr{color:var(--red);font-size:13px;margin-top:8px;text-align:center;display:none}
+
+/* LAYOUT */
+#appWrap{display:none;min-height:100vh}
+.sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--navy);display:flex;flex-direction:column;z-index:100;overflow-y:auto}
+.sidebar-logo{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-logo span{font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;color:var(--white)}
+.sidebar-logo span em{color:var(--orange);font-style:normal}
+.sidebar-logo p{color:rgba(255,255,255,.5);font-size:11px;margin-top:2px}
+nav{flex:1;padding:16px 12px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-sm);color:rgba(255,255,255,.65);font-size:14px;font-weight:500;cursor:pointer;transition:.15s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:rgba(255,255,255,.08);color:var(--white)}
+.nav-item.active{background:var(--orange);color:var(--white)}
+.nav-item .icon{font-size:16px;width:20px;text-align:center}
+.sidebar-footer{padding:16px;border-top:1px solid rgba(255,255,255,.1)}
+.logout-btn{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.5);font-size:13px;cursor:pointer;background:none;border:none;width:100%;padding:8px}
+.logout-btn:hover{color:var(--white)}
+
+.main{margin-left:var(--sidebar-w);padding:24px;min-height:100vh}
+.page{display:none}
+.page.active{display:block}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.page-title{font-size:22px;font-weight:800;color:var(--navy)}
+.page-subtitle{font-size:13px;color:var(--gray500);margin-top:2px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:.15s;font-family:'Inter',sans-serif;text-decoration:none}
+.btn-primary{background:var(--orange);color:var(--white)}
+.btn-primary:hover{background:var(--orange-dark)}
+.btn-success{background:var(--green);color:var(--white)}
+.btn-success:hover{background:#15803D}
+.btn-danger{background:var(--red);color:var(--white)}
+.btn-danger:hover{background:#B91C1C}
+.btn-ghost{background:var(--gray100);color:var(--gray700)}
+.btn-ghost:hover{background:var(--gray200)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-xs{padding:3px 8px;font-size:11px}
+
+/* CARDS */
+.card{background:var(--white);border-radius:var(--radius);border:1px solid var(--gray200);padding:20px;box-shadow:var(--shadow)}
+
+/* STAT CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--gray200);padding:20px;box-shadow:var(--shadow)}
+.stat-icon{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:12px}
+.stat-icon.orange{background:var(--orange-light);color:var(--orange)}
+.stat-icon.green{background:var(--green-light);color:var(--green)}
+.stat-icon.blue{background:#EFF6FF;color:#2563EB}
+.stat-icon.purple{background:#F5F3FF;color:#7C3AED}
+.stat-icon.red{background:var(--red-light);color:var(--red)}
+.stat-icon.yellow{background:var(--yellow-light);color:var(--yellow)}
+.stat-val{font-family:'Outfit',sans-serif;font-size:26px;font-weight:800;color:var(--navy)}
+.stat-label{font-size:12px;color:var(--gray500);margin-top:2px}
+
+/* TABLES */
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--gray200);background:var(--white)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--gray50);padding:10px 14px;text-align:left;font-weight:600;color:var(--gray600);border-bottom:1px solid var(--gray200);white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid var(--gray100);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--gray50)}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-green{background:var(--green-light);color:var(--green)}
+.badge-red{background:var(--red-light);color:var(--red)}
+.badge-yellow{background:var(--yellow-light);color:var(--yellow)}
+.badge-orange{background:var(--orange-light);color:var(--orange)}
+.badge-blue{background:#EFF6FF;color:#2563EB}
+.badge-gray{background:var(--gray100);color:var(--gray600)}
+
+/* FORMS */
+.form-row{display:grid;gap:14px;margin-bottom:14px}
+.form-row.cols2{grid-template-columns:1fr 1fr}
+.form-row.cols3{grid-template-columns:1fr 1fr 1fr}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--gray600);margin-bottom:5px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:8px 12px;border:1.5px solid var(--gray200);border-radius:var(--radius-sm);font-size:13px;outline:none;transition:.2s;font-family:'Inter',sans-serif;background:var(--white)}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--orange)}
+.form-group textarea{resize:vertical;min-height:70px}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:var(--radius);width:100%;max-width:600px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-md)}
+.modal-header{padding:20px 24px 16px;border-bottom:1px solid var(--gray200);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--white);z-index:1}
+.modal-title{font-size:17px;font-weight:700;color:var(--navy);font-family:'Outfit',sans-serif}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--gray400);line-height:1}
+.modal-close:hover{color:var(--gray700)}
+.modal-body{padding:24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--gray200);display:flex;gap:8px;justify-content:flex-end}
+
+/* FILTER BAR */
+.filter-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.filter-bar input,.filter-bar select{padding:8px 12px;border:1.5px solid var(--gray200);border-radius:var(--radius-sm);font-size:13px;outline:none;background:var(--white);min-width:160px}
+.filter-bar input:focus,.filter-bar select:focus{border-color:var(--orange)}
+
+/* ALERTS */
+.alert{padding:12px 16px;border-radius:var(--radius-sm);font-size:13px;margin-bottom:12px;display:flex;align-items:flex-start;gap:8px}
+.alert-warn{background:var(--yellow-light);color:#92400E;border-left:3px solid var(--yellow)}
+.alert-danger{background:var(--red-light);color:#991B1B;border-left:3px solid var(--red)}
+.alert-info{background:#EFF6FF;color:#1E40AF;border-left:3px solid #3B82F6}
+.alert-success{background:var(--green-light);color:#14532D;border-left:3px solid var(--green)}
+
+/* DASHBOARD */
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.dash-full{grid-column:1/-1}
+.dash-card-title{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:14px;font-family:'Outfit',sans-serif;display:flex;align-items:center;justify-content:space-between}
+
+/* STOCK */
+.stock-input-wrap{display:flex;align-items:center;gap:4px}
+.stock-adj{width:28px;height:28px;border-radius:4px;border:1px solid var(--gray200);background:var(--gray50);cursor:pointer;font-size:14px;display:inline-flex;align-items:center;justify-content:center}
+.stock-adj:hover{background:var(--gray200)}
+.stock-qty-input{width:56px;text-align:center;padding:4px;border:1.5px solid var(--gray200);border-radius:4px;font-size:13px;outline:none}
+.stock-qty-input:focus{border-color:var(--orange)}
+
+/* PRODUCT THUMB */
+.prod-thumb{display:inline-block;width:40px;height:40px;border-radius:6px;background:var(--gray100);font-size:20px;line-height:40px;text-align:center;flex-shrink:0}
+
+/* TOGGLE */
+.toggle{position:relative;width:36px;height:20px;display:inline-block}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.toggle-track{position:absolute;inset:0;background:var(--gray300);border-radius:10px;cursor:pointer;transition:.2s}
+.toggle input:checked+.toggle-track{background:var(--green)}
+.toggle-track::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:var(--white);top:2px;left:2px;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle input:checked+.toggle-track::after{left:18px}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:var(--white);padding:12px 20px;border-radius:var(--radius-sm);font-size:13px;z-index:9999;opacity:0;transform:translateY(8px);transition:.3s;pointer-events:none;max-width:320px}
+#toast.show{opacity:1;transform:translateY(0)}
+
+/* BESTSELLER */
+.bestseller-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--gray100)}
+.bestseller-row:last-child{border-bottom:none}
+.bs-rank{width:24px;height:24px;border-radius:50%;background:var(--orange-light);color:var(--orange);font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* INV LINE */
+.inv-line{display:grid;grid-template-columns:2fr 80px 1fr 1fr 1fr 30px;gap:8px;align-items:end;margin-bottom:8px;background:var(--gray50);padding:10px;border-radius:6px;border:1px solid var(--gray200)}
+
+/* MOBILE TOPBAR */
+.mobile-topbar{display:none;position:fixed;top:0;left:0;right:0;height:56px;background:var(--navy);z-index:200;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid rgba(255,255,255,.1)}
+.mobile-logo{font-family:'Outfit',sans-serif;font-size:18px;font-weight:800;color:var(--white)}
+.mobile-logo em{color:var(--orange);font-style:normal}
+.hamburger{background:none;border:none;cursor:pointer;padding:6px;display:flex;flex-direction:column;gap:5px}
+.hamburger span{display:block;width:22px;height:2px;background:var(--white);border-radius:2px;transition:.25s}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99;display:none}
+.sidebar-overlay.open{display:block}
+
+@media(max-width:900px){
+  .hide-mob{display:none!important}
+  .mobile-topbar{display:flex}
+  .stock-adj{width:36px;height:36px;font-size:18px}
+  .stock-qty-input{width:52px;height:36px;font-size:14px}
+  .btn-xs{padding:6px 10px;font-size:12px}
+  .nav-item{padding:13px 16px;font-size:15px}
+  .sidebar{position:fixed;transform:translateX(-100%);transition:transform .25s ease;top:0;z-index:100}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0;padding:16px;padding-top:72px}
+  .dash-grid{grid-template-columns:1fr}
+  .form-row.cols2,.form-row.cols3{grid-template-columns:1fr}
+  .inv-line{grid-template-columns:1fr 1fr;row-gap:8px}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .page-header{flex-direction:column;align-items:flex-start}
+  .filter-bar{flex-direction:column}
+  .filter-bar input,.filter-bar select{min-width:0;width:100%}
+  .modal{max-width:100%;margin:0}
+  .modal-overlay{padding:8px;align-items:flex-end}
+  .modal{border-radius:16px 16px 0 0;max-height:85vh}
+  table{font-size:12px}
+  th,td{padding:8px 10px}
+  .btn{font-size:12px;padding:7px 12px}
+  .login-box{width:90%;padding:32px 24px}
+  .page-title{font-size:18px}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <span>Aydın<em>Gros</em></span>
+      <p>Yönetim Paneli</p>
+    </div>
+    <label>E-posta</label>
+    <input type="email" id="loginUser" placeholder="admin@aydinGros.com" autocomplete="email">
+    <label>Şifre</label>
+    <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password">
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">Giriş Yap</button>
+    <div id="loginErr"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appWrap">
+  <!-- Mobile topbar -->
+  <div class="mobile-topbar">
+    <button class="hamburger" id="hamburgerBtn" onclick="toggleSidebar()">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="mobile-logo">Aydın<em>Gros</em></div>
+    <div style="width:34px"></div>
+  </div>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <span>Aydın<em>Gros</em></span>
+      <p>Yönetim Paneli</p>
+    </div>
+    <nav>
+      <button class="nav-item active" onclick="showPage('dash')"><span class="icon">📊</span> Özet</button>
+      <button class="nav-item" onclick="showPage('products')"><span class="icon">📦</span> Ürünler</button>
+      <button class="nav-item" onclick="showPage('orders')"><span class="icon">🛒</span> Siparişler</button>
+      <button class="nav-item" onclick="showPage('campaigns')"><span class="icon">📅</span> Kampanyalar</button>
+      <button class="nav-item" onclick="showPage('invoices')"><span class="icon">📄</span> Fatura & Maliyet</button>
+      <button class="nav-item" onclick="showPage('stock')"><span class="icon">📈</span> Stok Takibi</button>
+      <button class="nav-item" onclick="showPage('coupons')"><span class="icon">🎟️</span> Kuponlar</button>
+      <button class="nav-item" onclick="showPage('settings')"><span class="icon">⚙️</span> Ayarlar</button>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="doLogout()">🚪 Çıkış Yap</button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div id="page-dash" class="page active">
+      <div class="page-header">
+        <div><div class="page-title">Özet</div><div class="page-subtitle">Genel durum ve hızlı erişim</div></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div id="backendStatus" style="display:none"></div>
+          <button class="btn btn-ghost btn-sm" onclick="renderDash()">↻ Yenile</button>
+        </div>
+      </div>
+      <div class="stats-grid" id="dashStats"></div>
+      <div id="dashAlerts"></div>
+      <div class="dash-grid">
+        <div class="card">
+          <div class="dash-card-title">Son Siparişler <a href="#" onclick="showPage('orders');return false" style="font-size:12px;color:var(--orange);font-weight:500;text-decoration:none">Tümü →</a></div>
+          <div id="dashOrders"></div>
+        </div>
+        <div class="card">
+          <div class="dash-card-title">En Çok Satan Ürünler</div>
+          <div id="dashBestSellers"></div>
+        </div>
+        <div class="card">
+          <div class="dash-card-title">Son 7 Gün Ciro</div>
+          <div id="weeklyChart"></div>
+        </div>
+        <div class="card">
+          <div class="dash-card-title">Hızlı İşlemler</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn btn-primary" onclick="showPage('orders')" style="justify-content:flex-start">🛒 Siparişleri Gör</button>
+            <button class="btn btn-ghost" onclick="showPage('campaigns')" style="justify-content:flex-start">📅 Kampanya Ekle</button>
+            <button class="btn btn-ghost" onclick="showPage('invoices')" style="justify-content:flex-start">📄 Fatura Gir</button>
+            <button class="btn btn-ghost" onclick="showPage('stock')" style="justify-content:flex-start">📈 Stok Güncelle</button>
+            <a href="https://aydin-gros.vercel.app/" target="_blank" class="btn btn-success" style="justify-content:flex-start">🌐 Siteyi Gör</a>
+          </div>
+        </div>
+        <div class="card dash-full">
+          <div class="dash-card-title">Kritik Stok Uyarıları <a href="#" onclick="showPage('stock');return false" style="font-size:12px;color:var(--orange);font-weight:500;text-decoration:none">Stoka Git →</a></div>
+          <div id="dashStockAlerts"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRODUCTS -->
+    <div id="page-products" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Ürünler</div><div class="page-subtitle" id="prodCount"></div></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="resetProducts()">↺ Varsayılana Dön</button>
+          <button class="btn btn-primary" onclick="openProductModal()">+ Ürün Ekle</button>
+        </div>
+      </div>
+      <div class="filter-bar">
+        <input type="text" id="prodSearch" placeholder="Ürün ara..." oninput="renderProducts()">
+        <select id="prodCatFilter" onchange="renderProducts()">
+          <option value="">Tüm Kategoriler</option>
+          <option value="manav">🥦 Manav</option>
+          <option value="temel-gida">🌾 Temel Gıda</option>
+          <option value="sut-sarkuteri">🧀 Süt & Şarküteri</option>
+          <option value="atistirmalik">🍿 Atıştırmalık</option>
+          <option value="temizlik">🧹 Temizlik</option>
+          <option value="icecek">🧃 İçecek</option>
+          <option value="kasap">🥩 Kasap & Et</option>
+          <option value="kahvaltilik">🍳 Kahvaltılık</option>
+          <option value="kozmetik">💄 Kozmetik</option>
+          <option value="anne-bebek">👶 Anne & Bebek</option>
+          <option value="ev-gerecleri">🏠 Ev Gereçleri</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Ürün</th><th class="hide-mob">Kategori</th><th>Fiyat</th><th class="hide-mob">Stok</th><th class="hide-mob">Öne Çıkan</th><th>İşlemler</th></tr></thead>
+          <tbody id="prodTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ORDERS -->
+    <div id="page-orders" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Siparişler</div><div class="page-subtitle" id="orderCount"></div></div>
+        <button class="btn btn-danger btn-sm" onclick="clearOrders()">Tümünü Temizle</button>
+      </div>
+      <div class="filter-bar">
+        <input type="text" id="orderSearch" placeholder="Müşteri veya adres ara..." oninput="renderOrders()">
+        <select id="orderStatusFilter" onchange="renderOrders()">
+          <option value="">Tüm Durumlar</option>
+          <option value="0">Alındı</option>
+          <option value="1">Hazırlanıyor</option>
+          <option value="2">Yolda</option>
+          <option value="3">Teslim Edildi</option>
+        </select>
+        <select id="orderDateFilter" onchange="renderOrders()">
+          <option value="">Tüm Tarihler</option>
+          <option value="today">Bugün</option>
+          <option value="week">Bu Hafta</option>
+          <option value="month">Bu Ay</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tarih</th><th>Müşteri</th><th class="hide-mob">Adres</th><th>Tutar</th><th>Durum</th><th>İşlemler</th></tr></thead>
+          <tbody id="orderTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CAMPAIGNS -->
+    <div id="page-campaigns" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Kampanyalar</div><div class="page-subtitle">Tarih aralıklı indirim ve kampanya yönetimi</div></div>
+        <button class="btn btn-primary" onclick="openCampaignModal()">+ Kampanya Ekle</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Kampanya Adı</th><th>Tür</th><th>İndirim</th><th>Hedef</th><th>Başlangıç</th><th>Bitiş</th><th>Durum</th><th>İşlemler</th></tr></thead>
+          <tbody id="campTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- INVOICES -->
+    <div id="page-invoices" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Fatura & Maliyet</div><div class="page-subtitle">Alış fiyatı + kar marjı → satış fiyatı hesaplama</div></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="openGlobalMarginModal()">% Global Marj Uygula</button>
+          <button class="btn btn-primary" onclick="addInvLine()">+ Satır Ekle</button>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="dash-card-title" style="margin-bottom:4px">Yeni Fatura / Maliyet Girişi</div>
+        <p style="font-size:12px;color:var(--gray400);margin-bottom:16px">Alış fiyatı ve kar marjı girin — satış fiyatı otomatik hesaplanır. "Kaydet" butonuna basınca ürün fiyatları ve stok güncellenir.</p>
+        <div style="overflow-x:auto">
+          <table style="min-width:680px">
+            <thead><tr><th>Ürün</th><th>Miktar</th><th>Alış Fiyatı (₺)</th><th>Kar Marjı (%)</th><th>Satış Fiyatı (₺)</th><th></th></tr></thead>
+            <tbody id="invLines"></tbody>
+          </table>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
+          <div class="form-group" style="flex:1;min-width:200px">
+            <label>Fatura Notu (opsiyonel)</label>
+            <input type="text" id="invNote" placeholder="Fatura no, tedarikçi adı vb.">
+          </div>
+          <button class="btn btn-success" onclick="saveInvoice()">💾 Faturayı Kaydet & Fiyatları Güncelle</button>
+        </div>
+      </div>
+      <div style="font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;color:var(--navy);margin-bottom:12px">Geçmiş Faturalar</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tarih</th><th>Not</th><th>Ürün Sayısı</th><th>Toplam Maliyet</th><th>İşlemler</th></tr></thead>
+          <tbody id="invHistoryBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- STOCK -->
+    <div id="page-stock" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Stok Takibi</div><div class="page-subtitle">Ürün bazlı stok miktarı ve uyarı eşiği</div></div>
+        <button class="btn btn-success" onclick="saveAllStock()">💾 Tüm Stoku Kaydet</button>
+      </div>
+      <div class="filter-bar">
+        <input type="text" id="stockSearch" placeholder="Ürün ara..." oninput="renderStock()">
+        <select id="stockFilter" onchange="renderStock()">
+          <option value="">Tüm Durumlar</option>
+          <option value="out">🔴 Tükendi</option>
+          <option value="low">🟡 Kritik</option>
+          <option value="ok">🟢 Yeterli</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Ürün</th><th class="hide-mob">Kategori</th><th>Stok Adedi</th><th class="hide-mob">Min. Eşik</th><th>Durum</th></tr></thead>
+          <tbody id="stockTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- COUPONS -->
+    <div id="page-coupons" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Kuponlar</div><div class="page-subtitle">İndirim ve hediye kupon kodları</div></div>
+        <button class="btn btn-primary" onclick="openCouponModal()">+ Kupon Ekle</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Kupon Kodu</th><th>İndirim %</th><th>Hediye Ürün</th><th>Mesaj</th><th>İşlemler</th></tr></thead>
+          <tbody id="couponTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="page-settings" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Ayarlar</div><div class="page-subtitle">Site ve uygulama ayarları</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="card">
+          <div class="dash-card-title" style="margin-bottom:16px">Genel Ayarlar</div>
+          <div class="form-group" style="margin-bottom:12px"><label>Ücretsiz Teslimat Eşiği (₺)</label><input type="number" id="setThreshold" placeholder="1000"></div>
+          <div class="form-group" style="margin-bottom:12px"><label>WhatsApp Numarası (90 ile başlayan)</label><input type="text" id="setWa" placeholder="905444789461"></div>
+          <div class="form-group" style="margin-bottom:16px"><label>Duyuru Metinleri (her satır ayrı duyuru)</label><textarea id="setAnn" rows="4" placeholder="Bugün taze sebze indirimde!"></textarea></div>
+          <button class="btn btn-primary" onclick="saveSettings()">Ayarları Kaydet</button>
+        </div>
+        <div class="card">
+          <div class="dash-card-title" style="margin-bottom:16px">Şube Bilgileri</div>
+          <div class="form-group" style="margin-bottom:12px"><label>Şube 1 Adı</label><input type="text" id="setBranch1" placeholder="Geyras (Merkez) Şube"></div>
+          <div class="form-group" style="margin-bottom:12px"><label>Şube 1 Adres</label><input type="text" id="setBranch1Addr" placeholder="Şube 1 adresi"></div>
+          <div class="form-group" style="margin-bottom:12px"><label>Şube 2 Adı</label><input type="text" id="setBranch2" placeholder="Şube 2 adı"></div>
+          <div class="form-group" style="margin-bottom:16px"><label>Şube 2 Adres</label><input type="text" id="setBranch2Addr" placeholder="Şube 2 adresi"></div>
+          <button class="btn btn-primary" onclick="saveSettings()">Kaydet</button>
+        </div>
+        <div class="card">
+          <div class="dash-card-title" style="margin-bottom:16px">Şifre Değiştir</div>
+          <div class="form-group" style="margin-bottom:12px"><label>Yeni Şifre</label><input type="password" id="setNewPass" placeholder="Yeni şifre"></div>
+          <div class="form-group" style="margin-bottom:16px"><label>Şifre Tekrar</label><input type="password" id="setNewPass2" placeholder="Şifre tekrar"></div>
+          <button class="btn btn-primary" onclick="changePass()">Şifreyi Değiştir</button>
+        </div>
+        <div class="card">
+          <div class="dash-card-title" style="margin-bottom:16px">Veri Yönetimi</div>
+          <p style="font-size:13px;color:var(--gray500);margin-bottom:12px">Tüm localStorage verilerini yedekle veya sıfırla.</p>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn btn-ghost" onclick="exportData()">📥 Veriyi Dışa Aktar (JSON)</button>
+            <button class="btn btn-ghost" onclick="document.getElementById('importFile').click()">📤 Veri İçe Aktar</button>
+            <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(this)">
+            <button class="btn btn-danger btn-sm" onclick="nukeData()">⚠️ Tüm Veriyi Sil</button>
+          </div>
+        </div>
+
+        <!-- RAKİP FİYAT ANALİZİ — tam genişlik -->
+        <div class="card" style="grid-column:1/-1;border:2px solid var(--orange-light)">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px">
+            <div>
+              <div class="dash-card-title" style="margin-bottom:4px">🏪 Rakip Fiyat Analizi</div>
+              <p style="font-size:13px;color:var(--gray500)">Erenler Cep fiyatlarıyla karşılaştır, pahalı kaldığın ürünlerde uyarı al.</p>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <span id="compLastUpdateLabel" style="font-size:12px;color:var(--gray400);align-self:center"></span>
+              <button class="btn btn-ghost btn-sm" id="compLiveBtn" onclick="fetchLiveErenler()">🔄 Canlı Fiyat Çek</button>
+              <button class="btn btn-ghost btn-sm" id="compApifyBtn" onclick="apifyErenlerScan()" style="background:#F5F3FF;color:#7C3AED;border:1px solid #DDD6FE">🤖 Apify ile Tara</button>
+              <button class="btn btn-primary" onclick="openCompetitorModal()">📊 Analizi Görüntüle</button>
+            </div>
+          </div>
+          <div id="compApifyProgress" style="display:none;margin-bottom:10px">
+            <div style="display:flex;align-items:center;gap:8px;background:#F5F3FF;border-radius:8px;padding:10px 14px;border:1px solid #DDD6FE">
+              <span style="animation:spin 1s linear infinite;display:inline-block">⏳</span>
+              <span style="font-size:13px;color:#5B21B6;font-weight:600" id="compApifyStatus">Apify taraması başlatılıyor...</span>
+              <span style="font-size:12px;color:#7C3AED;margin-left:auto" id="compApifyProgress2"></span>
+            </div>
+          </div>
+          <div id="compSummaryBar"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODALS -->
+
+<!-- Competitor Analysis Modal -->
+<div class="modal-overlay" id="competitorModal">
+  <div class="modal" style="max-width:820px">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">📊 Rakip Fiyat Analizi — Erenler Cep</div>
+        <div style="font-size:12px;color:var(--gray400);margin-top:2px" id="compModalDate"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('competitorModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="compAlertBanner" style="margin-bottom:16px"></div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px" id="compSummaryCards"></div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <select id="compCatFilter" onchange="renderCompTableRows()" style="padding:6px 10px;border:1px solid var(--gray200);border-radius:6px;font-size:13px;background:var(--white)">
+          <option value="">Tüm Kategoriler</option>
+          <option value="manav">Manav</option>
+          <option value="kasap">Kasap</option>
+          <option value="sut-sarkuteri">Süt & Şarküteri</option>
+          <option value="temel-gida">Temel Gıda</option>
+          <option value="atistirmalik">Atıştırmalık</option>
+          <option value="icecek">İçecek</option>
+          <option value="temizlik">Temizlik</option>
+          <option value="kozmetik">Kozmetik</option>
+        </select>
+        <select id="compStatusFilter" onchange="renderCompTableRows()" style="padding:6px 10px;border:1px solid var(--gray200);border-radius:6px;font-size:13px;background:var(--white)">
+          <option value="">Tüm Durumlar</option>
+          <option value="expensive">⚠️ Pahalı</option>
+          <option value="near">≈ Yakın</option>
+          <option value="cheap">✅ Ucuz</option>
+        </select>
+        <span id="compFilterInfo" style="font-size:12px;color:var(--gray400);align-self:center;margin-left:4px"></span>
+      </div>
+      <div class="table-wrap">
+        <table id="compTable">
+          <thead><tr>
+            <th>Ürün</th>
+            <th>Kategori</th>
+            <th>Aydın Gros</th>
+            <th>Erenler Cep</th>
+            <th>Fark (₺)</th>
+            <th>Fark (%)</th>
+            <th>Durum</th>
+          </tr></thead>
+          <tbody id="compTableBody"></tbody>
+        </table>
+      </div>
+      <p style="font-size:12px;color:var(--gray400);margin-top:12px">* Erenler Cep fiyatları otomatik eşleştirme ile karşılaştırılır. Son güncelleme: <span id="compModalLastCheck">—</span></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('competitorModal')">Kapat</button>
+      <button class="btn btn-ghost" id="compModalLiveBtn" onclick="fetchLiveErenler()">🔄 Canlı Güncelle</button>
+      <button class="btn btn-ghost" onclick="apifyErenlerScan()" style="background:#F5F3FF;color:#7C3AED">🤖 Apify ile Tara</button>
+      <button class="btn btn-primary" onclick="exportCompAnalysis()">⬇️ Excel'e Aktar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Product Modal -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header">
+      <div class="modal-title" id="productModalTitle">Ürün Ekle</div>
+      <button class="modal-close" onclick="closeModal('productModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editProdId">
+      <div class="form-row cols2">
+        <div class="form-group"><label>Ürün Adı *</label><input type="text" id="prodName" placeholder="Ürün adı"></div>
+        <div class="form-group"><label>Kategori *</label>
+          <select id="prodCat">
+            <option value="manav">🥦 Manav</option>
+            <option value="temel-gida">🌾 Temel Gıda</option>
+            <option value="sut-sarkuteri">🧀 Süt & Şarküteri</option>
+            <option value="atistirmalik">🍿 Atıştırmalık</option>
+            <option value="temizlik">🧹 Temizlik</option>
+            <option value="icecek">🧃 İçecek</option>
+            <option value="kasap">🥩 Kasap & Et</option>
+            <option value="kahvaltilik">🍳 Kahvaltılık</option>
+            <option value="kozmetik">💄 Kozmetik</option>
+            <option value="anne-bebek">👶 Anne & Bebek</option>
+            <option value="ev-gerecleri">🏠 Ev Gereçleri</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row cols3">
+        <div class="form-group"><label>Fiyat (₺) *</label><input type="number" id="prodPrice" placeholder="0.00" step="0.01"></div>
+        <div class="form-group"><label>Birim</label><input type="text" id="prodUnit" placeholder="kg, adet, lt..."></div>
+        <div class="form-group"><label>Emoji/İkon</label><input type="text" id="prodEmoji" placeholder="🍎"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Görsel URL (opsiyonel)</label>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="prodImg" placeholder="https://..." style="flex:1">
+            <label class="btn btn-ghost" style="cursor:pointer;white-space:nowrap;padding:8px 12px;margin:0;">
+              <input type="file" id="prodImgFile" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
+              📷 Yükle
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="form-row cols2">
+        <div class="form-group"><label>Etiket (opsiyonel)</label><input type="text" id="prodBadge" placeholder="Yeni, İndirim, Taze..."></div>
+        <div class="form-group" style="display:flex;align-items:center;gap:8px;padding-top:20px">
+          <label class="toggle"><input type="checkbox" id="prodFeatured"><span class="toggle-track"></span></label>
+          <span style="font-size:13px;font-weight:600;color:var(--gray700)">Öne Çıkan</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('productModal')">İptal</button>
+      <button class="btn btn-primary" onclick="saveProduct()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Order Detail Modal -->
+<div class="modal-overlay" id="orderModal">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-header">
+      <div class="modal-title">Sipariş Detayı</div>
+      <button class="modal-close" onclick="closeModal('orderModal')">✕</button>
+    </div>
+    <div class="modal-body" id="orderModalBody"></div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('orderModal')">Kapat</button></div>
+  </div>
+</div>
+
+<!-- Campaign Modal -->
+<div class="modal-overlay" id="campaignModal">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header">
+      <div class="modal-title" id="campModalTitle">Kampanya Ekle</div>
+      <button class="modal-close" onclick="closeModal('campaignModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editCampId">
+      <div class="form-row">
+        <div class="form-group"><label>Kampanya Adı *</label><input type="text" id="campName" placeholder="Yaz İndirimi, Haftasonu Fırsatı..."></div>
+      </div>
+      <div class="form-row cols2">
+        <div class="form-group"><label>Kampanya Türü</label>
+          <select id="campType" onchange="updateCampTypeUI()">
+            <option value="pct">Yüzde İndirim (%)</option>
+            <option value="fixed">Sabit İndirim (₺)</option>
+            <option value="gift">Hediye Ürün</option>
+            <option value="free_delivery">Ücretsiz Teslimat</option>
+          </select>
+        </div>
+        <div class="form-group" id="campDiscountGroup"><label>İndirim Değeri</label><input type="number" id="campDiscount" placeholder="10"></div>
+      </div>
+      <div class="form-row cols2">
+        <div class="form-group"><label>Hedef</label>
+          <select id="campTarget" onchange="updateCampTargetUI()">
+            <option value="all">Tüm Ürünler</option>
+            <option value="cat">Kategori</option>
+            <option value="prod">Belirli Ürün</option>
+            <option value="cart">Min. Sepet Tutarı</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label id="campTargetValLabel">Hedef Değer</label>
+          <select id="campTargetCat" style="display:none">
+            <option value="manav">Manav</option>
+            <option value="temel-gida">Temel Gıda</option>
+            <option value="sut-sarkuteri">Süt & Şarküteri</option>
+            <option value="atistirmalik">Atıştırmalık</option>
+            <option value="temizlik">Temizlik</option>
+            <option value="icecek">İçecek</option>
+            <option value="kasap">Kasap & Et</option>
+            <option value="kahvaltilik">Kahvaltılık</option>
+            <option value="kozmetik">Kozmetik</option>
+            <option value="anne-bebek">Anne & Bebek</option>
+            <option value="ev-gerecleri">Ev Gereçleri</option>
+          </select>
+          <input type="number" id="campCartMin" placeholder="Min. sepet (₺)" style="display:none">
+          <input type="text" id="campTargetProd" placeholder="Ürün adı" style="display:none">
+        </div>
+      </div>
+      <div class="form-row" id="campGiftGroup" style="display:none">
+        <div class="form-group"><label>Hediye Ürün Adı</label><input type="text" id="campGiftItem" placeholder="Hediye ürün adı"></div>
+      </div>
+      <div class="form-row cols2">
+        <div class="form-group"><label>Başlangıç Tarihi</label><input type="date" id="campStart"></div>
+        <div class="form-group"><label>Bitiş Tarihi</label><input type="date" id="campEnd"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Açıklama (duyuru metninde gösterilir)</label><input type="text" id="campDesc" placeholder="Tüm manav ürünlerinde %20 indirim!"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('campaignModal')">İptal</button>
+      <button class="btn btn-primary" onclick="saveCampaign()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Invoice Detail Modal -->
+<div class="modal-overlay" id="invoiceDetailModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Fatura Detayı</div>
+      <button class="modal-close" onclick="closeModal('invoiceDetailModal')">✕</button>
+    </div>
+    <div class="modal-body" id="invoiceDetailBody"></div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('invoiceDetailModal')">Kapat</button></div>
+  </div>
+</div>
+
+<!-- Global Margin Modal -->
+<div class="modal-overlay" id="globalMarginModal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <div class="modal-title">Global Kar Marjı Uygula</div>
+      <button class="modal-close" onclick="closeModal('globalMarginModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="alert alert-warn" style="margin-bottom:16px">⚠️ Bu işlem seçilen kategorideki tüm ürünlerin satış fiyatını günceller. Alış fiyatı girilmiş ürünler baz alınır.</div>
+      <div class="form-group" style="margin-bottom:12px"><label>Kar Marjı (%)</label><input type="number" id="globalMarginPct" placeholder="30" min="0" max="500"></div>
+      <div class="form-group"><label>Uygulama Kapsamı</label>
+        <select id="globalMarginScope">
+          <option value="all">Tüm Ürünler</option>
+          <option value="manav">Manav</option>
+          <option value="temel-gida">Temel Gıda</option>
+          <option value="sut-sarkuteri">Süt & Şarküteri</option>
+          <option value="atistirmalik">Atıştırmalık</option>
+          <option value="temizlik">Temizlik</option>
+          <option value="icecek">İçecek</option>
+          <option value="kasap">Kasap & Et</option>
+          <option value="kahvaltilik">Kahvaltılık</option>
+          <option value="kozmetik">Kozmetik</option>
+          <option value="anne-bebek">Anne & Bebek</option>
+          <option value="ev-gerecleri">Ev Gereçleri</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('globalMarginModal')">İptal</button>
+      <button class="btn btn-success" onclick="applyGlobalMargin()">Uygula</button>
+    </div>
+  </div>
+</div>
+
+<!-- Coupon Modal -->
+<div class="modal-overlay" id="couponModal">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-header">
+      <div class="modal-title" id="couponModalTitle">Kupon Ekle</div>
+      <button class="modal-close" onclick="closeModal('couponModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editCouponKey">
+      <div class="form-row cols2">
+        <div class="form-group"><label>Kupon Kodu *</label><input type="text" id="couponCode" placeholder="INDIRIM10" style="text-transform:uppercase"></div>
+        <div class="form-group"><label>İndirim % (0 = sadece hediye)</label><input type="number" id="couponPct" placeholder="10" min="0" max="100"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Hediye Ürün (opsiyonel)</label><input type="text" id="couponGift" placeholder="Ürün adı veya boş bırak"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Başarı Mesajı</label><input type="text" id="couponText" placeholder="%10 İNDİRİM UYGULANDI!"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('couponModal')">İptal</button>
+      <button class="btn btn-primary" onclick="saveCoupon()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ── DEFAULT DATA ─────────────────────────────────────────────────────── */
+const DEFAULT_PRODUCTS=[
+  {id:1,name:'Domates',cat:'manav',price:24.90,unit:'kg',emoji:'🍅',img:'',badge:'Taze',featured:true},
+  {id:2,name:'Salatalık',cat:'manav',price:19.90,unit:'kg',emoji:'🥒',img:'',badge:'',featured:false},
+  {id:3,name:'Biber',cat:'manav',price:29.90,unit:'kg',emoji:'🫑',img:'',badge:'',featured:false},
+  {id:4,name:'Patlıcan',cat:'manav',price:22.90,unit:'kg',emoji:'🍆',img:'',badge:'',featured:false},
+  {id:5,name:'Patates',cat:'manav',price:17.90,unit:'kg',emoji:'🥔',img:'',badge:'',featured:true},
+  {id:6,name:'Soğan',cat:'manav',price:14.90,unit:'kg',emoji:'🧅',img:'',badge:'',featured:false},
+  {id:7,name:'Sarımsak',cat:'manav',price:89.90,unit:'kg',emoji:'🧄',img:'',badge:'',featured:false},
+  {id:8,name:'Muz',cat:'manav',price:34.90,unit:'kg',emoji:'🍌',img:'',badge:'İthal',featured:false},
+  {id:9,name:'Elma',cat:'manav',price:27.90,unit:'kg',emoji:'🍎',img:'',badge:'Taze',featured:true},
+  {id:10,name:'Portakal',cat:'manav',price:19.90,unit:'kg',emoji:'🍊',img:'',badge:'',featured:false},
+  {id:11,name:'Un (1 kg)',cat:'temel-gida',price:29.90,unit:'paket',emoji:'🌾',img:'',badge:'',featured:false},
+  {id:12,name:'Şeker (1 kg)',cat:'temel-gida',price:34.90,unit:'paket',emoji:'🍬',img:'',badge:'',featured:false},
+  {id:13,name:'Tuz (1 kg)',cat:'temel-gida',price:12.90,unit:'paket',emoji:'🧂',img:'',badge:'',featured:false},
+  {id:14,name:'Makarna (500g)',cat:'temel-gida',price:19.90,unit:'paket',emoji:'🍝',img:'',badge:'',featured:true},
+  {id:15,name:'Pirinç (1 kg)',cat:'temel-gida',price:44.90,unit:'paket',emoji:'🍚',img:'',badge:'',featured:false},
+  {id:16,name:'Mercimek (1 kg)',cat:'temel-gida',price:39.90,unit:'paket',emoji:'🫘',img:'',badge:'',featured:false},
+  {id:17,name:'Bulgur (1 kg)',cat:'temel-gida',price:32.90,unit:'paket',emoji:'🌾',img:'',badge:'',featured:false},
+  {id:18,name:'Zeytinyağı (1 lt)',cat:'temel-gida',price:249.90,unit:'şişe',emoji:'🫙',img:'',badge:'',featured:true},
+  {id:19,name:'Domates Salçası (830g)',cat:'temel-gida',price:44.90,unit:'teneke',emoji:'🥫',img:'',badge:'',featured:false},
+  {id:20,name:'Nohut (1 kg)',cat:'temel-gida',price:42.90,unit:'paket',emoji:'🫘',img:'',badge:'',featured:false},
+  {id:21,name:'Süt (1 lt)',cat:'sut-sarkuteri',price:29.90,unit:'lt',emoji:'🥛',img:'',badge:'',featured:true},
+  {id:22,name:'Yoğurt (1 kg)',cat:'sut-sarkuteri',price:44.90,unit:'kg',emoji:'🥛',img:'',badge:'',featured:false},
+  {id:23,name:'Beyaz Peynir (500g)',cat:'sut-sarkuteri',price:89.90,unit:'paket',emoji:'🧀',img:'',badge:'',featured:true},
+  {id:24,name:'Kaşar Peynir (400g)',cat:'sut-sarkuteri',price:119.90,unit:'paket',emoji:'🧀',img:'',badge:'',featured:false},
+  {id:25,name:'Tereyağı (250g)',cat:'sut-sarkuteri',price:74.90,unit:'paket',emoji:'🧈',img:'',badge:'',featured:false},
+  {id:26,name:'Yumurta (10\'lu)',cat:'sut-sarkuteri',price:49.90,unit:'koli',emoji:'🥚',img:'',badge:'',featured:true},
+  {id:27,name:'Sucuk (200g)',cat:'sut-sarkuteri',price:84.90,unit:'paket',emoji:'🌭',img:'',badge:'',featured:false},
+  {id:28,name:'Zeytin (400g)',cat:'sut-sarkuteri',price:64.90,unit:'paket',emoji:'🫒',img:'',badge:'',featured:false},
+  {id:29,name:'Cips (200g)',cat:'atistirmalik',price:39.90,unit:'paket',emoji:'🍿',img:'',badge:'',featured:false},
+  {id:30,name:'Çikolata (100g)',cat:'atistirmalik',price:34.90,unit:'adet',emoji:'🍫',img:'',badge:'',featured:false},
+  {id:31,name:'Bisküvi (150g)',cat:'atistirmalik',price:19.90,unit:'paket',emoji:'🍪',img:'',badge:'',featured:false},
+  {id:32,name:'Kuruyemiş Karışık (200g)',cat:'atistirmalik',price:79.90,unit:'paket',emoji:'🥜',img:'',badge:'',featured:true},
+  {id:33,name:'Gofret (4\'lü)',cat:'atistirmalik',price:24.90,unit:'paket',emoji:'🧇',img:'',badge:'',featured:false},
+  {id:34,name:'Kek (400g)',cat:'atistirmalik',price:44.90,unit:'adet',emoji:'🍰',img:'',badge:'',featured:false},
+  {id:35,name:'Bulaşık Deterjanı (1 lt)',cat:'temizlik',price:54.90,unit:'şişe',emoji:'🧴',img:'',badge:'',featured:false},
+  {id:36,name:'Çamaşır Suyu (3 lt)',cat:'temizlik',price:39.90,unit:'şişe',emoji:'🧴',img:'',badge:'',featured:true},
+  {id:37,name:'Deterjan (3 kg)',cat:'temizlik',price:149.90,unit:'paket',emoji:'🧺',img:'',badge:'',featured:false},
+  {id:38,name:'Tuvalet Kağıdı (32\'li)',cat:'temizlik',price:119.90,unit:'paket',emoji:'🧻',img:'',badge:'',featured:true},
+  {id:39,name:'Kağıt Havlu (8\'li)',cat:'temizlik',price:74.90,unit:'paket',emoji:'🧻',img:'',badge:'',featured:false},
+  {id:40,name:'Bulaşık Sünger (5\'li)',cat:'temizlik',price:24.90,unit:'paket',emoji:'🧽',img:'',badge:'',featured:false},
+  {id:41,name:'Su (1.5 lt)',cat:'icecek',price:9.90,unit:'şişe',emoji:'💧',img:'',badge:'',featured:false},
+  {id:42,name:'Meyve Suyu (1 lt)',cat:'icecek',price:34.90,unit:'kutu',emoji:'🧃',img:'',badge:'',featured:true},
+  {id:43,name:'Kola (1 lt)',cat:'icecek',price:29.90,unit:'şişe',emoji:'🥤',img:'',badge:'',featured:false},
+  {id:44,name:'Ayran (500 ml)',cat:'icecek',price:12.90,unit:'şişe',emoji:'🥛',img:'',badge:'',featured:false},
+  {id:45,name:'Çay (500g)',cat:'icecek',price:89.90,unit:'paket',emoji:'🍵',img:'',badge:'',featured:true},
+  {id:46,name:'Kahve (250g)',cat:'icecek',price:119.90,unit:'paket',emoji:'☕',img:'',badge:'',featured:false},
+  {id:47,name:'Gazoz (1 lt)',cat:'icecek',price:19.90,unit:'şişe',emoji:'🫧',img:'',badge:'',featured:false},
+  {id:48,name:'Enerji İçeceği (250ml)',cat:'icecek',price:29.90,unit:'kutu',emoji:'⚡',img:'',badge:'',featured:false},
+  /* ── MANAV EK ÜRÜNLER ── */
+  {id:49,name:'Havuç',cat:'manav',price:34.90,unit:'kg',emoji:'🥕',img:'',badge:'Taze',featured:false},
+  {id:50,name:'Kabak',cat:'manav',price:29.90,unit:'kg',emoji:'🥬',img:'',badge:'',featured:false},
+  {id:51,name:'Karpuz',cat:'manav',price:14.90,unit:'kg',emoji:'🍉',img:'',badge:'Mevsim',featured:true},
+  {id:52,name:'Limon',cat:'manav',price:49.90,unit:'kg',emoji:'🍋',img:'',badge:'',featured:false},
+  {id:53,name:'Kivi',cat:'manav',price:89.90,unit:'kg',emoji:'🥝',img:'',badge:'İthal',featured:false},
+  {id:54,name:'Avokado',cat:'manav',price:54.90,unit:'adet',emoji:'🥑',img:'',badge:'',featured:false},
+  {id:55,name:'Biber Sivri',cat:'manav',price:39.90,unit:'kg',emoji:'🌶️',img:'',badge:'Taze',featured:false},
+  {id:56,name:'Biber Dolma',cat:'manav',price:49.90,unit:'kg',emoji:'🫑',img:'',badge:'',featured:false},
+  {id:57,name:'Marul Kıvırcık',cat:'manav',price:34.90,unit:'adet',emoji:'🥬',img:'',badge:'Taze',featured:false},
+  {id:58,name:'Maydanoz',cat:'manav',price:14.90,unit:'bağ',emoji:'🌿',img:'',badge:'',featured:false},
+  {id:59,name:'Nane',cat:'manav',price:14.90,unit:'bağ',emoji:'🌿',img:'',badge:'',featured:false},
+  {id:60,name:'Roka',cat:'manav',price:14.90,unit:'bağ',emoji:'🌿',img:'',badge:'',featured:false},
+  {id:61,name:'Soğan Yeşil',cat:'manav',price:19.90,unit:'bağ',emoji:'🌱',img:'',badge:'',featured:false},
+  {id:62,name:'Mantar',cat:'manav',price:99.90,unit:'kg',emoji:'🍄',img:'',badge:'',featured:false},
+  {id:63,name:'Pirasa',cat:'manav',price:24.90,unit:'kg',emoji:'🌿',img:'',badge:'',featured:false},
+  {id:64,name:'Domates Pembe',cat:'manav',price:39.90,unit:'kg',emoji:'🍅',img:'',badge:'',featured:false},
+  {id:65,name:'Erik',cat:'manav',price:39.90,unit:'kg',emoji:'🍑',img:'',badge:'Mevsim',featured:false},
+  /* ── TEMEL GIDA EK ÜRÜNLER ── */
+  {id:66,name:'Fasulye Kuru (1 kg)',cat:'temel-gida',price:54.90,unit:'paket',emoji:'🫘',img:'',badge:'',featured:false},
+  {id:67,name:'Ayçiçek Yağı (5 lt)',cat:'temel-gida',price:299.90,unit:'bidon',emoji:'🫙',img:'',badge:'',featured:true},
+  {id:68,name:'Biber Salçası (830g)',cat:'temel-gida',price:44.90,unit:'teneke',emoji:'🥫',img:'',badge:'',featured:false},
+  {id:69,name:'Çorba Tarhana (500g)',cat:'temel-gida',price:39.90,unit:'paket',emoji:'🍲',img:'',badge:'',featured:false},
+  {id:70,name:'Domates Konservesi (800g)',cat:'temel-gida',price:34.90,unit:'teneke',emoji:'🥫',img:'',badge:'',featured:false},
+  {id:71,name:'Baharat Karışık (50g)',cat:'temel-gida',price:19.90,unit:'paket',emoji:'🌶️',img:'',badge:'',featured:false},
+  {id:72,name:'Ketçap (800g)',cat:'temel-gida',price:54.90,unit:'şişe',emoji:'🍅',img:'',badge:'',featured:false},
+  /* ── SÜT & ŞARKÜTERİ EK ÜRÜNLER ── */
+  {id:73,name:'Siyah Zeytin (400g)',cat:'sut-sarkuteri',price:59.90,unit:'paket',emoji:'🫒',img:'',badge:'',featured:false},
+  {id:74,name:'Tahin (300g)',cat:'sut-sarkuteri',price:69.90,unit:'kavanoz',emoji:'🫙',img:'',badge:'',featured:false},
+  {id:75,name:'Bal (250g)',cat:'sut-sarkuteri',price:139.90,unit:'kavanoz',emoji:'🍯',img:'',badge:'',featured:true},
+  {id:76,name:'Salam Hindi (60g)',cat:'sut-sarkuteri',price:34.90,unit:'paket',emoji:'🥩',img:'',badge:'',featured:false},
+  {id:77,name:'Kasap Köfte (350g)',cat:'sut-sarkuteri',price:99.90,unit:'paket',emoji:'🍖',img:'',badge:'Taze',featured:false},
+  {id:78,name:'Tavuk Döner (300g)',cat:'sut-sarkuteri',price:79.90,unit:'paket',emoji:'🍗',img:'',badge:'',featured:false},
+  {id:79,name:'Kaşar Dilimli (200g)',cat:'sut-sarkuteri',price:79.90,unit:'paket',emoji:'🧀',img:'',badge:'',featured:false},
+  {id:80,name:'Helva Sade (200g)',cat:'sut-sarkuteri',price:44.90,unit:'paket',emoji:'🍮',img:'',badge:'',featured:false},
+  /* ── ATIŞTIRMALIK EK ÜRÜNLER ── */
+  {id:81,name:'Leblebi (200g)',cat:'atistirmalik',price:29.90,unit:'paket',emoji:'🫘',img:'',badge:'',featured:false},
+  {id:82,name:'Kraker (70g)',cat:'atistirmalik',price:19.90,unit:'paket',emoji:'🍘',img:'',badge:'',featured:false},
+  {id:83,name:'Çerez Karışık (100g)',cat:'atistirmalik',price:34.90,unit:'paket',emoji:'🥜',img:'',badge:'',featured:false},
+  {id:84,name:'Helvalı Gofret (4\'lü)',cat:'atistirmalik',price:19.90,unit:'paket',emoji:'🍫',img:'',badge:'',featured:false},
+  /* ── TEMİZLİK EK ÜRÜNLER ── */
+  {id:85,name:'Cam Temizleyici (500ml)',cat:'temizlik',price:44.90,unit:'şişe',emoji:'🧴',img:'',badge:'',featured:false},
+  {id:86,name:'Sıvı Sabun (400ml)',cat:'temizlik',price:39.90,unit:'şişe',emoji:'🧴',img:'',badge:'',featured:false},
+  {id:87,name:'Duş Jeli (500ml)',cat:'temizlik',price:54.90,unit:'şişe',emoji:'🧴',img:'',badge:'',featured:false},
+  {id:88,name:'Kağıt Mendil (10\'lu)',cat:'temizlik',price:24.90,unit:'paket',emoji:'🧻',img:'',badge:'',featured:false},
+  /* ── İÇECEK EK ÜRÜNLER ── */
+  {id:89,name:'Maden Suyu (200ml)',cat:'icecek',price:9.90,unit:'şişe',emoji:'💧',img:'',badge:'',featured:false},
+  {id:90,name:'Limonata (1 lt)',cat:'icecek',price:29.90,unit:'şişe',emoji:'🍋',img:'',badge:'',featured:false},
+  {id:91,name:'Şalgam (1 lt)',cat:'icecek',price:24.90,unit:'şişe',emoji:'🟣',img:'',badge:'',featured:false},
+  {id:92,name:'Ice Tea (1.5 lt)',cat:'icecek',price:39.90,unit:'şişe',emoji:'🍵',img:'',badge:'',featured:false},
+  {id:93,name:'Kola (2.5 lt)',cat:'icecek',price:44.90,unit:'şişe',emoji:'🥤',img:'',badge:'',featured:false},
+  /* ── KOZMETİK (YENİ KATEGORİ) ── */
+  {id:94,name:'Diş Macunu (75ml)',cat:'kozmetik',price:39.90,unit:'tüp',emoji:'🦷',img:'',badge:'',featured:true},
+  {id:95,name:'Şampuan (400ml)',cat:'kozmetik',price:74.90,unit:'şişe',emoji:'🧴',img:'',badge:'',featured:false},
+  {id:96,name:'Saç Kremi (400ml)',cat:'kozmetik',price:69.90,unit:'şişe',emoji:'🧴',img:'',badge:'',featured:false},
+  {id:97,name:'Deodorant Roll-On (50ml)',cat:'kozmetik',price:89.90,unit:'adet',emoji:'✨',img:'',badge:'',featured:false},
+  {id:98,name:'El Kremi (75ml)',cat:'kozmetik',price:39.90,unit:'tüp',emoji:'🧴',img:'',badge:'',featured:false},
+  {id:99,name:'Kolonya (400ml)',cat:'kozmetik',price:99.90,unit:'şişe',emoji:'💫',img:'',badge:'',featured:true},
+  {id:100,name:'Tıraş Köpüğü (200ml)',cat:'kozmetik',price:59.90,unit:'kutu',emoji:'🪒',img:'',badge:'',featured:false},
+  {id:101,name:'Dudak Balsamı',cat:'kozmetik',price:29.90,unit:'adet',emoji:'💄',img:'',badge:'',featured:false},
+  /* ── ANNE & BEBEK (YENİ KATEGORİ) ── */
+  {id:102,name:'Bebek Bezi S (54\'lü)',cat:'anne-bebek',price:249.90,unit:'paket',emoji:'👶',img:'',badge:'',featured:true},
+  {id:103,name:'Bebek Bezi M (44\'lü)',cat:'anne-bebek',price:279.90,unit:'paket',emoji:'👶',img:'',badge:'',featured:false},
+  {id:104,name:'Bebek Bezi L (36\'lı)',cat:'anne-bebek',price:299.90,unit:'paket',emoji:'👶',img:'',badge:'',featured:false},
+  {id:105,name:'Bebek Islak Mendil (72\'li)',cat:'anne-bebek',price:39.90,unit:'paket',emoji:'🧻',img:'',badge:'',featured:false},
+  {id:106,name:'Bebek Maması Tahıllı (400g)',cat:'anne-bebek',price:189.90,unit:'kutu',emoji:'🍼',img:'',badge:'',featured:false},
+  {id:107,name:'Bebek Şampuanı (200ml)',cat:'anne-bebek',price:89.90,unit:'şişe',emoji:'🧴',img:'',badge:'',featured:false},
+  {id:108,name:'Pirinç Unu Bebek (400g)',cat:'anne-bebek',price:79.90,unit:'kutu',emoji:'🍚',img:'',badge:'',featured:false},
+  /* ── EV GEREÇLERİ (YENİ KATEGORİ) ── */
+  {id:109,name:'Çöp Torbası (10\'li)',cat:'ev-gerecleri',price:39.90,unit:'rulo',emoji:'🗑️',img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400',badge:'',featured:false},
+  {id:110,name:'Mutfak Temizlik Bezi (5\'li)',cat:'ev-gerecleri',price:29.90,unit:'paket',emoji:'🧹',img:'https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400',badge:'',featured:false},
+  {id:111,name:'Folyo (30m)',cat:'ev-gerecleri',price:49.90,unit:'rulo',emoji:'📦',img:'https://images.unsplash.com/photo-1584990347449-39ce4c9af92a?w=400',badge:'',featured:false},
+  {id:112,name:'Pil AA (4\'lü)',cat:'ev-gerecleri',price:59.90,unit:'paket',emoji:'🔋',img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400',badge:'YENİ',featured:true},
+  {id:113,name:'Cam Bardak Seti (6\'lı)',cat:'ev-gerecleri',price:149.90,unit:'set',emoji:'🥃',img:'https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=400',badge:'-%17',featured:true},
+  {id:114,name:'Plastik Saklama Kabı',cat:'ev-gerecleri',price:49.90,unit:'adet',emoji:'📦',img:'https://images.unsplash.com/photo-1584990347449-39ce4c9af92a?w=400',badge:'',featured:false},
+  {id:115,name:'Çay Bardağı Seti (6\'lı)',cat:'ev-gerecleri',price:129.90,unit:'set',emoji:'☕',img:'https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=400',badge:'',featured:false},
+  {id:116,name:'Mutfak Makası',cat:'ev-gerecleri',price:89.90,unit:'adet',emoji:'✂️',img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400',badge:'',featured:false},
+  {id:117,name:'Dana Kıyma',cat:'kasap',price:189.90,unit:'500g',emoji:'🥩',img:'https://images.unsplash.com/photo-1588347818481-27bd27e77b4e?w=400',badge:'TAZE',featured:true},
+  {id:118,name:'Kasap Köfte',cat:'kasap',price:134.90,unit:'350g',emoji:'🥩',img:'https://images.unsplash.com/photo-1529694157872-4e0c0f3b238b?w=400',badge:'ÇOK SATAN',featured:true},
+  {id:119,name:'Piliç Döner',cat:'kasap',price:84.90,unit:'300g',emoji:'🍗',img:'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=400',badge:'-%5',featured:false},
+  {id:120,name:'Tavuk But',cat:'kasap',price:179.90,unit:'1kg',emoji:'🍗',img:'https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=400',badge:'TAZE',featured:true},
+  {id:121,name:'Bütün Piliç',cat:'kasap',price:149.90,unit:'1kg',emoji:'🐔',img:'https://images.unsplash.com/photo-1600891964599-f61ba0e24092?w=400',badge:'',featured:false},
+  {id:122,name:'Hamburger Köfte',cat:'kasap',price:264.90,unit:'500g',emoji:'🍔',img:'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=400',badge:'',featured:false},
+  {id:123,name:'Parmak Köfte',cat:'kasap',price:134.90,unit:'400g',emoji:'🍢',img:'https://images.unsplash.com/photo-1529694157872-4e0c0f3b238b?w=400',badge:'-%10',featured:false},
+  {id:124,name:'Dana Sucuk İnce',cat:'kasap',price:124.90,unit:'200g',emoji:'🌭',img:'https://images.unsplash.com/photo-1562967915-6ba607ff7d05?w=400',badge:'',featured:false},
+  {id:125,name:'Çam Balı',cat:'kahvaltilik',price:344.90,unit:'460g',emoji:'🍯',img:'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400',badge:'-%9',featured:true},
+  {id:126,name:'Kayısı Reçeli',cat:'kahvaltilik',price:79.90,unit:'380g',emoji:'🫙',img:'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=400',badge:'',featured:false},
+  {id:127,name:'Sele Zeytin',cat:'kahvaltilik',price:134.90,unit:'800g',emoji:'🫒',img:'https://images.unsplash.com/photo-1572635148818-ef6fd45eb394?w=400',badge:'-%10',featured:true},
+  {id:128,name:'Kaşar Peyniri',cat:'kahvaltilik',price:194.90,unit:'300g',emoji:'🧀',img:'https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=400',badge:'İNDİRİM',featured:false},
+  {id:129,name:'Yumurta',cat:'kahvaltilik',price:59.90,unit:'10\'lu',emoji:'🥚',img:'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=400',badge:'TAZE',featured:true},
+  {id:130,name:'Tahin Pekmez',cat:'kahvaltilik',price:84.90,unit:'350g',emoji:'🫙',img:'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400',badge:'',featured:false},
+  {id:131,name:'Fıstık Ezmesi',cat:'kahvaltilik',price:124.90,unit:'350g',emoji:'🥜',img:'https://images.unsplash.com/photo-1567218360-a7898e9b8bcc?w=400',badge:'YENİ',featured:false},
+  {id:132,name:'Çilek Reçeli',cat:'kahvaltilik',price:74.90,unit:'380g',emoji:'🍓',img:'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=400',badge:'',featured:false},
+  {id:133,name:'Enginar',cat:'manav',price:64.90,unit:'adet',emoji:'🌿',img:'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400',badge:'MEVSİM',featured:false},
+  {id:134,name:'Sarımsak',cat:'manav',price:134.90,unit:'1kg',emoji:'🧄',img:'https://images.unsplash.com/photo-1540148426945-6cf22a6b2383?w=400',badge:'-%10',featured:false},
+  {id:135,name:'Elma Granny Smith',cat:'manav',price:94.90,unit:'1kg',emoji:'🍏',img:'https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=400',badge:'',featured:false},
+  {id:136,name:'Patlıcan',cat:'manav',price:59.90,unit:'1kg',emoji:'🍆',img:'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400',badge:'KAMPANYA',featured:false},
+  {id:137,name:'RedBull Enerji',cat:'icecek',price:64.90,unit:'250ml',emoji:'⚡',img:'https://images.unsplash.com/photo-1570197571499-166b36435e9f?w=400',badge:'ENERJİ',featured:true},
+  {id:138,name:'Sprite',cat:'icecek',price:59.90,unit:'1.5L',emoji:'🥤',img:'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400',badge:'',featured:false},
+  {id:139,name:'Coca-Cola',cat:'icecek',price:69.90,unit:'2.5L',emoji:'🥤',img:'https://images.unsplash.com/photo-1629203851122-3726ecdf080e?w=400',badge:'AİLE BOY',featured:false},
+  {id:140,name:'Fanta Portakal',cat:'icecek',price:39.90,unit:'500ml',emoji:'🟠',img:'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400',badge:'',featured:false},
+  {id:141,name:'Powerade',cat:'icecek',price:64.90,unit:'500ml',emoji:'💪',img:'https://images.unsplash.com/photo-1571165936792-697b96b5f671?w=400',badge:'',featured:false},
+  {id:142,name:'Ajax Fabuloso Lavanta',cat:'temizlik',price:109.90,unit:'1L',emoji:'🧹',img:'https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400',badge:'-%8',featured:false},
+  {id:143,name:'Fairy Platinum',cat:'temizlik',price:399.90,unit:'50 tablet',emoji:'🍽️',img:'https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?w=400',badge:'EKONOMİK',featured:true},
+  {id:144,name:'Hijyenik Ped',cat:'temizlik',price:64.90,unit:'20\'li',emoji:'🩹',img:'https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=400',badge:'',featured:false},
+  {id:145,name:'Rexona Deo Erkek',cat:'kozmetik',price:119.90,unit:'150ml',emoji:'🌿',img:'https://images.unsplash.com/photo-1599305090598-fe179d501227?w=400',badge:'-%7',featured:false},
+  {id:146,name:'Gillette Fusion Yedek',cat:'kozmetik',price:544.90,unit:'2\'li',emoji:'🪒',img:'https://images.unsplash.com/photo-1612817288484-6f916006741a?w=400',badge:'-%9',featured:false},
+  {id:147,name:'Parodontax Diş Macunu',cat:'kozmetik',price:284.90,unit:'75ml',emoji:'🦷',img:'https://images.unsplash.com/photo-1585238342024-78d387f4a707?w=400',badge:'KORUYUCU',featured:false},
+  {id:148,name:'Paşabahçe Çay Bardağı',cat:'ev-gerecleri',price:119.90,unit:'6\'lı set',emoji:'☕',img:'https://images.unsplash.com/photo-1610701596007-11502861dcfa?w=400',badge:'-%20',featured:true},
+  {id:149,name:'Cam Kavanoz',cat:'ev-gerecleri',price:24.90,unit:'660ml',emoji:'🫙',img:'https://images.unsplash.com/photo-1584990347449-39ce4c9af92a?w=400',badge:'',featured:false},
+  {id:150,name:'Plastik Saklama Kabı',cat:'ev-gerecleri',price:49.90,unit:'1.6L',emoji:'📦',img:'https://images.unsplash.com/photo-1584990347449-39ce4c9af92a?w=400',badge:'',featured:false},
+  {id:151,name:'Çilek',cat:'manav',price:79.90,unit:'500g',emoji:'🍓',img:'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=400',badge:'TAZE',featured:true},
+  {id:152,name:'Kiraz',cat:'manav',price:89.90,unit:'500g',emoji:'🍒',img:'https://images.unsplash.com/photo-1559181567-c3190ca9959b?w=400',badge:'MEVSİM',featured:false},
+  {id:153,name:'İspanak',cat:'manav',price:19.90,unit:'demet',emoji:'🥬',img:'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400',badge:'TAZE',featured:false},
+  {id:154,name:'Brokoli',cat:'manav',price:34.90,unit:'adet',emoji:'🥦',img:'https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?w=400',badge:'',featured:false},
+  {id:155,name:'Şeftali',cat:'manav',price:59.90,unit:'1kg',emoji:'🍑',img:'https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=400',badge:'MEVSİM',featured:false},
+  {id:156,name:'Üzüm Siyah',cat:'manav',price:79.90,unit:'1kg',emoji:'🍇',img:'https://images.unsplash.com/photo-1515706886582-54c73c5eaf41?w=400',badge:'',featured:false},
+  {id:157,name:'Kavun',cat:'manav',price:44.90,unit:'1 adet',emoji:'🍈',img:'https://images.unsplash.com/photo-1529563979-ab4b49c0cbc9?w=400',badge:'MEVSİM',featured:false},
+  {id:158,name:'Zeytinyağı Riviera',cat:'temel-gida',price:299.90,unit:'1L',emoji:'🫒',img:'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400',badge:'-%14',featured:true},
+  {id:159,name:'Kırmızı Mercimek',cat:'temel-gida',price:49.90,unit:'1kg',emoji:'🌾',img:'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=400',badge:'',featured:false},
+  {id:160,name:'Domates Salçası',cat:'temel-gida',price:44.90,unit:'700g',emoji:'🍅',img:'https://images.unsplash.com/photo-1561661741-9cb1b77fd4ba?w=400',badge:'EV YAPIMI',featured:false},
+  {id:161,name:'Elma Sirkesi',cat:'temel-gida',price:39.90,unit:'1L',emoji:'🍎',img:'https://images.unsplash.com/photo-1534353341884-c1d87ea7f7b7?w=400',badge:'',featured:false},
+  {id:162,name:'Mercimek Çorbası Hazır',cat:'temel-gida',price:29.90,unit:'2\'li paket',emoji:'🍵',img:'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400',badge:'',featured:false},
+  {id:163,name:'Susam',cat:'temel-gida',price:34.90,unit:'250g',emoji:'🌿',img:'https://images.unsplash.com/photo-1506368249639-73a05d6f6488?w=400',badge:'',featured:false},
+  {id:164,name:'Ayran Büyük',cat:'sut-sarkuteri',price:44.90,unit:'2L',emoji:'🥛',img:'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400',badge:'BÜYÜK BOY',featured:false},
+  {id:165,name:'Lor Peyniri',cat:'sut-sarkuteri',price:69.90,unit:'500g',emoji:'🧀',img:'https://images.unsplash.com/photo-1631435342738-9dfb1de1c66c?w=400',badge:'TAZE',featured:false},
+  {id:166,name:'Sucuk Dilimli',cat:'sut-sarkuteri',price:79.90,unit:'200g',emoji:'🌭',img:'https://images.unsplash.com/photo-1562967915-6ba607ff7d05?w=400',badge:'',featured:false},
+  {id:167,name:'Çökelek Taze',cat:'sut-sarkuteri',price:59.90,unit:'500g',emoji:'🫙',img:'https://images.unsplash.com/photo-1603569283847-aa295f0d4caf?w=400',badge:'TAZE',featured:false},
+  {id:168,name:'Fındık Kavrulmuş',cat:'atistirmalik',price:129.90,unit:'250g',emoji:'🌰',img:'https://images.unsplash.com/photo-1533738363-b7f9aef128ce?w=400',badge:'DOĞAL',featured:true},
+  {id:169,name:'Sütlü Çikolata',cat:'atistirmalik',price:49.90,unit:'100g',emoji:'🍫',img:'https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=400',badge:'',featured:false},
+  {id:170,name:'Meyveli Kek Dilimi',cat:'atistirmalik',price:29.90,unit:'4\'lü paket',emoji:'🍰',img:'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400',badge:'',featured:false},
+  {id:171,name:'Badem Çiğ',cat:'atistirmalik',price:79.90,unit:'100g',emoji:'🥜',img:'https://images.unsplash.com/photo-1547414368-ac947d00b91d?w=400',badge:'SAĞLIKLI',featured:false},
+  {id:172,name:'WC Temizleyici',cat:'temizlik',price:44.90,unit:'750ml',emoji:'🚿',img:'https://images.unsplash.com/photo-1607344645866-009c320b63e0?w=400',badge:'',featured:false},
+  {id:173,name:'Çamaşır Suyu Klorlu',cat:'temizlik',price:49.90,unit:'3L',emoji:'🧴',img:'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=400',badge:'EKONOMİK',featured:false},
+  {id:174,name:'Bulaşık Süngeri',cat:'temizlik',price:24.90,unit:'5\'li paket',emoji:'🧽',img:'https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?w=400',badge:'',featured:false},
+  {id:175,name:'Islak Mendil Limonlu',cat:'temizlik',price:34.90,unit:'72\'li paket',emoji:'🧻',img:'https://images.unsplash.com/photo-1584515933487-779824d29309?w=400',badge:'',featured:false},
+  {id:176,name:'Taze Portakal Suyu',cat:'icecek',price:49.90,unit:'1L',emoji:'🍊',img:'https://images.unsplash.com/photo-1504509546545-e000b4a62425?w=400',badge:'TAZE',featured:true},
+  {id:177,name:'Nescafé Klasik',cat:'icecek',price:149.90,unit:'100g',emoji:'☕',img:'https://images.unsplash.com/photo-1494314671902-399b18174975?w=400',badge:'-%16',featured:false},
+  {id:178,name:'Portakal Limonata',cat:'icecek',price:34.90,unit:'1L',emoji:'🍋',img:'https://images.unsplash.com/photo-1621263764928-df1444c5e859?w=400',badge:'',featured:false},
+  {id:179,name:'Soda Naneli',cat:'icecek',price:34.90,unit:'6x200ml',emoji:'🫧',img:'https://images.unsplash.com/photo-1608885898957-a599fb1698d6?w=400',badge:'',featured:false},
+  {id:180,name:'Dana Bonfile',cat:'kasap',price:349.90,unit:'500g',emoji:'🥩',img:'https://images.unsplash.com/photo-1558030006-450675393462?w=400',badge:'PREMİUM',featured:true},
+  {id:181,name:'Piliç Kanat',cat:'kasap',price:99.90,unit:'1kg',emoji:'🍗',img:'https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=400',badge:'TAZE',featured:false},
+  {id:182,name:'Kuzu Pirzola',cat:'kasap',price:299.90,unit:'500g',emoji:'🥩',img:'https://images.unsplash.com/photo-1544025162-d76538b2a681?w=400',badge:'SEÇİM',featured:false},
+  {id:183,name:'Fındık Kreması',cat:'kahvaltilik',price:149.90,unit:'400g',emoji:'🍫',img:'https://images.unsplash.com/photo-1567206563114-c179906b52b8?w=400',badge:'ÇOK SATAN',featured:true},
+  {id:184,name:'Çay Poşeti',cat:'kahvaltilik',price:79.90,unit:'40\'lı',emoji:'🍵',img:'https://images.unsplash.com/photo-1564890369478-c89ca3d9cde8?w=400',badge:'',featured:false},
+  {id:185,name:'Tereyağlı Bisküvi',cat:'kahvaltilik',price:39.90,unit:'200g',emoji:'🍪',img:'https://images.unsplash.com/photo-1603532648955-039310d9ed75?w=400',badge:'',featured:false},
+];
+const DEFAULT_PROMOS={
+  'AYDIN5':{pct:5,gift:null,text:'%5 İNDİRİM UYGULANDI!'},
+  'AYDIN10':{pct:10,gift:null,text:'%10 İNDİRİM UYGULANDI!'},
+  'EKMEK':{pct:0,gift:'Sıcak Somun Ekmek (Hediye)',text:'HEDİYE EKMEK UYGULANDI!'},
+  'HEDIYE':{pct:0,gift:'Ülker Çikolatalı Gofret (Hediye)',text:'HEDİYE ÇİKOLATA UYGULANDI!'},
+  'CIKO':{pct:0,gift:'Ülker Çikolatalı Gofret (Hediye)',text:'HEDİYE ÇİKOLATA UYGULANDI!'},
+  'BEDAVA':{pct:0,gift:'Ücretsiz Adrese Teslimat',text:'ÜCRETSİZ KARGO UYGULANDI!'},
+};
+const DEFAULT_SETTINGS={
+  threshold:1000,waNumber:'905444789461',
+  announcements:'🚀 1000₺ üzeri siparişlerde ÜCRETSİZ TESLİMAT!\n🥬 Taze meyve sebze her gün!\n🎁 AYDIN10 kodu ile %10 indirim!',
+  branch1Name:'Geyras (Merkez) Şube',branch1Addr:'Geyras Mah. Aydın Cad. No:1',
+  branch2Name:'Efeler Şube',branch2Addr:'Efeler Mah. Gros Cad. No:5',
+  // adminPass:'aydin2026' -- DEVRE DIŞI: Supabase Auth kullanılıyor (Sprint 3B)
+};
+
+/* ── STATE ───────────────────────────────────────────────────────────── */
+let products=[],orders=[],promos={},settings={},campaigns=[],stock={},invoices=[],categoriesList=[];
+let invLineCounter=0;
+
+async function fetchDb(coll, def) {
+  try {
+    const r = await fetch('/api/db?coll='+coll);
+    if(r.ok) { const d = await r.json(); if(d) return d; }
+  } catch(e) {}
+  return def;
+}
+async function saveDb(coll, data) {
+  try {
+    await fetch('/api/db?coll='+coll, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+  } catch(e) {}
+}
+async function initBackendData() {
+  const _lsProds = JSON.parse(localStorage.getItem('ag_products') || 'null');
+  products = await fetchDb('products', null) || _lsProds || JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+  categoriesList = await fetchDb('categories', []);
+  orders = await fetchDb('orders', []);
+  promos = await fetchDb('promos', null) || JSON.parse(JSON.stringify(DEFAULT_PROMOS));
+  settings = await fetchDb('settings', null) || JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+  campaigns = await fetchDb('campaigns', []);
+  stock = await fetchDb('stock', {});
+  invoices = await fetchDb('invoices', []);
+  console.log(
+    '[AydınGros] Veri yüklendi —',
+    `products:${products.length}`,
+    `categories:${categoriesList.length}`,
+    `orders:${orders.length}`,
+    `promos:${Object.keys(promos).length}`,
+    `campaigns:${campaigns.length}`,
+    `stock:${Object.keys(stock).length}`,
+    `invoices:${invoices.length}`
+  );
+}
+
+function loadData(){
+  products.forEach(p=>{ if(!stock[p.id]) stock[p.id]={qty:50,min:5}; });
+}
+
+const saveProducts=()=>{ saveDb('products', products); localStorage.setItem('ag_products',JSON.stringify(products)); };
+const saveOrders=()=>{ saveDb('orders', orders); localStorage.setItem('ag_orders',JSON.stringify(orders)); };
+const savePromos=()=>{ saveDb('promos', promos); localStorage.setItem('ag_promos',JSON.stringify(promos)); };
+const saveCampaigns=()=>{ saveDb('campaigns', campaigns); localStorage.setItem('ag_campaigns',JSON.stringify(campaigns)); };
+const saveStock=()=>{ saveDb('stock', stock); localStorage.setItem('ag_stock',JSON.stringify(stock)); };
+const saveInvoiceData=()=>{ saveDb('invoices', invoices); localStorage.setItem('ag_invoices',JSON.stringify(invoices)); };
+
+function persistSettings(){
+  saveDb('settings', settings);
+  localStorage.setItem('ag_settings',JSON.stringify(settings));
+}
+
+/* ── UTILS ──────────────────────────────────────────────────────────── */
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  clearTimeout(t._tid);
+  t._tid=setTimeout(()=>t.classList.remove('show'),3000);
+}
+function esc(s){const d=document.createElement('div');d.textContent=String(s??'');return d.innerHTML;}
+function fmtDate(ts){if(!ts)return'-';const d=new Date(ts);return d.toLocaleDateString('tr-TR')+' '+d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});}
+function fmtPrice(n){return(parseFloat(n)||0).toFixed(2).replace('.',',')+' ₺';}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function catLabel(c){return({'manav':'🥦 Manav','kasap':'🥩 Kasap','temel-gida':'🌾 Temel Gıda','sut-sarkuteri':'🧀 Süt & Şarküteri','atistirmalik':'🍿 Atıştırmalık','temizlik':'🧹 Temizlik','icecek':'🧃 İçecek','kozmetik':'💄 Kozmetik','anne-bebek':'👶 Anne & Bebek','ev-gerecleri':'🏠 Ev Gereçleri'})[c]||c;}
+function getStockStatus(p){const s=stock[p.id]||{qty:50,min:5};if(s.qty<=0)return'out';if(s.qty<=s.min)return'low';return'ok';}
+function stockBadge(p){return({'out':'<span class="badge badge-red">🔴 Tükendi</span>','low':'<span class="badge badge-yellow">🟡 Kritik</span>','ok':'<span class="badge badge-green">🟢 Yeterli</span>'})[getStockStatus(p)];}
+function isActiveCampaign(c){
+  if(!c.active)return false;
+  const now=new Date();
+  if(c.start&&new Date(c.start)>now)return false;
+  if(c.end&&new Date(c.end)<now)return false;
+  return true;
+}
+
+/* ── AUTH (Supabase) ─────────────────────────────────────────────────── */
+let _sbClient = null;
+
+const AUTH_ERR_MAP = {
+  'Invalid login credentials': 'E-posta veya şifre hatalı.',
+  'Email not confirmed': 'E-posta adresi henüz onaylanmamış.',
+  'User not found': 'Bu e-posta ile kayıtlı kullanıcı bulunamadı.',
+  'Too many requests': 'Çok fazla deneme yapıldı. Lütfen bekleyin.',
+};
+
+function authErrMsg(msg) {
+  if (!msg) return 'Giriş başarısız. Lütfen tekrar deneyin.';
+  for (const [key, tr] of Object.entries(AUTH_ERR_MAP)) {
+    if (msg.includes(key)) return tr;
+  }
+  return 'Giriş başarısız: ' + msg;
+}
+
+function showLoginErr(msg) {
+  const el = document.getElementById('loginErr');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function hideLoginErr() {
+  const el = document.getElementById('loginErr');
+  el.textContent = '';
+  el.style.display = 'none';
+}
+
+function showApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appWrap').style.display = 'block';
+  checkBackendStatus();
+}
+
+function showLogin() {
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('appWrap').style.display = 'none';
+  hideLoginErr();
+  document.getElementById('loginPass').value = '';
+}
+
+async function getSbClient() {
+  if (_sbClient) return _sbClient;
+  try {
+    const r = await fetch('/api/config');
+    if (!r.ok) return null;
+    const { url, anonKey } = await r.json();
+    if (!url || !anonKey) return null;
+    _sbClient = window.supabase.createClient(url, anonKey, {
+      auth: { persistSession: true, autoRefreshToken: true },
+    });
+    return _sbClient;
+  } catch (_) {
+    return null;
+  }
+}
+
+const ALLOWED_ROLES = ['admin', 'manager'];
+
+function extractUserMeta(session) {
+  if (!session) return null;
+  const meta = session.user?.user_metadata || {};
+  const appMeta = session.user?.app_metadata || {};
+  return {
+    email: session.user?.email || '',
+    role: meta.role || appMeta.role || 'viewer',
+    tenant_id: meta.tenant_id || appMeta.tenant_id || '',
+    branch_id: meta.branch_id || appMeta.branch_id || '',
+    register_id: meta.register_id || appMeta.register_id || '',
+  };
+}
+
+async function doLogin() {
+  const email = document.getElementById('loginUser').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  hideLoginErr();
+
+  if (!email || !pass) {
+    showLoginErr('E-posta ve şifre boş olamaz.');
+    return;
+  }
+
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true;
+  btn.textContent = 'Giriş yapılıyor…';
+
+  try {
+    const sb = await getSbClient();
+
+    // Supabase yapılandırılmamışsa → yetkisiz erişim engellenir
+    if (!sb) {
+      showLoginErr('Kimlik doğrulama servisi şu anda kullanılamıyor.');
+      return;
+    }
+
+    const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+    if (error) {
+      showLoginErr(authErrMsg(error.message));
+      return;
+    }
+
+    const userMeta = extractUserMeta(data.session);
+    if (!ALLOWED_ROLES.includes(userMeta.role)) {
+      await sb.auth.signOut();
+      showLoginErr('Bu hesabın yönetim paneline erişim yetkisi yok. (Rol: ' + userMeta.role + ')');
+      return;
+    }
+
+    // Oturum açıldı
+    showApp();
+    await initBackendData();
+    try { loadData(); } catch(e) {}
+    try { renderDash(); } catch(e) {}
+    startOrderPolling();
+  } catch (err) {
+    showLoginErr('Beklenmeyen hata: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Giriş Yap';
+  }
+}
+
+async function doLogout() {
+  try {
+    const sb = await getSbClient();
+    if (sb) await sb.auth.signOut();
+  } catch (_) {}
+  showLogin();
+}
+
+document.getElementById('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+document.getElementById('loginUser').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+/* ── BACKEND DURUM TESTİ ─────────────────────────────────────────────── */
+async function checkBackendStatus() {
+  const el = document.getElementById('backendStatus');
+  if (!el) return;
+  try {
+    const r = await fetch('/api/db?coll=settings');
+    const backend = r.headers.get('X-Backend') || 'unknown';
+    const isSupabase = backend === 'supabase';
+    console.log('[AydınGros] Backend:', backend);
+    el.innerHTML = isSupabase
+      ? '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;background:var(--green-light);color:var(--green)">⚡ Supabase</span>'
+      : '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:12px;background:var(--gray100);color:var(--gray500)">⚠ Bağlantı yok</span>';
+    el.style.display = 'block';
+  } catch (_) {
+    el.innerHTML = '<span style="font-size:11px;color:var(--gray400)">⚠ bağlantı hatası</span>';
+    el.style.display = 'block';
+  }
+}
+
+// Sprint 3C'de Supabase'den yönetilecek; şimdilik devre dışı
+function changePass() {
+  toast('Şifre değiştirme artık Supabase üzerinden yönetilmektedir.');
+}
+
+/* ── NAVIGATION ─────────────────────────────────────────────────────── */
+const PAGE_RENDERERS={dash:renderDash,products:renderProducts,orders:renderOrders,campaigns:renderCampaigns,invoices:renderInvoices,stock:renderStock,coupons:renderCoupons,settings:renderSettingsForm};
+const PAGE_INDICES={dash:0,products:1,orders:2,campaigns:3,invoices:4,stock:5,coupons:6,settings:7};
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item')[PAGE_INDICES[id]]?.classList.add('active');
+  PAGE_RENDERERS[id]?.();
+  closeSidebar();
+}
+function toggleSidebar(){
+  const s=document.getElementById('sidebar');
+  const o=document.getElementById('sidebarOverlay');
+  const h=document.getElementById('hamburgerBtn');
+  const isOpen=s.classList.contains('open');
+  if(isOpen){closeSidebar();}else{s.classList.add('open');o.classList.add('open');h.classList.add('open');}
+}
+function closeSidebar(){
+  document.getElementById('sidebar')?.classList.remove('open');
+  document.getElementById('sidebarOverlay')?.classList.remove('open');
+  document.getElementById('hamburgerBtn')?.classList.remove('open');
+}
+
+/* ── DASHBOARD ──────────────────────────────────────────────────────── */
+function renderDash(){
+  checkBackendStatus();
+  loadData();
+  processOrderStock();
+  updateSidebarStockBadge();
+  renderCompSummaryBar();
+  const revenue=orders.reduce((s,o)=>s+(o.total||0),0);
+  const criticalStock=products.filter(p=>getStockStatus(p)!=='ok').length;
+  const activeCamps=campaigns.filter(isActiveCampaign).length;
+  document.getElementById('dashStats').innerHTML=`
+    <div class="stat-card"><div class="stat-icon orange">🛒</div><div class="stat-val">${orders.length}</div><div class="stat-label">Toplam Sipariş</div></div>
+    <div class="stat-card"><div class="stat-icon green">💰</div><div class="stat-val">${fmtPrice(revenue)}</div><div class="stat-label">Toplam Ciro</div></div>
+    <div class="stat-card"><div class="stat-icon blue">📦</div><div class="stat-val">${products.length}</div><div class="stat-label">Ürün Sayısı</div></div>
+    <div class="stat-card"><div class="stat-icon blue">🗂️</div><div class="stat-val">${categoriesList.length || '—'}</div><div class="stat-label">Kategori</div></div>
+    <div class="stat-card"><div class="stat-icon purple">📅</div><div class="stat-val">${activeCamps}</div><div class="stat-label">Aktif Kampanya</div></div>
+    <div class="stat-card"><div class="stat-icon ${criticalStock>0?'red':'green'}">${criticalStock>0?'⚠️':'✅'}</div><div class="stat-val">${criticalStock}</div><div class="stat-label">Kritik Stok</div></div>
+    <div class="stat-card"><div class="stat-icon yellow">🎟️</div><div class="stat-val">${Object.keys(promos).length}</div><div class="stat-label">Aktif Kupon</div></div>
+  `;
+  const outProds=products.filter(p=>getStockStatus(p)==='out');
+  const lowProds=products.filter(p=>getStockStatus(p)==='low');
+  let alerts='';
+  if(outProds.length) alerts+=`<div class="alert alert-danger">🔴 ${outProds.length} ürün tükendi: ${outProds.slice(0,5).map(p=>esc(p.name)).join(', ')}${outProds.length>5?'...':''}</div>`;
+  if(lowProds.length) alerts+=`<div class="alert alert-warn">🟡 ${lowProds.length} ürün kritik stokta: ${lowProds.slice(0,5).map(p=>esc(p.name)).join(', ')}${lowProds.length>5?'...':''}</div>`;
+  const expCamps=campaigns.filter(c=>c.end&&new Date(c.end)<new Date());
+  if(expCamps.length) alerts+=`<div class="alert alert-info">📅 ${expCamps.length} kampanya süresi doldu.</div>`;
+  document.getElementById('dashAlerts').innerHTML=alerts;
+
+  const recent=[...orders].reverse().slice(0,5);
+  const sLabel=['Alındı','Hazırlanıyor','Yolda','Teslim Edildi'];
+  const sCls=['badge-yellow','badge-orange','badge-blue','badge-green'];
+  document.getElementById('dashOrders').innerHTML=recent.length?
+    `<div style="overflow-x:auto"><table><tbody>${recent.map(o=>`<tr>
+      <td style="font-size:12px;color:var(--gray400)">${fmtDate(o.ts)}</td>
+      <td style="font-weight:600;font-size:13px">${esc(o.name||'Misafir')}</td>
+      <td style="font-weight:700;color:var(--orange)">${fmtPrice(o.total)}</td>
+      <td><span class="badge ${sCls[o.status||0]}">${sLabel[o.status||0]}</span></td>
+    </tr>`).join('')}</tbody></table></div>`:
+    '<p style="color:var(--gray400);font-size:13px;text-align:center;padding:20px">Henüz sipariş yok</p>';
+
+  const salesMap={};
+  orders.forEach(o=>(o.items||[]).forEach(i=>{salesMap[i.name]=(salesMap[i.name]||0)+i.quantity;}));
+  const top=Object.entries(salesMap).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  document.getElementById('dashBestSellers').innerHTML=top.length?
+    top.map(([name,qty],i)=>`<div class="bestseller-row"><div class="bs-rank">${i+1}</div><div style="flex:1;font-size:13px;font-weight:500">${esc(name)}</div><div style="font-size:12px;color:var(--gray500)">${qty} adet</div></div>`).join(''):
+    '<p style="color:var(--gray400);font-size:13px;text-align:center;padding:20px">Sipariş verisi yok</p>';
+
+  try{renderWeeklyChart();}catch(e){}
+  const crit=[...outProds,...lowProds];
+  document.getElementById('dashStockAlerts').innerHTML=crit.length?
+    `<div style="overflow-x:auto"><table><thead><tr><th>Ürün</th><th>Kategori</th><th>Stok</th><th>Durum</th></tr></thead>
+    <tbody>${crit.map(p=>{const s=stock[p.id]||{qty:0};return`<tr><td>${esc(p.emoji||'')} ${esc(p.name)}</td><td>${catLabel(p.cat)}</td><td style="font-weight:700">${s.qty}</td><td>${stockBadge(p)}</td></tr>`;}).join('')}</tbody></table></div>`:
+    '<p style="color:var(--green);font-size:13px"><strong>✅ Tüm ürünler yeterli stokta.</strong></p>';
+}
+
+/* ── PRODUCTS ───────────────────────────────────────────────────────── */
+function renderProducts(){
+  loadData();
+  const q=(document.getElementById('prodSearch')?.value||'').toLowerCase();
+  const cat=document.getElementById('prodCatFilter')?.value||'';
+  const list=products.filter(p=>(!q||(p.name||'').toLowerCase().includes(q))&&(!cat||p.cat===cat));
+  document.getElementById('prodCount').textContent=`${list.length} ürün`;
+  const tbody=document.getElementById('prodTableBody');
+  if(!list.length){tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--gray400)">Ürün bulunamadı</td></tr>`;return;}
+  tbody.innerHTML=list.map(p=>`<tr>
+    <td><div style="display:flex;align-items:center;gap:10px">
+      ${p.img?`<img src="${esc(p.img)}" style="width:40px;height:40px;object-fit:cover;border-radius:6px" onerror="this.style.display='none'">`:`<div class="prod-thumb">${p.emoji||'📦'}</div>`}
+      <div><div style="font-weight:600;font-size:13px">${esc(p.name)}</div>${p.badge?`<span class="badge badge-orange" style="font-size:10px">${esc(p.badge)}</span>`:''}</div>
+    </div></td>
+    <td class="hide-mob">${catLabel(p.cat)}</td>
+    <td style="font-weight:700;color:var(--orange)">${fmtPrice(p.price)}</td>
+    <td class="hide-mob">${stockBadge(p)} <span style="font-size:12px;color:var(--gray500)">${(stock[p.id]||{qty:0}).qty} ${p.unit||'adet'}</span></td>
+    <td class="hide-mob"><label class="toggle"><input type="checkbox" ${p.featured?'checked':''} onchange="toggleFeatured(${p.id},this.checked)"><span class="toggle-track"></span></label></td>
+    <td><div style="display:flex;gap:4px">
+      <button class="btn btn-ghost btn-xs" onclick="openProductModal(${p.id})">✏️</button>
+      <button class="btn btn-danger btn-xs" onclick="deleteProduct(${p.id})">🗑️</button>
+    </div></td>
+  </tr>`).join('');
+}
+function toggleFeatured(id,val){const p=products.find(x=>x.id===id);if(p){p.featured=val;saveProducts();}}
+function openProductModal(id){
+  const p=id?products.find(x=>x.id===id):null;
+  document.getElementById('productModalTitle').textContent=p?'Ürün Düzenle':'Ürün Ekle';
+  document.getElementById('editProdId').value=id||'';
+  ['prodName','prodUnit','prodEmoji','prodImg','prodBadge'].forEach(f=>document.getElementById(f).value=p?.[f.replace('prod','').toLowerCase()]||'');
+  document.getElementById('prodName').value=p?.name||'';
+  document.getElementById('prodCat').value=p?.cat||'manav';
+  document.getElementById('prodPrice').value=p?.price||'';
+  document.getElementById('prodUnit').value=p?.unit||'';
+  document.getElementById('prodEmoji').value=p?.emoji||'';
+  document.getElementById('prodImg').value=p?.img||'';
+  document.getElementById('prodBadge').value=p?.badge||'';
+  document.getElementById('prodFeatured').checked=p?.featured||false;
+  openModal('productModal');
+}
+function saveProduct(){
+  const id=parseInt(document.getElementById('editProdId').value)||null;
+  const name=document.getElementById('prodName').value.trim();
+  if(!name){toast('Ürün adı gerekli');return;}
+  const price=parseFloat(document.getElementById('prodPrice').value);
+  if(!price){toast('Fiyat gerekli');return;}
+  const obj={id:id||(Math.max(0,...products.map(p=>p.id))+1),name,cat:document.getElementById('prodCat').value,price,unit:document.getElementById('prodUnit').value.trim(),emoji:document.getElementById('prodEmoji').value.trim(),img:document.getElementById('prodImg').value.trim(),badge:document.getElementById('prodBadge').value.trim(),featured:document.getElementById('prodFeatured').checked};
+  if(id){const idx=products.findIndex(p=>p.id===id);const existing=products[idx];products[idx]={...existing,...obj};}
+  else{products.push(obj);if(!stock[obj.id])stock[obj.id]={qty:0,min:5};saveStock();}
+  saveProducts();closeModal('productModal');renderProducts();toast(id?'Ürün güncellendi ✓':'Ürün eklendi ✓');
+}
+function deleteProduct(id){if(!confirm('Bu ürünü silmek istiyor musunuz?'))return;products=products.filter(p=>p.id!==id);saveProducts();renderProducts();toast('Ürün silindi');}
+function resetProducts(){if(!confirm('Tüm ürünler varsayılana dönecek. Emin misiniz?'))return;products=JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));saveProducts();renderProducts();toast('Ürünler sıfırlandı ✓');}
+
+/* ── ORDERS ─────────────────────────────────────────────────────────── */
+function renderOrders(){
+  loadData();
+  const q=(document.getElementById('orderSearch')?.value||'').toLowerCase();
+  const sf=document.getElementById('orderStatusFilter')?.value;
+  const df=document.getElementById('orderDateFilter')?.value||'';
+  const now=new Date(); const tod=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  const list=[...orders].reverse().filter(o=>{
+    if(q&&!(o.name||'').toLowerCase().includes(q)&&!(o.addr||'').toLowerCase().includes(q)&&!(o.no||'').toLowerCase().includes(q))return false;
+    if(sf!==''&&sf!==undefined&&String(o.status||0)!==sf)return false;
+    if(df==='today'&&new Date(o.ts)<tod)return false;
+    if(df==='week'&&new Date(o.ts)<new Date(tod-6*86400000))return false;
+    if(df==='month'&&new Date(o.ts)<new Date(now.getFullYear(),now.getMonth(),1))return false;
+    return true;
+  });
+  document.getElementById('orderCount').textContent=`${orders.length} sipariş`;
+  const sLabel=['Alındı','Hazırlanıyor','Yolda','Teslim Edildi'];
+  const sCls=['badge-yellow','badge-orange','badge-blue','badge-green'];
+  const tbody=document.getElementById('orderTableBody');
+  if(!list.length){tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--gray400)">Sipariş bulunamadı</td></tr>`;return;}
+  tbody.innerHTML=list.map((o)=>{
+    const realIdx=orders.indexOf(o);
+    return`<tr>
+    <td><div style="font-size:12px;color:var(--gray500)">${fmtDate(o.ts)}</div>${o.no?`<div style="font-size:10px;color:var(--orange);font-weight:600">${esc(o.no)}</div>`:''}</td>
+    <td style="font-weight:600">${esc(o.name||'Misafir')}${o.phone?`<div style="font-size:11px;color:var(--gray400);font-weight:400">${esc(o.phone)}</div>`:''}</td>
+    <td class="hide-mob" style="font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(o.addr||'-')}</td>
+    <td style="font-weight:700;color:var(--orange)">${fmtPrice(o.total)}</td>
+    <td><select class="badge ${sCls[o.status||0]}" onchange="changeOrderStatus(${realIdx},this.value)" style="border:none;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;outline:none">
+      ${sLabel.map((l,i)=>`<option value="${i}"${(o.status||0)===i?' selected':''}>${l}</option>`).join('')}
+    </select></td>
+    <td><div style="display:flex;gap:4px">
+      <button class="btn btn-ghost btn-xs" onclick="viewOrder(${realIdx})">👁️</button>
+      <a href="https://wa.me/${settings.waNumber||'905444789461'}?text=${encodeURIComponent('Sayın müşterimiz, siparişinizin durumu güncellendi: '+sLabel[o.status||0])}" target="_blank" class="btn btn-success btn-xs">WA</a>
+      <button class="btn btn-danger btn-xs" onclick="deleteOrder(${realIdx})">🗑️</button>
+    </div></td>
+  </tr>`;}).join('');
+}
+function changeOrderStatus(idx,val){
+  if(orders[idx]){
+    orders[idx].status=parseInt(val);
+    if (orders[idx].status > 0 && !orders[idx].stockDeducted) {
+      if (orders[idx].items) {
+        orders[idx].items.forEach(i => {
+          if (i.id && stock[i.id]) {
+            stock[i.id].qty = Math.max(0, stock[i.id].qty - (i.quantity || i.qty || 1));
+          }
+        });
+      }
+      orders[idx].stockDeducted = true;
+      saveStock();
+    } else if (orders[idx].status === 0 && orders[idx].stockDeducted) {
+      if (orders[idx].items) {
+        orders[idx].items.forEach(i => {
+          if (i.id && stock[i.id]) {
+            stock[i.id].qty += (i.quantity || i.qty || 1);
+          }
+        });
+      }
+      orders[idx].stockDeducted = false;
+      saveStock();
+    }
+    saveOrders();
+    toast('Durum güncellendi ✓');
+  }
+}
+function viewOrder(idx){
+  const o=orders[idx];if(!o)return;
+  const sLabel=['Alındı','Hazırlanıyor','Yolda','Teslim Edildi'];
+  document.getElementById('orderModalBody').innerHTML=`
+    <div style="display:grid;gap:12px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div><p style="font-size:11px;color:var(--gray400)">MÜŞTERİ</p><p style="font-weight:600">${esc(o.name||'Misafir')}</p></div>
+        <div><p style="font-size:11px;color:var(--gray400)">DURUM</p><p><span class="badge badge-blue">${sLabel[o.status||0]}</span></p></div>
+        <div><p style="font-size:11px;color:var(--gray400)">TARİH</p><p style="font-size:13px">${fmtDate(o.ts)}</p></div>
+        <div><p style="font-size:11px;color:var(--gray400)">TUTAR</p><p style="font-weight:700;color:var(--orange);font-size:16px">${fmtPrice(o.total)}</p></div>
+      </div>
+      <div><p style="font-size:11px;color:var(--gray400)">TESLİMAT ADRESİ</p><p style="font-size:13px">${esc(o.addr||'-')}</p></div>
+      ${o.note?`<div><p style="font-size:11px;color:var(--gray400)">NOT</p><p style="font-size:13px">${esc(o.note)}</p></div>`:''}
+      ${o.mapLink?`<div><p style="font-size:11px;color:var(--gray400)">KONUM</p><a href="${esc(o.mapLink)}" target="_blank" class="btn btn-ghost btn-sm" style="margin-top:4px">🗺️ Haritada Gör</a></div>`:''}
+      <div><p style="font-size:11px;color:var(--gray400);margin-bottom:8px">ÜRÜNLER</p>
+        <div class="table-wrap" style="border:none"><table><thead><tr><th>Ürün</th><th>Adet</th><th>Fiyat</th></tr></thead>
+        <tbody>${(o.items||[]).map(item=>{const q=item.quantity||item.qty||1;return`<tr><td>${esc(item.name)}</td><td>${q}</td><td>${fmtPrice(item.price*q)}</td></tr>`;}).join('')}</tbody></table></div>
+      </div>
+    </div>`;
+  openModal('orderModal');
+}
+function deleteOrder(idx){
+  if(!confirm('Siparişi sil?'))return;
+  if(orders[idx] && orders[idx].stockDeducted && orders[idx].items){
+    orders[idx].items.forEach(i => {
+      if (i.id && stock[i.id]) {
+        stock[i.id].qty += (i.quantity || i.qty || 1);
+      }
+    });
+    saveStock();
+  }
+  orders.splice(idx,1);
+  saveOrders();
+  renderOrders();
+  toast('Sipariş silindi');
+}
+function clearOrders(){if(!confirm('Tüm siparişler silinecek. Emin misiniz?'))return;orders=[];saveOrders();renderOrders();toast('Tüm siparişler silindi');}
+
+/* ── CAMPAIGNS ──────────────────────────────────────────────────────── */
+function renderCampaigns(){
+  loadData();
+  const tbody=document.getElementById('campTableBody');
+  if(!campaigns.length){tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--gray400)">Kampanya bulunamadı. + Kampanya Ekle butonuna tıklayın.</td></tr>`;return;}
+  const tLabel={pct:'% İndirim',fixed:'₺ İndirim',gift:'Hediye',free_delivery:'Ücretsiz Teslimat'};
+  tbody.innerHTML=campaigns.map((c,i)=>{
+    const active=isActiveCampaign(c);
+    const discText=c.type==='pct'?`%${c.discount}`:c.type==='fixed'?`${c.discount}₺`:c.type==='gift'?esc(c.giftItem||'-'):'Ücretsiz';
+    const targetText=c.target==='cat'?catLabel(c.targetCat):c.target==='cart'?'Min '+fmtPrice(c.cartMin):c.target==='prod'?esc(c.targetProd||'-'):'Tüm Ürünler';
+    return`<tr>
+      <td style="font-weight:600">${esc(c.name)}</td>
+      <td><span class="badge badge-blue">${tLabel[c.type]||c.type}</span></td>
+      <td>${discText}</td>
+      <td style="font-size:12px">${targetText}</td>
+      <td style="font-size:12px;color:var(--gray500)">${c.start||'—'}</td>
+      <td style="font-size:12px;color:var(--gray500)">${c.end||'—'}</td>
+      <td>
+        <label class="toggle"><input type="checkbox" ${c.active?'checked':''} onchange="toggleCampaign(${i},this.checked)"><span class="toggle-track"></span></label>
+        <span style="font-size:11px;color:var(--gray400);margin-left:4px">${active?'Aktif':'Pasif'}</span>
+      </td>
+      <td><div style="display:flex;gap:4px">
+        <button class="btn btn-ghost btn-xs" onclick="openCampaignModal(${i})">✏️</button>
+        <button class="btn btn-danger btn-xs" onclick="deleteCampaign(${i})">🗑️</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+function toggleCampaign(i,val){campaigns[i].active=val;saveCampaigns();updateAnnouncementsFromCampaigns();toast(val?'Kampanya aktif edildi':'Kampanya pasife alındı');}
+function updateAnnouncementsFromCampaigns(){
+  const activDescs=campaigns.filter(isActiveCampaign).filter(c=>c.desc).map(c=>c.desc);
+  if(!activDescs.length)return;
+  const base=(settings.announcements||'').split('\n').filter(l=>l&&!campaigns.some(c=>c.desc&&l===c.desc));
+  settings.announcements=[...base,...activDescs].join('\n');
+  persistSettings();
+}
+function openCampaignModal(idx){
+  const c=idx!==undefined?campaigns[idx]:null;
+  document.getElementById('campModalTitle').textContent=c?'Kampanya Düzenle':'Kampanya Ekle';
+  document.getElementById('editCampId').value=idx!==undefined?idx:'';
+  document.getElementById('campName').value=c?.name||'';
+  document.getElementById('campType').value=c?.type||'pct';
+  document.getElementById('campDiscount').value=c?.discount||'';
+  document.getElementById('campTarget').value=c?.target||'all';
+  document.getElementById('campTargetCat').value=c?.targetCat||'manav';
+  document.getElementById('campCartMin').value=c?.cartMin||'';
+  document.getElementById('campTargetProd').value=c?.targetProd||'';
+  document.getElementById('campGiftItem').value=c?.giftItem||'';
+  document.getElementById('campStart').value=c?.start||'';
+  document.getElementById('campEnd').value=c?.end||'';
+  document.getElementById('campDesc').value=c?.desc||'';
+  updateCampTypeUI();updateCampTargetUI();
+  openModal('campaignModal');
+}
+function updateCampTypeUI(){
+  const t=document.getElementById('campType').value;
+  document.getElementById('campDiscountGroup').style.display=(t==='free_delivery'||t==='gift')?'none':'block';
+  document.getElementById('campGiftGroup').style.display=t==='gift'?'block':'none';
+}
+function updateCampTargetUI(){
+  const t=document.getElementById('campTarget').value;
+  document.getElementById('campTargetCat').style.display=t==='cat'?'block':'none';
+  document.getElementById('campCartMin').style.display=t==='cart'?'block':'none';
+  document.getElementById('campTargetProd').style.display=t==='prod'?'block':'none';
+}
+document.getElementById('campTarget').addEventListener('change',updateCampTargetUI);
+function saveCampaign(){
+  const rawIdx=document.getElementById('editCampId').value;
+  const idx=rawIdx!==''?parseInt(rawIdx):null;
+  const name=document.getElementById('campName').value.trim();
+  if(!name){toast('Kampanya adı gerekli');return;}
+  const obj={name,active:idx!==null?campaigns[idx].active:true,type:document.getElementById('campType').value,discount:parseFloat(document.getElementById('campDiscount').value)||0,target:document.getElementById('campTarget').value,targetCat:document.getElementById('campTargetCat').value,cartMin:parseFloat(document.getElementById('campCartMin').value)||0,targetProd:document.getElementById('campTargetProd').value.trim(),giftItem:document.getElementById('campGiftItem').value.trim(),start:document.getElementById('campStart').value,end:document.getElementById('campEnd').value,desc:document.getElementById('campDesc').value.trim()};
+  if(idx!==null)campaigns[idx]=obj;else campaigns.push(obj);
+  saveCampaigns();updateAnnouncementsFromCampaigns();closeModal('campaignModal');renderCampaigns();toast(idx!==null?'Kampanya güncellendi ✓':'Kampanya eklendi ✓');
+}
+function deleteCampaign(i){if(!confirm('Kampanyayı sil?'))return;campaigns.splice(i,1);saveCampaigns();renderCampaigns();toast('Kampanya silindi');}
+
+/* ── INVOICES ───────────────────────────────────────────────────────── */
+function renderInvoices(){
+  loadData();
+  const tbody=document.getElementById('invLines');
+  if(!tbody.children.length){invLineCounter=0;addInvLine();}
+  renderInvHistory();
+}
+function addInvLine(){
+  invLineCounter++;
+  const id=invLineCounter;
+  const opts=products.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
+  const tr=document.createElement('tr');
+  tr.id=`invLine_${id}`;
+  tr.innerHTML=`
+    <td><select id="ilProd_${id}" onchange="onProdSelectChange(${id})">${opts}</select></td>
+    <td><input type="number" id="ilQty_${id}" value="1" min="0.001" step="0.001" style="width:72px;padding:6px;border:1.5px solid var(--gray200);border-radius:4px;font-size:13px;outline:none" oninput="calcInvLine(${id})"></td>
+    <td><input type="number" id="ilCost_${id}" placeholder="0.00" step="0.01" style="width:100px;padding:6px;border:1.5px solid var(--gray200);border-radius:4px;font-size:13px;outline:none" oninput="calcInvLine(${id})"></td>
+    <td><input type="number" id="ilMargin_${id}" value="30" step="0.1" style="width:80px;padding:6px;border:1.5px solid var(--gray200);border-radius:4px;font-size:13px;outline:none" oninput="calcInvLine(${id})"></td>
+    <td><input type="number" id="ilSell_${id}" placeholder="0.00" step="0.01" style="width:100px;padding:6px;border:1.5px solid var(--gray200);border-radius:4px;font-size:13px;font-weight:700;color:var(--orange);outline:none" oninput="calcInvLineReverse(${id})"></td>
+    <td><button onclick="removeInvLine(${id})" style="width:26px;height:26px;border:none;border-radius:4px;background:var(--red-light);color:var(--red);cursor:pointer;font-size:13px">✕</button></td>`;
+  document.getElementById('invLines').appendChild(tr);
+  onProdSelectChange(id);
+}
+function onProdSelectChange(id){
+  const pid=parseInt(document.getElementById(`ilProd_${id}`)?.value);
+  const p=products.find(x=>x.id===pid);
+  if(p){const sell=document.getElementById(`ilSell_${id}`);if(sell)sell.value=p.price.toFixed(2);}
+}
+function calcInvLine(id){
+  const cost=parseFloat(document.getElementById(`ilCost_${id}`)?.value)||0;
+  const margin=parseFloat(document.getElementById(`ilMargin_${id}`)?.value)||0;
+  if(cost>0){const sell=document.getElementById(`ilSell_${id}`);if(sell)sell.value=(cost*(1+margin/100)).toFixed(2);}
+}
+function calcInvLineReverse(id){
+  const sell=parseFloat(document.getElementById(`ilSell_${id}`)?.value)||0;
+  const cost=parseFloat(document.getElementById(`ilCost_${id}`)?.value)||0;
+  if(sell>0&&cost>0){const m=document.getElementById(`ilMargin_${id}`);if(m)m.value=((sell-cost)/cost*100).toFixed(1);}
+}
+function removeInvLine(id){document.getElementById(`invLine_${id}`)?.remove();}
+function saveInvoice(){
+  const lines=[];
+  let totalCost=0;
+  for(let i=1;i<=invLineCounter;i++){
+    const el=document.getElementById(`invLine_${i}`);if(!el)continue;
+    const pid=parseInt(document.getElementById(`ilProd_${i}`)?.value);
+    const qty=parseFloat(document.getElementById(`ilQty_${i}`)?.value)||1;
+    const cost=parseFloat(document.getElementById(`ilCost_${i}`)?.value)||0;
+    const sell=parseFloat(document.getElementById(`ilSell_${i}`)?.value)||0;
+    const margin=parseFloat(document.getElementById(`ilMargin_${i}`)?.value)||0;
+    if(!pid||!sell)continue;
+    lines.push({pid,qty,cost,sell,margin});
+    totalCost+=cost*qty;
+    const pi=products.findIndex(p=>p.id===pid);
+    if(pi>-1)products[pi].price=sell;
+    if(!stock[pid])stock[pid]={qty:0,min:5};
+    stock[pid].qty+=qty;
+  }
+  if(!lines.length){toast('En az bir ürün satırı doldurun');return;}
+  invoices.unshift({ts:Date.now(),note:document.getElementById('invNote').value.trim(),lines,totalCost});
+  saveProducts();saveStock();saveInvoiceData();
+  document.getElementById('invLines').innerHTML='';
+  invLineCounter=0;addInvLine();
+  document.getElementById('invNote').value='';
+  renderInvHistory();
+  toast(`Fatura kaydedildi. ${lines.length} ürün güncellendi ✓`);
+}
+function renderInvHistory(){
+  const tbody=document.getElementById('invHistoryBody');
+  if(!invoices.length){tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--gray400)">Fatura kaydı yok</td></tr>`;return;}
+  tbody.innerHTML=invoices.map((inv,i)=>`<tr>
+    <td style="font-size:12px;color:var(--gray500)">${fmtDate(inv.ts)}</td>
+    <td>${esc(inv.note||'—')}</td>
+    <td>${inv.lines?.length||0} ürün</td>
+    <td style="font-weight:700">${fmtPrice(inv.totalCost)}</td>
+    <td><div style="display:flex;gap:4px">
+      <button class="btn btn-ghost btn-xs" onclick="viewInvoice(${i})">👁️</button>
+      <button class="btn btn-ghost btn-xs" onclick="printInvoice(${i})">🖨️</button>
+      <button class="btn btn-danger btn-xs" onclick="deleteInvoice(${i})">🗑️</button>
+    </div></td>
+  </tr>`).join('');
+}
+function viewInvoice(i){
+  const inv=invoices[i];if(!inv)return;
+  document.getElementById('invoiceDetailBody').innerHTML=`
+    <p style="font-size:12px;color:var(--gray400);margin-bottom:12px">${fmtDate(inv.ts)} — ${esc(inv.note||'Not yok')}</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Ürün</th><th>Miktar</th><th>Alış (₺)</th><th>Marj (%)</th><th>Satış (₺)</th></tr></thead>
+      <tbody>${(inv.lines||[]).map(l=>{const p=products.find(x=>x.id===l.pid);return`<tr>
+        <td>${p?esc(p.name):'(Silindi)'}</td><td>${l.qty}</td><td>${fmtPrice(l.cost)}</td>
+        <td>%${(l.margin||0).toFixed(1)}</td><td style="font-weight:700;color:var(--orange)">${fmtPrice(l.sell)}</td>
+      </tr>`;}).join('')}</tbody>
+      <tfoot><tr><td colspan="4"><strong>Toplam Maliyet</strong></td><td style="font-weight:700">${fmtPrice(inv.totalCost)}</td></tr></tfoot>
+    </table></div>`;
+  openModal('invoiceDetailModal');
+}
+function deleteInvoice(i){if(!confirm('Fatura kaydını sil?'))return;invoices.splice(i,1);saveInvoiceData();renderInvHistory();toast('Fatura silindi');}
+function openGlobalMarginModal(){openModal('globalMarginModal');}
+function applyGlobalMargin(){
+  const pct=parseFloat(document.getElementById('globalMarginPct').value);
+  const scope=document.getElementById('globalMarginScope').value;
+  if(!pct||pct<=0){toast('Geçerli bir marj değeri girin');return;}
+  const costMap={};
+  invoices.forEach(inv=>(inv.lines||[]).forEach(l=>{if(l.cost&&l.cost>0)costMap[l.pid]=l.cost;}));
+  let updated=0;
+  products.forEach(p=>{
+    if(scope!=='all'&&p.cat!==scope)return;
+    const cost=costMap[p.id];
+    if(cost){p.price=parseFloat((cost*(1+pct/100)).toFixed(2));updated++;}
+  });
+  saveProducts();closeModal('globalMarginModal');
+  toast(`${updated} ürün fiyatı güncellendi (%${pct} marj) ✓`);
+}
+
+/* ── ORDER → STOCK DEDUCTION ───────────────────────────────────────── */
+function processOrderStock(){
+  let changed=false;
+  orders.forEach(o=>{
+    if(o.stockDeducted)return;
+    (o.items||[]).forEach(item=>{
+      const p=products.find(x=>x.name===item.name);
+      if(!p)return;
+      if(!stock[p.id])stock[p.id]={qty:50,min:5};
+      stock[p.id].qty=Math.max(0,stock[p.id].qty-(item.quantity||item.qty||1));
+    });
+    o.stockDeducted=true;
+    changed=true;
+  });
+  if(changed){saveStock();saveOrders();}
+}
+
+function updateSidebarStockBadge(){
+  const critical=products.filter(p=>getStockStatus(p)!=='ok').length;
+  const existing=document.getElementById('stockNavBadge');
+  if(existing)existing.remove();
+  if(critical>0){
+    const btn=document.querySelectorAll('.nav-item')[5];
+    if(btn){
+      const badge=document.createElement('span');
+      badge.id='stockNavBadge';
+      badge.textContent=critical;
+      badge.style.cssText='margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center';
+      btn.appendChild(badge);
+    }
+  }
+}
+
+/* ── STOCK ──────────────────────────────────────────────────────────── */
+function renderStock(){
+  loadData();
+  updateSidebarStockBadge();
+  const q=(document.getElementById('stockSearch')?.value||'').toLowerCase();
+  const sf=document.getElementById('stockFilter')?.value||'';
+  const list=products.filter(p=>{
+    if(q&&!(p.name||'').toLowerCase().includes(q))return false;
+    if(sf&&getStockStatus(p)!==sf)return false;
+    return true;
+  });
+  const tbody=document.getElementById('stockTableBody');
+  if(!list.length){tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--gray400)">Ürün bulunamadı</td></tr>`;return;}
+  tbody.innerHTML=list.map(p=>{
+    const s=stock[p.id]||{qty:0,min:5};
+    return`<tr>
+      <td><div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:18px">${p.emoji||'📦'}</span>
+        <div><div style="font-weight:600;font-size:13px">${esc(p.name)}</div><div style="font-size:11px;color:var(--gray400)">${fmtPrice(p.price)} / ${p.unit||'adet'}</div></div>
+      </div></td>
+      <td class="hide-mob">${catLabel(p.cat)}</td>
+      <td><div class="stock-input-wrap">
+        <button class="stock-adj" onclick="adjustStock(${p.id},-1)">−</button>
+        <input class="stock-qty-input" type="number" id="stk_${p.id}" value="${s.qty}" min="0" onchange="onStockChange(${p.id},this.value)">
+        <button class="stock-adj" onclick="adjustStock(${p.id},1)">+</button>
+      </div></td>
+      <td class="hide-mob"><input class="stock-qty-input" type="number" id="stkmin_${p.id}" value="${s.min}" min="0" placeholder="5" onchange="onStockMinChange(${p.id},this.value)"></td>
+      <td id="stkbadge_${p.id}">${stockBadge(p)}</td>
+    </tr>`;
+  }).join('');
+}
+function adjustStock(pid,delta){
+  if(!stock[pid])stock[pid]={qty:0,min:5};
+  const inp=document.getElementById(`stk_${pid}`);
+  const nv=Math.max(0,(parseInt(inp?.value)||0)+delta);
+  stock[pid].qty=nv;
+  if(inp)inp.value=nv;
+  saveStock();
+  const badge=document.getElementById(`stkbadge_${pid}`);
+  if(badge){const p=products.find(x=>x.id===pid);if(p)badge.innerHTML=stockBadge(p);}
+}
+function onStockChange(pid,val){if(!stock[pid])stock[pid]={qty:0,min:5};stock[pid].qty=Math.max(0,parseInt(val)||0);saveStock();}
+function onStockMinChange(pid,val){if(!stock[pid])stock[pid]={qty:0,min:5};stock[pid].min=Math.max(0,parseInt(val)||0);saveStock();}
+function saveAllStock(){
+  products.forEach(p=>{
+    const qi=document.getElementById(`stk_${p.id}`);
+    const mi=document.getElementById(`stkmin_${p.id}`);
+    if(!stock[p.id])stock[p.id]={qty:0,min:5};
+    if(qi)stock[p.id].qty=Math.max(0,parseInt(qi.value)||0);
+    if(mi)stock[p.id].min=Math.max(0,parseInt(mi.value)||0);
+  });
+  saveStock();toast('Stok kaydedildi ✓');
+}
+
+/* ── COUPONS ────────────────────────────────────────────────────────── */
+function renderCoupons(){
+  loadData();
+  const entries=Object.entries(promos);
+  const tbody=document.getElementById('couponTableBody');
+  if(!entries.length){tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--gray400)">Kupon bulunamadı</td></tr>`;return;}
+  tbody.innerHTML=entries.map(([code,v])=>`<tr>
+    <td><span style="font-family:'Outfit',sans-serif;font-weight:700;font-size:14px;background:var(--orange-light);color:var(--orange);padding:3px 10px;border-radius:4px">${esc(code)}</span></td>
+    <td>${v.pct>0?`<span class="badge badge-green">%${v.pct}</span>`:'<span class="badge badge-gray">—</span>'}</td>
+    <td style="font-size:13px">${v.gift?esc(v.gift):'<span style="color:var(--gray400)">—</span>'}</td>
+    <td style="font-size:12px;color:var(--gray600)">${esc(v.text||'')}</td>
+    <td><div style="display:flex;gap:4px">
+      <button class="btn btn-ghost btn-xs" onclick="openCouponModal('${esc(code)}')">✏️</button>
+      <button class="btn btn-danger btn-xs" onclick="deleteCoupon('${esc(code)}')">🗑️</button>
+    </div></td>
+  </tr>`).join('');
+}
+function openCouponModal(code){
+  const v=code?promos[code]:null;
+  document.getElementById('couponModalTitle').textContent=v?'Kupon Düzenle':'Kupon Ekle';
+  document.getElementById('editCouponKey').value=code||'';
+  document.getElementById('couponCode').value=code||'';
+  document.getElementById('couponPct').value=v?.pct||0;
+  document.getElementById('couponGift').value=v?.gift||'';
+  document.getElementById('couponText').value=v?.text||'';
+  openModal('couponModal');
+}
+function saveCoupon(){
+  const oldKey=document.getElementById('editCouponKey').value;
+  const code=document.getElementById('couponCode').value.trim().toUpperCase();
+  if(!code){toast('Kupon kodu gerekli');return;}
+  const obj={pct:parseInt(document.getElementById('couponPct').value)||0,gift:document.getElementById('couponGift').value.trim()||null,text:document.getElementById('couponText').value.trim()||code+' UYGULANDI!'};
+  if(oldKey&&oldKey!==code)delete promos[oldKey];
+  promos[code]=obj;
+  savePromos();closeModal('couponModal');renderCoupons();toast(oldKey?'Kupon güncellendi ✓':'Kupon eklendi ✓');
+}
+function deleteCoupon(code){if(!confirm(`"${code}" kuponunu sil?`))return;delete promos[code];savePromos();renderCoupons();toast('Kupon silindi');}
+
+/* ── SETTINGS ───────────────────────────────────────────────────────── */
+function renderSettingsForm(){
+  loadData();
+  renderCompSummaryBar();
+  document.getElementById('setThreshold').value=settings.threshold||1000;
+  document.getElementById('setWa').value=settings.waNumber||'905444789461';
+  document.getElementById('setAnn').value=settings.announcements||'';
+  document.getElementById('setBranch1').value=settings.branch1Name||'';
+  document.getElementById('setBranch1Addr').value=settings.branch1Addr||'';
+  document.getElementById('setBranch2').value=settings.branch2Name||'';
+  document.getElementById('setBranch2Addr').value=settings.branch2Addr||'';
+}
+function saveSettings(){
+  settings.threshold=parseFloat(document.getElementById('setThreshold').value)||1000;
+  settings.waNumber=document.getElementById('setWa').value.trim()||'905444789461';
+  settings.announcements=document.getElementById('setAnn').value;
+  settings.branch1Name=document.getElementById('setBranch1').value;
+  settings.branch1Addr=document.getElementById('setBranch1Addr').value;
+  settings.branch2Name=document.getElementById('setBranch2').value;
+  settings.branch2Addr=document.getElementById('setBranch2Addr').value;
+  persistSettings();
+  toast('Ayarlar kaydedildi ✓');
+}
+function exportData(){
+  const data={products,orders,promos,settings,campaigns,stock,invoices};
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+  a.download='aydingros-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  toast('Veri dışa aktarıldı ✓');
+}
+function importData(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      if(d.products)localStorage.setItem('ag_products',JSON.stringify(d.products));
+      if(d.orders)localStorage.setItem('ag_orders',JSON.stringify(d.orders));
+      if(d.promos)localStorage.setItem('ag_promos',JSON.stringify(d.promos));
+      if(d.settings)localStorage.setItem('ag_settings',JSON.stringify(d.settings));
+      if(d.campaigns)localStorage.setItem('ag_campaigns',JSON.stringify(d.campaigns));
+      if(d.stock)localStorage.setItem('ag_stock',JSON.stringify(d.stock));
+      if(d.invoices)localStorage.setItem('ag_invoices',JSON.stringify(d.invoices));
+      loadData();toast('Veri başarıyla içe aktarıldı ✓');
+    }catch(err){toast('Geçersiz JSON dosyası');}
+  };
+  reader.readAsText(file);
+  input.value='';
+}
+function nukeData(){
+  if(!confirm('TÜM VERİ SİLİNECEK! Geri alınamaz. Emin misiniz?'))return;
+  if(!confirm('Son kez onaylıyor musunuz?'))return;
+  ['ag_products','ag_orders','ag_promos','ag_settings','ag_campaigns','ag_stock','ag_invoices'].forEach(k=>localStorage.removeItem(k));
+  toast('Tüm veri silindi. Yenileniyor...');
+  setTimeout(()=>location.reload(),2000);
+}
+
+/* ── RAKİP FİYAT ANALİZİ ───────────────────────────────────────────── */
+
+// Erenler ürünleri cache — server'dan yüklenir
+let erenlerData = [];
+
+// Sunucudan Erenler fiyat listesini yükle
+async function loadErenlerData(){
+  try{
+    const resp = await fetch('/api/erenler-products');
+    if(resp.ok) erenlerData = await resp.json();
+  } catch(e){ erenlerData = []; }
+}
+
+// Türkçe karakterleri ASCII'ye normalize et (ı→i, ş→s vb.)
+function trNorm(s){
+  return (s||'').toLowerCase()
+    .replace(/ı/g,'i').replace(/İ/g,'i').replace(/I/g,'i')
+    .replace(/ğ/g,'g').replace(/Ğ/g,'g')
+    .replace(/ş/g,'s').replace(/Ş/g,'s')
+    .replace(/ç/g,'c').replace(/Ç/g,'c')
+    .replace(/ö/g,'o').replace(/Ö/g,'o')
+    .replace(/ü/g,'u').replace(/Ü/g,'u');
+}
+
+// Türkçe ada göre kelime tabanlı eşleştirme skoru
+function compMatchScore(agName, erName){
+  const clean = s => trNorm(s)
+    .replace(/[().,\/\\]/g,' ')
+    .replace(/\d+\s*(gr|g|kg|ml|l|lt|li|lu|adet|cifte|bag|kutu|paket|sise|tup|kap)\b/gi,' ')
+    .replace(/\s+/g,' ').trim();
+  const ag = clean(agName);
+  const er = clean(erName);
+  if(ag === er) return 100;
+
+  // String içerme kontrolü — kısa kelimeler için yanlış eşleşmeyi önlemek amacıyla
+  // oran eşiği uygulanır (örn. "çay" → "doğuş çay": 3/9=0.33 → geçmez)
+  if(ag.includes(er) || er.includes(ag)){
+    const shorter = Math.min(ag.length, er.length);
+    const longer  = Math.max(ag.length, er.length);
+    const ratio   = shorter / longer;
+    if(ratio >= 0.45) return 88;  // yeterli örtüşme
+    // Orana göre kısmi puan (0.45 altı)
+    if(ratio >= 0.3) return Math.round(55 + ratio * 50);
+    return 0; // çok kısa substring
+  }
+
+  // Kelime örtüşmesi
+  const agW = ag.split(' ').filter(w=>w.length>2);
+  const erW = er.split(' ').filter(w=>w.length>2);
+  if(agW.length===0 || erW.length===0) return 0;
+  let hits = 0;
+  agW.forEach(w=>{ if(erW.some(e=>e===w)) hits++; }); // sadece tam kelime eşleşmesi
+  if(hits===0){
+    // Altdize eşleşmesi (daha düşük güven)
+    agW.forEach(w=>{ if(erW.some(e=>e.includes(w)||w.includes(e))) hits+=0.5; });
+    if(hits<1) return 0;
+  }
+  const coverage = hits / Math.max(agW.length, erW.length);
+  return Math.round(coverage * 75);
+}
+
+// Erenler ürününü AydınGros ürünüyle eşleştir (products array dışarıdan verilir)
+function matchErenlerToAydin(erItem, productList){
+  let best=null, bestScore=0;
+  (productList||products).forEach(p=>{
+    const sc = compMatchScore(p.name, erItem.name);
+    if(sc>bestScore){ bestScore=sc; best=p; }
+  });
+  // Eşik: tek kelime eşleşmesinde yanlış pozitifi önlemek için 50 gerektir
+  return bestScore>=50 ? {product:best, score:bestScore} : null;
+}
+
+// Kategori etiketi (kısa)
+const CAT_LABELS={'manav':'Manav','kasap':'Kasap','sut-sarkuteri':'Süt&Şark.','temel-gida':'Gıda','atistirmalik':'Atıştır.','icecek':'İçecek','temizlik':'Temizlik','kozmetik':'Kozmetik','kahvaltilik':'Kahvaltı','anne-bebek':'Anne-Bebek','ev-gerecleri':'Ev Gereç'};
+function shortCat(c){ return CAT_LABELS[c]||c; }
+
+// Eşleşme sonuçları önbelleği (her modal açılışında hesaplama yapmamak için)
+let _compRows = [];
+
+function buildCompRows(){
+  loadData();
+  // Her AydınGros ürünü için en iyi Erenler eşleşmesini bul (dedup by ag.id)
+  const bestByAgId = {};
+  const prodList = products; // loadData sonrası sabit referans
+  erenlerData.forEach(er=>{
+    const m=matchErenlerToAydin(er, prodList);
+    if(!m) return;
+    const ag=m.product;
+    const prev=bestByAgId[ag.id];
+    if(!prev || m.score>prev.score){
+      bestByAgId[ag.id]={ag,er,score:m.score};
+    }
+  });
+  _compRows=Object.values(bestByAgId).map(({ag,er,score})=>{
+    const diff=ag.price-er.price;
+    const diffPct=er.price>0?(diff/er.price*100):0;
+    let status;
+    if(diffPct>5) status='expensive';
+    else if(diffPct<-5) status='cheap';
+    else status='near';
+    return{ag,er,diff,diffPct,status,score};
+  });
+  // Pahalıdan ucuza sırala
+  _compRows.sort((a,b)=>{
+    const ord={expensive:0,near:1,cheap:2};
+    return (ord[a.status]||0)-(ord[b.status]||0);
+  });
+}
+
+function renderCompSummaryBar(){
+  loadData();
+  const el=document.getElementById('compLastUpdateLabel');
+  const bar=document.getElementById('compSummaryBar');
+  if(!el||!bar) return;
+  const expensive=_compRows.filter(r=>r.status==='expensive').length;
+  const cheap=_compRows.filter(r=>r.status==='cheap').length;
+  const near=_compRows.filter(r=>r.status==='near').length;
+  const total=_compRows.length;
+  el.textContent=total>0?`${total} eşleşme bulundu`:'Fiyatlar yükleniyor...';
+  bar.innerHTML=`<div style="display:flex;gap:10px;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:6px;background:var(--green-light);color:var(--green);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600">
+      ✅ ${cheap} üründe ÜCUZsunuz
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;background:var(--red-light);color:var(--red);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600">
+      ⚠️ ${expensive} üründe PAHALIsınız
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;background:var(--yellow-light);color:var(--yellow);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600">
+      ≈ ${near} üründe yakınsınız
+    </div>
+  </div>`;
+}
+
+function renderCompTableRows(){
+  const catFilter=document.getElementById('compCatFilter')?.value||'';
+  const statusFilter=document.getElementById('compStatusFilter')?.value||'';
+  let rows=_compRows;
+  if(catFilter) rows=rows.filter(r=>r.ag.cat===catFilter);
+  if(statusFilter) rows=rows.filter(r=>r.status===statusFilter);
+  const info=document.getElementById('compFilterInfo');
+  if(info) info.textContent=`${rows.length} ürün gösteriliyor`;
+  const body=document.getElementById('compTableBody');
+  if(!body) return;
+  if(rows.length===0){
+    body.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--gray400)">Bu filtre için eşleşen ürün bulunamadı.</td></tr>`;
+    return;
+  }
+  body.innerHTML=rows.map(r=>{
+    const {ag,er,diff,diffPct,status}=r;
+    let badge,rowStyle='';
+    if(status==='expensive'){
+      badge=`<span class="badge badge-red">⚠️ Pahalıyız</span>`;
+      rowStyle='background:#FFF5F5';
+    } else if(status==='cheap'){
+      badge=`<span class="badge badge-green">✅ Ucuzuz</span>`;
+    } else {
+      badge=`<span class="badge badge-yellow">≈ Yakın</span>`;
+    }
+    const diffCol=diff>0?'var(--red)':diff<0?'var(--green)':'var(--gray500)';
+    const diffSign=diff>0?'+':'';
+    const pctSign=diffPct>0?'+':'';
+    return`<tr style="${rowStyle}">
+      <td><strong>${esc(ag.name)}</strong><div style="font-size:11px;color:var(--gray400)">${esc(ag.unit||'adet')}</div></td>
+      <td><span style="font-size:11px;background:var(--gray100);padding:2px 6px;border-radius:10px">${shortCat(ag.cat)}</span></td>
+      <td style="font-weight:700;color:var(--orange)">${fmtPrice(ag.price)}</td>
+      <td style="font-weight:600;color:var(--gray600)">${fmtPrice(er.price)}<div style="font-size:10px;color:var(--gray400)">${esc(er.name.substring(0,22))}</div></td>
+      <td style="font-weight:700;color:${diffCol}">${diffSign}${fmtPrice(Math.abs(diff))}</td>
+      <td style="font-weight:700;color:${diffCol}">${pctSign}${diffPct.toFixed(1)}%</td>
+      <td>${badge}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function openCompetitorModal(){
+  openModal('competitorModal');
+  const dateEl=document.getElementById('compModalDate');
+  const lastCheckEl=document.getElementById('compModalLastCheck');
+  const body=document.getElementById('compTableBody');
+  if(body) body.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--gray400)"><div style="display:flex;align-items:center;justify-content:center;gap:8px">⏳ Erenler Cep fiyatları yükleniyor...</div></td></tr>`;
+
+  if(erenlerData.length===0) await loadErenlerData();
+  buildCompRows();
+
+  const expensive=_compRows.filter(r=>r.status==='expensive').length;
+  const cheap=_compRows.filter(r=>r.status==='cheap').length;
+  const near=_compRows.filter(r=>r.status==='near').length;
+  const total=_compRows.length;
+
+  const now=new Date();
+  const ds=now.toLocaleDateString('tr-TR')+' '+now.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
+  if(dateEl) dateEl.textContent='Kaynak: erenlercep.com — '+total+' ürün eşleştirildi';
+  if(lastCheckEl) lastCheckEl.textContent=ds;
+
+  document.getElementById('compSummaryCards').innerHTML=`
+    <div style="background:var(--red-light);border-radius:8px;padding:14px;text-align:center">
+      <div style="font-size:28px;font-weight:800;color:var(--red)">${expensive}</div>
+      <div style="font-size:12px;color:var(--red);font-weight:600">⚠️ Pahalı</div>
+      <div style="font-size:11px;color:var(--gray500);margin-top:2px">Rakipten %5+ fazla</div>
+    </div>
+    <div style="background:var(--yellow-light);border-radius:8px;padding:14px;text-align:center">
+      <div style="font-size:28px;font-weight:800;color:var(--yellow)">${near}</div>
+      <div style="font-size:12px;color:var(--yellow);font-weight:600">≈ Yakın</div>
+      <div style="font-size:11px;color:var(--gray500);margin-top:2px">±%5 aralığında</div>
+    </div>
+    <div style="background:var(--green-light);border-radius:8px;padding:14px;text-align:center">
+      <div style="font-size:28px;font-weight:800;color:var(--green)">${cheap}</div>
+      <div style="font-size:12px;color:var(--green);font-weight:600">✅ Ucuz</div>
+      <div style="font-size:11px;color:var(--gray500);margin-top:2px">Rakipten %5+ ucuz</div>
+    </div>
+    <div style="background:var(--gray100);border-radius:8px;padding:14px;text-align:center">
+      <div style="font-size:28px;font-weight:800;color:var(--gray600)">${total}</div>
+      <div style="font-size:12px;color:var(--gray600);font-weight:600">📊 Toplam</div>
+      <div style="font-size:11px;color:var(--gray500);margin-top:2px">Eşleşen ürün</div>
+    </div>`;
+
+  const alertEl=document.getElementById('compAlertBanner');
+  if(expensive>0){
+    const worst=_compRows.filter(r=>r.status==='expensive').sort((a,b)=>b.diffPct-a.diffPct).slice(0,3).map(r=>`${r.ag.name} (+${r.diffPct.toFixed(0)}%)`).join(', ');
+    alertEl.innerHTML=`<div class="alert alert-danger">⚠️ <strong>${expensive} ürününüzün fiyatı Erenler Cep'ten yüksek!</strong> En pahalılar: ${esc(worst)}</div>`;
+  } else if(total===0){
+    alertEl.innerHTML=`<div class="alert alert-info">ℹ️ Erenler Cep fiyat verisi yüklenemedi. Sunucuyu kontrol edin veya "Canlı Güncelle"ye basın.</div>`;
+  } else {
+    alertEl.innerHTML=`<div class="alert alert-success">✅ Harika! ${cheap} üründe rakibinizden ucuzsunuz. Tüm ürünlerde rekabetçisiniz.</div>`;
+  }
+
+  // Kategori filtrelerini sıfırla ve tabloyu çiz
+  const catSel=document.getElementById('compCatFilter');
+  const stSel=document.getElementById('compStatusFilter');
+  if(catSel) catSel.value='';
+  if(stSel) stSel.value='';
+  renderCompTableRows();
+  renderCompSummaryBar();
+}
+
+// Canlı fiyat çekme — server proxy üzerinden
+async function fetchLiveErenler(){
+  const btn=document.getElementById('compLiveBtn')||document.getElementById('compModalLiveBtn');
+  if(btn){ btn.disabled=true; btn.textContent='⏳ Bağlanılıyor...'; }
+  toast('Erenler Cep\'e bağlanılıyor...');
+  const cats=['meyve-sebze','gida','et-tavuk','temizlik','kozmetik'];
+  let totalNew=0;
+  try{
+    for(const cat of cats){
+      const r=await fetch(`/api/erenler-live?slug=${encodeURIComponent(cat)}&page=1`);
+      if(!r.ok) continue;
+      const j=await r.json();
+      if(j.products && j.products.length>0){
+        // Sunucuya kaydet
+        await fetch('/api/save-erenler',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(j.products.map(p=>({...p,cat})))});
+        totalNew+=j.products.length;
+      }
+    }
+    await loadErenlerData();
+    buildCompRows();
+    renderCompSummaryBar();
+    if(totalNew>0){
+      toast(`✅ ${totalNew} canlı fiyat çekildi! Analiz güncellendi.`);
+    } else {
+      toast('⚠️ Erenler Cep erişim engeli aktif. Kayıtlı fiyatlar kullanılıyor.');
+    }
+  } catch(e){
+    toast('⚠️ Canlı bağlantı başarısız. Kayıtlı fiyatlar kullanılıyor.');
+  }
+  if(btn){ btn.disabled=false; btn.textContent='🔄 Canlı Fiyat Çek'; }
+}
+
+// Apify tabanlı rakip fiyat taraması
+async function apifyErenlerScan(){
+  const btn = document.getElementById('compApifyBtn');
+  const progressBox = document.getElementById('compApifyProgress');
+  const statusEl = document.getElementById('compApifyStatus');
+  const progressEl = document.getElementById('compApifyProgress2');
+
+  function setStatus(msg, detail){
+    if(statusEl) statusEl.textContent = msg;
+    if(progressEl) progressEl.textContent = detail||'';
+  }
+
+  if(btn){ btn.disabled=true; btn.textContent='⏳ Taranıyor...'; }
+  if(progressBox) progressBox.style.display='block';
+  setStatus('Apify taraması başlatılıyor...', '');
+  toast('🤖 Apify taraması başlatıldı...');
+
+  let runId='', pollTimer=null;
+
+  try{
+    // 1. Taramayı başlat
+    const startRes = await fetch('/api/competitor-prices', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ slugs:['meyve-sebze','gida','et-tavuk','sut-sarkuteri','temizlik','kozmetik','atistirmalik','icecek'], pages:5 })
+    });
+    if(!startRes.ok){
+      const e = await startRes.json().catch(()=>({}));
+      throw new Error(e.error||'Başlatma başarısız');
+    }
+    const start = await startRes.json();
+    runId = start.runId;
+    setStatus('Erenler Cep sayfaları taranıyor...', `0 / ${start.urlCount||0} URL`);
+    toast(`🤖 ${start.urlCount||0} sayfa taranıyor...`);
+
+    // 2. Durum sorgulama döngüsü
+    await new Promise((resolve, reject)=>{
+      let attempts=0;
+      const MAX_ATTEMPTS = 72; // 72 × 5s = 6 dakika max
+      pollTimer = setInterval(async ()=>{
+        attempts++;
+        if(attempts > MAX_ATTEMPTS){
+          clearInterval(pollTimer);
+          reject(new Error('Zaman aşımı — Apify 6 dakikada tamamlanamadı'));
+          return;
+        }
+        try{
+          const r = await fetch(`/api/competitor-prices?runId=${encodeURIComponent(runId)}`);
+          const d = await r.json();
+          if(d.status === 'RUNNING' || d.status === 'READY'){
+            const done = d.requestsFinished||0;
+            const total = d.requestsTotal||0;
+            const pct = total>0 ? Math.round(done/total*100) : 0;
+            setStatus('Erenler Cep sayfaları taranıyor...', total>0?`${done} / ${total} URL (${pct}%)`:'');
+          } else if(d.status === 'SUCCEEDED'){
+            clearInterval(pollTimer);
+            resolve(d);
+          } else {
+            clearInterval(pollTimer);
+            reject(new Error(d.error||`Apify durumu: ${d.status}`));
+          }
+        } catch(err){
+          // ağ hatası → tekrar dene
+        }
+      }, 5000);
+    }).then(async (result)=>{
+      // 3. Sonuçları yükle
+      const d = result;
+      if(d.items && d.items.length > 0){
+        erenlerData = d.items;
+        buildCompRows();
+        renderCompSummaryBar();
+        const expensive = _compRows.filter(r=>r.status==='expensive').length;
+        setStatus(`✅ Tamamlandı! ${d.totalItems} ürün tarandı.`, `${expensive} üründe pahalısınız`);
+        toast(`✅ Apify tamamlandı! ${d.totalItems} fiyat alındı. ${expensive} üründe pahalısınız.`);
+      } else {
+        setStatus('⚠️ Apify sonuç döndürmedi.', '');
+        toast('⚠️ Apify taraması boş döndü, sayfalar bloke edilmiş olabilir.');
+      }
+    });
+  } catch(err){
+    if(pollTimer) clearInterval(pollTimer);
+    const msg = err && err.message ? err.message : 'Bilinmeyen hata';
+    setStatus(`❌ Hata: ${msg}`, '');
+    toast('❌ Apify taraması başarısız: '+msg);
+    console.error('[Apify]', msg);
+  }
+
+  setTimeout(()=>{ if(progressBox) progressBox.style.display='none'; }, 4000);
+  if(btn){ btn.disabled=false; btn.textContent='🤖 Apify ile Tara'; }
+}
+
+// Excel benzeri CSV dışa aktarma
+function exportCompAnalysis(){
+  if(_compRows.length===0){ toast('Dışa aktarılacak veri yok.'); return; }
+  const header='Ürün Adı;Birim;Kategori;Aydın Gros ₺;Erenler Cep ₺;Fark ₺;Fark %;Durum\n';
+  const statusTR={expensive:'Pahalı',near:'Yakın',cheap:'Ucuz'};
+  const rows=_compRows.map(r=>{
+    const sign=r.diff>0?'+':'';
+    return[r.ag.name,r.ag.unit||'adet',shortCat(r.ag.cat),r.ag.price.toFixed(2),r.er.price.toFixed(2),(sign+r.diff.toFixed(2)),(sign+r.diffPct.toFixed(1)+'%'),statusTR[r.status]].join(';');
+  }).join('\n');
+  const blob=new Blob(['﻿'+header+rows],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download='rakip-analizi.csv'; a.click();
+  URL.revokeObjectURL(url);
+  toast('CSV indirildi ✓');
+}
+
+/* ── YENİ SİPARİŞ BİLDİRİMİ ────────────────────────────────────────── */
+let lastOrderCount = 0;
+function startOrderPolling(){
+  lastOrderCount = orders.length;
+  setInterval(async ()=>{
+    const current = await fetchDb('orders', []);
+    if(current.length > lastOrderCount){
+      const diff = current.length - lastOrderCount;
+      lastOrderCount = current.length;
+      orders = current;
+      showNewOrderAlert(diff, current[current.length-1]);
+      loadData();
+      updateSidebarStockBadge();
+      // Dashboard açıksa yenile
+      if(document.getElementById('page-dash').classList.contains('active')) renderDash();
+      if(document.getElementById('page-orders').classList.contains('active')) renderOrders();
+    }
+  }, 10000);
+}
+function showNewOrderAlert(count, lastOrder){
+  const div=document.createElement('div');
+  div.style.cssText='position:fixed;top:20px;right:20px;background:#16A34A;color:#fff;border-radius:12px;padding:16px 20px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.2);max-width:300px;animation:slideIn .3s ease';
+  div.innerHTML=`<div style="font-weight:700;font-size:15px;margin-bottom:4px">🛒 ${count} Yeni Sipariş!</div>
+    <div style="font-size:12px;opacity:.9">${lastOrder?.name||'Misafir'} — ${fmtPrice(lastOrder?.total||0)}</div>
+    <button onclick="this.parentElement.remove();showPage('orders')" style="margin-top:10px;background:rgba(255,255,255,.2);border:none;color:#fff;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600">Siparişlere Git →</button>
+    <button onclick="this.parentElement.remove()" style="position:absolute;top:8px;right:8px;background:none;border:none;color:rgba(255,255,255,.7);cursor:pointer;font-size:16px">✕</button>`;
+  div.style.position='fixed';
+  document.body.appendChild(div);
+  setTimeout(()=>div.remove(), 8000);
+  try{ new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAA...').play(); }catch(e){}
+}
+
+/* ── HAFTALİK CİRO GRAFİĞİ ─────────────────────────────────────────── */
+function renderWeeklyChart(){
+  const days=['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
+  const now=new Date();
+  const weekData=Array(7).fill(0);
+  orders.forEach(o=>{
+    const d=new Date(o.ts);
+    const diff=Math.floor((now-d)/(1000*60*60*24));
+    if(diff<7) weekData[6-diff]+=(o.total||0);
+  });
+  const max=Math.max(...weekData,1);
+  const todayIdx=6;
+  const el=document.getElementById('weeklyChart');
+  if(!el)return;
+  el.innerHTML=`<div style="display:flex;align-items:flex-end;gap:8px;height:100px;padding:0 4px">
+    ${weekData.map((v,i)=>{
+      const h=Math.max(4,Math.round((v/max)*90));
+      const isToday=i===todayIdx;
+      return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="font-size:10px;color:var(--gray-500);font-weight:600">${v>0?fmtPrice(v).replace(' ₺',''):'—'}</div>
+        <div style="width:100%;height:${h}px;background:${isToday?'var(--orange)':'var(--orange-light)'};border-radius:4px 4px 0 0;transition:.3s"></div>
+        <div style="font-size:10px;color:${isToday?'var(--orange)':'var(--gray-400)'};font-weight:${isToday?700:400}">${days[(now.getDay()+6-todayIdx+i)%7]}</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+/* ── FATURA YAZDIR ───────────────────────────────────────────────────── */
+function printInvoice(idx){
+  const inv=invoices[idx];if(!inv)return;
+  const win=window.open('','_blank');
+  const rows=(inv.lines||[]).map(l=>{
+    const p=products.find(x=>x.id===l.pid);
+    return`<tr><td>${p?p.name:'(Silindi)'}</td><td>${l.qty}</td><td>${fmtPrice(l.cost)}</td><td>%${(l.margin||0).toFixed(1)}</td><td><strong>${fmtPrice(l.sell)}</strong></td></tr>`;
+  }).join('');
+  win.document.write(`<!DOCTYPE html><html><head><title>Fatura</title>
+    <style>body{font-family:sans-serif;padding:24px;max-width:700px;margin:0 auto}h2{color:#F97316}table{width:100%;border-collapse:collapse;margin-top:16px}th,td{padding:8px 12px;border:1px solid #e5e7eb;text-align:left}th{background:#f9fafb}tfoot td{font-weight:700;background:#fef3e9}@media print{button{display:none}}</style>
+    </head><body>
+    <h2>Aydın Gros — Fatura</h2>
+    <p style="color:#6b7280">${fmtDate(inv.ts)} | ${inv.note||'Not yok'}</p>
+    <table><thead><tr><th>Ürün</th><th>Miktar</th><th>Alış</th><th>Marj</th><th>Satış</th></tr></thead>
+    <tbody>${rows}</tbody>
+    <tfoot><tr><td colspan="4">Toplam Maliyet</td><td>${fmtPrice(inv.totalCost)}</td></tr></tfoot></table>
+    <br><button onclick="window.print()">🖨️ Yazdır</button>
+    </body></html>`);
+  win.document.close();
+}
+
+/* ── INIT ───────────────────────────────────────────────────────────── */
+(async function init() {
+  // Supabase session varsa direkt paneli aç, yoksa login ekranı göster
+  try {
+    const sb = await getSbClient();
+    if (sb) {
+      const { data } = await sb.auth.getSession();
+      const session = data?.session;
+      const userMeta = extractUserMeta(session);
+      if (session && ALLOWED_ROLES.includes(userMeta.role)) {
+        showApp();
+        await initBackendData().catch(console.error);
+        try { loadData(); } catch(e) {}
+        startOrderPolling();
+        if (document.getElementById('page-dash').classList.contains('active')) {
+          try { renderDash(); } catch(e) {}
+        }
+        if (document.getElementById('page-orders').classList.contains('active')) {
+          try { renderOrders(); } catch(e) {}
+        }
+        // Erenler fiyatlarını arka planda yükle
+        loadErenlerData().then(() => { buildCompRows(); renderCompSummaryBar(); }).catch(() => {});
+        return;
+      }
+    }
+  } catch (_) {}
+  // Session yok veya Supabase bağlanamadı → login ekranını göster
+  showLogin();
+})();
+
+function handleImageUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      const MAX_WIDTH = 400;
+      const MAX_HEIGHT = 400;
+      let width = img.width;
+      let height = img.height;
+      if (width > height) {
+        if (width > MAX_WIDTH) {
+          height *= MAX_WIDTH / width;
+          width = MAX_WIDTH;
+        }
+      } else {
+        if (height > MAX_HEIGHT) {
+          width *= MAX_HEIGHT / height;
+          height = MAX_HEIGHT;
+        }
+      }
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      document.getElementById('prodImg').value = canvas.toDataURL('image/jpeg', 0.8);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+</script>
+</body>
+</html>

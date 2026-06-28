@@ -1,9 +1,9 @@
-import { createServerClient } from '../lib/supabase/server.js'
+import { createAdminClient } from '../lib/supabase/server.js'
 
 const TENANT_ID = process.env.SUPABASE_TENANT_ID || '11111111-1111-1111-1111-111111111111'
 
 export default async function handler(req, res) {
-  const sb = createServerClient()
+  const sb = createAdminClient()
   if (!sb) return res.status(503).json({ error: 'no_supabase_config' })
 
   const checks = {}
@@ -16,10 +16,10 @@ export default async function handler(req, res) {
     checks[tbl] = error ? `ERR: ${error.message}` : count
   }
 
-  // Hangi key kullanılıyor (prefix göster)
+  // Hangi key kullanılıyor (Sadece türünü döndür, gizli anahtarı veya kesitini asla sızdırma)
   const svcKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
   const anonKey = process.env.SUPABASE_ANON_KEY || ''
-  const keyUsed = svcKey ? `svc:${svcKey.slice(0,12)}...` : (anonKey ? `anon:${anonKey.slice(0,12)}...` : 'none')
+  const keyUsed = svcKey ? 'service_role' : (anonKey ? 'anon' : 'none')
 
   res.status(200).json({ tenant: TENANT_ID, keyUsed, checks })
 }

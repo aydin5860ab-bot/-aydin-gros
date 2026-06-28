@@ -1,4 +1,4 @@
-import { createServerClient } from '../lib/supabase/server.js'
+import { createServerClient, createAdminClient } from '../lib/supabase/server.js'
 
 // ---------------------------------------------------------------------------
 // Sabitler
@@ -34,7 +34,7 @@ const SETTINGS_KEY_REVERSE = Object.fromEntries(
 // Supabase READ
 // ---------------------------------------------------------------------------
 
-async function supabaseRead(coll, supabase) {
+async function supabaseRead(coll, supabase, tenantId) {
   switch (coll) {
 
     case 'products': {
@@ -44,7 +44,7 @@ async function supabaseRead(coll, supabase) {
         const { data, error } = await supabase
           .from('products')
           .select('legacy_id, name, price, unit, image_url, is_active, metadata, categories(slug)')
-          .eq('tenant_id', TENANT_ID)
+          .eq('tenant_id', tenantId)
           .is('deleted_at', null)
           .not('legacy_id', 'is', null)
           .order('legacy_id')
@@ -72,7 +72,7 @@ async function supabaseRead(coll, supabase) {
       const { data, error } = await supabase
         .from('categories')
         .select('id, name, slug, display_order, is_active')
-        .eq('tenant_id', TENANT_ID)
+        .eq('tenant_id', tenantId)
         .is('deleted_at', null)
         .eq('is_active', true)
         .order('display_order')
@@ -89,7 +89,7 @@ async function supabaseRead(coll, supabase) {
       const { data, error } = await supabase
         .from('orders')
         .select('id, order_number, customer_name, customer_phone, delivery_address, total, status, items_data, created_at')
-        .eq('tenant_id', TENANT_ID)
+        .eq('tenant_id', tenantId)
         .is('deleted_at', null)
         .order('created_at', { ascending: false })
       if (error) throw new Error('orders: ' + error.message)
@@ -115,7 +115,7 @@ async function supabaseRead(coll, supabase) {
       const { data, error } = await supabase
         .from('tenant_settings')
         .select('key, value')
-        .eq('tenant_id', TENANT_ID)
+        .eq('tenant_id', tenantId)
       if (error) throw new Error('settings: ' + error.message)
       return (data || []).reduce((acc, { key, value }) => {
         const mapped = SETTINGS_KEY_MAP[key]
@@ -128,7 +128,7 @@ async function supabaseRead(coll, supabase) {
       const { data, error } = await supabase
         .from('campaigns')
         .select('id, name, type, discount_value, is_active, start_date, end_date')
-        .eq('tenant_id', TENANT_ID)
+        .eq('tenant_id', tenantId)
         .is('deleted_at', null)
       if (error) throw new Error('campaigns: ' + error.message)
       return (data || []).map(r => ({
@@ -147,7 +147,7 @@ async function supabaseRead(coll, supabase) {
       const { data, error } = await supabase
         .from('coupons')
         .select('code, type, discount_value, is_active')
-        .eq('tenant_id', TENANT_ID)
+        .eq('tenant_id', tenantId)
         .is('deleted_at', null)
       if (error) throw new Error('promos: ' + error.message)
       return (data || []).reduce((acc, r) => {
@@ -168,7 +168,7 @@ async function supabaseRead(coll, supabase) {
         const { data, error } = await supabase
           .from('product_stock')
           .select('product_legacy_id, qty, min_qty')
-          .eq('tenant_id', TENANT_ID)
+          .eq('tenant_id', tenantId)
           .range(from, from + 499)
         if (error) throw new Error('stock: ' + error.message)
         if (!data?.length) break
@@ -186,7 +186,7 @@ async function supabaseRead(coll, supabase) {
       const { data, error } = await supabase
         .from('invoices')
         .select('data, created_at')
-        .eq('tenant_id', TENANT_ID)
+        .eq('tenant_id', tenantId)
         .not('data', 'is', null)
         .order('created_at', { ascending: false })
       if (error) throw new Error('invoices: ' + error.message)
@@ -202,12 +202,12 @@ async function supabaseRead(coll, supabase) {
 // Supabase WRITE
 // ---------------------------------------------------------------------------
 
-async function supabaseWrite(coll, body, supabase) {
+async function supabaseWrite(coll, body, supabase, tenantId) {
   switch (coll) {
 
     case 'orders': {
       const rows = (Array.isArray(body) ? body : []).map(o => ({
-        tenant_id:        TENANT_ID,
+        tenant_id:        tenantId,
         order_number:     o.no,
         customer_name:    o.name || '',
         customer_phone:   o.phone || '',
@@ -230,7 +230,7 @@ async function supabaseWrite(coll, body, supabase) {
       const entries = Object.entries(body || {})
         .filter(([k]) => SETTINGS_KEY_REVERSE[k])
         .map(([k, v]) => ({
-          tenant_id: TENANT_ID,
+          tenant_id: tenantId,
           key:       SETTINGS_KEY_REVERSE[k],
           value:     String(v),
         }))
@@ -243,9 +243,9 @@ async function supabaseWrite(coll, body, supabase) {
     }
 
     case 'campaigns': {
-      await supabase.from('campaigns').delete().eq('tenant_id', TENANT_ID)
+      await supabase.from('campaigns').delete().eq('tenant_id', tenantId)
       const rows = (Array.isArray(body) ? body : []).map(c => ({
-        tenant_id:      TENANT_ID,
+        tenant_id:      tenantId,
         name:           c.name || 'Kampanya',
         type:           c.type || 'pct',
         discount_value: c.value || 0,
@@ -260,9 +260,9 @@ async function supabaseWrite(coll, body, supabase) {
     }
 
     case 'promos': {
-      await supabase.from('coupons').delete().eq('tenant_id', TENANT_ID)
+      await supabase.from('coupons').delete().eq('tenant_id', tenantId)
       const rows = Object.entries(body || {}).map(([code, p]) => ({
-        tenant_id:      TENANT_ID,
+        tenant_id:      tenantId,
         code,
         type:           p.pct > 0 ? 'percentage' : (p.freeShip ? 'free_shipping' : 'gift'),
         discount_value: p.pct || 0,
@@ -276,7 +276,7 @@ async function supabaseWrite(coll, body, supabase) {
 
     case 'stock': {
       const rows = Object.entries(body || {}).map(([legacyId, s]) => ({
-        tenant_id:         TENANT_ID,
+        tenant_id:         tenantId,
         product_legacy_id: parseInt(legacyId, 10),
         qty:               s.qty ?? 50,
         min_qty:           s.min ?? 5,
@@ -291,9 +291,9 @@ async function supabaseWrite(coll, body, supabase) {
     }
 
     case 'invoices': {
-      await supabase.from('invoices').delete().eq('tenant_id', TENANT_ID)
+      await supabase.from('invoices').delete().eq('tenant_id', tenantId)
       const rows = (Array.isArray(body) ? body : []).map(inv => ({
-        tenant_id:  TENANT_ID,
+        tenant_id:  tenantId,
         data:       inv,
         created_at: inv.ts ? new Date(inv.ts).toISOString() : new Date().toISOString(),
       }))
@@ -309,6 +309,43 @@ async function supabaseWrite(coll, body, supabase) {
 }
 
 // ---------------------------------------------------------------------------
+// Kimlik Doğrulama Katmanı
+// ---------------------------------------------------------------------------
+
+async function checkAuth(req) {
+  const authHeader = req.headers.authorization || '';
+  if (!authHeader.startsWith('Bearer ')) {
+    return { isAuthenticated: false, role: 'anon', tenantId: null }
+  }
+  const token = authHeader.substring(7)
+  if (!token) {
+    return { isAuthenticated: false, role: 'anon', tenantId: null }
+  }
+
+  // Token doğrulaması için standard anon istemcisini kullanırız
+  const anonClient = createServerClient()
+  if (!anonClient) {
+    return { isAuthenticated: false, role: 'anon', tenantId: null }
+  }
+
+  try {
+    const { data: { user }, error } = await anonClient.auth.getUser(token)
+    if (error || !user) {
+      return { isAuthenticated: false, role: 'anon', tenantId: null }
+    }
+
+    const meta = user.user_metadata || {}
+    const appMeta = user.app_metadata || {}
+    const role = meta.role || appMeta.role || 'viewer'
+    const tenantId = meta.tenant_id || appMeta.tenant_id || null
+
+    return { isAuthenticated: true, role, tenantId, user }
+  } catch (e) {
+    return { isAuthenticated: false, role: 'anon', tenantId: null }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Handler
 // ---------------------------------------------------------------------------
 
@@ -319,23 +356,47 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Geçersiz koleksiyon adı' })
   }
 
-  const supabase = createServerClient()
+  // 1. Yetki ve Rol doğrulaması yap
+  const auth = await checkAuth(req)
+  const isStaff = auth.isAuthenticated && ['admin', 'manager', 'branch_manager', 'cashier', 'warehouse_person'].includes(auth.role)
+
+  // Anonim (Public) erişim izin matrisi
+  const publicReadCollections = ['products', 'categories', 'campaigns', 'promos', 'settings', 'stock']
+  const publicWriteCollections = ['orders']
+
+  if (req.method === 'GET') {
+    if (!isStaff && !publicReadCollections.includes(coll)) {
+      return res.status(403).json({ error: 'Bu koleksiyonu okumak için yetkiniz yok.' })
+    }
+  } else if (req.method === 'POST' || req.method === 'PUT') {
+    if (!isStaff && !publicWriteCollections.includes(coll)) {
+      return res.status(403).json({ error: 'Bu koleksiyonu yazmak için yetkiniz yok.' })
+    }
+  } else {
+    return res.status(405).json({ error: 'Method not allowed' })
+  }
+
+  // 2. Supabase Admin istemcisini başlat
+  const supabase = createAdminClient()
   if (!supabase) {
     return res.status(503).json({ error: 'Supabase yapılandırılmamış' })
   }
 
+  // Kullanıcının kendi tenant_id'si varsa onu kullan, yoksa varsayılana düş
+  const tenantIdToUse = auth.tenantId || TENANT_ID
+
+  res.setHeader('X-Backend', 'supabase')
+
   try {
     if (req.method === 'GET') {
-      const data = await supabaseRead(coll, supabase)
+      const data = await supabaseRead(coll, supabase, tenantIdToUse)
       return res.status(200).json(data)
     }
 
     if (req.method === 'POST' || req.method === 'PUT') {
-      await supabaseWrite(coll, req.body, supabase)
+      await supabaseWrite(coll, req.body, supabase, tenantIdToUse)
       return res.status(200).json({ success: true })
     }
-
-    return res.status(405).json({ error: 'Method not allowed' })
   } catch (error) {
     console.error(`[api/db] ${coll} hatası:`, error.message)
     return res.status(500).json({ error: error.message })
