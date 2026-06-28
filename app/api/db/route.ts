@@ -236,10 +236,206 @@ async function supabaseWrite(coll: string, body: any, supabase: any, tenantId: s
         created_at:       o.ts ? new Date(o.ts).toISOString() : new Date().toISOString(),
       }));
       if (!rows.length) return;
+
+      // Check which orders are new (to deduct stock only on creation)
+      const orderNumbers = rows.map(r => r.order_number);
+      const { data: existingOrders, error: existingError } = await supabase
+        .from('orders')
+        .select('order_number')
+        .eq('tenant_id', tenantId)
+        .in('order_number', orderNumbers);
+      
+      if (existingError) {
+        throw new Error('Sipariş kontrolü hatası: ' + existingError.message);
+      }
+      
+      const existingNos = new Set((existingOrders || []).map((o: any) => o.order_number));
+      const newOrders = rows.filter(r => !existingNos.has(r.order_number));
+
+      if (newOrders.length > 0) {
+        // Aggregate stock demands
+        const demands: Record<number, number> = {};
+        const itemNames: Record<number, string> = {};
+        for (const order of newOrders) {
+          for (const item of (order.items_data || [])) {
+            const pid = Number(item.id);
+            const quantity = Number(item.qty || item.quantity || 1);
+            if (!isNaN(pid)) {
+              demands[pid] = (demands[pid] || 0) + quantity;
+              itemNames[pid] = item.name || `Ürün #${pid}`;
+            }
+          }
+        }
+
+        const productIds = Object.keys(demands).map(Number);
+        if (productIds.length > 0) {
+          // Fetch current stock
+          const { data: stocks, error: stockError } = await supabase
+            .from('product_stock')
+            .select('product_legacy_id, qty')
+            .eq('tenant_id', tenantId)
+            .in('product_legacy_id', productIds);
+          
+          if (stockError) {
+            throw new Error('Stok sorgulama hatası: ' + stockError.message);
+          }
+
+          const stockMap: Record<number, number> = {};
+          (stocks || []).forEach((s: any) => {
+            stockMap[s.product_legacy_id] = s.qty || 0;
+          });
+
+          // Validate stock
+          for (const pid of productIds) {
+            const demand = demands[pid];
+            const currentStock = stockMap[pid] ?? 0;
+            if (currentStock < demand) {
+              throw new Error(`Stok yetersiz: ${itemNames[pid]} (Talep: ${demand}, Mevcut Stok: ${currentStock})`);
+            }
+          }
+
+          // Deduct stock
+          for (const pid of productIds) {
+            const demand = demands[pid];
+            const currentStock = stockMap[pid] ?? 0;
+            const newStock = currentStock - demand;
+            const { error: updateError } = await supabase
+              .from('product_stock')
+              .update({ qty: newStock, updated_at: new Date().toISOString() })
+              .eq('tenant_id', tenantId)
+              .eq('product_legacy_id', pid);
+            
+            if (updateError) {
+              throw new Error(`Stok düşme hatası (${itemNames[pid]}): ` + updateError.message);
+            }
+          }
+        }
+      }
+
       const { error } = await supabase
         .from('orders')
         .upsert(rows, { onConflict: 'order_number' });
-      if (error) throw new Error('orders write: ' + error.message);
+      if (error) throw new Error('Sipariş kaydetme hatası: ' + error.message);
+      return;
+    }
+
+    case 'products': {
+      // Fetch categories map to convert slug to UUID
+      const { data: categories, error: catError } = await supabase
+        .from('categories')
+        .select('id, slug')
+        .eq('tenant_id', tenantId);
+      if (catError) throw new Error('Kategoriler sorgulanamadı: ' + catError.message);
+      
+      const categoryMap: Record<string, string> = {};
+      (categories || []).forEach((c: any) => {
+        if (c.slug) categoryMap[c.slug] = c.id;
+      });
+
+      // Get existing active products to map UUIDs and identify deletes
+      const { data: existing, error: fetchErr } = await supabase
+        .from('products')
+        .select('id, legacy_id')
+        .eq('tenant_id', tenantId)
+        .is('deleted_at', null);
+      if (fetchErr) throw new Error('Ürünler sorgulanamadı: ' + fetchErr.message);
+
+      const uuidMap: Record<number, string> = {};
+      (existing || []).forEach((r: any) => {
+        if (r.legacy_id !== null) {
+          uuidMap[r.legacy_id] = r.id;
+        }
+      });
+
+      const incomingProducts = (Array.isArray(body) ? body : []);
+      const incomingIds = new Set(incomingProducts.map(p => Number(p.id)));
+
+      // Perform soft deletes for products missing from the incoming array
+      const deletedUuids = Object.entries(uuidMap)
+        .filter(([legacyId]) => !incomingIds.has(Number(legacyId)))
+        .map(([, uuid]) => uuid);
+
+      if (deletedUuids.length > 0) {
+        const { error: deleteErr } = await supabase
+          .from('products')
+          .update({ deleted_at: new Date().toISOString(), is_active: false })
+          .in('id', deletedUuids);
+        if (deleteErr) throw new Error('Ürün silme hatası: ' + deleteErr.message);
+      }
+
+      // Map incoming items for upsert
+      const rows = incomingProducts.map(p => {
+        const catId = categoryMap[p.cat] || null;
+        const resolvedUuid = uuidMap[Number(p.id)] || undefined;
+        return {
+          id:          resolvedUuid,
+          tenant_id:   tenantId,
+          legacy_id:   Number(p.id),
+          name:        p.name || '',
+          price:       Number(p.price || 0),
+          category_id: catId,
+          unit:        p.unit || 'adet',
+          image_url:   p.img || '',
+          is_active:   p.active !== false,
+          is_featured: p.featured === true,
+          metadata: {
+            emoji: p.emoji || '',
+            badge: p.badge || '',
+          },
+          updated_at:  new Date().toISOString()
+        };
+      });
+
+      if (rows.length > 0) {
+        const { error: upsertErr } = await supabase
+          .from('products')
+          .upsert(rows, { onConflict: 'id' });
+        if (upsertErr) throw new Error('Ürün kaydetme hatası: ' + upsertErr.message);
+      }
+      return;
+    }
+
+    case 'categories': {
+      const incomingCategories = (Array.isArray(body) ? body : []);
+      const incomingIds = new Set(incomingCategories.map(c => c.id).filter(Boolean));
+
+      // Get existing active categories
+      const { data: existing, error: fetchErr } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('tenant_id', tenantId)
+        .is('deleted_at', null);
+      if (fetchErr) throw new Error('Kategoriler sorgulanamadı: ' + fetchErr.message);
+
+      const existingIds = new Set((existing || []).map((r: any) => r.id));
+      const deletedIds = Array.from(existingIds).filter(id => !incomingIds.has(id));
+
+      // Soft delete categories missing from the incoming array
+      if (deletedIds.length > 0) {
+        const { error: deleteErr } = await supabase
+          .from('categories')
+          .update({ deleted_at: new Date().toISOString(), is_active: false })
+          .in('id', deletedIds);
+        if (deleteErr) throw new Error('Kategori silme hatası: ' + deleteErr.message);
+      }
+
+      // Map incoming categories
+      const rows = incomingCategories.map(c => ({
+        id:            c.id || undefined,
+        tenant_id:     tenantId,
+        name:          c.name || '',
+        slug:          c.slug || '',
+        display_order: Number(c.order || 0),
+        is_active:     true,
+        updated_at:    new Date().toISOString()
+      }));
+
+      if (rows.length > 0) {
+        const { error: upsertErr } = await supabase
+          .from('categories')
+          .upsert(rows, { onConflict: 'id' });
+        if (upsertErr) throw new Error('Kategori kaydetme hatası: ' + upsertErr.message);
+      }
       return;
     }
 
