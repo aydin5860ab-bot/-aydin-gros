@@ -160,7 +160,52 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="payment-btns">
       <button class="pay-btn cash" onclick="checkout('cash')">💵 Nakit</button>
       <button class="pay-btn card" onclick="checkout('card')">💳 Kart</button>
+      <button class="pay-btn" style="background:var(--navy);color:#fff;font-size:13px" onclick="openMixedPayModal()">🔀 Karma</button>
     </div>
+  </div>
+</div>
+
+<!-- KARMA ÖDEME MODAL -->
+<div class="modal" id="mixedPayModal">
+  <div class="modal-box">
+    <h3 style="margin:0 0 16px;font-size:16px;font-weight:700">🔀 Karma Ödeme</h3>
+    <div id="mixedPayTotal" style="font-size:22px;font-weight:800;color:var(--navy);text-align:center;margin-bottom:16px">₺0,00</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div>
+        <label style="font-size:12px;color:#666;display:block;margin-bottom:4px">💵 Nakit (₺)</label>
+        <input type="number" id="mixedCash" step="0.01" min="0" placeholder="0.00"
+          style="width:100%;padding:10px;border:1.5px solid #ddd;border-radius:8px;font-size:16px"
+          oninput="calcMixedChange()">
+      </div>
+      <div>
+        <label style="font-size:12px;color:#666;display:block;margin-bottom:4px">💳 Kart (₺)</label>
+        <input type="number" id="mixedCard" step="0.01" min="0" placeholder="0.00"
+          style="width:100%;padding:10px;border:1.5px solid #ddd;border-radius:8px;font-size:16px"
+          oninput="calcMixedChange()">
+      </div>
+    </div>
+    <div id="mixedChangeInfo" style="text-align:center;font-size:14px;color:#444;margin-bottom:16px;min-height:20px"></div>
+    <button onclick="checkoutMixed()" style="width:100%;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px">
+      ✅ Ödemeyi Tamamla
+    </button>
+    <button class="modal-close" onclick="closeMixedPayModal()">İptal</button>
+  </div>
+</div>
+
+<!-- İADE MODAL -->
+<div class="modal" id="refundPosModal">
+  <div class="modal-box">
+    <h3 style="margin:0 0 12px;font-size:16px;font-weight:700">↩️ Son Siparişi İptal Et</h3>
+    <div id="refundPosInfo" style="background:#f5f5f5;border-radius:10px;padding:12px;margin-bottom:14px;font-size:13px"></div>
+    <div>
+      <label style="font-size:12px;color:#666;display:block;margin-bottom:4px">İptal Sebebi</label>
+      <input type="text" id="refundPosReason" placeholder="Müşteri talebi, hatalı ürün…"
+        style="width:100%;padding:10px;border:1.5px solid #ddd;border-radius:8px;font-size:14px">
+    </div>
+    <button onclick="confirmPosRefund()" style="width:100%;padding:14px;background:#e53935;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:14px;margin-bottom:8px">
+      ↩️ İptal Et ve İade Yap
+    </button>
+    <button class="modal-close" onclick="closeRefundPosModal()">Vazgeç</button>
   </div>
 </div>
 
@@ -169,6 +214,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="modal-box">
     <div class="receipt" id="receiptContent"></div>
     <button class="print-btn" onclick="printReceipt()">🖨️ Fişi Yazdır (ESC/POS)</button>
+    <button onclick="openRefundFromReceipt()" style="width:100%;padding:12px;background:#fff3e0;color:#e65100;border:1.5px solid #e65100;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px">
+      ↩️ Bu Siparişi İptal Et / İade
+    </button>
     <button class="modal-close" onclick="closeReceipt()">✅ Yeni Satış</button>
   </div>
 </div>
@@ -465,9 +513,10 @@ async function syncPendingSales() {
 
 // ── Receipt ──
 function showReceipt(order, method) {
+  lastOrderForRefund = order;
   const now = new Date();
   const dateStr = now.toLocaleDateString('tr-TR') + ' ' + now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
-  const methodStr = method === 'cash' ? 'Nakit' : 'Kart';
+  const methodStr = method === 'cash' ? 'Nakit' : method === 'card' ? 'Kart' : method === 'karma' ? 'Karma' : method;
 
   let html = `
     <h3>🏪 AYDIN GROS</h3>
@@ -499,6 +548,120 @@ function closeReceipt() {
   document.getElementById('receiptModal').classList.remove('open');
   updateCartUI();
 }
+
+// ── İADE (POS ekranından) ───────────────────────────────────────────────────
+let lastOrderForRefund = null;
+
+function openRefundFromReceipt() {
+  if (!lastOrderForRefund) return;
+  const o = lastOrderForRefund;
+  document.getElementById('refundPosInfo').innerHTML = `
+    <strong>Sipariş:</strong> ${String(o.id).slice(0,20)}<br>
+    <strong>Tutar:</strong> ₺${fmt(o.total)}<br>
+    <strong>Ürünler:</strong> ${(o.items || []).map(i => `${i.qty}× ${i.name}`).join(', ')}
+  `;
+  document.getElementById('refundPosReason').value = '';
+  document.getElementById('receiptModal').classList.remove('open');
+  document.getElementById('refundPosModal').classList.add('open');
+}
+function closeRefundPosModal() { document.getElementById('refundPosModal').classList.remove('open'); }
+
+async function confirmPosRefund() {
+  if (!lastOrderForRefund) return;
+  const reason = document.getElementById('refundPosReason').value.trim() || 'POS iptali';
+  try {
+    const res = await fetch('/api/refunds', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'cancel_order', order_id: lastOrderForRefund.id, reason }),
+    });
+    const data = await res.json();
+    if (data.ok) {
+      closeRefundPosModal();
+      showToastPOS(`✅ İptal edildi — İade No: ${data.return_no}`);
+      lastOrderForRefund = null;
+    } else { showToastPOS(data.error || 'İptal hatası', true); }
+  } catch(e) { showToastPOS('Bağlantı hatası: ' + e.message, true); }
+}
+
+// ── KARMA ÖDEME ──────────────────────────────────────────────────────────────
+function openMixedPayModal() {
+  const total = getCartTotal();
+  if (total <= 0 || cart.length === 0) { showToastPOS('Sepet boş', true); return; }
+  document.getElementById('mixedPayTotal').textContent = '₺' + fmt(total);
+  document.getElementById('mixedCash').value = '';
+  document.getElementById('mixedCard').value = '';
+  document.getElementById('mixedChangeInfo').textContent = '';
+  document.getElementById('mixedPayModal').classList.add('open');
+}
+function closeMixedPayModal() { document.getElementById('mixedPayModal').classList.remove('open'); }
+
+function calcMixedChange() {
+  const total = getCartTotal();
+  const cash = parseFloat(document.getElementById('mixedCash').value) || 0;
+  const card = parseFloat(document.getElementById('mixedCard').value) || 0;
+  const paid = cash + card;
+  const change = paid - total;
+  const info = document.getElementById('mixedChangeInfo');
+  if (paid <= 0) { info.textContent = ''; return; }
+  if (paid < total) {
+    info.innerHTML = `<span style="color:#e53935">Eksik ödeme: ₺${fmt(total - paid)}</span>`;
+  } else if (change > 0) {
+    info.innerHTML = `<span style="color:green">Para üstü: ₺${fmt(change)}</span>`;
+  } else {
+    info.innerHTML = `<span style="color:green">Tam ödeme ✓</span>`;
+  }
+}
+
+function getCartTotal() {
+  const sub = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const disc = appliedCoupon ? (appliedCoupon.discount_type === 'percentage'
+    ? sub * appliedCoupon.discount_value / 100
+    : appliedCoupon.discount_value) : 0;
+  return Math.max(0, sub - disc);
+}
+
+async function checkoutMixed() {
+  const cash = parseFloat(document.getElementById('mixedCash').value) || 0;
+  const card = parseFloat(document.getElementById('mixedCard').value) || 0;
+  const total = getCartTotal();
+  if (cash + card < total - 0.01) { showToastPOS('Eksik ödeme', true); return; }
+  closeMixedPayModal();
+  const orderId = 'ord_' + Date.now();
+  const payments = [];
+  if (cash > 0) payments.push({ method: 'cash', amount: cash });
+  if (card > 0) payments.push({ method: 'card', amount: card });
+  try {
+    const res = await fetch('/api/payments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ order_id: orderId, order_total: total, payments, items: cart }),
+    });
+    const data = await res.json();
+    if (data.ok) {
+      const order = { id: orderId, total, items: [...cart], payment_method: 'mixed', payments };
+      lastOrderForRefund = order;
+      showReceipt(order, 'karma');
+      cart = [];
+      appliedCoupon = null;
+      document.getElementById('couponInput').value = '';
+      updateCartUI();
+    } else { showToastPOS(data.error || 'Ödeme hatası', true); }
+  } catch(e) { showToastPOS('Bağlantı hatası', true); }
+}
+
+function showToastPOS(msg, isError = false) {
+  let t = document.getElementById('posToast');
+  if (!t) { t = document.createElement('div'); t.id = 'posToast'; t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:20px;font-size:14px;font-weight:600;z-index:999;pointer-events:none;transition:opacity .3s'; document.body.appendChild(t); }
+  t.textContent = msg;
+  t.style.background = isError ? '#e53935' : '#333';
+  t.style.color = '#fff';
+  t.style.opacity = '1';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.style.opacity = '0'; }, 2500);
+}
+
+function fmt(n) { return Number(n||0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 
 function printReceipt() {
   // ESC/POS via Web Serial API (if supported) or print dialog

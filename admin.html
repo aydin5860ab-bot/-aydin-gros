@@ -274,6 +274,10 @@ tr:hover td{background:var(--gray50)}
       <button class="nav-item" onclick="showPage('auditlog')"><span class="icon">📋</span> Denetim Logu</button>
       <button class="nav-item" onclick="showPage('backup')"><span class="icon">💾</span> Yedek</button>
       <button class="nav-item" onclick="showPage('staff')"><span class="icon">👥</span> Personel</button>
+      <div style="padding:8px 12px;font-size:10px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:.08em;text-transform:uppercase;margin-top:6px">Sprint 7</div>
+      <button class="nav-item" onclick="showPage('refunds')"><span class="icon">↩️</span> İade / İptal</button>
+      <button class="nav-item" onclick="showPage('exchanges')"><span class="icon">🔃</span> Değişim</button>
+      <button class="nav-item" onclick="showPage('zreport')"><span class="icon">📑</span> Z Raporu</button>
     </nav>
     <div class="sidebar-footer">
       <button class="logout-btn" onclick="doLogout()">🚪 Çıkış Yap</button>
@@ -1541,8 +1545,8 @@ function changePass() {
 }
 
 /* ── NAVIGATION ─────────────────────────────────────────────────────── */
-const PAGE_RENDERERS={dash:renderDash,products:renderProducts,categories:renderCategories,orders:renderOrders,campaigns:renderCampaigns,invoices:renderInvoices,stock:renderStock,coupons:renderCoupons,settings:renderSettingsForm,customers:renderCustomers,registers:renderRegisters,transfers:renderTransfers,reports:renderReports,charts:()=>loadCharts(),barcodes:()=>loadBarcodes(),loyalty:()=>loadLoyalty(),whatsapp:()=>loadWhatsappOrders(),efatura:()=>loadEfatura(),auditlog:()=>loadAuditLog(0),backup:()=>loadBackupJobs(),staff:()=>loadStaff()};
-const PAGE_INDICES={dash:0,products:1,categories:2,orders:3,campaigns:4,invoices:5,stock:6,coupons:7,settings:8,customers:9,registers:10,transfers:11,reports:12,charts:13,barcodes:14,loyalty:15,whatsapp:16,efatura:17,auditlog:18,backup:19,staff:20};
+const PAGE_RENDERERS={dash:renderDash,products:renderProducts,categories:renderCategories,orders:renderOrders,campaigns:renderCampaigns,invoices:renderInvoices,stock:renderStock,coupons:renderCoupons,settings:renderSettingsForm,customers:renderCustomers,registers:renderRegisters,transfers:renderTransfers,reports:renderReports,charts:()=>loadCharts(),barcodes:()=>loadBarcodes(),loyalty:()=>loadLoyalty(),whatsapp:()=>loadWhatsappOrders(),efatura:()=>loadEfatura(),auditlog:()=>loadAuditLog(0),backup:()=>loadBackupJobs(),staff:()=>loadStaff(),refunds:()=>loadRefunds(),exchanges:()=>loadExchanges(),zreport:()=>loadZReports()};
+const PAGE_INDICES={dash:0,products:1,categories:2,orders:3,campaigns:4,invoices:5,stock:6,coupons:7,settings:8,customers:9,registers:10,transfers:11,reports:12,charts:13,barcodes:14,loyalty:15,whatsapp:16,efatura:17,auditlog:18,backup:19,staff:20,refunds:22,exchanges:23,zreport:24};
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
@@ -4071,6 +4075,584 @@ async function saveStaffPerm() {
 }
 
 function fmt2(n) { return Number(n ?? 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+</script>
+
+<!-- ═══════════════════════════════════════════════
+     SPRINT 7 PAGES
+════════════════════════════════════════════════ -->
+
+<!-- İADE / İPTAL -->
+<div id="page-refunds" class="page" style="display:none">
+  <div class="page-header">
+    <div><div class="page-title">İade & İptal</div><div class="page-subtitle">Satış iptalleri ve ürün iadeleri</div></div>
+    <button class="btn btn-primary" onclick="openRefundModal()">+ Yeni İade</button>
+  </div>
+  <div class="stats-grid" id="refundStats"></div>
+  <div class="filter-bar">
+    <select id="refundStatusFilter" onchange="loadRefunds()">
+      <option value="">Tüm Durumlar</option>
+      <option value="completed">Tamamlandı</option>
+      <option value="pending">Bekliyor</option>
+      <option value="rejected">Reddedildi</option>
+    </select>
+    <input type="text" id="refundOrderFilter" placeholder="Sipariş ID ara..." oninput="loadRefunds()">
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>İade No</th><th>Sipariş ID</th><th>Tutar</th><th>Yöntem</th><th>Sebep</th><th>Durum</th><th>Tarih</th><th>Kasiyer</th></tr></thead>
+      <tbody id="refundsTbody"></tbody>
+    </table>
+  </div>
+  <!-- Refund Modal -->
+  <div class="modal-overlay" id="refundModal">
+    <div class="modal" style="max-width:680px">
+      <div class="modal-header"><span class="modal-title">İade / İptal İşlemi</span><button class="modal-close" onclick="closeRefundModal()">×</button></div>
+      <div class="modal-body">
+        <div class="alert alert-info" style="margin-bottom:16px">Sipariş ID'sini girin; sipariş bilgileri otomatik yüklenecek.</div>
+        <div class="form-row cols2">
+          <div class="form-group">
+            <label>Sipariş ID</label>
+            <div style="display:flex;gap:8px">
+              <input type="text" id="refundOrderId" placeholder="ord_xxxx veya sipariş numarası">
+              <button class="btn btn-ghost btn-sm" onclick="lookupOrderForRefund()">Yükle</button>
+            </div>
+          </div>
+          <div class="form-group"><label>İade Yöntemi</label>
+            <select id="refundMethod">
+              <option value="cash">Nakit</option>
+              <option value="card">Kart</option>
+              <option value="store_credit">Mağaza Kredisi</option>
+              <option value="loyalty_points">Puan</option>
+            </select>
+          </div>
+        </div>
+        <div id="refundOrderInfo" style="margin-bottom:12px"></div>
+        <div class="form-group" style="margin-bottom:12px"><label>İptal / İade Sebebi</label><textarea id="refundReason" rows="2" placeholder="Müşteri talebi, hatalı ürün, vb."></textarea></div>
+        <div class="form-group">
+          <label><input type="checkbox" id="refundFullOrder" checked style="width:auto;margin-right:6px" onchange="toggleRefundItems()"> Siparişin tamamını iade et</label>
+        </div>
+        <div id="refundItemsSection" style="display:none;margin-top:12px">
+          <div class="dash-card-title" style="margin-bottom:8px">İade Edilecek Ürünler</div>
+          <div id="refundItemsList"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeRefundModal()">İptal</button>
+        <button class="btn btn-danger" onclick="processRefund()">↩️ İadeyi Onayla</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DEĞİŞİM -->
+<div id="page-exchanges" class="page" style="display:none">
+  <div class="page-header">
+    <div><div class="page-title">Ürün Değişimi</div><div class="page-subtitle">Müşteri ürün değişim işlemleri</div></div>
+    <button class="btn btn-primary" onclick="openExchangeModal()">+ Yeni Değişim</button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Değişim No</th><th>Sipariş ID</th><th>İade Edilen</th><th>Alınan</th><th>Fark</th><th>Durum</th><th>Tarih</th></tr></thead>
+      <tbody id="exchangesTbody"></tbody>
+    </table>
+  </div>
+  <!-- Exchange Modal -->
+  <div class="modal-overlay" id="exchangeModal">
+    <div class="modal" style="max-width:780px">
+      <div class="modal-header"><span class="modal-title">Ürün Değişimi</span><button class="modal-close" onclick="closeExchangeModal()">×</button></div>
+      <div class="modal-body">
+        <div class="form-row cols2">
+          <div class="form-group">
+            <label>Orijinal Sipariş ID</label>
+            <div style="display:flex;gap:8px">
+              <input type="text" id="exchangeOrderId" placeholder="Sipariş ID">
+              <button class="btn btn-ghost btn-sm" onclick="lookupOrderForExchange()">Yükle</button>
+            </div>
+          </div>
+          <div class="form-group"><label>Fark Ödeme Yöntemi</label>
+            <select id="exchangePayMethod">
+              <option value="">Fark yok</option>
+              <option value="cash">Nakit</option>
+              <option value="card">Kart</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:4px">
+          <div>
+            <div class="dash-card-title" style="margin-bottom:8px">↩️ İade Edilen Ürünler</div>
+            <div id="exchangeReturnItems"></div>
+          </div>
+          <div>
+            <div class="dash-card-title" style="margin-bottom:8px">📦 Yeni Alınan Ürünler</div>
+            <div id="exchangeNewItems"></div>
+            <button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="addExchangeNewItem()">+ Ürün Ekle</button>
+          </div>
+        </div>
+        <div id="exchangeDiffInfo" style="margin-top:12px;padding:12px;background:var(--gray50);border-radius:8px;display:none"></div>
+        <div class="form-group" style="margin-top:12px"><label>Notlar</label><textarea id="exchangeNotes" rows="2"></textarea></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeExchangeModal()">İptal</button>
+        <button class="btn btn-primary" onclick="processExchange()">🔃 Değişimi Onayla</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Z RAPORU -->
+<div id="page-zreport" class="page" style="display:none">
+  <div class="page-header">
+    <div><div class="page-title">Z Raporu</div><div class="page-subtitle">Gün sonu kasa raporu</div></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost btn-sm" onclick="previewZReport()">🔍 Önizleme</button>
+      <button class="btn btn-primary" onclick="openZReportModal()">📑 Z Raporu Al</button>
+    </div>
+  </div>
+
+  <!-- Anlık önizleme -->
+  <div class="card" id="zPreviewCard" style="display:none;margin-bottom:20px">
+    <div class="dash-card-title">Anlık Vardiya Özeti</div>
+    <div id="zPreviewContent"></div>
+  </div>
+
+  <!-- Kaydedilmiş raporlar -->
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Rapor No</th><th>Vardiya Başlangıç</th><th>Vardiya Bitiş</th><th>Satış</th><th>İade</th><th>Net</th><th>Nakit</th><th>Kart</th><th>Durum</th></tr></thead>
+      <tbody id="zReportsTbody"></tbody>
+    </table>
+  </div>
+
+  <!-- Z Report Modal -->
+  <div class="modal-overlay" id="zReportModal">
+    <div class="modal" style="max-width:560px">
+      <div class="modal-header"><span class="modal-title">📑 Z Raporu Al ve Kasayı Kapat</span><button class="modal-close" onclick="closeZReportModal()">×</button></div>
+      <div class="modal-body">
+        <div class="alert alert-warn" style="margin-bottom:16px">⚠️ Bu işlem mevcut kasa oturumunu kapatacak. Devam etmek istiyor musunuz?</div>
+        <div id="zModalPreview"></div>
+        <div class="form-row cols2" style="margin-top:16px">
+          <div class="form-group"><label>Kasa Oturum ID (opsiyonel)</label><input type="text" id="zSessionId" placeholder="Otomatik tespite bırak"></div>
+          <div class="form-group"><label>Kasadaki Nakit (TL)</label><input type="number" id="zClosingCash" step="0.01" placeholder="0.00"></div>
+        </div>
+        <div class="form-group"><label>Kasiyer</label><input type="email" id="zCashierEmail" placeholder="kasiyer@magaza.com"></div>
+        <div class="form-group"><label>Notlar</label><textarea id="zNotes" rows="2"></textarea></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeZReportModal()">İptal</button>
+        <button class="btn btn-primary" onclick="generateZReport()">📑 Raporu Oluştur ve Kasayı Kapat</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// SPRINT 7 JS
+// ══════════════════════════════════════════════
+
+// ── İADE / İPTAL ────────────────────────────────────────────────────────────
+let currentRefundOrder = null;
+
+async function loadRefunds() {
+  const status = document.getElementById('refundStatusFilter')?.value ?? '';
+  const orderId = document.getElementById('refundOrderFilter')?.value.trim() ?? '';
+
+  let url = '/api/refunds?limit=50';
+  if (status) url += `&status=${encodeURIComponent(status)}`;
+  if (orderId) url += `&order_id=${encodeURIComponent(orderId)}`;
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    const rows = Array.isArray(data) ? data : [];
+
+    // Stats
+    const totalRefund = rows.reduce((s, r) => s + (r.total_refund ?? 0), 0);
+    const completed = rows.filter(r => r.status === 'completed').length;
+    const rs = document.getElementById('refundStats');
+    if (rs) rs.innerHTML = [
+      { icon:'↩️', color:'red',    val: rows.length,              label: 'Toplam İade' },
+      { icon:'💰', color:'orange', val: '₺' + fmt2(totalRefund), label: 'İade Tutarı' },
+      { icon:'✅', color:'green',  val: completed,                label: 'Tamamlanan' },
+    ].map(s => `<div class="stat-card"><div class="stat-icon ${s.color}">${s.icon}</div><div class="stat-val">${s.val}</div><div class="stat-label">${s.label}</div></div>`).join('');
+
+    const tbody = document.getElementById('refundsTbody');
+    if (!tbody) return;
+    const statusBadge = { completed:'badge-green', pending:'badge-yellow', rejected:'badge-red', partial:'badge-blue' };
+    const methodLabel = { cash:'Nakit', card:'Kart', store_credit:'Mağaza Kredisi', loyalty_points:'Puan' };
+    tbody.innerHTML = rows.map(r => `
+      <tr>
+        <td><code style="font-size:11px">${esc(r.return_no ?? '—')}</code></td>
+        <td style="font-size:11px">${esc(String(r.original_order_id ?? '').slice(0, 16))}</td>
+        <td><strong>₺${fmt2(r.total_refund)}</strong></td>
+        <td>${methodLabel[r.refund_method] ?? r.refund_method ?? '—'}</td>
+        <td style="font-size:12px;color:var(--gray500)">${esc((r.return_reason ?? '').slice(0, 40))}</td>
+        <td><span class="badge ${statusBadge[r.status] ?? 'badge-gray'}">${r.status ?? '—'}</span></td>
+        <td style="font-size:12px">${(r.created_at ?? '').slice(0, 10)}</td>
+        <td style="font-size:11px">${esc(r.processed_by ?? '—')}</td>
+      </tr>
+    `).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--gray500);padding:24px">İade kaydı yok</td></tr>';
+  } catch(e) { showToast('Yükleme hatası: ' + e.message, 'error'); }
+}
+
+function openRefundModal() {
+  currentRefundOrder = null;
+  document.getElementById('refundOrderId').value = '';
+  document.getElementById('refundOrderInfo').innerHTML = '';
+  document.getElementById('refundReason').value = '';
+  document.getElementById('refundFullOrder').checked = true;
+  document.getElementById('refundItemsSection').style.display = 'none';
+  document.getElementById('refundModal').classList.add('open');
+}
+function closeRefundModal() { document.getElementById('refundModal').classList.remove('open'); }
+
+async function lookupOrderForRefund() {
+  const orderId = document.getElementById('refundOrderId').value.trim();
+  if (!orderId) return;
+  try {
+    const res = await fetch(`/api/db?coll=orders&id=${encodeURIComponent(orderId)}`);
+    const data = await res.json();
+    const order = Array.isArray(data) ? data[0] : data;
+    if (!order) { document.getElementById('refundOrderInfo').innerHTML = '<div class="alert alert-danger">Sipariş bulunamadı</div>'; return; }
+    currentRefundOrder = order;
+
+    const cancelledBadge = order.is_cancelled ? '<span class="badge badge-red">❌ İptal Edilmiş</span>' : '';
+    document.getElementById('refundOrderInfo').innerHTML = `
+      <div style="padding:12px;background:var(--gray50);border-radius:8px;border:1px solid var(--gray200)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <strong>Sipariş: ${esc(String(order.id).slice(0, 20))}</strong>
+          ${cancelledBadge}
+        </div>
+        <div style="font-size:13px;color:var(--gray600)">
+          Toplam: <strong>₺${fmt2(order.total)}</strong> &nbsp;|&nbsp;
+          Ödeme: ${order.payment_method ?? '—'} &nbsp;|&nbsp;
+          Tarih: ${(order.created_at ?? '').slice(0, 10)}
+        </div>
+        <div style="font-size:12px;color:var(--gray500);margin-top:6px">
+          ${(order.items ?? []).map(i => `${i.qty}× ${esc(i.name)} (₺${fmt2(i.price * i.qty)})`).join(' • ')}
+        </div>
+      </div>
+    `;
+    document.getElementById('refundMethod').value = order.payment_method === 'card' ? 'card' : 'cash';
+
+    // Kısmi iade bölümünü hazırla
+    const itemsSection = document.getElementById('refundItemsList');
+    if (itemsSection) {
+      itemsSection.innerHTML = (order.items ?? []).map((item, idx) => `
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px;background:var(--white);border:1px solid var(--gray200);border-radius:6px">
+          <input type="checkbox" id="ri_${idx}" checked style="width:auto">
+          <label for="ri_${idx}" style="flex:1;font-size:13px">${esc(item.name)}</label>
+          <span style="font-size:12px;color:var(--gray500)">x${item.qty} — ₺${fmt2(item.price * item.qty)}</span>
+          <input type="number" id="riq_${idx}" value="${item.qty}" min="1" max="${item.qty}" style="width:60px;padding:4px;border:1.5px solid var(--gray200);border-radius:4px;font-size:12px">
+        </div>
+      `).join('');
+    }
+  } catch(e) { document.getElementById('refundOrderInfo').innerHTML = `<div class="alert alert-danger">Hata: ${esc(e.message)}</div>`; }
+}
+
+function toggleRefundItems() {
+  const full = document.getElementById('refundFullOrder').checked;
+  document.getElementById('refundItemsSection').style.display = full ? 'none' : 'block';
+}
+
+async function processRefund() {
+  if (!currentRefundOrder) { showToast('Önce sipariş yükleyin', 'error'); return; }
+  const full = document.getElementById('refundFullOrder').checked;
+  const reason = document.getElementById('refundReason').value.trim();
+  const method = document.getElementById('refundMethod').value;
+
+  if (full) {
+    // Tam sipariş iptali
+    const res = await fetch('/api/refunds', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'cancel_order',
+        order_id: currentRefundOrder.id,
+        reason,
+        refund_method: method,
+      }),
+    });
+    const data = await res.json();
+    if (data.ok) {
+      showToast(`✅ İade No: ${data.return_no} — ₺${fmt2(data.total_refund)} ${method === 'cash' ? 'nakit' : 'kart'} iade`);
+      closeRefundModal();
+      loadRefunds();
+    } else { showToast(data.error ?? 'Hata', 'error'); }
+  } else {
+    // Kısmi iade
+    const items = (currentRefundOrder.items ?? []).map((item, idx) => {
+      const cb = document.getElementById(`ri_${idx}`);
+      const qty = parseInt(document.getElementById(`riq_${idx}`)?.value ?? '0');
+      return cb?.checked && qty > 0 ? { name: item.name, qty, price: item.price, product_id: item.id } : null;
+    }).filter(Boolean);
+
+    if (!items.length) { showToast('En az bir ürün seçin', 'error'); return; }
+
+    const res = await fetch('/api/refunds', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'partial_return', order_id: currentRefundOrder.id, items, refund_method: method, reason }),
+    });
+    const data = await res.json();
+    if (data.ok) {
+      showToast(`✅ Kısmi İade: ${data.return_no} — ₺${fmt2(data.total_refund)}`);
+      closeRefundModal();
+      loadRefunds();
+    } else { showToast(data.error ?? 'Hata', 'error'); }
+  }
+}
+
+// ── DEĞİŞİM ─────────────────────────────────────────────────────────────────
+let currentExchangeOrder = null;
+let exchangeNewItems = [];
+
+async function loadExchanges() {
+  try {
+    const res = await fetch('/api/exchanges?limit=50');
+    const rows = await res.json();
+    const tbody = document.getElementById('exchangesTbody');
+    if (!tbody) return;
+    const statusBadge = { completed:'badge-green', pending:'badge-yellow', cancelled:'badge-red' };
+    tbody.innerHTML = (Array.isArray(rows) ? rows : []).map(e => `
+      <tr>
+        <td><code style="font-size:11px">${esc(e.exchange_no ?? '—')}</code></td>
+        <td style="font-size:11px">${esc(String(e.original_order_id ?? '').slice(0, 16))}</td>
+        <td style="font-size:12px">₺${fmt2(e.return_total)}</td>
+        <td style="font-size:12px">₺${fmt2(e.new_total)}</td>
+        <td>
+          <span class="${e.difference > 0 ? 'badge badge-orange' : e.difference < 0 ? 'badge badge-green' : 'badge badge-gray'}">
+            ${e.difference > 0 ? '+' : ''}₺${fmt2(e.difference)}
+          </span>
+        </td>
+        <td><span class="badge ${statusBadge[e.status] ?? 'badge-gray'}">${e.status ?? '—'}</span></td>
+        <td style="font-size:12px">${(e.created_at ?? '').slice(0, 10)}</td>
+      </tr>
+    `).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--gray500);padding:24px">Değişim kaydı yok</td></tr>';
+  } catch(e) {}
+}
+
+function openExchangeModal() {
+  currentExchangeOrder = null;
+  exchangeNewItems = [];
+  document.getElementById('exchangeOrderId').value = '';
+  document.getElementById('exchangeReturnItems').innerHTML = '';
+  document.getElementById('exchangeNewItems').innerHTML = '';
+  document.getElementById('exchangeDiffInfo').style.display = 'none';
+  document.getElementById('exchangeModal').classList.add('open');
+}
+function closeExchangeModal() { document.getElementById('exchangeModal').classList.remove('open'); }
+
+async function lookupOrderForExchange() {
+  const orderId = document.getElementById('exchangeOrderId').value.trim();
+  if (!orderId) return;
+  try {
+    const res = await fetch(`/api/db?coll=orders&id=${encodeURIComponent(orderId)}`);
+    const data = await res.json();
+    const order = Array.isArray(data) ? data[0] : data;
+    if (!order) { showToast('Sipariş bulunamadı', 'error'); return; }
+    currentExchangeOrder = order;
+
+    const container = document.getElementById('exchangeReturnItems');
+    if (container) {
+      container.innerHTML = (order.items ?? []).map((item, idx) => `
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:8px;background:var(--gray50);border-radius:6px">
+          <input type="checkbox" id="eri_${idx}" checked style="width:auto">
+          <label for="eri_${idx}" style="flex:1;font-size:12px">${esc(item.name)}</label>
+          <input type="number" id="erq_${idx}" value="${item.qty}" min="0" max="${item.qty}" style="width:52px;padding:4px;border:1.5px solid var(--gray200);border-radius:4px;font-size:12px" oninput="calcExchangeDiff()">
+          <span style="font-size:11px;color:var(--gray500)">₺${fmt2(item.price)}</span>
+        </div>
+      `).join('') || '<div style="color:var(--gray500);font-size:13px">Ürün bulunamadı</div>';
+    }
+  } catch(e) { showToast('Hata: ' + e.message, 'error'); }
+}
+
+function addExchangeNewItem() {
+  const container = document.getElementById('exchangeNewItems');
+  const idx = exchangeNewItems.length;
+  exchangeNewItems.push({ name: '', qty: 1, price: 0 });
+  const div = document.createElement('div');
+  div.id = `eni_wrap_${idx}`;
+  div.style.cssText = 'display:flex;gap:6px;margin-bottom:6px;align-items:end';
+  div.innerHTML = `
+    <div class="form-group" style="flex:2;margin:0"><label style="font-size:11px">Ürün Adı</label><input type="text" id="eni_name_${idx}" oninput="updateExchangeNewItem(${idx})" placeholder="Ürün adı"></div>
+    <div class="form-group" style="flex:1;margin:0"><label style="font-size:11px">Adet</label><input type="number" id="eni_qty_${idx}" value="1" min="1" oninput="updateExchangeNewItem(${idx})"></div>
+    <div class="form-group" style="flex:1;margin:0"><label style="font-size:11px">Fiyat (₺)</label><input type="number" id="eni_price_${idx}" value="0" min="0" step="0.01" oninput="updateExchangeNewItem(${idx})"></div>
+    <button class="btn btn-danger btn-xs" onclick="removeExchangeNewItem(${idx})" style="margin-bottom:1px">×</button>
+  `;
+  container.appendChild(div);
+}
+
+function updateExchangeNewItem(idx) {
+  exchangeNewItems[idx] = {
+    name: document.getElementById(`eni_name_${idx}`)?.value ?? '',
+    qty: parseInt(document.getElementById(`eni_qty_${idx}`)?.value ?? '1'),
+    price: parseFloat(document.getElementById(`eni_price_${idx}`)?.value ?? '0'),
+  };
+  calcExchangeDiff();
+}
+
+function removeExchangeNewItem(idx) {
+  const el = document.getElementById(`eni_wrap_${idx}`);
+  if (el) el.remove();
+  exchangeNewItems[idx] = { name: '', qty: 0, price: 0 };
+  calcExchangeDiff();
+}
+
+function calcExchangeDiff() {
+  if (!currentExchangeOrder) return;
+  const returnTotal = (currentExchangeOrder.items ?? []).reduce((s, item, idx) => {
+    const cb = document.getElementById(`eri_${idx}`);
+    const qty = parseInt(document.getElementById(`erq_${idx}`)?.value ?? '0');
+    return cb?.checked ? s + item.price * qty : s;
+  }, 0);
+  const newTotal = exchangeNewItems.reduce((s, i) => s + (i.price * i.qty), 0);
+  const diff = newTotal - returnTotal;
+
+  const info = document.getElementById('exchangeDiffInfo');
+  if (!info) return;
+  info.style.display = 'block';
+  info.innerHTML = `
+    <div style="display:flex;gap:20px;font-size:14px">
+      <div><span style="color:var(--gray500)">İade Edilecek:</span> <strong>₺${fmt2(returnTotal)}</strong></div>
+      <div><span style="color:var(--gray500)">Yeni Ürünler:</span> <strong>₺${fmt2(newTotal)}</strong></div>
+      <div><span style="color:var(--gray500)">Fark:</span> <strong style="color:${diff > 0 ? 'var(--orange)' : diff < 0 ? 'var(--green)' : 'var(--gray700)'}">
+        ${diff > 0 ? `Müşteri ₺${fmt2(diff)} öder` : diff < 0 ? `Müşteriye ₺${fmt2(Math.abs(diff))} iade` : 'Fark yok'}
+      </strong></div>
+    </div>
+  `;
+}
+
+async function processExchange() {
+  if (!currentExchangeOrder) { showToast('Önce sipariş yükleyin', 'error'); return; }
+
+  const returnItems = (currentExchangeOrder.items ?? []).map((item, idx) => {
+    const cb = document.getElementById(`eri_${idx}`);
+    const qty = parseInt(document.getElementById(`erq_${idx}`)?.value ?? '0');
+    return cb?.checked && qty > 0 ? { name: item.name, qty, price: item.price } : null;
+  }).filter(Boolean);
+
+  const newItems = exchangeNewItems.filter(i => i.name && i.qty > 0);
+
+  if (!returnItems.length || !newItems.length) {
+    showToast('Hem iade edilecek hem de yeni ürün seçilmeli', 'error');
+    return;
+  }
+
+  const res = await fetch('/api/exchanges', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      order_id: currentExchangeOrder.id,
+      return_items: returnItems,
+      new_items: newItems,
+      payment_method: document.getElementById('exchangePayMethod').value || null,
+      notes: document.getElementById('exchangeNotes').value,
+    }),
+  });
+  const data = await res.json();
+  if (data.ok) {
+    let msg = `✅ ${data.exchange_no}`;
+    if (data.action_required === 'customer_pays') msg += ` — Müşteri ₺${fmt2(data.difference)} öder`;
+    if (data.action_required === 'refund_customer') msg += ` — ₺${fmt2(Math.abs(data.difference))} iade`;
+    showToast(msg);
+    closeExchangeModal();
+    loadExchanges();
+  } else { showToast(data.error ?? 'Hata', 'error'); }
+}
+
+// ── Z RAPORU ─────────────────────────────────────────────────────────────────
+async function loadZReports() {
+  try {
+    const res = await fetch('/api/z-report?action=list');
+    const rows = await res.json();
+    const tbody = document.getElementById('zReportsTbody');
+    if (!tbody) return;
+    const statusBadge = { draft:'badge-yellow', closed:'badge-green', printed:'badge-blue' };
+    tbody.innerHTML = (Array.isArray(rows) ? rows : []).map(r => `
+      <tr>
+        <td><strong>${esc(r.report_no)}</strong></td>
+        <td style="font-size:12px">${(r.shift_start ?? '').slice(0, 16).replace('T',' ')}</td>
+        <td style="font-size:12px">${(r.shift_end ?? '').slice(0, 16).replace('T',' ')}</td>
+        <td><strong>₺${fmt2(r.total_sales_amount)}</strong> <span style="font-size:11px;color:var(--gray500)">(${r.total_sales_count} işlem)</span></td>
+        <td style="color:var(--red)">-₺${fmt2(r.total_returns_amount)}</td>
+        <td><strong>₺${fmt2(r.net_amount)}</strong></td>
+        <td>₺${fmt2(r.cash_total)}</td>
+        <td>₺${fmt2(r.card_total)}</td>
+        <td><span class="badge ${statusBadge[r.status] ?? 'badge-gray'}">${r.status ?? '—'}</span></td>
+      </tr>
+    `).join('') || '<tr><td colspan="9" style="text-align:center;color:var(--gray500);padding:24px">Z raporu bulunamadı</td></tr>';
+  } catch(e) {}
+}
+
+async function previewZReport() {
+  const card = document.getElementById('zPreviewCard');
+  const content = document.getElementById('zPreviewContent');
+  if (!card || !content) return;
+
+  content.innerHTML = '<div style="text-align:center;padding:20px;color:var(--gray500)">Yükleniyor…</div>';
+  card.style.display = 'block';
+
+  try {
+    const res = await fetch('/api/z-report?action=preview');
+    const d = await res.json();
+    content.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:8px">
+        <div class="stat-card"><div class="stat-icon orange">🛒</div><div class="stat-val">${d.total_sales_count}</div><div class="stat-label">Satış</div></div>
+        <div class="stat-card"><div class="stat-icon green">₺</div><div class="stat-val">₺${fmt2(d.total_sales_amount)}</div><div class="stat-label">Ciro</div></div>
+        <div class="stat-card"><div class="stat-icon red">↩️</div><div class="stat-val">₺${fmt2(d.total_returns_amount)}</div><div class="stat-label">İade</div></div>
+        <div class="stat-card"><div class="stat-icon blue">📊</div><div class="stat-val">₺${fmt2(d.net_amount)}</div><div class="stat-label">Net</div></div>
+        <div class="stat-card"><div class="stat-icon yellow">💵</div><div class="stat-val">₺${fmt2(d.cash_total)}</div><div class="stat-label">Nakit</div></div>
+        <div class="stat-card"><div class="stat-icon purple">💳</div><div class="stat-val">₺${fmt2(d.card_total)}</div><div class="stat-label">Kart</div></div>
+      </div>
+      <div style="margin-top:12px;font-size:12px;color:var(--gray500)">
+        Vardiya: ${(d.shift_start ?? '').slice(0, 16).replace('T',' ')} → ${(d.shift_end ?? '').slice(0, 16).replace('T',' ')}
+      </div>
+    `;
+  } catch(e) { content.innerHTML = '<div class="alert alert-danger">Önizleme alınamadı</div>'; }
+}
+
+async function openZReportModal() {
+  const preview = document.getElementById('zModalPreview');
+  if (preview) {
+    preview.innerHTML = '<div style="text-align:center;padding:8px;color:var(--gray500)">Yükleniyor…</div>';
+    try {
+      const res = await fetch('/api/z-report?action=preview');
+      const d = await res.json();
+      preview.innerHTML = `
+        <div style="background:var(--gray50);border-radius:8px;padding:12px;font-size:13px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span>Satış</span><strong>₺${fmt2(d.total_sales_amount)} (${d.total_sales_count} işlem)</strong></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span>İade</span><strong style="color:var(--red)">-₺${fmt2(d.total_returns_amount)}</strong></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span>Net Ciro</span><strong>₺${fmt2(d.net_amount)}</strong></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span>Nakit</span><strong>₺${fmt2(d.cash_total)}</strong></div>
+          <div style="display:flex;justify-content:space-between"><span>Kart</span><strong>₺${fmt2(d.card_total)}</strong></div>
+        </div>
+      `;
+      document.getElementById('zClosingCash').placeholder = fmt2(d.opening_balance + d.cash_total);
+    } catch(e) { preview.innerHTML = ''; }
+  }
+  document.getElementById('zReportModal').classList.add('open');
+}
+function closeZReportModal() { document.getElementById('zReportModal').classList.remove('open'); }
+
+async function generateZReport() {
+  const closingCash = parseFloat(document.getElementById('zClosingCash').value) || 0;
+  const cashierEmail = document.getElementById('zCashierEmail').value.trim();
+  const notes = document.getElementById('zNotes').value.trim();
+  const sessionId = document.getElementById('zSessionId').value.trim() || undefined;
+
+  const res = await fetch('/api/z-report', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'generate', session_id: sessionId, closing_cash: closingCash, cashier_email: cashierEmail, notes }),
+  });
+  const data = await res.json();
+  if (data.ok) {
+    showToast(`✅ ${data.report_no} oluşturuldu`);
+    closeZReportModal();
+    loadZReports();
+  } else { showToast(data.error ?? 'Hata', 'error'); }
+}
 </script>
 
 </body>
