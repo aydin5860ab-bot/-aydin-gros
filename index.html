@@ -2871,9 +2871,11 @@ async function fetchDb(coll, def) {
   return def;
 }
 async function saveDb(coll, data) {
-  try {
-    await fetch('/api/db?coll='+coll, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
-  } catch(e) {}
+  const r = await fetch('/api/db?coll='+coll, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+  if(!r.ok) {
+    const errData = await r.json().catch(() => ({}));
+    throw new Error(errData.error || `Kaydetme hatası (${r.status})`);
+  }
 }
 async function syncBackend() {
   try {
@@ -2938,38 +2940,49 @@ function openPayModal(){
 }
 function closePayModal(){ document.getElementById('payModal').classList.remove('show'); }
 
-function doCheckout(payMethod){
-  closePayModal();
+async function doCheckout(payMethod){
   const subtotal=cart.reduce((s,i)=>s+(i.price*i.quantity),0);
   const discount=subtotal*(discountPct/100);
   const total=subtotal-discount;
   const orderNo=genOrderNo();
   const phone=currentUser?.phone||'';
   const addr=localStorage.getItem('ag_addr')||'Belirtilmedi';
-  saveOrder(orderNo, phone, cart, total);
-  const payLabel=payMethod==='nakit'?'📦 Kapıda Nakit':'📦 Kapıda Kart';
-  let msg='Merhaba Aydın Gros! Web sitenizden sipariş oluşturmak istiyorum:\n\n';
-  msg+=`📋 SİPARİŞ NO: ${orderNo}\n`;
-  msg+=`💳 ÖDEME: ${payLabel}\n`;
-  msg+=`📍 TESLİMAT: ${addr}\n`;
-  if(userCoords){
-    const lat=userCoords.latitude.toFixed(6), lng=userCoords.longitude.toFixed(6);
-    msg+=`📍️ CANLI KONUM: https://maps.google.com/maps?q=${lat},${lng}\n`;
+
+  showToast('Siparişiniz doğrulanıyor, lütfen bekleyin...', 4000);
+
+  try {
+    // 1. Save order to backend, which validates and updates stock
+    await saveOrder(orderNo, phone, cart, total);
+
+    // 2. Success - continue checkout flow
+    closePayModal();
+    const payLabel=payMethod==='nakit'?'📦 Kapıda Nakit':'📦 Kapıda Kart';
+    let msg='Merhaba Aydın Gros! Web sitenizden sipariş oluşturmak istiyorum:\n\n';
+    msg+=`📋 SİPARİŞ NO: ${orderNo}\n`;
+    msg+=`💳 ÖDEME: ${payLabel}\n`;
+    msg+=`📍 TESLİMAT: ${addr}\n`;
+    if(userCoords){
+      const lat=userCoords.latitude.toFixed(6), lng=userCoords.longitude.toFixed(6);
+      msg+=`📍️ CANLI KONUM: https://maps.google.com/maps?q=${lat},${lng}\n`;
+    }
+    msg+='\n';
+    msg+='SİPARİŞ LİSTEM:\n';
+    cart.forEach((i,n)=>{ msg+=`${n+1}. ${i.name} (${i.unit}) × ${i.quantity} → ₺${(i.price*i.quantity).toFixed(2)}\n`; });
+    msg+='\n─────────────────\n';
+    msg+=`Ara Toplam: ₺${subtotal.toFixed(2)}\n`;
+    if(promoCode){ msg+=`Kupon: ${promoCode}\n`; if(discountPct>0) msg+=`İndirim: -₺${discount.toFixed(2)}\n`; if(freeGift) msg+=`Hediye: ${freeGift}\n`; }
+    msg+=`GENEL TOPLAM: ₺${total.toFixed(2)}\n`;
+    msg+='─────────────────\nLütfen siparişimi onaylayın. Teşekkürler!';
+    showOrderConfirm(orderNo, total, payLabel);
+    window.open('https://wa.me/905444789461?text='+encodeURIComponent(msg),'_blank');
+    // Sepeti temizle
+    cart=[]; promoCode=null; discountPct=0; freeGift=null;
+    updateCartUI();
+    renderAll();
+  } catch (err) {
+    console.error('[doCheckout] Hata:', err);
+    alert(`Sipariş oluşturulamadı:\n${err.message}`);
   }
-  msg+='\n';
-  msg+='SİPARİŞ LİSTEM:\n';
-  cart.forEach((i,n)=>{ msg+=`${n+1}. ${i.name} (${i.unit}) × ${i.quantity} → ₺${(i.price*i.quantity).toFixed(2)}\n`; });
-  msg+='\n─────────────────\n';
-  msg+=`Ara Toplam: ₺${subtotal.toFixed(2)}\n`;
-  if(promoCode){ msg+=`Kupon: ${promoCode}\n`; if(discountPct>0) msg+=`İndirim: -₺${discount.toFixed(2)}\n`; if(freeGift) msg+=`Hediye: ${freeGift}\n`; }
-  msg+=`GENEL TOPLAM: ₺${total.toFixed(2)}\n`;
-  msg+='─────────────────\nLütfen siparişimi onaylayın. Teşekkürler!';
-  showOrderConfirm(orderNo, total, payLabel);
-  window.open('https://wa.me/905444789461?text='+encodeURIComponent(msg),'_blank');
-  // Sepeti temizle
-  cart=[]; promoCode=null; discountPct=0; freeGift=null;
-  updateCartUI();
-  renderAll();
 }
 
 function showOrderConfirm(orderNo, total, payLabel){
