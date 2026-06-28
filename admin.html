@@ -1005,7 +1005,7 @@ const DEFAULT_SETTINGS={
 };
 
 /* ── STATE ───────────────────────────────────────────────────────────── */
-let products=[],orders=[],promos={},settings={},campaigns=[],stock={},invoices=[];
+let products=[],orders=[],promos={},settings={},campaigns=[],stock={},invoices=[],categoriesList=[];
 let invLineCounter=0;
 
 async function fetchDb(coll, def) {
@@ -1023,6 +1023,7 @@ async function saveDb(coll, data) {
 async function initBackendData() {
   const _lsProds = JSON.parse(localStorage.getItem('ag_products') || 'null');
   products = await fetchDb('products', null) || _lsProds || JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+  categoriesList = await fetchDb('categories', []);
   orders = await fetchDb('orders', []);
   promos = await fetchDb('promos', null) || JSON.parse(JSON.stringify(DEFAULT_PROMOS));
   settings = await fetchDb('settings', null) || JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
@@ -1032,6 +1033,7 @@ async function initBackendData() {
   console.log(
     '[AydınGros] Veri yüklendi —',
     `products:${products.length}`,
+    `categories:${categoriesList.length}`,
     `orders:${orders.length}`,
     `promos:${Object.keys(promos).length}`,
     `campaigns:${campaigns.length}`,
@@ -1277,6 +1279,7 @@ function renderDash(){
     <div class="stat-card"><div class="stat-icon orange">🛒</div><div class="stat-val">${orders.length}</div><div class="stat-label">Toplam Sipariş</div></div>
     <div class="stat-card"><div class="stat-icon green">💰</div><div class="stat-val">${fmtPrice(revenue)}</div><div class="stat-label">Toplam Ciro</div></div>
     <div class="stat-card"><div class="stat-icon blue">📦</div><div class="stat-val">${products.length}</div><div class="stat-label">Ürün Sayısı</div></div>
+    <div class="stat-card"><div class="stat-icon blue">🗂️</div><div class="stat-val">${categoriesList.length || '—'}</div><div class="stat-label">Kategori</div></div>
     <div class="stat-card"><div class="stat-icon purple">📅</div><div class="stat-val">${activeCamps}</div><div class="stat-label">Aktif Kampanya</div></div>
     <div class="stat-card"><div class="stat-icon ${criticalStock>0?'red':'green'}">${criticalStock>0?'⚠️':'✅'}</div><div class="stat-val">${criticalStock}</div><div class="stat-label">Kritik Stok</div></div>
     <div class="stat-card"><div class="stat-icon yellow">🎟️</div><div class="stat-val">${Object.keys(promos).length}</div><div class="stat-label">Aktif Kupon</div></div>

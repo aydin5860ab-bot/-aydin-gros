@@ -146,6 +146,23 @@ async function supabaseRead(coll, supabase) {
       }))
     }
 
+    case 'categories': {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('id, name, slug, display_order, is_active')
+        .eq('tenant_id', TENANT_ID)
+        .is('deleted_at', null)
+        .eq('is_active', true)
+        .order('display_order')
+      if (error || !data?.length) return null
+      return data.map(r => ({
+        id: r.id,
+        name: r.name,
+        slug: r.slug,
+        order: r.display_order,
+      }))
+    }
+
     case 'promos': {
       const { data, error } = await supabase
         .from('coupons')

@@ -2878,15 +2878,25 @@ async function saveDb(coll, data) {
 async function syncBackend() {
   try {
     const dbProducts = await fetchDb('products', null);
-    if(dbProducts && dbProducts.length > 0) { products = dbProducts; }
+    if(dbProducts && dbProducts.length > 0) {
+      products = dbProducts;
+      localStorage.setItem('ag_products', JSON.stringify(products));
+      console.log('[AydınGros] Ürünler Supabase\'den yüklendi:', products.length);
+    }
     const dbStock = await fetchDb('stock', null);
     if(dbStock) {
+      localStorage.setItem('ag_stock', JSON.stringify(dbStock));
       products.forEach(p => {
         if(dbStock[p.id] && dbStock[p.id].qty <= 0) { p.outOfStock = true; }
+        else if(p.outOfStock) { delete p.outOfStock; }
       });
     }
-    renderProducts();
-  } catch(e) {}
+    const dbCampaigns = await fetchDb('campaigns', null);
+    if(dbCampaigns) {
+      localStorage.setItem('ag_campaigns', JSON.stringify(dbCampaigns));
+    }
+    renderAll();
+  } catch(e) { console.warn('[AydınGros] syncBackend hata:', e.message); }
 }
 setTimeout(syncBackend, 500);
 
@@ -3595,6 +3605,8 @@ function saveEditProduct() {
   if (idx === -1) return;
   products[idx] = {...products[idx], name, price, unit};
   localStorage.setItem('ag_products', JSON.stringify(products));
+  // DB'ye de kaydet
+  saveDb('products', products);
   closeEditProduct();
   renderAll();
   // Refresh search results if open
