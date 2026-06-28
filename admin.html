@@ -253,6 +253,7 @@ tr:hover td{background:var(--gray50)}
     <nav>
       <button class="nav-item active" onclick="showPage('dash')"><span class="icon">📊</span> Özet</button>
       <button class="nav-item" onclick="showPage('products')"><span class="icon">📦</span> Ürünler</button>
+      <button class="nav-item" onclick="showPage('categories')"><span class="icon">🗂️</span> Kategoriler</button>
       <button class="nav-item" onclick="showPage('orders')"><span class="icon">🛒</span> Siparişler</button>
       <button class="nav-item" onclick="showPage('campaigns')"><span class="icon">📅</span> Kampanyalar</button>
       <button class="nav-item" onclick="showPage('invoices')"><span class="icon">📄</span> Fatura & Maliyet</button>
@@ -338,6 +339,22 @@ tr:hover td{background:var(--gray50)}
         <table>
           <thead><tr><th>Ürün</th><th class="hide-mob">Kategori</th><th>Fiyat</th><th class="hide-mob">Stok</th><th class="hide-mob">Öne Çıkan</th><th>İşlemler</th></tr></thead>
           <tbody id="prodTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CATEGORIES -->
+    <div id="page-categories" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Kategoriler</div><div class="page-subtitle" id="catCount"></div></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="openCategoryModal()">+ Kategori Ekle</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Kategori Adı</th><th>Slug</th><th>Sıralama</th><th>İşlemler</th></tr></thead>
+          <tbody id="catTableBody"></tbody>
         </table>
       </div>
     </div>
@@ -643,6 +660,26 @@ tr:hover td{background:var(--gray50)}
     </div>
     <div class="modal-body" id="orderModalBody"></div>
     <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('orderModal')">Kapat</button></div>
+  </div>
+</div>
+
+<!-- Category Modal -->
+<div class="modal-overlay" id="categoryModal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <div class="modal-title" id="categoryModalTitle">Kategori Ekle</div>
+      <button class="modal-close" onclick="closeModal('categoryModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="catId">
+      <div class="form-group"><label>Kategori Adı *</label><input type="text" id="catName" placeholder="Kategori adı"></div>
+      <div class="form-group"><label>Slug *</label><input type="text" id="catSlug" placeholder="kategori-slug"></div>
+      <div class="form-group"><label>Sıralama</label><input type="number" id="catOrder" placeholder="0"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('categoryModal')">İptal</button>
+      <button class="btn btn-primary" onclick="saveCategory()">Kaydet</button>
+    </div>
   </div>
 </div>
 
@@ -1031,17 +1068,19 @@ async function fetchDb(coll, def) {
   return def;
 }
 async function saveDb(coll, data) {
-  try {
-    const authHeaders = await getAuthHeader();
-    await fetch('/api/db?coll='+coll, {
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        ...authHeaders
-      },
-      body:JSON.stringify(data)
-    });
-  } catch(e) {}
+  const authHeaders = await getAuthHeader();
+  const r = await fetch('/api/db?coll='+coll, {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      ...authHeaders
+    },
+    body:JSON.stringify(data)
+  });
+  if (!r.ok) {
+    const errData = await r.json().catch(() => ({}));
+    throw new Error(errData.error || `İşlem hatası (${r.status})`);
+  }
 }
 async function initBackendData() {
   const _lsProds = JSON.parse(localStorage.getItem('ag_products') || 'null');
@@ -1059,6 +1098,7 @@ async function initBackendData() {
     ]);
   products       = _prods     || _lsProds || JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
   categoriesList = _cats      || [];
+  populateCategoryDropdowns();
   orders         = _orders    || [];
   promos         = _promos    || JSON.parse(JSON.stringify(DEFAULT_PROMOS));
   settings       = _settings  || JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
@@ -1081,12 +1121,12 @@ function loadData(){
   products.forEach(p=>{ if(!stock[p.id]) stock[p.id]={qty:50,min:5}; });
 }
 
-const saveProducts=()=>{ saveDb('products', products); localStorage.setItem('ag_products',JSON.stringify(products)); };
-const saveOrders=()=>{ saveDb('orders', orders); localStorage.setItem('ag_orders',JSON.stringify(orders)); };
-const savePromos=()=>{ saveDb('promos', promos); localStorage.setItem('ag_promos',JSON.stringify(promos)); };
-const saveCampaigns=()=>{ saveDb('campaigns', campaigns); localStorage.setItem('ag_campaigns',JSON.stringify(campaigns)); };
-const saveStock=()=>{ saveDb('stock', stock); localStorage.setItem('ag_stock',JSON.stringify(stock)); };
-const saveInvoiceData=()=>{ saveDb('invoices', invoices); localStorage.setItem('ag_invoices',JSON.stringify(invoices)); };
+const saveProducts=async()=>{ await saveDb('products', products); localStorage.setItem('ag_products',JSON.stringify(products)); };
+const saveOrders=async()=>{ await saveDb('orders', orders); localStorage.setItem('ag_orders',JSON.stringify(orders)); };
+const savePromos=async()=>{ await saveDb('promos', promos); localStorage.setItem('ag_promos',JSON.stringify(promos)); };
+const saveCampaigns=async()=>{ await saveDb('campaigns', campaigns); localStorage.setItem('ag_campaigns',JSON.stringify(campaigns)); };
+const saveStock=async()=>{ await saveDb('stock', stock); localStorage.setItem('ag_stock',JSON.stringify(stock)); };
+const saveInvoiceData=async()=>{ await saveDb('invoices', invoices); localStorage.setItem('ag_invoices',JSON.stringify(invoices)); };
 
 function persistSettings(){
   saveDb('settings', settings);
@@ -1276,8 +1316,8 @@ function changePass() {
 }
 
 /* ── NAVIGATION ─────────────────────────────────────────────────────── */
-const PAGE_RENDERERS={dash:renderDash,products:renderProducts,orders:renderOrders,campaigns:renderCampaigns,invoices:renderInvoices,stock:renderStock,coupons:renderCoupons,settings:renderSettingsForm};
-const PAGE_INDICES={dash:0,products:1,orders:2,campaigns:3,invoices:4,stock:5,coupons:6,settings:7};
+const PAGE_RENDERERS={dash:renderDash,products:renderProducts,categories:renderCategories,orders:renderOrders,campaigns:renderCampaigns,invoices:renderInvoices,stock:renderStock,coupons:renderCoupons,settings:renderSettingsForm};
+const PAGE_INDICES={dash:0,products:1,categories:2,orders:3,campaigns:4,invoices:5,stock:6,coupons:7,settings:8};
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
@@ -1285,6 +1325,118 @@ function showPage(id){
   document.querySelectorAll('.nav-item')[PAGE_INDICES[id]]?.classList.add('active');
   PAGE_RENDERERS[id]?.();
   closeSidebar();
+}
+
+// Dynamic Category Dropdowns Population
+function populateCategoryDropdowns() {
+  const catFilter = document.getElementById('prodCatFilter');
+  const catSelect = document.getElementById('prodCat');
+  
+  if (catFilter) {
+    catFilter.innerHTML = '<option value="">Tüm Kategoriler</option>' + 
+      categoriesList.map(c => `<option value="${esc(c.slug)}">${esc(c.name)}</option>`).join('');
+  }
+  if (catSelect) {
+    catSelect.innerHTML = categoriesList.map(c => `<option value="${esc(c.slug)}">${esc(c.name)}</option>`).join('');
+  }
+}
+
+// Category CRUD
+function renderCategories() {
+  const tbody = document.getElementById('catTableBody');
+  if (!tbody) return;
+  
+  document.getElementById('catCount').textContent = `${categoriesList.length} kategori`;
+  
+  if (!categoriesList.length) {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--gray400)">Kategori bulunamadı</td></tr>`;
+    return;
+  }
+  
+  tbody.innerHTML = categoriesList.map(c => `
+    <tr>
+      <td><strong>${esc(c.name)}</strong></td>
+      <td><code>${esc(c.slug)}</code></td>
+      <td>${c.order || 0}</td>
+      <td>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost btn-xs" onclick="openCategoryModal('${c.id}')">✏️ Düzenle</button>
+          <button class="btn btn-danger btn-xs" onclick="deleteCategory('${c.id}')">🗑️ Sil</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openCategoryModal(id) {
+  const c = categoriesList.find(x => x.id === id);
+  document.getElementById('catId').value = id || '';
+  document.getElementById('catName').value = c ? c.name : '';
+  document.getElementById('catSlug').value = c ? c.slug : '';
+  document.getElementById('catOrder').value = c ? c.order : 0;
+  
+  document.getElementById('categoryModalTitle').textContent = c ? 'Kategori Düzenle' : 'Kategori Ekle';
+  openModal('categoryModal');
+}
+
+async function saveCategory() {
+  const id = document.getElementById('catId').value;
+  const name = document.getElementById('catName').value.trim();
+  const slug = document.getElementById('catSlug').value.trim();
+  const order = parseInt(document.getElementById('catOrder').value || '0', 10);
+  
+  if (!name || !slug) {
+    toast('Kategori adı ve slug gereklidir');
+    return;
+  }
+  
+  if (id) {
+    const c = categoriesList.find(x => x.id === id);
+    if (c) {
+      c.name = name;
+      c.slug = slug;
+      c.order = order;
+    }
+  } else {
+    categoriesList.push({
+      id: genUUID(),
+      name,
+      slug,
+      order
+    });
+  }
+  
+  categoriesList.sort((a, b) => (a.order || 0) - (b.order || 0));
+  
+  try {
+    await saveDb('categories', categoriesList);
+    toast(id ? 'Kategori güncellendi ✓' : 'Kategori eklendi ✓');
+    closeModal('categoryModal');
+    populateCategoryDropdowns();
+    renderCategories();
+  } catch (err) {
+    alert('Kategori kaydedilemedi:\n' + err.message);
+  }
+}
+
+async function deleteCategory(id) {
+  if (!confirm('Bu kategoriyi silmek istediğinize emin misiniz? Kategorideki ürünler kategorisiz kalabilir.')) return;
+  categoriesList = categoriesList.filter(x => x.id !== id);
+  try {
+    await saveDb('categories', categoriesList);
+    toast('Kategori silindi ✓');
+    populateCategoryDropdowns();
+    renderCategories();
+  } catch (err) {
+    alert('Kategori silinemedi:\n' + err.message);
+  }
+}
+
+function genUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
 }
 function toggleSidebar(){
   const s=document.getElementById('sidebar');
@@ -1378,7 +1530,19 @@ function renderProducts(){
     </div></td>
   </tr>`).join('');
 }
-function toggleFeatured(id,val){const p=products.find(x=>x.id===id);if(p){p.featured=val;saveProducts();}}
+async function toggleFeatured(id,val){
+  const p=products.find(x=>x.id===id);
+  if(p){
+    const originalVal = p.featured;
+    p.featured=val;
+    try {
+      await saveProducts();
+    } catch (err) {
+      p.featured = originalVal;
+      alert('Hata: Öne çıkarma güncellenemedi.\n' + err.message);
+    }
+  }
+}
 function openProductModal(id){
   const p=id?products.find(x=>x.id===id):null;
   document.getElementById('productModalTitle').textContent=p?'Ürün Düzenle':'Ürün Ekle';
@@ -1394,19 +1558,66 @@ function openProductModal(id){
   document.getElementById('prodFeatured').checked=p?.featured||false;
   openModal('productModal');
 }
-function saveProduct(){
+async function saveProduct(){
   const id=parseInt(document.getElementById('editProdId').value)||null;
   const name=document.getElementById('prodName').value.trim();
   if(!name){toast('Ürün adı gerekli');return;}
   const price=parseFloat(document.getElementById('prodPrice').value);
   if(!price){toast('Fiyat gerekli');return;}
   const obj={id:id||(Math.max(0,...products.map(p=>p.id))+1),name,cat:document.getElementById('prodCat').value,price,unit:document.getElementById('prodUnit').value.trim(),emoji:document.getElementById('prodEmoji').value.trim(),img:document.getElementById('prodImg').value.trim(),badge:document.getElementById('prodBadge').value.trim(),featured:document.getElementById('prodFeatured').checked};
-  if(id){const idx=products.findIndex(p=>p.id===id);const existing=products[idx];products[idx]={...existing,...obj};}
-  else{products.push(obj);if(!stock[obj.id])stock[obj.id]={qty:0,min:5};saveStock();}
-  saveProducts();closeModal('productModal');renderProducts();toast(id?'Ürün güncellendi ✓':'Ürün eklendi ✓');
+  
+  const originalProducts = [...products];
+  const originalStock = {...stock};
+  
+  if(id){
+    const idx=products.findIndex(p=>p.id===id);
+    const existing=products[idx];
+    products[idx]={...existing,...obj};
+  } else {
+    products.push(obj);
+    if(!stock[obj.id]) stock[obj.id]={qty:0,min:5};
+  }
+  
+  try {
+    if (!id) {
+      await saveStock();
+    }
+    await saveProducts();
+    closeModal('productModal');
+    renderProducts();
+    toast(id?'Ürün güncellendi ✓':'Ürün eklendi ✓');
+  } catch (err) {
+    products = originalProducts;
+    stock = originalStock;
+    alert('Hata: Ürün kaydedilemedi.\n' + err.message);
+  }
 }
-function deleteProduct(id){if(!confirm('Bu ürünü silmek istiyor musunuz?'))return;products=products.filter(p=>p.id!==id);saveProducts();renderProducts();toast('Ürün silindi');}
-function resetProducts(){if(!confirm('Tüm ürünler varsayılana dönecek. Emin misiniz?'))return;products=JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));saveProducts();renderProducts();toast('Ürünler sıfırlandı ✓');}
+async function deleteProduct(id){
+  if(!confirm('Bu ürünü silmek istiyor musunuz?')) return;
+  const originalProducts = [...products];
+  products=products.filter(p=>p.id!==id);
+  try {
+    await saveProducts();
+    renderProducts();
+    toast('Ürün silindi ✓');
+  } catch (err) {
+    products = originalProducts;
+    alert('Hata: Ürün silinemedi.\n' + err.message);
+  }
+}
+async function resetProducts(){
+  if(!confirm('Tüm ürünler varsayılana dönecek. Emin misiniz?')) return;
+  const originalProducts = [...products];
+  products=JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+  try {
+    await saveProducts();
+    renderProducts();
+    toast('Ürünler sıfırlandı ✓');
+  } catch (err) {
+    products = originalProducts;
+    alert('Hata: Ürünler sıfırlanamadı.\n' + err.message);
+  }
+}
 
 /* ── ORDERS ─────────────────────────────────────────────────────────── */
 function renderOrders(){
