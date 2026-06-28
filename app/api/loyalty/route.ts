@@ -14,24 +14,23 @@ export async function GET(req: NextRequest) {
   if (action === 'account' && customerId) {
     const { data, error } = await db
       .from('loyalty_accounts')
-      .select('*, customers(full_name,phone)')
+      .select('*')
       .eq('tenant_id', TENANT)
       .eq('customer_id', customerId)
       .maybeSingle();
-
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json(data);
   }
 
-  if (action === 'transactions' && customerId) {
+  if (action === 'transactions') {
+    const accountId = searchParams.get('account_id') ?? '';
     const { data, error } = await db
       .from('loyalty_transactions')
       .select('*')
       .eq('tenant_id', TENANT)
-      .eq('account_id', searchParams.get('account_id') ?? '')
+      .eq('account_id', accountId)
       .order('created_at', { ascending: false })
       .limit(50);
-
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json(data ?? []);
   }
@@ -43,19 +42,21 @@ export async function GET(req: NextRequest) {
       .eq('tenant_id', TENANT)
       .eq('is_active', true)
       .maybeSingle();
-    return NextResponse.json(data);
+    return NextResponse.json(data ?? {});
   }
 
-  // List all accounts
-  const { data, error } = await db
-    .from('loyalty_accounts')
-    .select('*, customers(full_name,phone)')
-    .eq('tenant_id', TENANT)
-    .order('points', { ascending: false })
-    .limit(100);
+  if (action === 'list' || !action) {
+    const { data, error } = await db
+      .from('loyalty_accounts')
+      .select('*')
+      .eq('tenant_id', TENANT)
+      .order('current_points', { ascending: false })
+      .limit(200);
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(data ?? []);
+  }
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(data ?? []);
+  return NextResponse.json({ error: 'Bilinmeyen action' }, { status: 400 });
 }
 
 export async function POST(req: NextRequest) {
@@ -72,12 +73,13 @@ export async function POST(req: NextRequest) {
     if (pointsEarned <= 0) return NextResponse.json({ points: 0 });
 
     const account = await ensureAccount(db, customer_id);
-    const newBalance = account.points + pointsEarned;
-    const newTier = getTier(account.total_earned + pointsEarned);
+    const newBalance = account.current_points + pointsEarned;
+    const newTotalEarned = account.total_earned_points + pointsEarned;
+    const newTier = getTier(newTotalEarned);
 
     await db.from('loyalty_accounts').update({
-      points: newBalance,
-      total_earned: account.total_earned + pointsEarned,
+      current_points: newBalance,
+      total_earned_points: newTotalEarned,
       tier: newTier,
       updated_at: new Date().toISOString(),
     }).eq('id', account.id);
@@ -85,11 +87,11 @@ export async function POST(req: NextRequest) {
     await db.from('loyalty_transactions').insert({
       tenant_id: TENANT,
       account_id: account.id,
-      order_id,
+      order_id: order_id ? String(order_id) : null,
       type: 'earn',
       points: pointsEarned,
       balance_after: newBalance,
-      note: `Satış kazanımı — Sipariş #${order_id ?? 'N/A'}`,
+      description: `Satış kazanımı — Sipariş #${order_id ?? 'N/A'}`,
     });
 
     return NextResponse.json({ points_earned: pointsEarned, new_balance: newBalance, tier: newTier });
@@ -100,19 +102,22 @@ export async function POST(req: NextRequest) {
     const program = await getProgram(db);
     const account = await ensureAccount(db, customer_id);
 
-    if (account.points < points_to_spend) {
+    if (account.current_points < points_to_spend) {
       return NextResponse.json({ error: 'Yetersiz puan' }, { status: 400 });
     }
     if (points_to_spend < (program?.min_redeem_points ?? 100)) {
-      return NextResponse.json({ error: `Minimum ${program?.min_redeem_points ?? 100} puan kullanılabilir` }, { status: 400 });
+      return NextResponse.json(
+        { error: `Minimum ${program?.min_redeem_points ?? 100} puan kullanılabilir` },
+        { status: 400 }
+      );
     }
 
     const discount = points_to_spend * (program?.lira_per_point ?? 0.01);
-    const newBalance = account.points - points_to_spend;
+    const newBalance = account.current_points - points_to_spend;
 
     await db.from('loyalty_accounts').update({
-      points: newBalance,
-      total_spent: account.total_spent + points_to_spend,
+      current_points: newBalance,
+      total_redeemed_points: account.total_redeemed_points + points_to_spend,
       updated_at: new Date().toISOString(),
     }).eq('id', account.id);
 
@@ -122,20 +127,36 @@ export async function POST(req: NextRequest) {
       type: 'redeem',
       points: -points_to_spend,
       balance_after: newBalance,
-      note: `Puan kullanımı — ${discount.toFixed(2)} TL indirim`,
+      description: `Puan kullanımı — ₺${discount.toFixed(2)} indirim`,
     });
 
     return NextResponse.json({ discount, points_spent: points_to_spend, new_balance: newBalance });
   }
 
   if (action === 'upsert_program') {
-    const { points_per_lira, lira_per_point, min_redeem_points } = body;
-    const existing = await db.from('loyalty_programs').select('id').eq('tenant_id', TENANT).maybeSingle();
+    const { name, points_per_lira, lira_per_point, min_redeem_points } = body;
+    const { data: existing } = await db
+      .from('loyalty_programs')
+      .select('id')
+      .eq('tenant_id', TENANT)
+      .maybeSingle();
 
-    if (existing.data) {
-      await db.from('loyalty_programs').update({ points_per_lira, lira_per_point, min_redeem_points, updated_at: new Date().toISOString() }).eq('id', existing.data.id);
+    if (existing) {
+      await db.from('loyalty_programs').update({
+        name: name ?? 'Sadakat Programı',
+        points_per_lira,
+        lira_per_point,
+        min_redeem_points,
+        updated_at: new Date().toISOString(),
+      }).eq('id', existing.id);
     } else {
-      await db.from('loyalty_programs').insert({ tenant_id: TENANT, points_per_lira, lira_per_point, min_redeem_points });
+      await db.from('loyalty_programs').insert({
+        tenant_id: TENANT,
+        name: name ?? 'Sadakat Programı',
+        points_per_lira,
+        lira_per_point,
+        min_redeem_points,
+      });
     }
     return NextResponse.json({ ok: true });
   }
@@ -144,7 +165,12 @@ export async function POST(req: NextRequest) {
 }
 
 async function getProgram(db: ReturnType<typeof createAdminClient>) {
-  const { data } = await db!.from('loyalty_programs').select('*').eq('tenant_id', TENANT).eq('is_active', true).maybeSingle();
+  const { data } = await db!
+    .from('loyalty_programs')
+    .select('*')
+    .eq('tenant_id', TENANT)
+    .eq('is_active', true)
+    .maybeSingle();
   return data ?? { points_per_lira: 1, lira_per_point: 0.01, min_redeem_points: 100 };
 }
 
@@ -161,13 +187,13 @@ async function ensureAccount(db: ReturnType<typeof createAdminClient>, customerI
   const { data } = await db!.from('loyalty_accounts').insert({
     tenant_id: TENANT,
     customer_id: customerId,
-    points: 0,
-    total_earned: 0,
-    total_spent: 0,
+    current_points: 0,
+    total_earned_points: 0,
+    total_redeemed_points: 0,
     tier: 'bronze',
   }).select().single();
 
-  return data;
+  return data!;
 }
 
 function getTier(totalEarned: number): string {

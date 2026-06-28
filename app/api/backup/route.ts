@@ -57,7 +57,8 @@ export async function POST(req: NextRequest) {
     if (job) {
       await db.from('backup_jobs').update({
         status: 'success',
-        size_bytes: sizeBytes,
+        file_size: sizeBytes,
+        table_count: TABLES.length,
         finished_at: new Date().toISOString(),
       }).eq('id', job.id);
     }
