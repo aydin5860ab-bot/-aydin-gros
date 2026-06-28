@@ -2749,7 +2749,7 @@ async function renderCustomers() {
   
   tbody.innerHTML = '<tr><td colspan="6" class="loading">Yükleniyor...</td></tr>';
   try {
-    const res = await fetch('/api/db?coll=customers', { headers: getAuthHeader() });
+    const res = await fetch('/api/db?coll=customers', { headers: await getAuthHeader() });
     const data = await res.json();
     customersList = data || [];
     
@@ -2831,7 +2831,7 @@ async function saveCustomer() {
   try {
     const res = await fetch('/api/db?coll=customers', {
       method: 'POST',
-      headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
+      headers: { ...(await getAuthHeader()), 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
     if (!res.ok) throw new Error("API hatası");
@@ -2848,7 +2848,7 @@ async function deleteCustomer(id) {
     try {
       const res = await fetch('/api/db?coll=customers', {
         method: 'POST',
-        headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
+        headers: { ...(await getAuthHeader()), 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
       if (!res.ok) throw new Error("API hatası");
@@ -2876,7 +2876,7 @@ async function renderCariHistoryTable() {
   tbody.innerHTML = '<tr><td colspan="4" class="loading">Yükleniyor...</td></tr>';
   
   try {
-    const res = await fetch('/api/db?coll=customer_transactions', { headers: getAuthHeader() });
+    const res = await fetch('/api/db?coll=customer_transactions', { headers: await getAuthHeader() });
     const data = await res.json();
     const filtered = (data || []).filter(t => t.customerId === selectedCariCustomerId);
     
@@ -2920,12 +2920,12 @@ async function addCariTransaction(type) {
   try {
     const res = await fetch('/api/db?coll=customer_transactions', {
       method: 'POST',
-      headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
+      headers: { ...(await getAuthHeader()), 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
     if (!res.ok) throw new Error("API hatası");
     
-    const custRes = await fetch('/api/db?coll=customers', { headers: getAuthHeader() });
+    const custRes = await fetch('/api/db?coll=customers', { headers: await getAuthHeader() });
     customersList = await custRes.json();
     const updated = customersList.find(x => x.id === selectedCariCustomerId);
     if (updated) {
@@ -2946,7 +2946,7 @@ async function renderRegisters() {
   tbody.innerHTML = '<tr><td colspan="7" class="loading">Yükleniyor...</td></tr>';
   
   try {
-    const res = await fetch('/api/db?coll=register_sessions', { headers: getAuthHeader() });
+    const res = await fetch('/api/db?coll=register_sessions', { headers: await getAuthHeader() });
     const data = await res.json();
     
     if (!data || data.length === 0) {
@@ -2981,7 +2981,7 @@ async function renderTransfers() {
   tbody.innerHTML = '<tr><td colspan="6" class="loading">Yükleniyor...</td></tr>';
   
   try {
-    const res = await fetch('/api/db?coll=stock_transfers', { headers: getAuthHeader() });
+    const res = await fetch('/api/db?coll=stock_transfers', { headers: await getAuthHeader() });
     const data = await res.json();
     
     if (!data || data.length === 0) {
@@ -3084,7 +3084,7 @@ async function saveTransfer() {
   try {
     const res = await fetch('/api/db?coll=stock_transfers', {
       method: 'POST',
-      headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
+      headers: { ...(await getAuthHeader()), 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
     if (!res.ok) throw new Error("API hatası");
@@ -3097,7 +3097,7 @@ async function saveTransfer() {
 
 async function completeTransfer(id) {
   try {
-    const res = await fetch('/api/db?coll=stock_transfers', { headers: getAuthHeader() });
+    const res = await fetch('/api/db?coll=stock_transfers', { headers: await getAuthHeader() });
     const data = await res.json();
     const trans = (data || []).find(t => t.id === id);
     if (!trans) return;
@@ -3107,7 +3107,7 @@ async function completeTransfer(id) {
     
     const updateRes = await fetch('/api/db?coll=stock_transfers', {
       method: 'POST',
-      headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
+      headers: { ...(await getAuthHeader()), 'Content-Type': 'application/json' },
       body: JSON.stringify(trans)
     });
     if (!updateRes.ok) throw new Error("Tamamlama hatası");
@@ -3119,7 +3119,7 @@ async function completeTransfer(id) {
 
 async function cancelTransfer(id) {
   try {
-    const res = await fetch('/api/db?coll=stock_transfers', { headers: getAuthHeader() });
+    const res = await fetch('/api/db?coll=stock_transfers', { headers: await getAuthHeader() });
     const data = await res.json();
     const trans = (data || []).find(t => t.id === id);
     if (!trans) return;
@@ -3128,7 +3128,7 @@ async function cancelTransfer(id) {
     
     const updateRes = await fetch('/api/db?coll=stock_transfers', {
       method: 'POST',
-      headers: { ...getAuthHeader(), 'Content-Type': 'application/json' },
+      headers: { ...(await getAuthHeader()), 'Content-Type': 'application/json' },
       body: JSON.stringify(trans)
     });
     if (!updateRes.ok) throw new Error("İptal hatası");

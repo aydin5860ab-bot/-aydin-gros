@@ -358,7 +358,7 @@
       }
     };
 
-    let supabase;
+    let supabaseClient;
     let productsList = [];
     let categoriesList = [];
     let customersList = [];
@@ -383,7 +383,7 @@
       try {
         const confRes = await fetch('/api/config');
         const conf = await confRes.json();
-        supabase = window.supabase.createClient(conf.SUPABASE_URL, conf.SUPABASE_ANON_KEY);
+        supabaseClient = window.supabase.createClient(conf.SUPABASE_URL, conf.SUPABASE_ANON_KEY);
       } catch(e) {
         console.error("Config load failed, running local mock fallback", e);
       }
