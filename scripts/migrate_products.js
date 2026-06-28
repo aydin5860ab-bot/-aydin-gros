@@ -141,6 +141,33 @@ async function getSupabase() {
 }
 
 // ---------------------------------------------------------------------------
+// Tenant'ı garantiye al (FK bağımlılığı: categories → tenants)
+// ---------------------------------------------------------------------------
+async function ensureTenant(sb) {
+  log('Tenant kontrol ediliyor...');
+  const { data, error } = await sb
+    .from('tenants')
+    .select('id')
+    .eq('id', TENANT_ID)
+    .maybeSingle();
+
+  if (error) throw new Error('tenants okunamadı: ' + error.message);
+
+  if (data) {
+    log('✓ Tenant mevcut');
+    return;
+  }
+
+  log('  Tenant bulunamadı, oluşturuluyor...');
+  const { error: insertErr } = await sb
+    .from('tenants')
+    .insert({ id: TENANT_ID, name: 'AydınGros', slug: 'aydin-gros', status: 'active' });
+
+  if (insertErr) throw new Error('tenant insert hatası: ' + insertErr.message);
+  log('✓ Tenant oluşturuldu');
+}
+
+// ---------------------------------------------------------------------------
 // Kategorileri Supabase'de garantiye al
 // ---------------------------------------------------------------------------
 async function ensureCategories(sb) {
@@ -301,7 +328,8 @@ async function main() {
     log('[DRY RUN] Supabase bağlantısı atlandı');
   }
 
-  // 3. Kategoriler
+  // 3. Tenant + Kategoriler
+  if (!DRY_RUN) await ensureTenant(sb);
   const catMap = DRY_RUN
     ? Object.fromEntries(CATEGORY_DEFS.map(c => [c.slug, `dry-${c.slug}`]))
     : await ensureCategories(sb);
