@@ -19,6 +19,11 @@ const nextConfig = {
         destination: '/pos.html',
         permanent: true,
       },
+      {
+        source: '/pos-mobile',
+        destination: '/pos-mobile.html',
+        permanent: true,
+      },
     ];
   }
 };

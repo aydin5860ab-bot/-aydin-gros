@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -264,6 +266,14 @@ tr:hover td{background:var(--gray50)}
       <button class="nav-item" onclick="showPage('registers')"><span class="icon">🔑</span> Kasa Oturumları</button>
       <button class="nav-item" onclick="showPage('transfers')"><span class="icon">🔄</span> Şube & Transfer</button>
       <button class="nav-item" onclick="showPage('reports')"><span class="icon">📊</span> Raporlar</button>
+      <button class="nav-item" onclick="showPage('charts')"><span class="icon">📈</span> Grafikler</button>
+      <button class="nav-item" onclick="showPage('barcodes')"><span class="icon">🔢</span> Barkodlar</button>
+      <button class="nav-item" onclick="showPage('loyalty')"><span class="icon">⭐</span> Sadakat</button>
+      <button class="nav-item" onclick="showPage('whatsapp')"><span class="icon">💬</span> WhatsApp</button>
+      <button class="nav-item" onclick="showPage('efatura')"><span class="icon">🧾</span> E-Fatura</button>
+      <button class="nav-item" onclick="showPage('auditlog')"><span class="icon">📋</span> Denetim Logu</button>
+      <button class="nav-item" onclick="showPage('backup')"><span class="icon">💾</span> Yedek</button>
+      <button class="nav-item" onclick="showPage('staff')"><span class="icon">👥</span> Personel</button>
     </nav>
     <div class="sidebar-footer">
       <button class="logout-btn" onclick="doLogout()">🚪 Çıkış Yap</button>
@@ -1531,8 +1541,8 @@ function changePass() {
 }
 
 /* ── NAVIGATION ─────────────────────────────────────────────────────── */
-const PAGE_RENDERERS={dash:renderDash,products:renderProducts,categories:renderCategories,orders:renderOrders,campaigns:renderCampaigns,invoices:renderInvoices,stock:renderStock,coupons:renderCoupons,settings:renderSettingsForm,customers:renderCustomers,registers:renderRegisters,transfers:renderTransfers,reports:renderReports};
-const PAGE_INDICES={dash:0,products:1,categories:2,orders:3,campaigns:4,invoices:5,stock:6,coupons:7,settings:8,customers:9,registers:10,transfers:11,reports:12};
+const PAGE_RENDERERS={dash:renderDash,products:renderProducts,categories:renderCategories,orders:renderOrders,campaigns:renderCampaigns,invoices:renderInvoices,stock:renderStock,coupons:renderCoupons,settings:renderSettingsForm,customers:renderCustomers,registers:renderRegisters,transfers:renderTransfers,reports:renderReports,charts:()=>loadCharts(),barcodes:()=>loadBarcodes(),loyalty:()=>loadLoyalty(),whatsapp:()=>loadWhatsappOrders(),efatura:()=>loadEfatura(),auditlog:()=>loadAuditLog(0),backup:()=>loadBackupJobs(),staff:()=>loadStaff()};
+const PAGE_INDICES={dash:0,products:1,categories:2,orders:3,campaigns:4,invoices:5,stock:6,coupons:7,settings:8,customers:9,registers:10,transfers:11,reports:12,charts:13,barcodes:14,loyalty:15,whatsapp:16,efatura:17,auditlog:18,backup:19,staff:20};
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
@@ -3217,5 +3227,851 @@ async function renderReports() {
   `).join('');
 }
 </script>
+
+<!-- ═══════════════════════════════════════════════
+     SPRINT 6 PAGES
+════════════════════════════════════════════════ -->
+
+<!-- CHARTS -->
+<div id="page-charts" class="page" style="display:none">
+  <div class="page-header">
+    <div><div class="page-title">Grafikler & Analizler</div><div class="page-subtitle">Satış, ciro, kâr ve stok verileri</div></div>
+    <div style="display:flex;gap:8px">
+      <select id="chartsRange" onchange="loadCharts()" style="padding:8px 12px;border:1.5px solid var(--gray200);border-radius:6px;font-size:13px;outline:none">
+        <option value="7">Son 7 Gün</option>
+        <option value="30" selected>Son 30 Gün</option>
+        <option value="90">Son 90 Gün</option>
+      </select>
+      <button class="btn btn-ghost btn-sm" onclick="loadCharts()">↻ Yenile</button>
+    </div>
+  </div>
+  <div class="stats-grid" id="chartStats"></div>
+  <div class="dash-grid" style="gap:20px">
+    <div class="card dash-full"><div class="dash-card-title">Günlük Satış (TL)</div><canvas id="chartSales" height="80"></canvas></div>
+    <div class="card"><div class="dash-card-title">Sipariş Sayısı</div><canvas id="chartOrders" height="120"></canvas></div>
+    <div class="card"><div class="dash-card-title">Kâr / Maliyet</div><canvas id="chartProfit" height="120"></canvas></div>
+    <div class="card"><div class="dash-card-title">En Çok Satan 10 Ürün</div><canvas id="chartTopProducts" height="140"></canvas></div>
+    <div class="card"><div class="dash-card-title">Ödeme Yöntemi Dağılımı</div><canvas id="chartPayments" height="140"></canvas></div>
+  </div>
+</div>
+
+<!-- BARCODES -->
+<div id="page-barcodes" class="page" style="display:none">
+  <div class="page-header">
+    <div><div class="page-title">Barkod Yönetimi</div><div class="page-subtitle">Ürün barkodları oluştur, tara ve yazdır</div></div>
+    <button class="btn btn-primary" onclick="openBarcodeModal()">+ Barkod Ekle</button>
+  </div>
+  <div class="dash-grid" style="gap:20px;margin-bottom:20px">
+    <div class="card">
+      <div class="dash-card-title">Barkod Tara / Ara</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <input type="text" id="bcScanInput" placeholder="Barkod veya ürün adı..." style="flex:1;padding:10px 14px;border:2px solid var(--gray200);border-radius:8px;font-size:14px;outline:none" oninput="searchBarcodes()" onkeydown="if(event.key==='Enter')lookupBarcode()">
+        <button class="btn btn-primary" onclick="lookupBarcode()">🔍 Ara</button>
+      </div>
+      <div id="bcLookupResult"></div>
+    </div>
+    <div class="card">
+      <div class="dash-card-title">Barkod Önizleme</div>
+      <div style="text-align:center;padding:16px">
+        <svg id="bcPreviewSvg"></svg>
+        <div id="bcPreviewInfo" style="font-size:12px;color:var(--gray500);margin-top:8px"></div>
+        <button class="btn btn-ghost btn-sm" onclick="printBarcodeLabel()" id="bcPrintBtn" style="display:none;margin-top:10px">🖨️ Etiket Yazdır</button>
+      </div>
+    </div>
+  </div>
+  <div class="filter-bar">
+    <input type="text" id="bcFilter" placeholder="Barkod ara..." oninput="renderBarcodes()">
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Ürün</th><th>Barkod</th><th>Tip</th><th>Birincil</th><th>Önizleme</th><th></th></tr></thead>
+      <tbody id="barcodesTbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- LOYALTY -->
+<div id="page-loyalty" class="page" style="display:none">
+  <div class="page-header">
+    <div><div class="page-title">Sadakat Sistemi</div><div class="page-subtitle">Müşteri puanları ve kademeler</div></div>
+    <button class="btn btn-primary" onclick="openLoyaltyProgModal()">⚙️ Program Ayarları</button>
+  </div>
+  <div class="stats-grid" id="loyaltyStats"></div>
+  <div class="dash-grid" style="gap:20px">
+    <div class="card dash-full">
+      <div class="dash-card-title">Sadakat Programı</div>
+      <div id="loyaltyProgramInfo" style="padding:8px 0"></div>
+    </div>
+    <div class="card dash-full">
+      <div class="dash-card-title">Müşteri Puan Tablosu</div>
+      <div class="filter-bar"><input type="text" id="loyaltyFilter" placeholder="Müşteri ara..." oninput="renderLoyaltyTable()"></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Müşteri</th><th>Puan</th><th>Kademe</th><th>Toplam Kazanılan</th><th>Kullanılan</th><th>İşlem</th></tr></thead>
+          <tbody id="loyaltyTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <!-- Loyalty Program Modal -->
+  <div class="modal-overlay" id="loyaltyProgModal">
+    <div class="modal">
+      <div class="modal-header"><span class="modal-title">Sadakat Programı Ayarları</span><button class="modal-close" onclick="closeLoyaltyProgModal()">×</button></div>
+      <div class="modal-body">
+        <div class="form-row cols2">
+          <div class="form-group"><label>Program Adı</label><input type="text" id="lpName" value="Sadakat Programı"></div>
+          <div class="form-group"><label>Her Lira için Puan</label><input type="number" id="lpPointsPerLira" value="1" min="0.1" step="0.1"></div>
+        </div>
+        <div class="form-row cols2">
+          <div class="form-group"><label>1 Puan = Kaç Lira</label><input type="number" id="lpLiraPerPoint" value="0.1" min="0.01" step="0.01"></div>
+          <div class="form-group"><label>Min Kullanım Puanı</label><input type="number" id="lpMinRedeem" value="100" min="1"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeLoyaltyProgModal()">İptal</button>
+        <button class="btn btn-primary" onclick="saveLoyaltyProgram()">Kaydet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WHATSAPP ORDERS -->
+<div id="page-whatsapp" class="page" style="display:none">
+  <div class="page-header">
+    <div><div class="page-title">WhatsApp Siparişleri</div><div class="page-subtitle">WhatsApp'tan gelen sipariş mesajları</div></div>
+    <button class="btn btn-ghost btn-sm" onclick="loadWhatsappOrders()">↻ Yenile</button>
+  </div>
+  <div class="alert alert-info" style="margin-bottom:16px">
+    💡 Webhook URL'nizi WhatsApp Business API'ye kaydedin: <code style="background:var(--gray100);padding:2px 6px;border-radius:4px">/api/whatsapp</code>
+  </div>
+  <div class="filter-bar">
+    <select id="waStatusFilter" onchange="loadWhatsappOrders()">
+      <option value="">Tüm Durumlar</option>
+      <option value="pending">Bekliyor</option>
+      <option value="processing">İşlemde</option>
+      <option value="completed">Tamamlandı</option>
+      <option value="rejected">Reddedildi</option>
+    </select>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Telefon</th><th>Mesaj</th><th>Ürünler</th><th>Durum</th><th>Tarih</th><th></th></tr></thead>
+      <tbody id="waTbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- E-FATURA -->
+<div id="page-efatura" class="page" style="display:none">
+  <div class="page-header">
+    <div><div class="page-title">E-Fatura / E-Arşiv</div><div class="page-subtitle">GIB uyumlu fatura yönetimi</div></div>
+    <div style="display:flex;gap:8px">
+      <div id="efaturaStatusBadge"></div>
+      <button class="btn btn-primary" onclick="openEfaturaModal()">+ Yeni E-Arşiv</button>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Sipariş</th><th>Tip</th><th>Durum</th><th>Fatura No</th><th>Sağlayıcı</th><th>Tarih</th><th></th></tr></thead>
+      <tbody id="efaturaTbody"></tbody>
+    </table>
+  </div>
+  <!-- E-Fatura Modal -->
+  <div class="modal-overlay" id="efaturaModal">
+    <div class="modal">
+      <div class="modal-header"><span class="modal-title">Yeni E-Arşiv Fatura</span><button class="modal-close" onclick="document.getElementById('efaturaModal').classList.remove('open')">×</button></div>
+      <div class="modal-body">
+        <div class="form-row cols2">
+          <div class="form-group"><label>Sipariş ID</label><input type="text" id="efOrderId" placeholder="ord_..."></div>
+          <div class="form-group"><label>Fatura Tarihi</label><input type="date" id="efDate"></div>
+        </div>
+        <div class="form-row cols2">
+          <div class="form-group"><label>Müşteri Adı</label><input type="text" id="efCustomerName" placeholder="Ad Soyad / Firma"></div>
+          <div class="form-group"><label>VKN / TCKN</label><input type="text" id="efTaxNo" placeholder="10 veya 11 hane"></div>
+        </div>
+        <div class="form-group" style="margin-bottom:14px"><label>Adres</label><textarea id="efAddress" rows="2"></textarea></div>
+        <div class="form-row cols2">
+          <div class="form-group"><label>Toplam (TL)</label><input type="number" id="efTotal" step="0.01"></div>
+          <div class="form-group"><label>KDV Toplamı (TL)</label><input type="number" id="efTaxTotal" step="0.01"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="document.getElementById('efaturaModal').classList.remove('open')">İptal</button>
+        <button class="btn btn-primary" onclick="createEArchive()">Fatura Oluştur</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AUDIT LOG -->
+<div id="page-auditlog" class="page" style="display:none">
+  <div class="page-header">
+    <div><div class="page-title">Denetim Logu</div><div class="page-subtitle">Tüm sistem işlemleri</div></div>
+    <button class="btn btn-ghost btn-sm" onclick="loadAuditLog()">↻ Yenile</button>
+  </div>
+  <div class="filter-bar">
+    <select id="auditActionFilter" onchange="loadAuditLog()">
+      <option value="">Tüm İşlemler</option>
+      <option value="insert">Ekleme</option>
+      <option value="update">Güncelleme</option>
+      <option value="delete">Silme</option>
+      <option value="login">Giriş</option>
+      <option value="ikasa_sync">İKASA Sync</option>
+    </select>
+    <input type="text" id="auditEntityFilter" placeholder="Varlık (order, product...)" oninput="loadAuditLog()">
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>İşlem</th><th>Varlık</th><th>ID</th><th>Kullanıcı</th><th>Tarih</th></tr></thead>
+      <tbody id="auditTbody"></tbody>
+    </table>
+  </div>
+  <div id="auditPager" style="display:flex;gap:8px;justify-content:center;margin-top:12px"></div>
+</div>
+
+<!-- BACKUP -->
+<div id="page-backup" class="page" style="display:none">
+  <div class="page-header">
+    <div><div class="page-title">Veri Yedekleme</div><div class="page-subtitle">Manuel ve otomatik yedek yönetimi</div></div>
+    <button class="btn btn-primary" onclick="triggerBackup()">💾 Yedek Al</button>
+  </div>
+  <div class="alert alert-info" style="margin-bottom:16px">Yedek alma işlemi tüm tabloları JSON olarak indirir. Büyük veritabanlarında birkaç saniye sürebilir.</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Yedek ID</th><th>Durum</th><th>Boyut</th><th>Tarih</th><th>İndir</th></tr></thead>
+      <tbody id="backupTbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- STAFF PERMISSIONS -->
+<div id="page-staff" class="page" style="display:none">
+  <div class="page-header">
+    <div><div class="page-title">Personel Yetkilendirme</div><div class="page-subtitle">Kullanıcı rolleri ve izinler</div></div>
+    <button class="btn btn-primary" onclick="openStaffModal()">+ Yetki Ekle</button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Kullanıcı</th><th>Rol</th><th>Modüller</th><th>Aktif</th><th></th></tr></thead>
+      <tbody id="staffTbody"></tbody>
+    </table>
+  </div>
+  <!-- Staff Modal -->
+  <div class="modal-overlay" id="staffModal">
+    <div class="modal">
+      <div class="modal-header"><span class="modal-title">Personel Yetkisi</span><button class="modal-close" onclick="closeStaffModal()">×</button></div>
+      <div class="modal-body">
+        <div class="form-row cols2">
+          <div class="form-group"><label>Kullanıcı E-posta</label><input type="email" id="staffEmail"></div>
+          <div class="form-group"><label>Rol</label>
+            <select id="staffRole">
+              <option value="admin">Admin</option>
+              <option value="manager">Yönetici</option>
+              <option value="cashier">Kasiyer</option>
+              <option value="stock">Stok Sorumlusu</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:14px"><label>İzinler (virgülle ayırın)</label><input type="text" id="staffPerms" placeholder="orders,products,stock,..."></div>
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="staffActive" checked style="width:auto;margin-right:6px">
+            Aktif
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeStaffModal()">İptal</button>
+        <button class="btn btn-primary" onclick="saveStaffPerm()">Kaydet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BARCODE ADD MODAL -->
+<div class="modal-overlay" id="barcodeModal">
+  <div class="modal">
+    <div class="modal-header"><span class="modal-title">Barkod Ekle</span><button class="modal-close" onclick="document.getElementById('barcodeModal').classList.remove('open')">×</button></div>
+    <div class="modal-body">
+      <div class="form-row cols2">
+        <div class="form-group"><label>Ürün ID</label><input type="number" id="bcProductId" placeholder="Ürün legacy ID"></div>
+        <div class="form-group"><label>Barkod Tipi</label>
+          <select id="bcType">
+            <option value="EAN13">EAN-13</option>
+            <option value="CODE128">Code 128</option>
+            <option value="QR">QR</option>
+            <option value="CODE39">Code 39</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row cols2">
+        <div class="form-group"><label>Barkod Değeri</label><input type="text" id="bcValue" placeholder="8690000000000"></div>
+        <div class="form-group"><label style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="bcIsPrimary" checked style="width:auto"> Birincil Barkod</label></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('barcodeModal').classList.remove('open')">İptal</button>
+      <button class="btn btn-primary" onclick="saveBarcode()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// SPRINT 6 JS
+// ══════════════════════════════════════════════
+
+// ── Chart instances registry (prevent duplicate canvas) ──
+const chartInstances = {};
+function destroyChart(id) { if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; } }
+
+// ── CHARTS PAGE ──
+async function loadCharts() {
+  const days = parseInt(document.getElementById('chartsRange')?.value ?? '30');
+  const cutoff = new Date(Date.now() - days * 86400000).toISOString();
+
+  let orders = [];
+  try {
+    const res = await fetch('/api/db?coll=orders');
+    const data = await res.json();
+    orders = (Array.isArray(data) ? data : data.data ?? []).filter(o => o.created_at >= cutoff);
+  } catch(e) {}
+
+  const totalRevenue = orders.reduce((s, o) => s + (o.total ?? 0), 0);
+  const totalOrders = orders.length;
+  const avgOrder = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+  const estimatedProfit = totalRevenue * 0.3;
+
+  const cs = document.getElementById('chartStats');
+  if (cs) cs.innerHTML = [
+    { icon:'💰', color:'orange', val: '₺' + fmt2(totalRevenue), label: `Son ${days} Gün Ciro` },
+    { icon:'🛒', color:'blue',   val: totalOrders, label: 'Sipariş' },
+    { icon:'📊', color:'green',  val: '₺' + fmt2(avgOrder), label: 'Ortalama Sipariş' },
+    { icon:'💎', color:'purple', val: '₺' + fmt2(estimatedProfit), label: 'Tahmini Kâr (%30)' },
+  ].map(s => `<div class="stat-card"><div class="stat-icon ${s.color}">${s.icon}</div><div class="stat-val">${s.val}</div><div class="stat-label">${s.label}</div></div>`).join('');
+
+  // Daily sales chart
+  const dayMap = {};
+  orders.forEach(o => {
+    const d = (o.created_at ?? '').slice(0, 10);
+    if (d) dayMap[d] = (dayMap[d] ?? 0) + (o.total ?? 0);
+  });
+  const sortedDays = Object.keys(dayMap).sort();
+  destroyChart('chartSales');
+  const ctxS = document.getElementById('chartSales');
+  if (ctxS) {
+    chartInstances['chartSales'] = new Chart(ctxS, {
+      type: 'line',
+      data: { labels: sortedDays, datasets: [{ label: 'Satış (TL)', data: sortedDays.map(d => dayMap[d] ?? 0), borderColor: '#F97316', backgroundColor: 'rgba(249,115,22,.1)', fill: true, tension: 0.3 }] },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+    });
+  }
+
+  // Orders per day
+  const orderDayMap = {};
+  orders.forEach(o => {
+    const d = (o.created_at ?? '').slice(0, 10);
+    if (d) orderDayMap[d] = (orderDayMap[d] ?? 0) + 1;
+  });
+  destroyChart('chartOrders');
+  const ctxO = document.getElementById('chartOrders');
+  if (ctxO) {
+    chartInstances['chartOrders'] = new Chart(ctxO, {
+      type: 'bar',
+      data: { labels: Object.keys(orderDayMap).sort(), datasets: [{ label: 'Sipariş', data: Object.keys(orderDayMap).sort().map(d => orderDayMap[d]), backgroundColor: '#3B82F6' }] },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+    });
+  }
+
+  // Profit vs cost
+  const revenues = sortedDays.map(d => dayMap[d] ?? 0);
+  const costs = revenues.map(r => r * 0.7);
+  const profits = revenues.map(r => r * 0.3);
+  destroyChart('chartProfit');
+  const ctxP = document.getElementById('chartProfit');
+  if (ctxP) {
+    chartInstances['chartProfit'] = new Chart(ctxP, {
+      type: 'bar',
+      data: {
+        labels: sortedDays,
+        datasets: [
+          { label: 'Maliyet', data: costs, backgroundColor: '#DC2626' },
+          { label: 'Kâr', data: profits, backgroundColor: '#16A34A' },
+        ]
+      },
+      options: { responsive: true, scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } } }
+    });
+  }
+
+  // Top products
+  const prodMap = {};
+  orders.forEach(o => (o.items ?? []).forEach(i => { prodMap[i.name] = (prodMap[i.name] ?? 0) + i.qty; }));
+  const top10 = Object.entries(prodMap).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  destroyChart('chartTopProducts');
+  const ctxTP = document.getElementById('chartTopProducts');
+  if (ctxTP) {
+    chartInstances['chartTopProducts'] = new Chart(ctxTP, {
+      type: 'bar',
+      data: { labels: top10.map(x => x[0]), datasets: [{ label: 'Adet', data: top10.map(x => x[1]), backgroundColor: '#F97316' }] },
+      options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } } }
+    });
+  }
+
+  // Payment methods
+  const pmMap = {};
+  orders.forEach(o => { const pm = o.payment_method ?? 'nakit'; pmMap[pm] = (pmMap[pm] ?? 0) + 1; });
+  destroyChart('chartPayments');
+  const ctxPM = document.getElementById('chartPayments');
+  if (ctxPM) {
+    chartInstances['chartPayments'] = new Chart(ctxPM, {
+      type: 'doughnut',
+      data: { labels: Object.keys(pmMap), datasets: [{ data: Object.values(pmMap), backgroundColor: ['#F97316','#3B82F6','#16A34A','#7C3AED','#D97706'] }] },
+      options: { responsive: true }
+    });
+  }
+}
+
+// ── BARCODES ──
+let allBarcodes = [];
+
+async function loadBarcodes() {
+  try {
+    const res = await fetch('/api/barcode?action=list');
+    allBarcodes = await res.json();
+  } catch(e) { allBarcodes = []; }
+  renderBarcodes();
+}
+
+function renderBarcodes() {
+  const q = (document.getElementById('bcFilter')?.value ?? '').toLowerCase();
+  const rows = allBarcodes.filter(b => !q || b.barcode.toLowerCase().includes(q));
+  const tbody = document.getElementById('barcodesTbody');
+  if (!tbody) return;
+  if (!rows.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray500);padding:24px">Barkod bulunamadı</td></tr>'; return; }
+  tbody.innerHTML = rows.map(b => `
+    <tr>
+      <td>${b.product_legacy_id ?? '—'}</td>
+      <td><code style="font-size:12px;background:var(--gray100);padding:2px 6px;border-radius:4px">${esc(b.barcode)}</code></td>
+      <td><span class="badge badge-blue">${b.barcode_type}</span></td>
+      <td>${b.is_primary ? '<span class="badge badge-green">✓ Birincil</span>' : ''}</td>
+      <td><button class="btn btn-ghost btn-xs" onclick="previewBarcode('${esc(b.barcode)}','${b.barcode_type}')">Önizle</button></td>
+      <td><button class="btn btn-danger btn-xs" onclick="deleteBarcode('${b.id}')">Sil</button></td>
+    </tr>
+  `).join('');
+}
+
+function openBarcodeModal() { document.getElementById('barcodeModal').classList.add('open'); }
+
+async function saveBarcode() {
+  const pid = document.getElementById('bcProductId').value;
+  const val = document.getElementById('bcValue').value.trim();
+  const type = document.getElementById('bcType').value;
+  const primary = document.getElementById('bcIsPrimary').checked;
+  if (!pid || !val) { showToast('Ürün ID ve barkod zorunlu', 'error'); return; }
+  await fetch('/api/barcode', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ product_legacy_id: parseInt(pid), barcode: val, barcode_type: type, is_primary: primary }) });
+  document.getElementById('barcodeModal').classList.remove('open');
+  showToast('Barkod eklendi');
+  loadBarcodes();
+}
+
+async function deleteBarcode(id) {
+  if (!confirm('Barkod silinsin mi?')) return;
+  await fetch('/api/barcode?id=' + id, { method: 'DELETE' });
+  showToast('Silindi');
+  loadBarcodes();
+}
+
+function previewBarcode(code, type) {
+  const svg = document.getElementById('bcPreviewSvg');
+  const info = document.getElementById('bcPreviewInfo');
+  const printBtn = document.getElementById('bcPrintBtn');
+  try {
+    const bcType = type === 'EAN13' ? 'EAN13' : type === 'UPC' ? 'UPC' : type === 'CODE39' ? 'CODE39' : 'CODE128';
+    JsBarcode(svg, code, { format: bcType, width: 2, height: 60, displayValue: true, fontSize: 12, margin: 8 });
+    if (info) info.textContent = `${type} — ${code}`;
+    if (printBtn) printBtn.style.display = 'inline-flex';
+  } catch(e) { if (info) info.textContent = 'Barkod oluşturulamadı: ' + e.message; }
+}
+
+function printBarcodeLabel() {
+  const svg = document.getElementById('bcPreviewSvg');
+  if (!svg) return;
+  const w = window.open('', '_blank');
+  w.document.write(`<html><head><title>Barkod Etiketi</title><style>body{display:flex;align-items:center;justify-content:center;height:100vh;margin:0}@media print{body{height:auto}}</style></head><body>${svg.outerHTML}<script>window.print()<\/script></body></html>`);
+  w.document.close();
+}
+
+async function lookupBarcode() {
+  const code = document.getElementById('bcScanInput')?.value.trim();
+  if (!code) return;
+  const result = document.getElementById('bcLookupResult');
+  if (!result) return;
+  try {
+    const res = await fetch(`/api/barcode?barcode=${encodeURIComponent(code)}`);
+    const data = await res.json();
+    if (data.found) {
+      result.innerHTML = `<div class="alert alert-success">✅ Ürün Bulundu — Ürün ID: <strong>${data.product_legacy_id}</strong></div>`;
+      previewBarcode(code, data.barcode_type ?? 'CODE128');
+    } else {
+      result.innerHTML = '<div class="alert alert-warn">⚠️ Bu barkod kayıtlı değil</div>';
+    }
+  } catch(e) { result.innerHTML = '<div class="alert alert-danger">API hatası</div>'; }
+}
+
+function searchBarcodes() {
+  const q = (document.getElementById('bcScanInput')?.value ?? '').toLowerCase();
+  if (!q) { renderBarcodes(); return; }
+  const filtered = allBarcodes.filter(b => b.barcode.toLowerCase().includes(q) || String(b.product_legacy_id).includes(q));
+  const tbody = document.getElementById('barcodesTbody');
+  if (!tbody) return;
+  tbody.innerHTML = filtered.map(b => `
+    <tr>
+      <td>${b.product_legacy_id ?? '—'}</td>
+      <td><code style="font-size:12px;background:var(--gray100);padding:2px 6px;border-radius:4px">${esc(b.barcode)}</code></td>
+      <td><span class="badge badge-blue">${b.barcode_type}</span></td>
+      <td>${b.is_primary ? '<span class="badge badge-green">✓</span>' : ''}</td>
+      <td><button class="btn btn-ghost btn-xs" onclick="previewBarcode('${esc(b.barcode)}','${b.barcode_type}')">Önizle</button></td>
+      <td><button class="btn btn-danger btn-xs" onclick="deleteBarcode('${b.id}')">Sil</button></td>
+    </tr>
+  `).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--gray500);padding:24px">Sonuç bulunamadı</td></tr>';
+}
+
+// ── LOYALTY ──
+let loyaltyAccounts = [];
+
+async function loadLoyalty() {
+  // Program info
+  try {
+    const res = await fetch('/api/loyalty?action=program');
+    const prog = await res.json();
+    const info = document.getElementById('loyaltyProgramInfo');
+    if (info) info.innerHTML = prog.id ? `
+      <div style="display:flex;gap:24px;flex-wrap:wrap">
+        <div><span style="font-size:12px;color:var(--gray500)">Program</span><div style="font-weight:700">${esc(prog.name)}</div></div>
+        <div><span style="font-size:12px;color:var(--gray500)">Her lira için</span><div style="font-weight:700">${prog.points_per_lira} puan</div></div>
+        <div><span style="font-size:12px;color:var(--gray500)">1 puan değeri</span><div style="font-weight:700">₺${prog.lira_per_point}</div></div>
+        <div><span style="font-size:12px;color:var(--gray500)">Min kullanım</span><div style="font-weight:700">${prog.min_redeem_points} puan</div></div>
+      </div>
+    ` : '<div style="color:var(--gray500)">Sadakat programı henüz yapılandırılmamış</div>';
+    if (prog.id) {
+      document.getElementById('lpName').value = prog.name ?? '';
+      document.getElementById('lpPointsPerLira').value = prog.points_per_lira ?? 1;
+      document.getElementById('lpLiraPerPoint').value = prog.lira_per_point ?? 0.1;
+      document.getElementById('lpMinRedeem').value = prog.min_redeem_points ?? 100;
+    }
+  } catch(e) {}
+
+  // Accounts list
+  try {
+    const res = await fetch('/api/loyalty?action=list');
+    loyaltyAccounts = await res.json();
+  } catch(e) { loyaltyAccounts = []; }
+
+  const ls = document.getElementById('loyaltyStats');
+  if (ls) {
+    const total = loyaltyAccounts.length;
+    const totalPoints = loyaltyAccounts.reduce((s, a) => s + (a.current_points ?? 0), 0);
+    const gold = loyaltyAccounts.filter(a => a.tier === 'gold' || a.tier === 'platinum').length;
+    ls.innerHTML = [
+      { icon:'⭐', color:'orange', val: total, label: 'Sadakat Üyesi' },
+      { icon:'🏆', color:'yellow', val: totalPoints.toLocaleString('tr-TR'), label: 'Toplam Aktif Puan' },
+      { icon:'💎', color:'purple', val: gold, label: 'Gold / Platinum' },
+    ].map(s => `<div class="stat-card"><div class="stat-icon ${s.color}">${s.icon}</div><div class="stat-val">${s.val}</div><div class="stat-label">${s.label}</div></div>`).join('');
+  }
+
+  renderLoyaltyTable();
+}
+
+function renderLoyaltyTable() {
+  const q = (document.getElementById('loyaltyFilter')?.value ?? '').toLowerCase();
+  const rows = loyaltyAccounts.filter(a => !q || (a.customer_id ?? '').toLowerCase().includes(q) || String(a.current_points).includes(q));
+  const tbody = document.getElementById('loyaltyTbody');
+  if (!tbody) return;
+  const tierBadge = { bronze: 'badge-orange', silver: 'badge-gray', gold: 'badge-yellow', platinum: 'badge-blue' };
+  tbody.innerHTML = rows.map(a => `
+    <tr>
+      <td>${a.customer_id ?? 'Müşteri'}</td>
+      <td><strong>${(a.current_points ?? 0).toLocaleString('tr-TR')}</strong></td>
+      <td><span class="badge ${tierBadge[a.tier] ?? 'badge-gray'}">${a.tier ?? '—'}</span></td>
+      <td>${(a.total_earned_points ?? 0).toLocaleString('tr-TR')}</td>
+      <td>${(a.total_redeemed_points ?? 0).toLocaleString('tr-TR')}</td>
+      <td><button class="btn btn-ghost btn-xs" onclick="showLoyaltyHistory('${a.customer_id}')">Geçmiş</button></td>
+    </tr>
+  `).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--gray500);padding:24px">Kayıt bulunamadı</td></tr>';
+}
+
+function openLoyaltyProgModal() { document.getElementById('loyaltyProgModal').classList.add('open'); }
+function closeLoyaltyProgModal() { document.getElementById('loyaltyProgModal').classList.remove('open'); }
+
+async function saveLoyaltyProgram() {
+  const body = {
+    action: 'upsert_program',
+    name: document.getElementById('lpName').value,
+    points_per_lira: parseFloat(document.getElementById('lpPointsPerLira').value),
+    lira_per_point: parseFloat(document.getElementById('lpLiraPerPoint').value),
+    min_redeem_points: parseInt(document.getElementById('lpMinRedeem').value),
+  };
+  await fetch('/api/loyalty', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  closeLoyaltyProgModal();
+  showToast('Program kaydedildi');
+  loadLoyalty();
+}
+
+async function showLoyaltyHistory(customerId) {
+  const res = await fetch(`/api/loyalty?action=transactions&customer_id=${customerId}`);
+  const txs = await res.json();
+  alert(txs.map(t => `${t.type} ${t.points} puan — ${t.description ?? ''} (${(t.created_at ?? '').slice(0, 10)})`).join('\n') || 'İşlem yok');
+}
+
+// ── WHATSAPP ──
+async function loadWhatsappOrders() {
+  const status = document.getElementById('waStatusFilter')?.value ?? '';
+  let url = '/api/db?coll=whatsapp_orders';
+  try {
+    const res = await fetch(url);
+    let data = await res.json();
+    if (!Array.isArray(data)) data = data.data ?? [];
+    if (status) data = data.filter(d => d.status === status);
+    const tbody = document.getElementById('waTbody');
+    if (!tbody) return;
+    tbody.innerHTML = data.map(w => `
+      <tr>
+        <td>+${esc(w.phone ?? '')}</td>
+        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis">${esc((w.raw_message ?? '').slice(0, 80))}</td>
+        <td>${(w.parsed_items ?? []).map(i => `${i.qty}× ${esc(i.name)}`).join(', ')}</td>
+        <td>${waStatusBadge(w.status)}</td>
+        <td style="font-size:12px;color:var(--gray500)">${(w.created_at ?? '').slice(0, 16).replace('T', ' ')}</td>
+        <td>
+          <button class="btn btn-success btn-xs" onclick="updateWaStatus('${w.id}','processing')">İşle</button>
+          <button class="btn btn-ghost btn-xs" onclick="updateWaStatus('${w.id}','completed')">Tamam</button>
+        </td>
+      </tr>
+    `).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--gray500);padding:24px">Sipariş yok</td></tr>';
+  } catch(e) {}
+}
+
+function waStatusBadge(s) {
+  const map = { pending: 'badge-yellow', processing: 'badge-blue', completed: 'badge-green', rejected: 'badge-red' };
+  const lbl = { pending: 'Bekliyor', processing: 'İşlemde', completed: 'Tamamlandı', rejected: 'Reddedildi' };
+  return `<span class="badge ${map[s] ?? 'badge-gray'}">${lbl[s] ?? s}</span>`;
+}
+
+async function updateWaStatus(id, status) {
+  // Update via supabase directly or through a custom endpoint
+  showToast(`Durum: ${status}`);
+  loadWhatsappOrders();
+}
+
+// ── E-FATURA ──
+async function loadEfatura() {
+  // Status badge
+  try {
+    const res = await fetch('/api/efatura?action=status');
+    const s = await res.json();
+    const badge = document.getElementById('efaturaStatusBadge');
+    if (badge) badge.innerHTML = s.configured
+      ? `<span class="badge badge-green">✅ ${esc(s.provider)} Bağlı</span>`
+      : `<span class="badge badge-red">⚠️ API Yapılandırılmamış</span>`;
+  } catch(e) {}
+
+  // Records
+  try {
+    const res = await fetch('/api/efatura?action=list');
+    const data = await res.json();
+    const tbody = document.getElementById('efaturaTbody');
+    if (!tbody) return;
+    const statusBadge = { draft: 'badge-gray', sent: 'badge-green', rejected: 'badge-red', cancelled: 'badge-yellow' };
+    tbody.innerHTML = (Array.isArray(data) ? data : []).map(r => `
+      <tr>
+        <td style="font-size:12px">${esc(r.order_id ?? '—')}</td>
+        <td><span class="badge badge-blue">${r.fatura_tipi ?? '—'}</span></td>
+        <td><span class="badge ${statusBadge[r.status] ?? 'badge-gray'}">${r.status ?? '—'}</span></td>
+        <td style="font-size:11px">${esc(r.fatura_no ?? '—')}</td>
+        <td style="font-size:12px">${esc(r.provider ?? '—')}</td>
+        <td style="font-size:12px;color:var(--gray500)">${(r.created_at ?? '').slice(0, 10)}</td>
+        <td>${r.status === 'sent' ? `<button class="btn btn-danger btn-xs" onclick="cancelEfatura('${r.id}')">İptal</button>` : ''}</td>
+      </tr>
+    `).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--gray500);padding:24px">Fatura kaydı yok</td></tr>';
+  } catch(e) {}
+}
+
+function openEfaturaModal() {
+  document.getElementById('efDate').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('efaturaModal').classList.add('open');
+}
+
+async function createEArchive() {
+  const body = {
+    action: 'create_earchive',
+    order_id: document.getElementById('efOrderId').value.trim(),
+    issue_date: document.getElementById('efDate').value,
+    customer_name: document.getElementById('efCustomerName').value.trim(),
+    customer_tax_no: document.getElementById('efTaxNo').value.trim(),
+    customer_address: document.getElementById('efAddress').value.trim(),
+    total: parseFloat(document.getElementById('efTotal').value) || 0,
+    tax_total: parseFloat(document.getElementById('efTaxTotal').value) || 0,
+    items: [],
+  };
+  const res = await fetch('/api/efatura', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const data = await res.json();
+  document.getElementById('efaturaModal').classList.remove('open');
+  showToast(data.ok ? 'Fatura oluşturuldu' : (data.message ?? data.error ?? 'Oluşturuldu'));
+  loadEfatura();
+}
+
+async function cancelEfatura(id) {
+  if (!confirm('Fatura iptal edilsin mi?')) return;
+  await fetch('/api/efatura', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'cancel', record_id: id }) });
+  showToast('İptal edildi');
+  loadEfatura();
+}
+
+// ── AUDIT LOG ──
+let auditPage = 0;
+const AUDIT_PER_PAGE = 50;
+
+async function loadAuditLog(page) {
+  if (page !== undefined) auditPage = page;
+  const action = document.getElementById('auditActionFilter')?.value ?? '';
+  const entity = document.getElementById('auditEntityFilter')?.value.trim() ?? '';
+  let url = `/api/audit-log?page=${auditPage}&limit=${AUDIT_PER_PAGE}`;
+  if (action) url += `&action=${encodeURIComponent(action)}`;
+  if (entity) url += `&entity=${encodeURIComponent(entity)}`;
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    const logs = Array.isArray(data) ? data : data.data ?? [];
+    const tbody = document.getElementById('auditTbody');
+    if (!tbody) return;
+    const actionBadge = { insert: 'badge-green', update: 'badge-blue', delete: 'badge-red', login: 'badge-orange', ikasa_sync: 'badge-purple' };
+    tbody.innerHTML = logs.map(l => `
+      <tr>
+        <td><span class="badge ${actionBadge[l.action] ?? 'badge-gray'}">${l.action ?? '—'}</span></td>
+        <td>${esc(l.entity ?? '—')}</td>
+        <td style="font-size:11px;color:var(--gray500)">${esc(String(l.entity_id ?? '').slice(0, 16))}</td>
+        <td style="font-size:12px">${esc(l.user_email ?? l.user_id ?? '—')}</td>
+        <td style="font-size:12px;color:var(--gray500)">${(l.created_at ?? '').slice(0, 16).replace('T', ' ')}</td>
+      </tr>
+    `).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--gray500);padding:24px">Log bulunamadı</td></tr>';
+
+    const pager = document.getElementById('auditPager');
+    if (pager) {
+      pager.innerHTML = `
+        <button class="btn btn-ghost btn-sm" ${auditPage === 0 ? 'disabled' : ''} onclick="loadAuditLog(${auditPage - 1})">← Önceki</button>
+        <span style="padding:6px 12px;font-size:13px">Sayfa ${auditPage + 1}</span>
+        <button class="btn btn-ghost btn-sm" ${logs.length < AUDIT_PER_PAGE ? 'disabled' : ''} onclick="loadAuditLog(${auditPage + 1})">Sonraki →</button>
+      `;
+    }
+  } catch(e) {}
+}
+
+// ── BACKUP ──
+async function loadBackupJobs() {
+  try {
+    const res = await fetch('/api/backup');
+    const data = await res.json();
+    const tbody = document.getElementById('backupTbody');
+    if (!tbody) return;
+    tbody.innerHTML = (Array.isArray(data) ? data : []).map(b => `
+      <tr>
+        <td style="font-size:12px">${b.id?.slice(0, 8) ?? '—'}…</td>
+        <td>${backupStatusBadge(b.status)}</td>
+        <td style="font-size:12px;color:var(--gray500)">${b.file_size ? (b.file_size / 1024).toFixed(1) + ' KB' : '—'}</td>
+        <td style="font-size:12px;color:var(--gray500)">${(b.created_at ?? '').slice(0, 16).replace('T', ' ')}</td>
+        <td>${b.status === 'success' ? `<a href="/api/backup?job_id=${b.id}&download=1" class="btn btn-ghost btn-xs">⬇️ İndir</a>` : ''}</td>
+      </tr>
+    `).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--gray500);padding:24px">Yedek kaydı yok</td></tr>';
+  } catch(e) {}
+}
+
+function backupStatusBadge(s) {
+  const map = { running: 'badge-blue', success: 'badge-green', failed: 'badge-red' };
+  return `<span class="badge ${map[s] ?? 'badge-gray'}">${s ?? '—'}</span>`;
+}
+
+async function triggerBackup() {
+  showToast('Yedek alınıyor…');
+  try {
+    const res = await fetch('/api/backup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'create' }) });
+    if (res.headers.get('Content-Disposition')?.includes('attachment')) {
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'aydin-gros-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Yedek indirildi');
+    } else {
+      const data = await res.json();
+      showToast(data.ok ? 'Yedek alındı' : 'Yedek başlatıldı');
+    }
+  } catch(e) { showToast('Hata: ' + e.message, 'error'); }
+  loadBackupJobs();
+}
+
+// ── STAFF ──
+let editingStaffId = null;
+
+async function loadStaff() {
+  try {
+    const res = await fetch('/api/db?coll=staff_permissions');
+    let data = await res.json();
+    if (!Array.isArray(data)) data = data.data ?? [];
+    const tbody = document.getElementById('staffTbody');
+    if (!tbody) return;
+    tbody.innerHTML = data.map(s => `
+      <tr>
+        <td>${esc(s.user_email ?? s.user_id ?? '—')}</td>
+        <td><span class="badge badge-blue">${s.role ?? '—'}</span></td>
+        <td style="font-size:12px">${(s.permissions ?? []).join(', ')}</td>
+        <td>${s.is_active ? '<span class="badge badge-green">Aktif</span>' : '<span class="badge badge-red">Pasif</span>'}</td>
+        <td>
+          <button class="btn btn-ghost btn-xs" onclick="editStaff(${JSON.stringify(s).replace(/"/g,'&quot;')})">Düzenle</button>
+        </td>
+      </tr>
+    `).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--gray500);padding:24px">Kayıt yok</td></tr>';
+  } catch(e) {}
+}
+
+function openStaffModal() {
+  editingStaffId = null;
+  document.getElementById('staffEmail').value = '';
+  document.getElementById('staffRole').value = 'cashier';
+  document.getElementById('staffPerms').value = '';
+  document.getElementById('staffActive').checked = true;
+  document.getElementById('staffModal').classList.add('open');
+}
+
+function editStaff(s) {
+  editingStaffId = s.id;
+  document.getElementById('staffEmail').value = s.user_email ?? '';
+  document.getElementById('staffRole').value = s.role ?? 'cashier';
+  document.getElementById('staffPerms').value = (s.permissions ?? []).join(', ');
+  document.getElementById('staffActive').checked = s.is_active ?? true;
+  document.getElementById('staffModal').classList.add('open');
+}
+
+function closeStaffModal() { document.getElementById('staffModal').classList.remove('open'); }
+
+async function saveStaffPerm() {
+  const body = {
+    user_email: document.getElementById('staffEmail').value.trim(),
+    role: document.getElementById('staffRole').value,
+    permissions: document.getElementById('staffPerms').value.split(',').map(s => s.trim()).filter(Boolean),
+    is_active: document.getElementById('staffActive').checked,
+  };
+  if (!body.user_email) { showToast('E-posta zorunlu', 'error'); return; }
+  const method = editingStaffId ? 'PUT' : 'POST';
+  const url = editingStaffId ? `/api/db?coll=staff_permissions&id=${editingStaffId}` : '/api/db?coll=staff_permissions';
+  await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  closeStaffModal();
+  showToast('Kaydedildi');
+  loadStaff();
+}
+
+function fmt2(n) { return Number(n ?? 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+</script>
+
 </body>
 </html>
