@@ -2613,9 +2613,11 @@ function exportCompAnalysis(){
 
 /* ── YENİ SİPARİŞ BİLDİRİMİ ────────────────────────────────────────── */
 let lastOrderCount = 0;
+let orderPollingInterval = null;
 function startOrderPolling(){
+  if (orderPollingInterval) clearInterval(orderPollingInterval);
   lastOrderCount = orders.length;
-  setInterval(async ()=>{
+  orderPollingInterval = setInterval(async ()=>{
     const current = await fetchDb('orders', []);
     if(current.length > lastOrderCount){
       const diff = current.length - lastOrderCount;

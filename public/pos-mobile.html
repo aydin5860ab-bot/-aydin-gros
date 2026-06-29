@@ -222,11 +222,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 <script>
-const SUPABASE_URL = 'https://YOUR_PROJECT.supabase.co';
-const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
 let sb = null;
-
-try { sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch(e){}
 
 const DB_NAME = 'aydin_pos_offline';
 const DB_VER = 1;
@@ -725,6 +721,13 @@ function fmt(n) { return Number(n).toLocaleString('tr-TR', { minimumFractionDigi
 
 // ── Init ──
 (async () => {
+  try {
+    const confRes = await fetch('/api/config');
+    const conf = await confRes.json();
+    sb = supabase.createClient(conf.url || conf.SUPABASE_URL, conf.anonKey || conf.SUPABASE_ANON_KEY);
+  } catch(e) {
+    console.error("Config load failed", e);
+  }
   db = await openDB();
   if (!isOnline) document.getElementById('offlineBanner').classList.add('show');
   await loadProducts();
