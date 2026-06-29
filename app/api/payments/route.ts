@@ -75,6 +75,7 @@ export async function POST(req: NextRequest) {
       id: order_id,
       order_number: orderNumber,
       channel: 'pos',
+      subtotal: orderTotal,
       total: orderTotal,
       payment_method: payments.length > 1 ? 'mixed' : (payments[0] as Payment).method,
       mixed_payment: payments.length > 1,
