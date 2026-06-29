@@ -1,0 +1,327 @@
+# Aydın GROS OS — 300 Maddelik Üretim Öncesi Test Planı
+
+Bu döküman, Aydın Gros OS platformunun market ortamında devreye alınmadan önce doğrulanması gereken 300 kritik senaryoyu ve test maddesini içerir.
+
+---
+
+## 1. POS (Kasiyer) Arayüzü & Satış Entegrasyonu (1 - 50)
+- [ ] 1. POS sayfasının ağ bağlantısı varken 2 saniyenin altında yüklenmesi.
+- [ ] 2. Çevrimdışı (offline) modda POS sayfasının Service Worker aracılığıyla yüklenebilmesi.
+- [ ] 3. Barkod okutulduğunda ürünün anında sepete eklenmesi.
+- [ ] 4. Ürün sepette varken aynı barkod tekrar okutulduğunda adetin 1 artırılması.
+- [ ] 5. Tanımsız barkod okutulduğunda kasiyere "Ürün Bulunamadı" uyarısı verilmesi.
+- [ ] 6. F2 klavye kısayolu ile hızlı ürün arama kutusuna odaklanılması.
+- [ ] 7. Ürün arama kutusunda Türkçe karakter duyarlı arama yapılması (örn: "sut" yazınca "süt" çıkması).
+- [ ] 8. Klavyeden yön tuşları (Yukarı/Aşağı) ile arama sonuçları arasında gezilebilmesi.
+- [ ] 9. Enter tuşu ile seçili hızlı arama sonucunun sepete aktarılması.
+- [ ] 10. Esc tuşu ile açık olan tüm modal pencerelerin kapatılması.
+- [ ] 11. F4 kısayolu ile nakit ödeme modülünün açılması.
+- [ ] 12. F7 kısayolu ile kredi kartı ödeme modülünün açılması.
+- [ ] 13. F8 kısayolu ile cari veresiye ödeme modülünün tetiklenmesi.
+- [ ] 14. F9 kısayolu ile çoklu (karma) ödeme penceresinin açılması.
+- [ ] 15. Sepetteki bir ürünün miktarının el ile (artı/eksi butonlarıyla) değiştirilmesi.
+- [ ] 16. Sepetteki bir kalemin çöp kutusu ikonu ile tamamen sepetten çıkarılması.
+- [ ] 17. İskonto alanına yüzde (%) değeri girilerek toplam tutarın anında düşürülmesi.
+- [ ] 18. İskonto alanına net TL değeri girilerek sepet tutarından düşüm yapılması.
+- [ ] 19. İskonto yapıldığında KDV matrahının doğru şekilde yeniden hesaplanması.
+- [ ] 20. "Sepeti Temizle" (İptal) butonuna basıldığında onay istenmesi ve sepetin boşaltılması.
+- [ ] 21. Nakit ödemelerde para üstünün doğru kuruş hassasiyetiyle gösterilmesi.
+- [ ] 22. Çoklu (karma) ödemelerde girilen nakit ve kart tutarları toplamının sipariş toplamına eşitlenene kadar "Ödemeyi Tamamla" butonunun deaktif kalması.
+- [ ] 23. Cari/Veresiye ödeme seçildiğinde müşteri kartvizit listesinin yüklenmesi.
+- [ ] 24. Limitini aşmış veresiye müşterisine satış yapılmasının engellenmesi.
+- [ ] 25. Satış kapatıldığında termal fiş önizleme ekranının açılması.
+- [ ] 26. Satış tamamlandığında veritabanında `orders` tablosuna ilgili kaydın düşmesi.
+- [ ] 27. Satış tamamlandığında `order_items` tablosuna kalemlerin eksiksiz yazılması.
+- [ ] 28. Çevrimdışı modda yapılan satışların IndexedDB'ye başarıyla kaydedilmesi.
+- [ ] 29. İnternet bağlantısı geri geldiğinde IndexedDB'deki satışların Supabase ile otomatik senkronize edilmesi.
+- [ ] 30. Senkronizasyon sırasında çakışmaları önlemek için UUID'lerin kullanılmasının doğrulanması.
+- [ ] 31. Satış kapatıldığında satışı yapan şubedeki `product_stock` miktarının otomatik düşmesi.
+- [ ] 32. Stokta yetersiz ürün satılmak istendiğinde uyarı verilmesi (ancak satışın engellenmemesi seçeneği).
+- [ ] 33. Kamera ile barkod okuma modülünün izin istemesi ve kamerayı açması.
+- [ ] 34. Kamera akışında barkodun 500ms altında başarıyla çözümlenmesi.
+- [ ] 35. Barkod etiketi yazdırma ekranından seçilen ürünün PDF barkodunun oluşturulması.
+- [ ] 36. 58mm termal fiş formatında CSS `@media print` çıktısının taşma yapmadan sığması.
+- [ ] 37. 80mm termal fiş formatında kolon hizalamalarının kaymaması.
+- [ ] 38. Fiş üzerinde şube adı, adresi, telefon numarası ve tarih saat bilgilerinin yer alması.
+- [ ] 39. Fiş altında sipariş numarasına ait QR kodun doğru üretilmesi.
+- [ ] 40. Askıya alma özelliğiyle mevcut sepetin beklemeye alınması.
+- [ ] 41. Askıdaki sepet geri çağrıldığında sepet tutarının ve ürünlerinin birebir yüklenmesi.
+- [ ] 42. Kasiyer yetkisi dışındaki işlemlerin (örn: yüksek iskonto) yönetici şifresi istemesi.
+- [ ] 43. Sipariş tamamlandıktan sonra kasiyer ekranına "Yeni Satış" butonuyla dönülmesi.
+- [ ] 44. Müşteri ekranı (ikinci ekran) bağlıysa sepetteki değişikliklerin anlık yansıması.
+- [ ] 45. Gramajlı terazi barkodu (örn: 27 ile başlayan) okutulduğunda ağırlığın ve tutarın doğru ayrıştırılması.
+- [ ] 46. Sepetteki fiyatların veritabanındaki şube bazlı güncel fiyatlar ile eşleşmesi.
+- [ ] 47. Satış tamamlandığında kasa oturumundaki expected cash değerinin nakit tutarı kadar artması.
+- [ ] 48. POS ekranında şube değiştirildiğinde stokların ve fiyatların o şubeye göre güncellenmesi.
+- [ ] 49. Çevrimdışı mod banner'ının internet gidince anında kırmızı olarak belirip uyarması.
+- [ ] 50. İnternet gelince yeşil "Bağlantı Kuruldu, Senkronize ediliyor" mesajının çıkması.
+
+---
+
+## 2. Yönetim Paneli & Raporlama (51 - 100)
+- [ ] 51. Yönetim panelinin admin yetkileriyle 3 saniyenin altında yüklenmesi.
+- [ ] 52. Dashboard üzerinde anlık ciro kartının doğru sipariş toplamını yansıtması.
+- [ ] 53. Bugün, Dün, Son 7 Gün ve Bu Ay ciro filtrelerinin hatasız çalışması.
+- [ ] 54. Chart.js grafiklerinin ciro dağılımlarını doğru çizmesi.
+- [ ] 55. En Çok Satan Ürünler grafiğinde ilk 5 ürünün adet bazlı doğru listelenmesi.
+- [ ] 56. Stok Değeri raporunun (Stok Adedi * Alış Fiyatı) formülüyle doğru hesaplanması.
+- [ ] 57. Brüt Karlılık raporunun (Satış Fiyatı - Alış Maliyeti) üzerinden kar oranını doğru vermesi.
+- [ ] 58. Kritik stok limitinin altındaki ürünlerin dashboard'da kırmızı renkle listelenmesi.
+- [ ] 59. Kritik stok limitine gelindiğinde yöneticilere bildirim oluşturulması.
+- [ ] 60. Şube bazlı ciro karşılaştırma grafiğinin doğruluğu.
+- [ ] 61. Yeni ürün ekleme (CRUD) modülünün açılması.
+- [ ] 62. Ürün eklerken barkod, isim, kategori, alış/satış fiyatı alanlarının zorunlu tutulması.
+- [ ] 63. Mükerrer barkod eklenmek istendiğinde sistemin "Bu barkod zaten kayıtlı" hatası vermesi.
+- [ ] 64. Ürün güncelleme ekranında yapılan değişikliklerin anında POS ekranına yansıması.
+- [ ] 65. Ürün silindiğinde ürünün veritabanında soft-delete (deleted_at) olarak işaretlenmesi.
+- [ ] 66. Kategori ekleme/çıkarma işlemlerinin ağaç yapısına uygun çalışması.
+- [ ] 67. Kategori emojisinin POS ekranında doğru kategori butonunda gösterilmesi.
+- [ ] 68. Kampanya tanımlama arayüzünün açılması.
+- [ ] 69. 3 Al 2 Öde kampanyası tanımlandığında POS sepetinde en ucuz ürünün otomatik düşülmesi.
+- [ ] 70. Belirli kategoriye %10 indirim kampanyası tanımlandığında sepet hesaplamasının doğrulanması.
+- [ ] 71. Kupon tanımlama arayüzünden yeni kupon üretilmesi.
+- [ ] 72. Tanımlanan kupon kodunun POS sepetinde kullanıldığında geçerlilik tarihlerinin kontrol edilmesi.
+- [ ] 73. Kupon limiti dolduğunda sepette "Bu kupon limitini aşmış" hatası vermesi.
+- [ ] 74. E-Fatura kayıtları tablosunda gönderilen faturaların GIB durum kodlarıyla listelenmesi.
+- [ ] 75. E-Fatura detay modalında faturanın XML/XSLT görsel önizlemesinin yüklenmesi.
+- [ ] 76. Denetim logları (Audit Log) sayfasında hangi personelin hangi işlemi yaptığının listelenmesi.
+- [ ] 77. Audit log tablosunun işlem tipi ve tarihe göre filtrelenebilmesi.
+- [ ] 78. Yedekleme (Backup) sayfasından yeni veritabanı yedeğinin tetiklenmesi.
+- [ ] 79. Alınan yedeklerin zip/json olarak sunucudan indirilebilmesi.
+- [ ] 80. Personel yetkilendirme ekranında kullanıcılara admin, manager, cashier rolleri atanması.
+- [ ] 81. Personel rollerine göre izin JSON array'inin staff_permissions tablosuna yazılması.
+- [ ] 82. Şube bazlı stok transfer talebi oluşturma ekranının açılması.
+- [ ] 83. Kaynak şube seçilip ürünler eklenerek sevk emri verilmesi.
+- [ ] 84. Transfer statüsü 'yolda' olduğunda stokların rezerveye çekilmesi.
+- [ ] 85. Transfer 'tamamlandı' statüsüne alındığında kaynak şube stokunun düşüp hedef şube stokunun artması.
+- [ ] 86. Kasa hareketleri raporunda gün içindeki tüm nakit girdilerinin listelenmesi.
+- [ ] 87. Z Raporu geçmişi sayfasında kesilen tüm Z raporlarının arşivlenmesi.
+- [ ] 88. Raporların Excel ve CSV formatlarında dışa aktarılabilmesi.
+- [ ] 89. Excel aktarımında Türkçe karakterlerin bozulmaması (UTF-8 BOM doğrulaması).
+- [ ] 90. Dashboard üst barında şube bazlı filtreleme yapıldığında tüm grafiklerin o şubeye göre süzülmesi.
+- [ ] 91. Yönetici panelinde şifre değiştirme ve profil güncelleme ekranlarının doğruluğu.
+- [ ] 92. Sistem ayarları sayfasından KDV oranları default değerinin değiştirilebilmesi.
+- [ ] 93. Şube detayında yazıcı genişliği (58mm/80mm) tercihinin kaydedilmesi.
+- [ ] 94. WhatsApp siparişleri panelinde gelen onay bekleyen siparişlerin listelenmesi.
+- [ ] 95. WhatsApp siparişi onaylandığında otomatik olarak POS sepetine aktarılabilmesi.
+- [ ] 96. Müşteri sadakat puanı çarpanı ayarlarının kaydedilmesi.
+- [ ] 97. Sistem durumu (Healthz) paneli üzerinden servis bağlantılarının kontrol edilmesi.
+- [ ] 98. Dashboard yüklenirken iskele (skeleton screen) animasyonunun gösterilmesi.
+- [ ] 99. Geçersiz sayfaya girildiğinde özel 404 sayfasının gösterilmesi.
+- [ ] 100. Admin panelinin mobil cihazlarda (responsive) yan menüsünün gizlenip hamburger menüye dönüşmesi.
+
+---
+
+## 3. Stok Envanteri & Şube Sevkleri (101 - 150)
+- [ ] 101. Ürün kartında minimum stok uyarısı alanı bulunması.
+- [ ] 102. `product_stock` tablosunda `branch_id` birincil anahtarının doğruluğu.
+- [ ] 103. Şube bazlı stok listesinin yönetim panelinde şube kırılımıyla listelenmesi.
+- [ ] 104. Stok miktarı negatif değere düştüğünde sistemin admin paneline uyarı vermesi.
+- [ ] 105. Excel'den toplu ürün/stok yükleme şablonunun indirilmesi.
+- [ ] 106. Hatalı Excel formatı yüklendiğinde import işleminin iptal edilerek satır satır hata gösterilmesi.
+- [ ] 107. Excel import sonrasında yeni ürünlerin barkodlarıyla beraber eklenmesi.
+- [ ] 108. Stok sayım modülünden sayım emri oluşturulması.
+- [ ] 109. Kasiyerlerin sayım ekranında barkod okutarak eldeki miktarları girmesi.
+- [ ] 110. Sayım tamamlandığında sistem stok miktarı ile sayılan miktar arasındaki farkın (variance) raporlanması.
+- [ ] 111. Sayım onaylandığında `product_stock` tablosundaki miktarların sayılan değerle güncellenmesi.
+- [ ] 112. Sayım onayının audit log tablosuna otomatik kaydedilmesi.
+- [ ] 113. Depolar arası ürün transferlerinde barkod bazlı doğrulama.
+- [ ] 114. İade alınan ürünün "Stoka Geri Ekle" seçeneğiyle stok adedinin anında artması.
+- [ ] 115. Defolu/Zayi ürün çıkış ekranından stoktan düşüm yapılması.
+- [ ] 116. Stok düşüm nedenlerinin (bozuk, son kullanma tarihi geçmiş vb.) seçilebilmesi.
+- [ ] 117. Son kullanma tarihi yaklaşan ürünler için sistemde alarm oluşturulması.
+- [ ] 118. Sipariş iptal edildiğinde sepetteki tüm ürünlerin ilgili şubede stoka iade edilmesi.
+- [ ] 119. Kısmi iadelerde sadece iade edilen kalem adetlerinin stoka geri dönmesi.
+- [ ] 120. Stok hareket geçmişi tablosunda her ürünün girdi/çıktı hareketlerinin sıralanması.
+- [ ] 121. Tedarikçiden alınan irsaliyenin sisteme girilerek stokların artırılması.
+- [ ] 122. Stok transferlerinde gönderici şubenin stoku düşerken alıcı şubenin onaylayana kadar stokunun artmaması.
+- [ ] 123. İptal edilen sevk emirlerinde rezerve edilen stokların serbest bırakılması.
+- [ ] 124. Şubeler arası stok eşitleme raporunun doğruluğu.
+- [ ] 125. Barkodsuz ürünlerin (örn: poşet, açık ekmek) hızlı tuşlarla stoktan düşürülmesi.
+- [ ] 126. Bir şubedeki stok miktarı sıfırken diğer şubedeki stok durumunun POS ekranından sorgulanabilmesi.
+- [ ] 127. Çoklu şubede yetkisi olmayan kasiyerin başka şube stokunu değiştirememesi.
+- [ ] 128. Stok envanter değerinin TL cinsinden anlık döviz/TL karşılığı raporu.
+- [ ] 129. Ürün silindiğinde o ürüne bağlı `product_stock` kayıtlarının da silinmesi.
+- [ ] 130. Yeni şube açıldığında tüm ürünlerin o şubede 0 stokla otomatik tanımlanması.
+- [ ] 131. Tedarikçi irsaliye girişinde KDV oranına göre maliyetlerin ayrıştırılması.
+- [ ] 132. Stok listesinin PDF rapor olarak indirilmesi.
+- [ ] 133. Barkod etiket basımında ürün adı ve fiyatının güncel olmasının teyidi.
+- [ ] 134. Tartılı ürün barkodunda (270010001500) 1.500 kg bilgisinin doğru okunması.
+- [ ] 135. Hatalı terazi barkodu okutulduğunda sesli/görsel uyarı verilmesi.
+- [ ] 136. Stok sayımının PDF çıktısının alınması.
+- [ ] 137. Stok uyarısı bildirim e-postasının yöneticilere başarıyla ulaşması.
+- [ ] 138. `product_stock` güncellemelerinde trigger'ların `updated_at` alanını değiştirmesi.
+- [ ] 139. Stok hareketlerinde işlem yapan kullanıcı id'sinin (user_id) loglanması.
+- [ ] 140. Tedarikçi ödeme geçmişi tablosunun doğruluğu.
+- [ ] 141. Şube transferlerinde taşıyıcı personel bilgisinin girilebilmesi.
+- [ ] 142. Transfer edilen ürün adedi ondalıklı sayı olduğunda (örn: 10.5 kg) kabul edilmesi.
+- [ ] 143. Kritik stok eşiği 0 yapıldığında o ürün için uyarı verilmemesi.
+- [ ] 144. Envanter devir hızı raporunun doğruluğu.
+- [ ] 145. Stok kartında üretici firma ve menşei bilgisinin saklanması.
+- [ ] 146. Silinen şubeye ait tüm stokların sistemden güvenli şekilde temizlenmesi.
+- [ ] 147. Stok hareketlerinde `reference_id` ile sipariş veya sevk UUID'sinin ilişkilenmesi.
+- [ ] 148. Fiyat değiştiğinde stok maliyet değerinin eski fiyata göre kar/zarar analizini etkilememesi.
+- [ ] 149. Şube transferlerinde barkod okutarak sevk kalemi eklenmesi.
+- [ ] 150. Stok hareket tablosunda saniyede 100 kayıt oluşturulduğunda performans kaybı yaşanmaması.
+
+---
+
+## 4. Cari Kartlar & Veresiye Hesap Defteri (151 - 200)
+- [ ] 151. Cari kart yönetim sayfasından yeni müşteri tanımlanması.
+- [ ] 152. Müşteri tanımlarken isim, telefon ve e-posta doğrulaması.
+- [ ] 153. Müşteriye özel veresiye borç limiti belirlenmesi.
+- [ ] 154. POS sepetinde müşteri seçildiğinde müşterinin güncel borç bakiyesinin gösterilmesi.
+- [ ] 155. Veresiye satış yapıldığında müşterinin borcunun (`balance`) satış tutarı kadar artması.
+- [ ] 156. Veresiye satışın cari hareketler (`customer_transactions`) tablosuna 'purchase' tipiyle yazılması.
+- [ ] 157. Cari hareket kaydında satışa ait `order_id` bilgisinin saklanması.
+- [ ] 158. Yönetim panelinden müşteriden tahsilat (nakit/kart) girişi yapılması.
+- [ ] 159. Tahsilat girildiğinde müşterinin borç bakiyesinin tahsilat tutarı kadar düşmesi.
+- [ ] 160. Tahsilatın `customer_transactions` tablosuna 'payment' tipiyle yazılması.
+- [ ] 161. Cari hareket geçmişi ekranında borç ve tahsilatların kronolojik listelenmesi.
+- [ ] 162. Cari hesap ekstresinin (defter çıktısı) PDF olarak indirilebilmesi.
+- [ ] 163. Cari hareket silindiğinde borç bakiyesinin otomatik olarak yeniden hesaplanması.
+- [ ] 164. Borç limiti 0 olan müşteriye hiçbir koşulda veresiye satış izni verilmemesi.
+- [ ] 165. Müşteri silindiğinde aktif borcu varsa uyarı verilmesi ve silmenin engellenmesi.
+- [ ] 166. Sadakat hesabı ile cari kartın entegrasyonu (veresiye alan müşterinin de puan kazanması).
+- [ ] 167. Tahsilat makbuzu basımının termal yazıcı formatına uygun olması.
+- [ ] 168. Cari hesap arama kutusunda isme veya telefona göre hızlı süzme yapılması.
+- [ ] 169. Borcunu geciktiren müşterilerin cari kart listesinde kırmızı işaretle gösterilmesi.
+- [ ] 170. Müşteriye özel iskonto oranı tanımlanması ve POS'ta o müşteri seçilince otomatik iskonto uygulanması.
+- [ ] 171. Cari hareket girişinde kuruş hassasiyetinin doğrulanması (örn: 100.55 TL tahsilat).
+- [ ] 172. Kara listedeki (pasif) müşterilere POS ekranında satış yapılmasının engellenmesi.
+- [ ] 173. Cari kart düzenleme ekranından adres ve vergi dairesi bilgilerinin güncellenmesi.
+- [ ] 174. Müşteriye WhatsApp üzerinden borç hatırlatma mesajı şablonunun tetiklenmesi.
+- [ ] 175. Cari hareket geçmişinin Excel dosyasına aktarılması.
+- [ ] 176. Veresiye satış iptal edildiğinde müşterinin borç bakiyesinin otomatik düşmesi.
+- [ ] 177. Kısmi iadelerde iade tutarının müşterinin cari borcundan düşülmesi (veya nakit ödenmesi seçeneği).
+- [ ] 178. Çok şubeli yapıda müşterinin herhangi bir şubeden borçlanıp diğer şubeden ödeme yapabilmesi.
+- [ ] 179. Şube bazlı cari tahsilat raporunun doğruluğu.
+- [ ] 180. Cari hesap açılışında 'initial_balance' girilerek devreden bakiye tanımlanması.
+- [ ] 181. Cari hareket açıklamalarında sipariş numarası ve şube adının yer alması.
+- [ ] 182. Aynı telefona sahip birden fazla cari kartın açılmasının engellenmesi.
+- [ ] 183. Kasiyerlerin cari tahsilat yapabilmesi, ancak borç silme yetkisinin sadece adminde olması.
+- [ ] 184. Müşteri ekstre PDF'inde işletme logosunun ve imza alanının yer alması.
+- [ ] 185. Cari bakiye raporunda toplam alacak miktarının anlık gösterilmesi.
+- [ ] 186. Cari listesinin limit aşımına göre sıralanabilmesi.
+- [ ] 187. Cari hareketlerde hata durumunda işlemi geri alma (rollback) mekanizmasının veritabanı düzeyinde doğrulanması.
+- [ ] 188. Cari tahsilat makbuzunun e-posta ile müşteriye gönderilmesi.
+- [ ] 189. Cari kartlarda vergi numarası uzunluğunun (10 haneli VKN veya 11 haneli TCKN) doğrulanması.
+- [ ] 190. Müşterinin son veresiye alışveriş tarihinin takip edilebilmesi.
+- [ ] 191. Cari defterde yapılan el ile bakiye düzeltmelerinin audit loga 'cari_düzeltme' olarak kaydedilmesi.
+- [ ] 192. Kasiyer yetkisindeki personelin cari limitleri değiştirememesinin RLS ile engellenmesi.
+- [ ] 193. Cari kartlar tablosunun veritabanı indeksleri sayesinde 10.000 kayıt varken 100ms altında sorgulanması.
+- [ ] 194. Sadakat programı tier geçişlerinin (bronze -> gold) ciroya göre otomatik tetiklenmesi.
+- [ ] 195. Puan harcanarak yapılan alışverişin cari ekstresinde iskonto olarak gösterilmesi.
+- [ ] 196. Cari bakiyelerin anlık olarak Supabase Dashboard üzerinden teyit edilmesi.
+- [ ] 197. Cari tahsilatta kredi kartı ile ödemelerde banka komisyon oranının hesaplanması.
+- [ ] 198. Cari ödeme planı (taksit) takibinin doğruluğu.
+- [ ] 199. Cari kart silindiğinde ilişkili tüm sadakat hesaplarının da temizlenmesi.
+- [ ] 200. Cari raporun şube bazlı filtrelenerek hangi şubenin ne kadar veresiye alacağı olduğunun gösterilmesi.
+
+---
+
+## 5. Güvenlik, RLS Kuralları & Veritabanı (201 - 250)
+- [ ] 201. Supabase Row Level Security (RLS) kurallarının tüm tablolarda aktif olması (`ENABLE ROW LEVEL SECURITY`).
+- [ ] 202. `current_tenant_id()` fonksiyonunun JWT token claims'den tenant_id değerini doğru okuması.
+- [ ] 203. Farklı tenant'a sahip kullanıcının başka tenant verilerini okumasının (tenant isolation) engellenmesi.
+- [ ] 204. `current_user_role()` fonksiyonunun token üzerinden rolleri (admin, cashier vb.) doğru ayrıştırması.
+- [ ] 205. `service_role` API anahtarının hiçbir frontend HTML/JS kodunda yer almadığının doğrulanması.
+- [ ] 206. `service_role` anahtarının sadece backend API rotalarında kullanıldığının teyidi.
+- [ ] 207. Frontend kodlarında Supabase anon key'in kullanılması ve bu anahtarın RLS kurallarına tabi olması.
+- [ ] 208. SQL Injection testleri: API parametrelerine tırnak veya OR 1=1 eklenince hata dönmesi.
+- [ ] 209. XSS koruması: Ürün adı veya müşteri adına HTML/script enjekte edilince güvenli escape edilmesi.
+- [ ] 210. Personel tablosunda `password_hash` alanlarının düz metin (plain text) olarak saklanmadığının teyidi.
+- [ ] 211. `staff_permissions` tablosunda yetkisi olmayan personelin (cashier) kendi yetki seviyesini yükseltememesi.
+- [ ] 212. Yetkisiz Bearer JWT token ile API'lere (örn: `/api/db`) yapılan isteklerin 401 hatasıyla reddedilmesi.
+- [ ] 213. token parametresi olmadan yapılan isteklerin tüm custom API'ler tarafından reddedilmesi.
+- [ ] 214. Kasiyer rolündeki kullanıcının `audit_logs` tablosunu okumasının RLS düzeyinde engellenmesi.
+- [ ] 215. `backup_jobs` tablosunun sadece admin/manager rolleri tarafından okunup yazılabilmesi.
+- [ ] 216. `efatura_records` tablosunun sadece admin/manager rolleri tarafından sorgulanabilmesi.
+- [ ] 217. `daily_reports` tablosuna kasiyerlerin el ile insert/update atmasının engellenmesi.
+- [ ] 218. `tenant_settings` tablosundaki hassas entegrasyon bilgilerinin public okunmasının engellenmesi.
+- [ ] 219. Veritabanındaki `idx_products_barcode` indeksinin varlığı ve barkod sorgu performansına etkisi.
+- [ ] 220. `idx_orders_tenant_status` indeksinin sipariş filtreleme hızına etkisi.
+- [ ] 221. `idx_stock_tenant_branch` indeksinin şube bazlı stok sorgularına etkisi.
+- [ ] 222. `idx_audit_tenant_time` indeksinin log sayfalama hızına etkisi.
+- [ ] 223. `current_branch_id()` fonksiyonunun JWT üzerinden doğru şubeyi saptaması.
+- [ ] 224. RLS test: Başka şubenin kasiyerinin diğer şubeye ait aktif kasa oturumunu kapatamaması.
+- [ ] 225. RLS test: Kasiyerin kendi oluşturmadığı siparişi (farklı şubedeki) silememesi veya değiştirememesi.
+- [ ] 226. Veritabanı trigger'larının güncellemelerde `updated_at` kolonunu anlık NOW() yapması.
+- [ ] 227. RLS test: `sale_returns` ve `sale_exchanges` tablolarının tenant sınırları dışına veri sızdırmaması.
+- [ ] 228. `z_reports` tablosuna sadece yetkili şube yöneticisi veya adminlerin yazabilmesi.
+- [ ] 229. Veritabanı bağlantı havuzunun (connection pool) saniyede 50 paralel sorguyu kaldırabilmesi.
+- [ ] 230. Supabase şemasının migration SQL dosyalarıyla sıfırdan sorunsuz kurulabilmesi.
+- [ ] 231. Seed verilerinin (subscription_plans, tenants, branches) veritabanına sorunsuz yazılabilmesi.
+- [ ] 232. API'lerde CORS ayarlarının sadece izin verilen origin'lere açık olması.
+- [ ] 233. `/api/db` route'unda validasyon regex'inin geçersiz tablo adlarını (SQL enjeksiyon amaçlı) bloke etmesi.
+- [ ] 234. SSL/TLS sertifikasının geçerli olması ve API'lerin HTTPS dışında çalışmaması.
+- [ ] 235. Kasa oturumu açılışında session id üretilmesinin UUID kurallarına uygunluğu.
+- [ ] 236. Kasiyerlerin veritabanı düzeyinde direkt PostgreSQL bağlantısı kurmasının engellenmesi.
+- [ ] 237. Hassas verilerin sunucuda şifrelenmiş (encrypted) ortam değişkenlerinde saklanması.
+- [ ] 238. API hata çıktılarında veritabanı şema detaylarının veya raw kod hatalarının sızdırılmaması.
+- [ ] 239. Token süresi dolduğunda (expired) POS ekranının kullanıcıyı güvenli şekilde login ekranına atması.
+- [ ] 240. E-fatura API servis anahtarının veritabanında şifreli olarak saklanması.
+- [ ] 241. Veritabanı transaction'larının (ACID) sipariş yazımında (stok düşme + sipariş ekleme) tutarlılığı koruması.
+- [ ] 242. Stok düşerken aynı anda gelen siparişlerde stok miktarının eksiye düşmeden kuyrukta işlenmesi.
+- [ ] 243. API rotalarında rate-limiting uygulanması (saniyede en fazla 30 istek).
+- [ ] 244. Brute force koruması: Login ekranında 5 kez hatalı şifre girilince hesabın 15 dakika kilitlenmesi.
+- [ ] 245. `user_sessions` tablosunda eski oturumların otomatik temizlenme cron job'ının çalışması.
+- [ ] 246. RLS test: `loyalty_accounts` puan ekleme yetkisinin sadece yetkili POS terminallerine verilmesi.
+- [ ] 247. Şubeler arası ürün transfer emirlerinde `from_branch_id` ve `to_branch_id` alanlarının doğrulanması.
+- [ ] 248. `daily_reports` gün sonu birleştirme script'inin yetkisiz tetiklenmesinin önlenmesi.
+- [ ] 249. Veritabanı yedekleme işleminin veritabanı yükünü %10'dan fazla artırmaması.
+- [ ] 250. Tüm veritabanı tablolarının birincil anahtarlarının (Primary Key) UUID olarak atanması.
+
+---
+
+## 6. Entegrasyonlar, Yedekler & Hata Yönetimi (251 - 300)
+- [ ] 251. E-Fatura entegratör API'si bağlantısının 2 saniyenin altında cevap vermesi.
+- [ ] 252. Fatura gönderilirken alıcının TCKN/VKN formatının 10 veya 11 hane kontrolü.
+- [ ] 253. Entegratör servisi çevrimdışı olduğunda e-fatura kaydının 'draft' olarak saklanması.
+- [ ] 254. İnternet gelince taslak faturaların toplu olarak e-arşiv portalına kuyrukta gönderilmesi.
+- [ ] 255. Gönderilen faturalara ait benzersiz ETTN numarasının veritabanına işlenmesi.
+- [ ] 256. Fatura iptal edildiğinde entegratör API'sine iptal bildiriminin iletilmesi.
+- [ ] 257. WhatsApp API entegrasyonunda gelen mesajın telefona göre müşteriyi bulabilmesi.
+- [ ] 258. Gelen sipariş mesajının "3 adet ekmek" gibi formatları regex ile %95 başarıyla ayrıştırması.
+- [ ] 259. WhatsApp üzerinden onaylanan siparişe ait ciro ve stok düşümlerinin yapılması.
+- [ ] 260. Müşteriye sipariş durumu değiştiğinde otomatik WhatsApp bilgilendirme mesajının gitmesi.
+- [ ] 261. Yedekleme (Backup) motorunun tüm veritabanı tablolarını JSON formatında yedeklemesi.
+- [ ] 262. Yedekleme sırasında sistemin çevrimdışı kalmaması veya satışların durmaması.
+- [ ] 263. Alınan yedek dosyasının boyutunun `backup_jobs` tablosuna doğru kaydedilmesi.
+- [ ] 264. Hatalı/Eksik yedekleme işlemlerinde durumun 'failed' olarak işaretlenip hatanın kaydedilmesi.
+- [ ] 265. Yedek dosyasından geri yükleme (Restore) testinin lokal test veritabanında doğrulanması.
+- [ ] 266. İKASA API entegrasyonunda satış verilerinin anlık olarak JSON formatında push edilmesi.
+- [ ] 267. İKASA bağlantı hatası durumunda satışların lokale yazılıp kuyrukta bekletilmesi.
+- [ ] 268. POS ekranında çevrimdışı modda yapılan satışların Sync butonuna basınca sırayla Supabase'e yazılması.
+- [ ] 269. Sync sırasında mükerrer kayıt oluşmasını önlemek için sipariş numarası kontrolü.
+- [ ] 270. Sunucu hatası (500) durumunda POS ekranının çökmeden "Lütfen tekrar deneyin" uyarısı vermesi.
+- [ ] 271. Hatalı API isteklerinde istemciye anlamlı hata JSON'ı dönülmesi (örn: `{ error: "Stok yetersiz" }`).
+- [ ] 272. Frontend tarafında Sentry veya benzeri bir log sisteminin JS çalışma zamanı hatalarını yakalaması.
+- [ ] 273. Vercel üzerinde production deploy alındığında Next.js build optimizasyonunun tamamlanması.
+- [ ] 274. `next.config.js` yönlendirmelerinin (redirects) POS ve Admin sayfalarını doğru yönlendirmesi.
+- [ ] 275. Service Worker sw.js dosyasının güncellemeleri arka planda kontrol edip yüklemesi.
+- [ ] 276. Offline modda ürün görsellerinin placeholder görselle değiştirilerek yükleme hatasının önlenmesi.
+- [ ] 277. Kasa açılış tutarı girilmeden POS ekranında satış yapılmasının engellenmesi.
+- [ ] 278. Gün sonunda kasa sayım farkı oluştuğunda sisteme "Kasa Farkı Bildirimi" düşmesi.
+- [ ] 279. Z Raporu yazdırıldığında yazıcı kağıdının doğru yerden kesilmesi (termal yazıcı cut komutu).
+- [ ] 280. Kasa raporunda nakit, kart ve cari satışların toplam ciro içindeki payının yüzdesel gösterimi.
+- [ ] 281. Tedarikçi fatura girişlerinde fatura numarasının benzersizliğinin teyit edilmesi.
+- [ ] 282. Sunucu saati ile yerel saat (kasiyer bilgisayarı saati) farkının sipariş tarihlerini bozmaması.
+- [ ] 283. API yanıtlarında sıkıştırma (gzip/brotli) kullanılarak sayfa yükleme hızının artırılması.
+- [ ] 284. Veritabanındaki atıl test tablolarının ve kolonlarının temizlenmiş olması.
+- [ ] 285. WhatsApp webhook url'inin SSL (https) olmasının zorunlu tutulması.
+- [ ] 286. Sadakat hesabı puanlarının TL karşılığı indiriminin vergi öncesi tutardan düşülmesi.
+- [ ] 287. Kampanya önceliği (priority) yüksek olan kampanyanın sepet hesaplamasında ilk uygulanması.
+- [ ] 288. Kupon kodlarının büyük/küçük harf duyarsız (case-insensitive) olarak çalışması.
+- [ ] 289. Vercel deployment'ında çevre değişkenlerinin (environment variables) eksiksiz olması.
+- [ ] 290. Yedekleme dosyalarının AWS S3 veya Supabase Storage üzerinde güvenli saklanması.
+- [ ] 291. Hata anlarında veritabanı transaction'ının rollback edilerek stok tutarsızlığını önlemesi.
+- [ ] 292. POS ekranında klavye odağının hiçbir zaman kaybolmaması (barkod okutma için input'ta kalma).
+- [ ] 293. e-Fatura XML dosyasının indirildiğinde e-fatura görüntüleyici programlarla uyumlu açılması.
+- [ ] 294. Z Raporu numarasının her rapor üretiminde sıralı olarak artması.
+- [ ] 295. Kasa oturumu açıkken yeni bir kasa açılışının engellenmesi.
+- [ ] 296. Personel yetkisi silindiğinde o personelin açık olan oturumunun sonlandırılması.
+- [ ] 297. API isteklerinde JWT imza doğrulaması için kullanılan gizli anahtarın (secret) güvenliği.
+- [ ] 298. İKASA raporlarının şube bazlı mutabakatının teyit edilmesi.
+- [ ] 299. Sunucu yedekleme sıklığının günde en az 1 kez olacak şekilde zamanlanması.
+- [ ] 300. Production Readiness Score'un 95/100 ve üzeri olmasının testler sonrasında doğrulanması.
