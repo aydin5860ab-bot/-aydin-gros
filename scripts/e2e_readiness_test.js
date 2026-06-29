@@ -1,4 +1,4 @@
-const fetch = require('node-fetch');
+// Native fetch used
 
 const BASE_URL = process.env.TEST_URL ?? 'http://localhost:3000';
 const EMAIL = 'admin@aydingros.com';
@@ -10,6 +10,8 @@ async function runTests() {
 
   let token = null;
   let tenantId = '11111111-1111-1111-1111-111111111111';
+  let supabaseUrl = null;
+  let supabaseAnonKey = null;
 
   // 1. API Bağlantı & Config Testi
   console.log('\n--- Test 1: Konfigürasyon API ---');
@@ -17,7 +19,9 @@ async function runTests() {
     const configRes = await fetch(`${BASE_URL}/api/config`);
     if (configRes.ok) {
       const config = await configRes.json();
-      console.log('✅ Config başarıyla yüklendi:', { url: config.url });
+      supabaseUrl = config.url;
+      supabaseAnonKey = config.anonKey;
+      console.log('✅ Config başarıyla yüklendi:', { url: supabaseUrl });
     } else {
       console.log('⚠️ Config API yanıt vermedi, yerel mock kontrolleri kullanılacak.');
     }
@@ -56,27 +60,30 @@ async function runTests() {
 
   // 3. Login & JWT Edinme
   console.log('\n--- Test 3: Kullanıcı Giriş & Token Doğrulama ---');
-  try {
-    const loginRes = await fetch(`${BASE_URL}/api/db?coll=staff`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'login', email: EMAIL, password: PASSWORD })
-    });
+  if (supabaseUrl && supabaseAnonKey) {
+    try {
+      const authRes = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
+        method: 'POST',
+        headers: {
+          'apikey': supabaseAnonKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: EMAIL, password: PASSWORD })
+      });
 
-    if (loginRes.ok) {
-      const loginData = await loginRes.json();
-      if (loginData.token) {
-        token = loginData.token;
-        tenantId = loginData.tenant_id ?? tenantId;
-        console.log('✅ Giriş başarılı. Token alındı.');
+      if (authRes.ok) {
+        const authData = await authRes.json();
+        token = authData.access_token;
+        tenantId = authData.user?.user_metadata?.tenant_id || authData.user?.app_metadata?.tenant_id || tenantId;
+        console.log('✅ Giriş başarılı (Supabase Auth). Token alındı.');
       } else {
-        console.log('❌ Giriş yanıtında token bulunamadı:', loginData);
+        console.log(`⚠️ Login API başarısız (${authRes.status}). Dev veritabanı seed edilmemiş olabilir.`);
       }
-    } else {
-      console.log(`⚠️ Login API başarısız (${loginRes.status}). Dev veritabanı seed edilmemiş olabilir.`);
+    } catch (e) {
+      console.log('⚠️ Supabase Auth bağlantısı kurulamadı:', e.message);
     }
-  } catch (e) {
-    console.log('⚠️ Sunucu çevrimdışı, canlı login testi atlanıyor.');
+  } else {
+    console.log('⚠️ Supabase URL veya Anon Key bulunamadı, canlı login testi atlanıyor.');
   }
 
   if (!token) {

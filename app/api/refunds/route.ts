@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
 
     // İade kaydı oluştur
     const returnNo = `IAD-${Date.now().toString().slice(-6)}`;
-    const items: { name: string; qty: number; price: number }[] = order.items ?? [];
+    const items: { name: string; qty: number; price: number }[] = order.items_data ?? order.items ?? [];
     const totalRefund = order.total ?? 0;
 
     const { data: returnRecord } = await db.from('sale_returns').insert({

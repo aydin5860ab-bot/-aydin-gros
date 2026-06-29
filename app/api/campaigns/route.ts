@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const active = searchParams.get('active');
 
-  let query = db.from('campaigns').select('*').eq('tenant_id', tenantId).order('priority', { ascending: false });
+  let query = db.from('campaigns').select('*').eq('tenant_id', tenantId).order('created_at', { ascending: false });
   if (active === '1') {
     const now = new Date().toISOString();
     query = query.eq('is_active', true).or(`start_date.is.null,start_date.lte.${now}`).or(`end_date.is.null,end_date.gte.${now}`);
@@ -89,7 +89,7 @@ async function calculateDiscount(db: ReturnType<typeof createAdminClient>, body:
     .eq('is_active', true)
     .or(`start_date.is.null,start_date.lte.${now}`)
     .or(`end_date.is.null,end_date.gte.${now}`)
-    .order('priority', { ascending: false });
+    .order('created_at', { ascending: false });
 
   let totalDiscount = 0;
   const applied: { name: string; discount: number; type: string }[] = [];

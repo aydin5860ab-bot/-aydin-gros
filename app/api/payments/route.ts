@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
       payment_method: payments.length > 1 ? 'mixed' : (payments[0] as Payment).method,
       mixed_payment: payments.length > 1,
       session_id: session_id ?? null,
-      items: items ?? [],
+      items_data: items ?? [],
       status: 'completed',
       source: 'pos',
     })
