@@ -1,6 +1,6 @@
 const url = 'https://aydin-gros.vercel.app';
 const email = 'admin@aydingros.com';
-const password = 'adminpassword123';
+const password = 'aydin586045';
 
 async function run() {
   console.log('--- Aydın GROS Sprint 5 API Integration Test ---');

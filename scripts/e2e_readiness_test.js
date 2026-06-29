@@ -3,7 +3,7 @@ const { randomUUID } = require('crypto');
 
 const BASE_URL = process.env.TEST_URL ?? 'http://localhost:3000';
 const EMAIL = 'admin@aydingros.com';
-const PASSWORD = 'adminpassword123';
+const PASSWORD = 'aydin586045';
 
 async function runTests() {
   console.log('🚀 Aydın GROS OS — Otomatik E2E Hazırlık Testi Başlatılıyor...');
