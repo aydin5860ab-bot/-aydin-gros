@@ -113,15 +113,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Audit log
-    await db.from('audit_logs').insert({
-      tenant_id: tenantId,
-      user_email: cashier_email,
-      action: 'cancel_order',
-      entity: 'order',
-      entity_id: order_id,
-      new_data: { return_no: returnNo, total_refund: totalRefund },
-    }).catch(() => {});
+    try {
+      await db.from('audit_logs').insert({
+        tenant_id: tenantId,
+        user_email: cashier_email,
+        action: 'cancel_order',
+        entity: 'order',
+        entity_id: order_id,
+        new_data: { return_no: returnNo, total_refund: totalRefund },
+      });
+    } catch (e) {}
 
     return NextResponse.json({
       ok: true,
@@ -170,14 +171,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    await db.from('audit_logs').insert({
-      tenant_id: tenantId,
-      user_email: cashier_email,
-      action: 'partial_return',
-      entity: 'order',
-      entity_id: order_id,
-      new_data: { return_no: returnNo, total_refund: totalRefund, items_count: items.length },
-    }).catch(() => {});
+    try {
+      await db.from('audit_logs').insert({
+        tenant_id: tenantId,
+        user_email: cashier_email,
+        action: 'partial_return',
+        entity: 'order',
+        entity_id: order_id,
+        new_data: { return_no: returnNo, total_refund: totalRefund, items_count: items.length },
+      });
+    } catch (e) {}
 
     return NextResponse.json({
       ok: true,

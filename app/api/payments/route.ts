@@ -104,19 +104,21 @@ export async function POST(req: NextRequest) {
   await db.from('sale_payments').insert(paymentRows);
 
   // Audit log
-  await db.from('audit_logs').insert({
-    tenant_id: tenantId,
-    user_email: cashier_email,
-    action: 'process_payment',
-    entity: 'order',
-    entity_id: order_id,
-    new_data: {
-      total: orderTotal,
-      paid: totalPaid,
-      change,
-      methods: (payments as Payment[]).map((p) => `${p.method}:${p.amount}`).join(', '),
-    },
-  }).catch(() => {});
+  try {
+    await db.from('audit_logs').insert({
+      tenant_id: tenantId,
+      user_email: cashier_email,
+      action: 'process_payment',
+      entity: 'order',
+      entity_id: order_id,
+      new_data: {
+        total: orderTotal,
+        paid: totalPaid,
+        change,
+        methods: (payments as Payment[]).map((p) => `${p.method}:${p.amount}`).join(', '),
+      },
+    });
+  } catch (e) {}
 
   return NextResponse.json({
     ok: true,

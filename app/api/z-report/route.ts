@@ -109,14 +109,16 @@ export async function POST(req: NextRequest) {
       }).eq('id', session_id).eq('tenant_id', tenantId);
     }
 
-    await db.from('audit_logs').insert({
-      tenant_id: tenantId,
-      user_email: cashier_email,
-      action: 'generate_z_report',
-      entity: 'z_report',
-      entity_id: report?.id,
-      new_data: { report_no: reportNo, net_amount: data.net_amount },
-    }).catch(() => {});
+    try {
+      await db.from('audit_logs').insert({
+        tenant_id: tenantId,
+        user_email: cashier_email,
+        action: 'generate_z_report',
+        entity: 'z_report',
+        entity_id: report?.id,
+        new_data: { report_no: reportNo, net_amount: data.net_amount },
+      });
+    } catch (e) {}
 
     return NextResponse.json({ ok: true, report_no: reportNo, report });
   }

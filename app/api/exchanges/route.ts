@@ -97,19 +97,21 @@ export async function POST(req: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  await db.from('audit_logs').insert({
-    tenant_id: tenantId,
-    user_email: cashier_email,
-    action: 'product_exchange',
-    entity: 'order',
-    entity_id: order_id,
-    new_data: {
-      exchange_no: exchangeNo,
-      return_total: returnTotal,
-      new_total: newTotal,
-      difference,
-    },
-  }).catch(() => {});
+  try {
+    await db.from('audit_logs').insert({
+      tenant_id: tenantId,
+      user_email: cashier_email,
+      action: 'product_exchange',
+      entity: 'order',
+      entity_id: order_id,
+      new_data: {
+        exchange_no: exchangeNo,
+        return_total: returnTotal,
+        new_total: newTotal,
+        difference,
+      },
+    });
+  } catch (e) {}
 
   return NextResponse.json({
     ok: true,
