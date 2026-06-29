@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { checkAuth, isAuthorized } from '@/lib/auth';
 
 const TENANT = process.env.DEFAULT_TENANT_ID ?? '11111111-1111-1111-1111-111111111111';
 
 export async function GET(req: NextRequest) {
+  const auth = await checkAuth(req);
+  if (!auth.isAuthenticated) {
+    return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+  }
+  if (!isAuthorized(auth.role, ['admin', 'manager'])) {
+    return NextResponse.json({ error: 'Bu işlemi yapmaya yetkiniz yok' }, { status: 403 });
+  }
+
   const db = createAdminClient();
   if (!db) return NextResponse.json({ error: 'DB bağlantısı yok' }, { status: 500 });
 
@@ -13,7 +22,7 @@ export async function GET(req: NextRequest) {
   const limit = Math.min(parseInt(searchParams.get('limit') ?? '100'), 500);
   const offset = parseInt(searchParams.get('offset') ?? '0');
 
-  let query = db.from('audit_logs').select('*', { count: 'exact' }).eq('tenant_id', TENANT);
+  let query = db.from('audit_logs').select('*', { count: 'exact' }).eq('tenant_id', auth.tenantId || TENANT);
 
   if (action) query = query.eq('action', action);
   if (entity) query = query.eq('entity', entity);
@@ -27,6 +36,11 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const auth = await checkAuth(req);
+  if (!auth.isAuthenticated) {
+    return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+  }
+
   const db = createAdminClient();
   if (!db) return NextResponse.json({ error: 'DB bağlantısı yok' }, { status: 500 });
 
@@ -35,8 +49,9 @@ export async function POST(req: NextRequest) {
   const ip = forwarded ? forwarded.split(',')[0].trim() : null;
 
   const { error } = await db.from('audit_logs').insert({
-    tenant_id: TENANT,
-    user_id: body.user_id,
+    tenant_id: auth.tenantId || TENANT,
+    user_id: auth.user.id,
+    user_email: auth.user.email,
     action: body.action,
     entity: body.entity,
     entity_id: body.entity_id,

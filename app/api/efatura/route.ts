@@ -1,21 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { checkAuth, isAuthorized } from '@/lib/auth';
 
 const TENANT = process.env.DEFAULT_TENANT_ID ?? '11111111-1111-1111-1111-111111111111';
 const EFATURA_PROVIDER = process.env.EFATURA_PROVIDER ?? 'entegra';
 const EFATURA_API_URL = process.env.EFATURA_API_URL ?? 'https://efatura-api.example.com/v1';
 const EFATURA_API_KEY = process.env.EFATURA_API_KEY;
 
-/**
- * E-Fatura / E-Arşiv entegrasyon altyapısı.
- * GIB uyumlu entegratör (Entegra, Mikro, Nilvera vb.) ile çalışır.
- * Gerçek kullanım için EFATURA_API_URL ve EFATURA_API_KEY env değişkenleri gereklidir.
- */
-
 export async function GET(req: NextRequest) {
+  const auth = await checkAuth(req);
+  if (!auth.isAuthenticated) {
+    return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+  }
+  if (!isAuthorized(auth.role, ['admin', 'manager'])) {
+    return NextResponse.json({ error: 'Bu işlemi yapmaya yetkiniz yok' }, { status: 403 });
+  }
+
   const db = createAdminClient();
   if (!db) return NextResponse.json({ error: 'DB bağlantısı yok' }, { status: 500 });
 
+  const tenantId = auth.tenantId || TENANT;
   const { searchParams } = new URL(req.url);
   const action = searchParams.get('action') ?? 'list';
 
@@ -30,7 +34,7 @@ export async function GET(req: NextRequest) {
   if (action === 'list') {
     const { data } = await db.from('efatura_records')
       .select('*')
-      .eq('tenant_id', TENANT)
+      .eq('tenant_id', tenantId)
       .order('created_at', { ascending: false })
       .limit(50);
     return NextResponse.json(data ?? []);
@@ -40,9 +44,18 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const auth = await checkAuth(req);
+  if (!auth.isAuthenticated) {
+    return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+  }
+  if (!isAuthorized(auth.role, ['admin', 'manager'])) {
+    return NextResponse.json({ error: 'Bu işlemi yapmaya yetkiniz yok' }, { status: 403 });
+  }
+
   const db = createAdminClient();
   if (!db) return NextResponse.json({ error: 'DB bağlantısı yok' }, { status: 500 });
 
+  const tenantId = auth.tenantId || TENANT;
   const body = await req.json();
   const { action } = body;
 
@@ -52,7 +65,7 @@ export async function POST(req: NextRequest) {
 
     // Insert draft record
     const { data: record } = await db.from('efatura_records').insert({
-      tenant_id: TENANT,
+      tenant_id: tenantId,
       order_id: body.order_id,
       fatura_tipi: 'EARCHIVE',
       status: 'draft',
@@ -96,10 +109,10 @@ export async function POST(req: NextRequest) {
 
   if (action === 'cancel') {
     const { record_id } = body;
-    const { data: rec } = await db.from('efatura_records').select('*').eq('id', record_id).maybeSingle();
+    const { data: rec } = await db.from('efatura_records').select('*').eq('id', record_id).eq('tenant_id', tenantId).maybeSingle();
     if (!rec) return NextResponse.json({ error: 'Kayıt bulunamadı' }, { status: 404 });
 
-    await db.from('efatura_records').update({ status: 'cancelled' }).eq('id', record_id);
+    await db.from('efatura_records').update({ status: 'cancelled' }).eq('id', record_id).eq('tenant_id', tenantId);
     return NextResponse.json({ ok: true });
   }
 

@@ -1,16 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { checkAuth } from '@/lib/auth';
 
 const TENANT = process.env.DEFAULT_TENANT_ID ?? '11111111-1111-1111-1111-111111111111';
 
 export async function GET(req: NextRequest) {
+  const auth = await checkAuth(req);
+  if (!auth.isAuthenticated) {
+    return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+  }
+
   const db = createAdminClient();
   if (!db) return NextResponse.json({ error: 'DB bağlantısı yok' }, { status: 500 });
 
+  const tenantId = auth.tenantId || TENANT;
   const { searchParams } = new URL(req.url);
   const active = searchParams.get('active');
 
-  let query = db.from('campaigns').select('*').eq('tenant_id', TENANT).order('priority', { ascending: false });
+  let query = db.from('campaigns').select('*').eq('tenant_id', tenantId).order('priority', { ascending: false });
   if (active === '1') {
     const now = new Date().toISOString();
     query = query.eq('is_active', true).or(`start_date.is.null,start_date.lte.${now}`).or(`end_date.is.null,end_date.gte.${now}`);
@@ -22,38 +29,50 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const auth = await checkAuth(req);
+  if (!auth.isAuthenticated) {
+    return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+  }
+
   const db = createAdminClient();
   if (!db) return NextResponse.json({ error: 'DB bağlantısı yok' }, { status: 500 });
 
+  const tenantId = auth.tenantId || TENANT;
   const body = await req.json();
 
   // Calculate discount for a cart
   if (body.action === 'calculate') {
-    return NextResponse.json(await calculateDiscount(db, body));
+    return NextResponse.json(await calculateDiscount(db, body, tenantId));
   }
 
   // CRUD
   const { id, ...fields } = body;
   if (id) {
-    const { data, error } = await db.from('campaigns').update({ ...fields, updated_at: new Date().toISOString() }).eq('id', id).eq('tenant_id', TENANT).select().single();
+    const { data, error } = await db.from('campaigns').update({ ...fields, updated_at: new Date().toISOString() }).eq('id', id).eq('tenant_id', tenantId).select().single();
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json(data);
   }
 
-  const { data, error } = await db.from('campaigns').insert({ ...fields, tenant_id: TENANT }).select().single();
+  const { data, error } = await db.from('campaigns').insert({ ...fields, tenant_id: tenantId }).select().single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data);
 }
 
 export async function DELETE(req: NextRequest) {
+  const auth = await checkAuth(req);
+  if (!auth.isAuthenticated) {
+    return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+  }
+
   const db = createAdminClient();
   if (!db) return NextResponse.json({ error: 'DB bağlantısı yok' }, { status: 500 });
 
+  const tenantId = auth.tenantId || TENANT;
   const { searchParams } = new URL(req.url);
   const id = searchParams.get('id');
   if (!id) return NextResponse.json({ error: 'id gerekli' }, { status: 400 });
 
-  await db.from('campaigns').update({ is_active: false }).eq('id', id).eq('tenant_id', TENANT);
+  await db.from('campaigns').update({ is_active: false }).eq('id', id).eq('tenant_id', tenantId);
   return NextResponse.json({ ok: true });
 }
 
@@ -61,12 +80,12 @@ async function calculateDiscount(db: ReturnType<typeof createAdminClient>, body:
   items: { id: number; price: number; qty: number; category?: string }[];
   order_total: number;
   customer_id?: string;
-}) {
+}, tenantId: string) {
   const now = new Date().toISOString();
   const { data: campaigns } = await db!
     .from('campaigns')
     .select('*')
-    .eq('tenant_id', TENANT)
+    .eq('tenant_id', tenantId)
     .eq('is_active', true)
     .or(`start_date.is.null,start_date.lte.${now}`)
     .or(`end_date.is.null,end_date.gte.${now}`)

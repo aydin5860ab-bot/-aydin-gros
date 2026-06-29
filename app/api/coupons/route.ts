@@ -1,17 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { checkAuth } from '@/lib/auth';
 
 const TENANT = process.env.DEFAULT_TENANT_ID ?? '11111111-1111-1111-1111-111111111111';
 
 export async function GET(req: NextRequest) {
+  const auth = await checkAuth(req);
+  if (!auth.isAuthenticated) {
+    return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+  }
+
   const db = createAdminClient();
   if (!db) return NextResponse.json({ error: 'DB bağlantısı yok' }, { status: 500 });
 
+  const tenantId = auth.tenantId || TENANT;
   const { searchParams } = new URL(req.url);
   const code = searchParams.get('code');
 
   if (code) {
-    const { data } = await db.from('coupons').select('*').eq('tenant_id', TENANT).eq('code', code.toUpperCase()).maybeSingle();
+    const { data } = await db.from('coupons').select('*').eq('tenant_id', tenantId).eq('code', code.toUpperCase()).maybeSingle();
     if (!data) return NextResponse.json({ valid: false, error: 'Kupon bulunamadı' });
 
     const now = new Date();
@@ -23,20 +30,26 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ valid: true, coupon: data });
   }
 
-  const { data, error } = await db.from('coupons').select('*').eq('tenant_id', TENANT).order('created_at', { ascending: false });
+  const { data, error } = await db.from('coupons').select('*').eq('tenant_id', tenantId).order('created_at', { ascending: false });
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data ?? []);
 }
 
 export async function POST(req: NextRequest) {
+  const auth = await checkAuth(req);
+  if (!auth.isAuthenticated) {
+    return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+  }
+
   const db = createAdminClient();
   if (!db) return NextResponse.json({ error: 'DB bağlantısı yok' }, { status: 500 });
 
+  const tenantId = auth.tenantId || TENANT;
   const body = await req.json();
 
   if (body.action === 'apply') {
     const { code, order_total, customer_id, order_id } = body;
-    const { data: coupon } = await db.from('coupons').select('*').eq('tenant_id', TENANT).eq('code', code.toUpperCase()).maybeSingle();
+    const { data: coupon } = await db.from('coupons').select('*').eq('tenant_id', tenantId).eq('code', code.toUpperCase()).maybeSingle();
 
     if (!coupon) return NextResponse.json({ error: 'Kupon bulunamadı' }, { status: 404 });
     if (coupon.used_count >= coupon.max_uses) return NextResponse.json({ error: 'Kupon limiti doldu' }, { status: 400 });
@@ -52,7 +65,7 @@ export async function POST(req: NextRequest) {
     // Mark as used
     await db.from('coupons').update({ used_count: coupon.used_count + 1 }).eq('id', coupon.id);
     await db.from('coupon_usages').insert({
-      tenant_id: TENANT,
+      tenant_id: tenantId,
       coupon_id: coupon.id,
       order_id,
       customer_id,
@@ -67,25 +80,31 @@ export async function POST(req: NextRequest) {
   const code = (fields.code ?? generateCode()).toUpperCase();
 
   if (id) {
-    const { data, error } = await db.from('coupons').update({ ...fields, code }).eq('id', id).eq('tenant_id', TENANT).select().single();
+    const { data, error } = await db.from('coupons').update({ ...fields, code }).eq('id', id).eq('tenant_id', tenantId).select().single();
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json(data);
   }
 
-  const { data, error } = await db.from('coupons').insert({ ...fields, code, tenant_id: TENANT }).select().single();
+  const { data, error } = await db.from('coupons').insert({ ...fields, code, tenant_id: tenantId }).select().single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data);
 }
 
 export async function DELETE(req: NextRequest) {
+  const auth = await checkAuth(req);
+  if (!auth.isAuthenticated) {
+    return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+  }
+
   const db = createAdminClient();
   if (!db) return NextResponse.json({ error: 'DB bağlantısı yok' }, { status: 500 });
 
+  const tenantId = auth.tenantId || TENANT;
   const { searchParams } = new URL(req.url);
   const id = searchParams.get('id');
   if (!id) return NextResponse.json({ error: 'id gerekli' }, { status: 400 });
 
-  await db.from('coupons').update({ is_active: false }).eq('id', id).eq('tenant_id', TENANT);
+  await db.from('coupons').update({ is_active: false }).eq('id', id).eq('tenant_id', tenantId);
   return NextResponse.json({ ok: true });
 }
 

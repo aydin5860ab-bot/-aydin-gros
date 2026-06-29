@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { checkAuth } from '@/lib/auth';
 
 const TENANT = process.env.DEFAULT_TENANT_ID ?? '11111111-1111-1111-1111-111111111111';
 
 export async function GET(req: NextRequest) {
+  const auth = await checkAuth(req);
+  if (!auth.isAuthenticated) {
+    return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+  }
+
   const db = createAdminClient();
   if (!db) return NextResponse.json({ error: 'DB bağlantısı yok' }, { status: 500 });
 
+  const tenantId = auth.tenantId || TENANT;
   const { searchParams } = new URL(req.url);
   const orderId = searchParams.get('order_id');
 
@@ -14,7 +21,7 @@ export async function GET(req: NextRequest) {
     const { data, error } = await db
       .from('sale_payments')
       .select('*')
-      .eq('tenant_id', TENANT)
+      .eq('tenant_id', tenantId)
       .eq('order_id', orderId)
       .order('created_at');
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -25,9 +32,15 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const auth = await checkAuth(req);
+  if (!auth.isAuthenticated) {
+    return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+  }
+
   const db = createAdminClient();
   if (!db) return NextResponse.json({ error: 'DB bağlantısı yok' }, { status: 500 });
 
+  const tenantId = auth.tenantId || TENANT;
   const body = await req.json();
 
   // ── Karma ödeme kaydet ──────────────────────────────────────────────────
@@ -57,7 +70,7 @@ export async function POST(req: NextRequest) {
   const { data: order, error: orderError } = await db
     .from('orders')
     .insert({
-      tenant_id: TENANT,
+      tenant_id: tenantId,
       id: order_id,
       total: orderTotal,
       payment_method: payments.length > 1 ? 'mixed' : (payments[0] as Payment).method,
@@ -79,7 +92,7 @@ export async function POST(req: NextRequest) {
 
   // Ödeme detaylarını kaydet
   const paymentRows = (payments as Payment[]).map((p) => ({
-    tenant_id: TENANT,
+    tenant_id: tenantId,
     order_id,
     session_id: session_id ?? null,
     payment_method: p.method,
@@ -92,7 +105,7 @@ export async function POST(req: NextRequest) {
 
   // Audit log
   await db.from('audit_logs').insert({
-    tenant_id: TENANT,
+    tenant_id: tenantId,
     user_email: cashier_email,
     action: 'process_payment',
     entity: 'order',

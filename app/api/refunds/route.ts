@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { checkAuth } from '@/lib/auth';
 
 const TENANT = process.env.DEFAULT_TENANT_ID ?? '11111111-1111-1111-1111-111111111111';
 
 export async function GET(req: NextRequest) {
+  const auth = await checkAuth(req);
+  if (!auth.isAuthenticated) {
+    return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+  }
+
   const db = createAdminClient();
   if (!db) return NextResponse.json({ error: 'DB bağlantısı yok' }, { status: 500 });
 
+  const tenantId = auth.tenantId || TENANT;
   const { searchParams } = new URL(req.url);
   const orderId = searchParams.get('order_id');
   const status = searchParams.get('status');
@@ -17,7 +24,7 @@ export async function GET(req: NextRequest) {
     const { data, error } = await db
       .from('sale_returns')
       .select('*, sale_return_items(*)')
-      .eq('tenant_id', TENANT)
+      .eq('tenant_id', tenantId)
       .eq('original_order_id', orderId)
       .order('created_at', { ascending: false });
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -27,7 +34,7 @@ export async function GET(req: NextRequest) {
   let query = db
     .from('sale_returns')
     .select('*, sale_return_items(*)')
-    .eq('tenant_id', TENANT)
+    .eq('tenant_id', tenantId)
     .order('created_at', { ascending: false })
     .range(page * limit, (page + 1) * limit - 1);
 
@@ -39,9 +46,15 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const auth = await checkAuth(req);
+  if (!auth.isAuthenticated) {
+    return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+  }
+
   const db = createAdminClient();
   if (!db) return NextResponse.json({ error: 'DB bağlantısı yok' }, { status: 500 });
 
+  const tenantId = auth.tenantId || TENANT;
   const body = await req.json();
   const { action } = body;
 
@@ -54,7 +67,7 @@ export async function POST(req: NextRequest) {
     const { data: order, error: orderErr } = await db
       .from('orders')
       .select('*')
-      .eq('tenant_id', TENANT)
+      .eq('tenant_id', tenantId)
       .eq('id', order_id)
       .maybeSingle();
 
@@ -67,7 +80,7 @@ export async function POST(req: NextRequest) {
       cancel_reason: reason ?? 'Kasiyer iptali',
       cancelled_at: new Date().toISOString(),
       cancelled_by: cashier_email ?? null,
-    }).eq('id', order_id).eq('tenant_id', TENANT);
+    }).eq('id', order_id).eq('tenant_id', tenantId);
 
     // İade kaydı oluştur
     const returnNo = `IAD-${Date.now().toString().slice(-6)}`;
@@ -75,7 +88,7 @@ export async function POST(req: NextRequest) {
     const totalRefund = order.total ?? 0;
 
     const { data: returnRecord } = await db.from('sale_returns').insert({
-      tenant_id: TENANT,
+      tenant_id: tenantId,
       original_order_id: order_id,
       return_no: returnNo,
       return_reason: reason ?? 'Kasiyer iptali — tam iade',
@@ -90,7 +103,7 @@ export async function POST(req: NextRequest) {
       await db.from('sale_return_items').insert(
         items.map((i) => ({
           return_id: returnRecord.id,
-          tenant_id: TENANT,
+          tenant_id: tenantId,
           product_name: i.name,
           qty: i.qty,
           unit_price: i.price,
@@ -102,7 +115,7 @@ export async function POST(req: NextRequest) {
 
     // Audit log
     await db.from('audit_logs').insert({
-      tenant_id: TENANT,
+      tenant_id: tenantId,
       user_email: cashier_email,
       action: 'cancel_order',
       entity: 'order',
@@ -132,7 +145,7 @@ export async function POST(req: NextRequest) {
     const returnNo = `IAD-${Date.now().toString().slice(-6)}`;
 
     const { data: returnRecord } = await db.from('sale_returns').insert({
-      tenant_id: TENANT,
+      tenant_id: tenantId,
       original_order_id: order_id,
       return_no: returnNo,
       return_reason: reason ?? 'Kısmi iade',
@@ -146,7 +159,7 @@ export async function POST(req: NextRequest) {
       await db.from('sale_return_items').insert(
         (items as { name: string; qty: number; price: number; product_id?: number }[]).map((i) => ({
           return_id: returnRecord.id,
-          tenant_id: TENANT,
+          tenant_id: tenantId,
           product_legacy_id: i.product_id ?? null,
           product_name: i.name,
           qty: i.qty,
@@ -158,7 +171,7 @@ export async function POST(req: NextRequest) {
     }
 
     await db.from('audit_logs').insert({
-      tenant_id: TENANT,
+      tenant_id: tenantId,
       user_email: cashier_email,
       action: 'partial_return',
       entity: 'order',

@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { checkAuth } from '@/lib/auth';
 
 const TENANT = process.env.DEFAULT_TENANT_ID ?? '11111111-1111-1111-1111-111111111111';
 
 export async function GET(req: NextRequest) {
+  const auth = await checkAuth(req);
+  if (!auth.isAuthenticated) {
+    return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+  }
+
   const db = createAdminClient();
   if (!db) return NextResponse.json({ error: 'DB bağlantısı yok' }, { status: 500 });
 
+  const tenantId = auth.tenantId || TENANT;
   const { searchParams } = new URL(req.url);
   const orderId = searchParams.get('order_id');
   const page = parseInt(searchParams.get('page') ?? '0');
@@ -16,7 +23,7 @@ export async function GET(req: NextRequest) {
     const { data, error } = await db
       .from('sale_exchanges')
       .select('*')
-      .eq('tenant_id', TENANT)
+      .eq('tenant_id', tenantId)
       .eq('original_order_id', orderId)
       .order('created_at', { ascending: false });
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -26,7 +33,7 @@ export async function GET(req: NextRequest) {
   const { data, error } = await db
     .from('sale_exchanges')
     .select('*')
-    .eq('tenant_id', TENANT)
+    .eq('tenant_id', tenantId)
     .order('created_at', { ascending: false })
     .range(page * limit, (page + 1) * limit - 1);
 
@@ -35,9 +42,15 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const auth = await checkAuth(req);
+  if (!auth.isAuthenticated) {
+    return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+  }
+
   const db = createAdminClient();
   if (!db) return NextResponse.json({ error: 'DB bağlantısı yok' }, { status: 500 });
 
+  const tenantId = auth.tenantId || TENANT;
   const body = await req.json();
   const {
     order_id,
@@ -66,7 +79,7 @@ export async function POST(req: NextRequest) {
   const { data: exchangeRecord, error } = await db
     .from('sale_exchanges')
     .insert({
-      tenant_id: TENANT,
+      tenant_id: tenantId,
       original_order_id: order_id,
       exchange_no: exchangeNo,
       return_items,
@@ -85,7 +98,7 @@ export async function POST(req: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   await db.from('audit_logs').insert({
-    tenant_id: TENANT,
+    tenant_id: tenantId,
     user_email: cashier_email,
     action: 'product_exchange',
     entity: 'order',

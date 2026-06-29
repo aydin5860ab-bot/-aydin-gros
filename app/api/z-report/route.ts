@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { checkAuth } from '@/lib/auth';
 
 const TENANT = process.env.DEFAULT_TENANT_ID ?? '11111111-1111-1111-1111-111111111111';
 
 export async function GET(req: NextRequest) {
+  const auth = await checkAuth(req);
+  if (!auth.isAuthenticated) {
+    return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+  }
+
   const db = createAdminClient();
   if (!db) return NextResponse.json({ error: 'DB bağlantısı yok' }, { status: 500 });
 
+  const tenantId = auth.tenantId || TENANT;
   const { searchParams } = new URL(req.url);
   const action = searchParams.get('action') ?? 'list';
   const sessionId = searchParams.get('session_id');
@@ -16,7 +23,7 @@ export async function GET(req: NextRequest) {
     const { data, error } = await db
       .from('z_reports')
       .select('*')
-      .eq('tenant_id', TENANT)
+      .eq('tenant_id', tenantId)
       .order('created_at', { ascending: false })
       .limit(50);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -25,14 +32,14 @@ export async function GET(req: NextRequest) {
 
   // Anlık önizleme (kaydetme) — mevcut vardiyayı hesapla
   if (action === 'preview') {
-    const preview = await buildReportData(db, sessionId ?? null);
+    const preview = await buildReportData(db, sessionId ?? null, tenantId);
     return NextResponse.json(preview);
   }
 
   // Tek rapor detayı
   const reportId = searchParams.get('id');
   if (reportId) {
-    const { data } = await db.from('z_reports').select('*').eq('id', reportId).maybeSingle();
+    const { data } = await db.from('z_reports').select('*').eq('id', reportId).eq('tenant_id', tenantId).maybeSingle();
     return NextResponse.json(data ?? {});
   }
 
@@ -40,20 +47,26 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const auth = await checkAuth(req);
+  if (!auth.isAuthenticated) {
+    return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+  }
+
   const db = createAdminClient();
   if (!db) return NextResponse.json({ error: 'DB bağlantısı yok' }, { status: 500 });
 
+  const tenantId = auth.tenantId || TENANT;
   const body = await req.json();
   const { action, session_id, closing_cash, cashier_email, notes } = body;
 
   if (action === 'generate') {
     // Veri hesapla
-    const data = await buildReportData(db, session_id ?? null);
+    const data = await buildReportData(db, session_id ?? null, tenantId);
 
     const reportNo = `Z-${String(Date.now()).slice(-6)}`;
 
     const { data: report, error } = await db.from('z_reports').insert({
-      tenant_id: TENANT,
+      tenant_id: tenantId,
       report_no: reportNo,
       register_session_id: session_id ?? null,
       cashier_email: cashier_email ?? null,
@@ -93,11 +106,11 @@ export async function POST(req: NextRequest) {
         transaction_count: data.total_sales_count,
         z_report_id: report?.id,
         closed_at: new Date().toISOString(),
-      }).eq('id', session_id).eq('tenant_id', TENANT);
+      }).eq('id', session_id).eq('tenant_id', tenantId);
     }
 
     await db.from('audit_logs').insert({
-      tenant_id: TENANT,
+      tenant_id: tenantId,
       user_email: cashier_email,
       action: 'generate_z_report',
       entity: 'z_report',
@@ -113,7 +126,8 @@ export async function POST(req: NextRequest) {
 
 async function buildReportData(
   db: ReturnType<typeof createAdminClient>,
-  sessionId: string | null
+  sessionId: string | null,
+  tenantId: string
 ) {
   const now = new Date();
   // Son kasa kapanışından beri (veya bugün 00:00'dan beri)
@@ -142,7 +156,7 @@ async function buildReportData(
   let ordersQuery = db!
     .from('orders')
     .select('id, total, payment_method, is_cancelled, items, created_at')
-    .eq('tenant_id', TENANT)
+    .eq('tenant_id', tenantId)
     .gte('created_at', shiftStart)
     .lte('created_at', shiftEnd);
 
@@ -167,7 +181,7 @@ async function buildReportData(
   const { data: payments } = await db!
     .from('sale_payments')
     .select('payment_method, amount')
-    .eq('tenant_id', TENANT)
+    .eq('tenant_id', tenantId)
     .gte('created_at', shiftStart)
     .lte('created_at', shiftEnd);
 
@@ -180,7 +194,7 @@ async function buildReportData(
   const { data: returns } = await db!
     .from('sale_returns')
     .select('total_refund')
-    .eq('tenant_id', TENANT)
+    .eq('tenant_id', tenantId)
     .gte('created_at', shiftStart)
     .lte('created_at', shiftEnd)
     .eq('status', 'completed');
@@ -191,7 +205,7 @@ async function buildReportData(
   const { data: exchanges } = await db!
     .from('sale_exchanges')
     .select('id')
-    .eq('tenant_id', TENANT)
+    .eq('tenant_id', tenantId)
     .gte('created_at', shiftStart)
     .lte('created_at', shiftEnd)
     .eq('status', 'completed');
