@@ -258,7 +258,7 @@ http.createServer(async (req, res) => {
 
   // === Statik dosya sunucu ===
   let urlPath = pathname === '/' ? '/index.html' : pathname;
-  let filePath = path.join(baseDir, urlPath);
+  let filePath = path.join(baseDir, 'public', urlPath);
   try {
     const data = fs.readFileSync(filePath);
     const ext = path.extname(filePath);
