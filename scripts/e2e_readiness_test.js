@@ -1,4 +1,5 @@
 // Native fetch used
+const { randomUUID } = require('crypto');
 
 const BASE_URL = process.env.TEST_URL ?? 'http://localhost:3000';
 const EMAIL = 'admin@aydingros.com';
@@ -172,7 +173,7 @@ async function runTests() {
 
   // 7. POS Satış & Ödeme
   console.log('\n--- Test 7: Karma Ödeme Satış Kaydı (POS E2E) ---');
-  const testOrderId = `order-test-${Date.now()}`;
+  const testOrderId = randomUUID();
   try {
     const payRes = await fetch(`${BASE_URL}/api/payments`, {
       method: 'POST',

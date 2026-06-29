@@ -67,11 +67,14 @@ export async function POST(req: NextRequest) {
   const change = Math.max(0, totalPaid - orderTotal);
 
   // Order'ı kaydet
+  const orderNumber = `POS-${Date.now().toString().slice(-8)}`;
   const { data: order, error: orderError } = await db
     .from('orders')
     .insert({
       tenant_id: tenantId,
       id: order_id,
+      order_number: orderNumber,
+      channel: 'pos',
       total: orderTotal,
       payment_method: payments.length > 1 ? 'mixed' : (payments[0] as Payment).method,
       mixed_payment: payments.length > 1,
