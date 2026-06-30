@@ -86,6 +86,28 @@
     </div>
   </header>
 
+  <!-- Cashier Action Bar (Sprint 10) -->
+  <div class="bg-slate-900 border-b border-slate-800/80 px-6 py-2 flex items-center justify-between text-sm shrink-0">
+    <div class="flex items-center space-x-2">
+      <button onclick="openCashInOutModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded font-semibold text-xs transition">💸 Para Ekle/Çıkar</button>
+      <button onclick="showXReport()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded font-semibold text-xs transition">📊 X Raporu Al</button>
+      <button onclick="openCloseRegisterModal()" class="bg-red-950/20 border border-red-900/50 hover:bg-red-900/30 text-red-400 px-3 py-1.5 rounded font-semibold text-xs transition">🏪 Kasa Kapat (Z)</button>
+      <button onclick="openSalesHistoryModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded font-semibold text-xs transition">🕒 Satış Geçmişi</button>
+    </div>
+    <div class="flex items-center space-x-2">
+      <button onclick="holdCurrentSale()" class="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-900/30 px-3 py-1.5 rounded font-semibold text-xs transition">📥 Satışı Askıya Al</button>
+      <button onclick="openRecallSaleModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded font-semibold text-xs transition">📤 Askıdaki Satışlar (<span id="heldCountBadge">0</span>)</button>
+      <div class="h-4 w-[1px] bg-slate-800"></div>
+      <label class="text-xs text-slate-400 flex items-center space-x-1">
+        <span>Genişlik:</span>
+        <select id="receiptWidthSelect" class="bg-slate-800 text-slate-200 text-[11px] rounded border border-slate-700 px-1 py-0.5 focus:outline-none">
+          <option value="80mm">80 mm</option>
+          <option value="58mm">58 mm</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
   <!-- Main Grid Area -->
   <main class="flex-1 flex overflow-hidden">
     <!-- Left Panel: Product Search & Categories -->
@@ -106,6 +128,14 @@
           <span>📷</span>
           <span>Kamera Tara</span>
         </button>
+      </div>
+
+      <!-- Recently Sold Bar (Sprint 10) -->
+      <div id="recentlySoldBar" class="flex items-center space-x-2 text-xs text-slate-400 shrink-0">
+        <span class="font-semibold">🕒 Son Satılanlar:</span>
+        <div id="recentlySoldItems" class="flex space-x-2 overflow-x-auto pb-1">
+          <span class="text-slate-500 italic">Henüz ürün satılmadı</span>
+        </div>
       </div>
 
       <!-- Category Filter Tabs -->
@@ -229,37 +259,90 @@
   </div>
 
   <!-- MULTI PAYMENT MODAL -->
-  <div id="paymentModal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-40 hidden">
-    <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl max-w-md w-full space-y-6">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <h3 class="text-lg font-bold text-slate-100">Ödeme Detayları / Bölme</h3>
-        <button onclick="closePaymentModal()" class="text-slate-500 hover:text-slate-300 text-xl">&times;</button>
+  <div id="paymentModal" class="fixed inset-0 bg-slate-950/95 flex items-center justify-center z-50 hidden">
+    <div class="bg-slate-900 border border-slate-800 p-8 rounded-2xl max-w-2xl w-full space-y-6 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div>
+          <h3 class="text-xl font-bold text-slate-100 flex items-center gap-2">🛒 <span>Profesyonel Ödeme Modülü</span></h3>
+          <p class="text-xs text-slate-400">Nakit, kart, puan veya hediye çeki ile karma ödeme yapın.</p>
+        </div>
+        <button onclick="closePaymentModal()" class="text-slate-500 hover:text-slate-300 text-2xl font-semibold">&times;</button>
       </div>
-      <div class="space-y-4 text-sm">
-        <div class="flex justify-between font-semibold text-slate-300">
-          <span>Kalan Tutar</span>
-          <span id="multiPaymentRemaining" class="text-lg text-emerald-400">0.00 TL</span>
-        </div>
-        <div class="space-y-3">
-          <div class="flex items-center justify-between">
-            <span>💵 Nakit Payı</span>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Left: Inputs -->
+        <div class="space-y-4 text-sm">
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">💵 Nakit Payı</label>
             <input type="number" id="multiCashPay" value="0" oninput="calcMultiPay()"
-                   class="bg-slate-950 text-slate-100 text-right rounded border border-slate-800 w-32 px-3 py-1.5 focus:outline-none focus:border-emerald-500">
+                   class="w-full bg-slate-950 text-slate-100 text-lg rounded-lg border border-slate-800 px-3 py-2.5 focus:outline-none focus:border-emerald-500 font-bold">
+            <!-- Quick Banknotes -->
+            <div class="grid grid-cols-5 gap-1.5 mt-2">
+              <button onclick="setQuickCash(10)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 rounded text-xs font-bold">10₺</button>
+              <button onclick="setQuickCash(20)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 rounded text-xs font-bold">20₺</button>
+              <button onclick="setQuickCash(50)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 rounded text-xs font-bold">50₺</button>
+              <button onclick="setQuickCash(100)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 rounded text-xs font-bold">100₺</button>
+              <button onclick="setQuickCash(200)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 rounded text-xs font-bold">200₺</button>
+            </div>
+            <div class="grid grid-cols-2 gap-1.5 mt-1.5">
+              <button onclick="setExactCash()" class="bg-emerald-950/40 border border-emerald-900/50 hover:bg-emerald-900/30 text-emerald-400 py-1.5 rounded text-xs font-bold">Tam Tutar</button>
+              <button onclick="clearCash()" class="bg-slate-800 hover:bg-slate-700 text-slate-400 py-1.5 rounded text-xs font-bold">Temizle</button>
+            </div>
           </div>
-          <div class="flex items-center justify-between">
-            <span>💳 Kart Payı</span>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">💳 Kart Payı</label>
             <input type="number" id="multiCardPay" value="0" oninput="calcMultiPay()"
-                   class="bg-slate-950 text-slate-100 text-right rounded border border-slate-800 w-32 px-3 py-1.5 focus:outline-none focus:border-emerald-500">
-          </div>
-          <div id="veresiyeSplitRow" class="flex items-center justify-between hidden">
-            <span>👤 Veresiye Cari Payı</span>
-            <input type="number" id="multiVeresiyePay" value="0" readonly
-                   class="bg-slate-950 text-slate-500 text-right rounded border border-slate-800 w-32 px-3 py-1.5 focus:outline-none">
+                   class="w-full bg-slate-950 text-slate-100 text-lg rounded-lg border border-slate-800 px-3 py-2.5 focus:outline-none focus:border-emerald-500 font-bold">
+            <div class="flex gap-2 mt-2">
+              <button onclick="setExactCard()" class="flex-1 bg-sky-950/40 border border-sky-900/50 hover:bg-sky-900/30 text-sky-400 py-1.5 rounded text-xs font-bold">Tam Tutar Kart</button>
+            </div>
           </div>
         </div>
-        <button id="completeMultiPayBtn" onclick="triggerMultiPayment()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-slate-100 py-3 rounded font-bold transition">
-          Ödemeyi Tamamla
-        </button>
+
+        <!-- Right: Other Payments & Summary -->
+        <div class="space-y-4 text-sm flex flex-col justify-between">
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">🎁 Hediye Çeki</label>
+                <input type="number" id="multiGiftPay" value="0" oninput="calcMultiPay()"
+                       class="w-full bg-slate-950 text-slate-100 rounded-lg border border-slate-800 px-3 py-2 focus:outline-none focus:border-emerald-500 font-bold">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">⭐ Puan Kullanımı</label>
+                <input type="number" id="multiPointsPay" value="0" oninput="calcMultiPay()"
+                       class="w-full bg-slate-950 text-slate-100 rounded-lg border border-slate-800 px-3 py-2 focus:outline-none focus:border-emerald-500 font-bold">
+                <span id="customerPointsDisplay" class="text-[10px] text-slate-400 mt-1 block">Cari Puan: 0₺</span>
+              </div>
+            </div>
+
+            <div id="veresiyeSplitRow" class="bg-amber-950/10 border border-amber-900/30 p-3 rounded-lg flex items-center justify-between hidden">
+              <div>
+                <span class="font-semibold text-amber-400 block text-xs">👤 Veresiye Cari Hesaba Yaz</span>
+                <span class="text-[10px] text-slate-400">Müşterinin cari borcuna eklenecektir.</span>
+              </div>
+              <input type="number" id="multiVeresiyePay" value="0" readonly
+                     class="bg-slate-950 text-amber-400 text-right rounded border border-slate-800 w-28 px-3 py-1.5 focus:outline-none font-bold">
+            </div>
+
+            <!-- Totals box -->
+            <div class="bg-slate-950 p-4 border border-slate-800 rounded-xl space-y-2.5">
+              <div class="flex justify-between font-semibold text-slate-400">
+                <span>Genel Toplam:</span>
+                <span id="multiTotalToPay" class="text-slate-100">0.00 TL</span>
+              </div>
+              <div class="flex justify-between font-bold text-lg text-slate-300 border-t border-slate-850 pt-2">
+                <span>Kalan / Para Üstü:</span>
+                <span id="multiPaymentRemaining" class="text-emerald-400">0.00 TL</span>
+              </div>
+            </div>
+          </div>
+
+          <button id="completeMultiPayBtn" onclick="triggerMultiPayment()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-slate-100 py-3.5 rounded-xl font-bold text-base transition shadow-lg mt-4">
+            Ödemeyi Onayla & Fiş Bas
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -269,7 +352,23 @@
     <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl max-w-lg w-full space-y-6">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
         <h3 class="text-lg font-bold text-slate-100">Cari Müşteri Seçimi</h3>
-        <button onclick="closeCustomerSelectModal()" class="text-slate-500 hover:text-slate-300 text-xl">&times;</button>
+        <div class="flex items-center space-x-3">
+          <button onclick="toggleQuickCustomerForm()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-2.5 py-1.5 rounded font-semibold transition">+ Yeni Cari Ekle</button>
+          <button onclick="closeCustomerSelectModal()" class="text-slate-500 hover:text-slate-300 text-xl">&times;</button>
+        </div>
+      </div>
+      
+      <!-- Quick Add Form -->
+      <div id="quickCustomerForm" class="hidden bg-slate-950 p-4 border border-slate-800 rounded-lg space-y-3">
+        <div class="font-semibold text-xs text-emerald-400 uppercase">Hızlı Cari Müşteri Ekle</div>
+        <div class="grid grid-cols-2 gap-2">
+          <input type="text" id="newCustName" placeholder="Müşteri Adı Soyadı..." class="bg-slate-900 border border-slate-850 rounded text-xs px-2.5 py-2 text-slate-200 focus:outline-none">
+          <input type="text" id="newCustPhone" placeholder="Telefon (05xx...)" class="bg-slate-900 border border-slate-850 rounded text-xs px-2.5 py-2 text-slate-200 focus:outline-none">
+        </div>
+        <div class="flex justify-end space-x-2">
+          <button onclick="toggleQuickCustomerForm()" class="text-xs text-slate-400 px-3 py-1.5 hover:underline">Vazgeç</button>
+          <button onclick="saveQuickCustomer()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-1.5 rounded font-bold transition">Kaydet</button>
+        </div>
       </div>
       <div class="space-y-4">
         <input type="text" id="custSearchInput" placeholder="Müşteri adı veya telefon numarası arayın..." oninput="searchCustomers(this.value)"
@@ -293,6 +392,124 @@
         <span class="absolute inset-x-0 top-1/2 border-t border-red-500 border-dashed animate-pulse"></span>
       </div>
       <p class="text-xs text-slate-400 text-center">Barkodu kırmızı çizgiye hizalayın. (Kamera algılayıcı entegrasyonu)</p>
+    </div>
+  </div>
+
+  <!-- CASH IN / OUT MODAL (Sprint 10) -->
+  <div id="cashInOutModal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-45 hidden">
+    <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl max-w-md w-full space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-lg font-bold text-slate-100">Kasa Nakit Giriş / Çıkış</h3>
+        <button onclick="closeCashInOutModal()" class="text-slate-500 hover:text-slate-300 text-xl">&times;</button>
+      </div>
+      <div class="space-y-3 text-sm">
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">İşlem Türü</label>
+          <select id="cashInOutType" class="w-full bg-slate-950 border border-slate-800 rounded px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500">
+            <option value="in">📥 Kasaya Para Ekle (Cash-In)</option>
+            <option value="out">📤 Kasadan Para Çıkar (Cash-Out)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Tutar (TL)</label>
+          <input type="number" id="cashInOutAmount" placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 rounded px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Açıklama</label>
+          <input type="text" id="cashInOutNotes" placeholder="Örn: Bozuk para üstü takviyesi, fatura ödemesi..." class="w-full bg-slate-950 border border-slate-800 rounded px-3 py-2 text-slate-200 focus:outline-none focus:border-emerald-500">
+        </div>
+        <button onclick="saveCashInOut()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-slate-100 py-3 rounded font-bold transition">İşlemi Kaydet</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SALES HISTORY MODAL (Sprint 10) -->
+  <div id="salesHistoryModal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-45 hidden">
+    <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl max-w-2xl w-full space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-lg font-bold text-slate-100">Bugünkü Satış Geçmişi</h3>
+        <button onclick="closeSalesHistoryModal()" class="text-slate-500 hover:text-slate-300 text-xl">&times;</button>
+      </div>
+      <div class="space-y-4">
+        <div class="max-h-80 overflow-y-auto space-y-2" id="salesHistoryList">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECALL HELD SALE MODAL (Sprint 10) -->
+  <div id="recallSaleModal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-45 hidden">
+    <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl max-w-md w-full space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-lg font-bold text-slate-100">Askıdaki Satışları Çağır</h3>
+        <button onclick="closeRecallSaleModal()" class="text-slate-500 hover:text-slate-300 text-xl">&times;</button>
+      </div>
+      <div class="space-y-4">
+        <div class="max-h-80 overflow-y-auto space-y-2" id="heldSalesList">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REGISTER CLOSE / Z-REPORT MODAL (Sprint 10) -->
+  <div id="registerCloseModal" class="fixed inset-0 bg-black/85 flex items-center justify-center z-50 hidden">
+    <div class="bg-slate-900 border border-slate-800 p-8 rounded-xl max-w-md w-full space-y-6">
+      <div class="text-center">
+        <span class="text-5xl">🏪</span>
+        <h3 class="text-xl font-bold mt-3 text-slate-100">Kasa Oturumunu Kapat (Z-Raporu)</h3>
+        <p class="text-xs text-slate-400 mt-1">Lütfen kasadaki fiili nakit tutarını sayarak girin.</p>
+      </div>
+      <div class="space-y-4 text-sm">
+        <div class="bg-slate-950 p-4 border border-slate-800 rounded-lg space-y-2">
+          <div class="flex justify-between">
+            <span class="text-slate-400">Açılış Tutarı:</span>
+            <span id="closeOpeningCash" class="font-bold">0.00 TL</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-400">Kayıtlı Satışlar (Nakit):</span>
+            <span id="closeSalesCash" class="font-bold text-emerald-400">0.00 TL</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-400">Kayıtlı Kart Satışları:</span>
+            <span id="closeSalesCard" class="font-bold text-sky-400">0.00 TL</span>
+          </div>
+          <div class="flex justify-between border-t border-slate-850 pt-2 text-slate-300">
+            <span class="font-semibold">Kasadaki Beklenen Nakit:</span>
+            <span id="closeExpectedCash" class="font-bold text-lg text-emerald-400">0.00 TL</span>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Kasada Sayılan Nakit (TL)</label>
+          <input type="number" id="actualCashInput" placeholder="Sayılan nakit tutar" oninput="calcRegisterDiff()"
+                 class="w-full bg-slate-950 border border-slate-800 rounded px-3 py-2.5 text-slate-100 font-bold text-center text-xl focus:outline-none focus:border-emerald-500">
+        </div>
+        <div class="flex justify-between font-semibold text-slate-300 bg-slate-800/20 p-2.5 rounded border border-slate-800">
+          <span>Kasa Sayım Farkı:</span>
+          <span id="registerDiffDisplay" class="text-slate-100">0.00 TL</span>
+        </div>
+        <button onclick="closeRegisterSessionSubmit()" class="w-full bg-red-600 hover:bg-red-500 text-slate-100 py-3 rounded font-bold transition">
+          Z Raporu Oluştur ve Kasayı Kapat
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- X-REPORT MODAL (Sprint 10) -->
+  <div id="xReportModal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-45 hidden">
+    <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl max-w-md w-full space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-lg font-bold text-slate-100">Kasa Ara Raporu (X Raporu)</h3>
+        <button onclick="closeXReportModal()" class="text-slate-500 hover:text-slate-300 text-xl">&times;</button>
+      </div>
+      <div class="space-y-4 text-sm" id="xReportContent">
+        <!-- Dynamically populated -->
+      </div>
+      <div class="flex space-x-2">
+        <button onclick="printXReport()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2.5 rounded font-bold transition">🖨️ Raporu Yazdır</button>
+        <button onclick="closeXReportModal()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-slate-100 py-2.5 rounded font-bold transition">Kapat</button>
+      </div>
     </div>
   </div>
 
@@ -378,12 +595,25 @@
     const OFFLINE_ORDERS_KEY = 'ag_offline_orders';
     const OFFLINE_REGISTERS_KEY = 'ag_offline_registers';
 
+    // Index Maps for O(1) lookups (Sprint 10)
+    let productsBySku = {};
+    let productsById = {};
+    let heldSales = JSON.parse(localStorage.getItem('ag_held_sales') || '[]');
+
     window.addEventListener('load', async () => {
       // Initialize Supabase config from config API
       try {
         const confRes = await fetch('/api/config');
         const conf = await confRes.json();
         supabaseClient = window.supabase.createClient(conf.url || conf.SUPABASE_URL, conf.anonKey || conf.SUPABASE_ANON_KEY);
+        
+        // Redirect to login if session is not active (Sprint 10)
+        const { data } = await supabaseClient.auth.getSession();
+        if (!data || !data.session) {
+          console.log("No active session, redirecting to login...");
+          window.location.href = '/admin.html';
+          return;
+        }
       } catch(e) {
         console.error("Config load failed, running local mock fallback", e);
       }
@@ -392,6 +622,7 @@
       checkAuthAndRegister();
       initKeyboardShortcuts();
       initUSBScanner();
+      updateHeldCountBadge();
       
       // Sync loop for offline transactions
       setInterval(syncOfflineTransactions, 30000);
@@ -399,9 +630,12 @@
     });
 
     async function loadBackendData() {
+      const authHeader = await getAuthHeader().catch(() => ({}));
+      const headers = { 'Content-Type': 'application/json', ...authHeader };
+
       // Fetch branches
       try {
-        const res = await fetch('/api/db?coll=branches');
+        const res = await fetch('/api/db?coll=branches', { headers });
         const data = await res.json();
         const sel = document.getElementById('posBranchSelect');
         sel.innerHTML = (data && data.length > 0 ? data : [
@@ -412,13 +646,22 @@
 
       // Fetch products
       try {
-        const res = await fetch('/api/db?coll=products');
+        const res = await fetch('/api/db?coll=products', { headers });
         productsList = await res.json();
+
+        // O(1) map indexing for extreme fast barcode scan
+        productsBySku = {};
+        productsById = {};
+        productsList.forEach(p => {
+          productsById[p.id] = p;
+          if (p.sku) productsBySku[p.sku.trim()] = p;
+          if (p.metadata && p.metadata.barcode) productsBySku[p.metadata.barcode.trim()] = p;
+        });
       } catch(e){}
 
       // Fetch categories
       try {
-        const res = await fetch('/api/db?coll=categories');
+        const res = await fetch('/api/db?coll=categories', { headers });
         categoriesList = await res.json();
         
         const catFilterDiv = document.getElementById('posCategoryFilter');
@@ -430,7 +673,7 @@
 
       // Fetch customers
       try {
-        const res = await fetch('/api/db?coll=customers');
+        const res = await fetch('/api/db?coll=customers', { headers });
         customersList = await res.json();
       } catch(e){}
 
@@ -515,25 +758,30 @@
     function renderProductsGrid() {
       const grid = document.getElementById('posProductsGrid');
       let filtered = productsList;
-      if (categoryFilter) {
+      if (categoryFilter === 'favorites') {
+        filtered = productsList.filter(p => p.featured === true);
+      } else if (categoryFilter) {
         filtered = productsList.filter(p => p.cat === categoryFilter);
       }
 
-      grid.innerHTML = (filtered || []).map(p => `
-        <div onclick="addToCart(${p.id})" class="glass hover:bg-slate-800 border border-slate-800 rounded-lg p-3 flex flex-col justify-between cursor-pointer transition transform hover:scale-[1.02]">
-          <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+      // Display at most 40 items in the grid for fluid UI performance
+      const sliced = filtered.slice(0, 40);
+
+      grid.innerHTML = (sliced || []).map(p => `
+        <div onclick="addToCart(${p.id})" class="glass hover:bg-slate-800 border border-slate-800 rounded-lg p-3 flex flex-col justify-between cursor-pointer transition transform hover:scale-[1.02] select-none">
+          <div class="flex items-center justify-between text-[11px] text-slate-400 mb-1">
             <span>📦 Stok: ${p.stockQty ?? 50}</span>
-            <span class="bg-slate-900 px-1.5 py-0.5 rounded">${p.unit}</span>
+            <span class="bg-slate-900 px-1 py-0.5 rounded">${p.unit}</span>
           </div>
           <div class="text-2xl my-2">${p.emoji || '📦'}</div>
-          <div class="text-sm font-semibold truncate text-slate-100">${p.name}</div>
+          <div class="text-sm font-semibold truncate text-slate-100">${esc(p.name)}</div>
           <div class="text-emerald-400 font-bold mt-1 text-base">${p.price.toFixed(2)} TL</div>
         </div>
       `).join('');
     }
 
     function addToCart(productId) {
-      const prod = productsList.find(p => p.id === productId);
+      const prod = productsById[productId] || productsList.find(p => p.id === productId);
       if (!prod) return;
 
       const existing = cart.find(i => i.id === productId);
@@ -545,10 +793,57 @@
           name: prod.name,
           price: prod.price,
           quantity: 1,
-          unit: prod.unit
+          unit: prod.unit,
+          discountAmount: 0,
+          isPercent: false,
+          note: ''
         });
       }
 
+      sound.beep();
+      updateCartUI();
+    }
+
+    function changeQty(idx, delta) {
+      if (!cart[idx]) return;
+      cart[idx].quantity = Math.max(1, cart[idx].quantity + delta);
+      sound.beep();
+      updateCartUI();
+    }
+
+    function updateQtyInput(idx, val) {
+      if (!cart[idx]) return;
+      const parsed = parseFloat(val);
+      cart[idx].quantity = Math.max(1, isNaN(parsed) ? 1 : parsed);
+      sound.beep();
+      updateCartUI();
+    }
+
+    function promptLineDiscount(idx) {
+      if (!cart[idx]) return;
+      const val = prompt("Satır indirimini girin (% indirim için 10% gibi, TL indirim için düz rakam girin):", cart[idx].discountAmount > 0 ? (cart[idx].isPercent ? (cart[idx].discountAmount * 100) + '%' : cart[idx].discountAmount) : '');
+      if (val === null) return;
+      
+      const clean = val.trim();
+      if (!clean) {
+        cart[idx].discountAmount = 0;
+        cart[idx].isPercent = false;
+      } else if (clean.endsWith('%')) {
+        cart[idx].discountAmount = parseFloat(clean.slice(0, -1)) / 100 || 0;
+        cart[idx].isPercent = true;
+      } else {
+        cart[idx].discountAmount = parseFloat(clean) || 0;
+        cart[idx].isPercent = false;
+      }
+      sound.beep();
+      updateCartUI();
+    }
+
+    function promptLineNote(idx) {
+      if (!cart[idx]) return;
+      const val = prompt("Ürün satır notunu girin:", cart[idx].note || '');
+      if (val === null) return;
+      cart[idx].note = val.trim();
       sound.beep();
       updateCartUI();
     }
@@ -575,35 +870,71 @@
       }
 
       let subtotal = 0;
+      let totalLineDiscounts = 0;
+
       list.innerHTML = cart.map((item, idx) => {
-        const itemTotal = item.price * item.quantity;
-        subtotal += itemTotal;
+        const itemOriginalTotal = item.price * item.quantity;
+        subtotal += itemOriginalTotal;
+
+        // Calculate line discount
+        let lineDiscountVal = 0;
+        if (item.discountAmount > 0) {
+          if (item.isPercent) {
+            lineDiscountVal = itemOriginalTotal * item.discountAmount;
+          } else {
+            lineDiscountVal = item.discountAmount;
+          }
+        }
+        if (lineDiscountVal > itemOriginalTotal) lineDiscountVal = itemOriginalTotal;
+        totalLineDiscounts += lineDiscountVal;
+
+        const itemTotal = itemOriginalTotal - lineDiscountVal;
+
         return `
-          <div class="flex items-center justify-between bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm">
-            <div class="flex-1 pr-2">
-              <span class="font-medium text-slate-200 block truncate">${item.name}</span>
-              <span class="text-xs text-slate-400">${item.price.toFixed(2)} TL x ${item.quantity} ${item.unit}</span>
+          <div class="bg-slate-900 border border-slate-800 rounded-lg p-3 text-sm space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex-1 pr-2">
+                <span class="font-bold text-slate-200 block truncate">${esc(item.name)}</span>
+                <span class="text-xs text-slate-400">Birim Fiyat: ${item.price.toFixed(2)} TL</span>
+                ${item.note ? `<span class="block text-[10px] text-amber-400">📝 Not: ${esc(item.note)}</span>` : ''}
+                ${item.discountAmount > 0 ? `<span class="block text-[10px] text-red-400">🏷️ Satır İskonto: -${item.isPercent ? (item.discountAmount * 100) + '%' : item.discountAmount + ' TL'}</span>` : ''}
+              </div>
+              <div class="text-right">
+                <span class="font-extrabold text-slate-100 block">${itemTotal.toFixed(2)} TL</span>
+                <button onclick="removeFromCart(${idx})" class="text-red-400 hover:text-red-300 text-xs mt-1">🗑️ Satırı Sil</button>
+              </div>
             </div>
-            <div class="flex items-center space-x-2">
-              <span class="font-bold text-slate-100 shrink-0">${itemTotal.toFixed(2)} TL</span>
-              <button onclick="removeFromCart(${idx})" class="text-red-400 hover:text-red-300 text-lg">&times;</button>
+            <!-- Item Controls Row -->
+            <div class="flex items-center justify-between border-t border-slate-800/40 pt-2 text-xs">
+              <div class="flex items-center space-x-1.5">
+                <button onclick="changeQty(${idx}, -1)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 w-6 h-6 rounded font-bold flex items-center justify-center">-</button>
+                <input type="number" value="${item.quantity}" onchange="updateQtyInput(${idx}, this.value)"
+                       class="bg-slate-950 text-slate-100 text-center w-12 h-6 rounded border border-slate-800 focus:outline-none focus:border-emerald-500 font-medium">
+                <button onclick="changeQty(${idx}, 1)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 w-6 h-6 rounded font-bold flex items-center justify-center">+</button>
+                <span class="text-slate-500 text-[10px]">${item.unit}</span>
+              </div>
+              <div class="flex space-x-1">
+                <button onclick="promptLineDiscount(${idx})" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-1 rounded text-[10px] font-semibold">🏷️ İndirim</button>
+                <button onclick="promptLineNote(${idx})" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-1 rounded text-[10px] font-semibold">📝 Not Ekle</button>
+              </div>
             </div>
           </div>
         `;
       }).join('');
 
-      let discountAmount = 0;
+      let generalDiscountVal = 0;
+      const baseForGeneralDiscount = subtotal - totalLineDiscounts;
       if (isPercentageDiscount) {
-        discountAmount = subtotal * currentDiscount;
+        generalDiscountVal = baseForGeneralDiscount * currentDiscount;
       } else {
-        discountAmount = currentDiscount;
+        generalDiscountVal = currentDiscount;
       }
-      if (discountAmount > subtotal) discountAmount = subtotal;
+      if (generalDiscountVal > baseForGeneralDiscount) generalDiscountVal = baseForGeneralDiscount;
 
-      const total = subtotal - discountAmount;
+      const total = baseForGeneralDiscount - generalDiscountVal;
 
       document.getElementById('posSubtotal').innerText = subtotal.toFixed(2) + ' TL';
-      document.getElementById('posDiscount').innerText = discountAmount.toFixed(2) + ' TL';
+      document.getElementById('posDiscount').innerText = (totalLineDiscounts + generalDiscountVal).toFixed(2) + ' TL';
       document.getElementById('posTotal').innerText = total.toFixed(2) + ' TL';
 
       calcChange();
@@ -688,37 +1019,67 @@
     }
 
     function handleScannedBarcode(barcode) {
-      const prod = productsList.find(p => p.sku === barcode || (p.metadata && p.metadata.barcode === barcode));
+      const clean = (barcode || '').trim();
+      const prod = productsBySku[clean] || productsList.find(p => p.sku === clean || (p.metadata && p.metadata.barcode === clean));
       if (prod) {
         addToCart(prod.id);
+        // Track recently sold product
+        trackRecentlySold(prod);
       } else {
         sound.error();
-        alert(`Barkod Bulunamadı: ${barcode}`);
+        alert(`Barkod Bulunamadı: ${clean}`);
       }
     }
 
+    // Recently sold items array
+    let recentlySoldList = [];
+    function trackRecentlySold(prod) {
+      recentlySoldList = recentlySoldList.filter(p => p.id !== prod.id);
+      recentlySoldList.unshift(prod);
+      if (recentlySoldList.length > 5) recentlySoldList.pop();
+      renderRecentlySoldUI();
+    }
+
+    function renderRecentlySoldUI() {
+      // We will define a small HTML box dynamically or render under grid.
+    }
+
+    let searchTimeout = null;
     function handleSearchInput(val) {
-      const suggestions = document.getElementById('searchSuggestions');
-      if (!val) {
-        suggestions.classList.add('hidden');
-        return;
-      }
+      if (searchTimeout) clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        const suggestions = document.getElementById('searchSuggestions');
+        if (!val) {
+          suggestions.classList.add('hidden');
+          return;
+        }
 
-      const clean = val.toLowerCase();
-      const matched = productsList.filter(p => p.name.toLowerCase().includes(clean) || (p.sku && p.sku.includes(clean)));
+        const clean = val.toLowerCase().trim();
+        if (clean.length < 2) return;
 
-      if (matched.length === 0) {
-        suggestions.classList.add('hidden');
-        return;
-      }
+        // Search in products list
+        const matched = [];
+        for (let i = 0; i < productsList.length; i++) {
+          const p = productsList[i];
+          if ((p.name && p.name.toLowerCase().includes(clean)) || (p.sku && p.sku.includes(clean))) {
+            matched.push(p);
+            if (matched.length >= 10) break; // limit immediately for performance
+          }
+        }
 
-      suggestions.innerHTML = matched.slice(0, 10).map(p => `
-        <div onclick="selectSuggestion(${p.id})" class="px-4 py-2 hover:bg-slate-800 cursor-pointer flex items-center justify-between">
-          <span class="font-medium">${p.name}</span>
-          <span class="text-xs text-emerald-400">${p.price.toFixed(2)} TL</span>
-        </div>
-      `).join('');
-      suggestions.classList.remove('hidden');
+        if (matched.length === 0) {
+          suggestions.classList.add('hidden');
+          return;
+        }
+
+        suggestions.innerHTML = matched.map(p => `
+          <div onclick="selectSuggestion(${p.id})" class="px-4 py-2 hover:bg-slate-800 cursor-pointer flex items-center justify-between">
+            <span class="font-medium">${esc(p.name)}</span>
+            <span class="text-xs text-emerald-400">${p.price.toFixed(2)} TL</span>
+          </div>
+        `).join('');
+        suggestions.classList.remove('hidden');
+      }, 50); // fast debouncing
     }
 
     function selectSuggestion(productId) {
@@ -792,31 +1153,29 @@
       if (cart.length === 0) return;
       const totalStr = document.getElementById('posTotal').innerText;
       const total = Number(totalStr.replace(' TL', ''));
-      document.getElementById('multiPaymentRemaining').innerText = total.toFixed(2) + ' TL';
+      
+      document.getElementById('multiTotalToPay').innerText = total.toFixed(2) + ' TL';
       document.getElementById('multiCashPay').value = 0;
       document.getElementById('multiCardPay').value = 0;
+      document.getElementById('multiGiftPay').value = 0;
+      document.getElementById('multiPointsPay').value = 0;
       document.getElementById('multiVeresiyePay').value = 0;
       
+      const ptsDisplay = document.getElementById('customerPointsDisplay');
+      if (selectedCustomer) {
+        const pts = (selectedCustomer.metadata && selectedCustomer.metadata.points) || 0;
+        ptsDisplay.innerText = `Cari Puan: ${pts.toFixed(2)}₺`;
+        ptsDisplay.style.display = 'block';
+      } else {
+        ptsDisplay.style.display = 'none';
+      }
+      
       document.getElementById('paymentModal').classList.remove('hidden');
+      calcMultiPay();
     }
 
     function closePaymentModal() {
       document.getElementById('paymentModal').classList.add('hidden');
-    }
-
-    function calcMultiPay() {
-      const totalStr = document.getElementById('posTotal').innerText;
-      const total = Number(totalStr.replace(' TL', ''));
-      const cash = Number(document.getElementById('multiCashPay').value || 0);
-      const card = Number(document.getElementById('multiCardPay').value || 0);
-      
-      const sum = cash + card;
-      const remaining = Math.max(0, total - sum);
-      document.getElementById('multiPaymentRemaining').innerText = remaining.toFixed(2) + ' TL';
-      
-      if (selectedCustomer) {
-        document.getElementById('multiVeresiyePay').value = remaining.toFixed(2);
-      }
     }
 
     async function triggerPayment(method) {
@@ -830,7 +1189,21 @@
       const totalStr = document.getElementById('posTotal').innerText;
       const total = Number(totalStr.replace(' TL', ''));
 
-      if (method === 'veresiye' && !selectedCustomer) {
+      let paymentDetails = { cash: 0, card: 0, gift: 0, points: 0, veresiye: 0 };
+      if (method === 'cash') {
+        paymentDetails.cash = total;
+      } else if (method === 'card') {
+        paymentDetails.card = total;
+      } else if (method === 'mixed') {
+        paymentDetails.cash = Number(document.getElementById('multiCashPay').value || 0);
+        paymentDetails.card = Number(document.getElementById('multiCardPay').value || 0);
+        paymentDetails.gift = Number(document.getElementById('multiGiftPay').value || 0);
+        paymentDetails.points = Number(document.getElementById('multiPointsPay').value || 0);
+        paymentDetails.veresiye = Number(document.getElementById('multiVeresiyePay').value || 0);
+      }
+
+      // Check veresiye constraints
+      if (paymentDetails.veresiye > 0 && !selectedCustomer) {
         alert("Cari/Veresiye ödeme için lütfen müşteri seçin!");
         return;
       }
@@ -846,12 +1219,64 @@
         ts: Date.now(),
         status: 1, 
         paymentMethod: method,
+        paymentDetails: paymentDetails,
         customerId: selectedCustomer ? selectedCustomer.id : null,
         registerId: activeRegisterSession.id,
         branchId: selectedBranch
       };
 
       printThermalReceipt(payload, method);
+
+      // Audit logs log validation
+      try {
+        const authHeader = await getAuthHeader().catch(() => ({}));
+        // Log the completed checkout cashier transaction
+        fetch('/api/audit-log', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeader },
+          body: JSON.stringify({
+            action: 'POS_SALE',
+            details: `Sale checkout completed. Order: ${orderNo}, Total: ${total} TL, Method: ${method}`
+          })
+        }).catch(() => {});
+      } catch(e) {}
+
+      // Update customer balance & loyalty points if selected
+      if (selectedCustomer) {
+        const pointsEarned = total * 0.01; // Earn 1% points
+        const originalPoints = (selectedCustomer.metadata && selectedCustomer.metadata.points) || 0;
+        
+        selectedCustomer.balance = (selectedCustomer.balance || 0) + paymentDetails.veresiye;
+        selectedCustomer.metadata = selectedCustomer.metadata || {};
+        selectedCustomer.metadata.points = Math.max(0, originalPoints - paymentDetails.points + pointsEarned);
+
+        // Update local list
+        const idx = customersList.findIndex(c => c.id === selectedCustomer.id);
+        if (idx !== -1) customersList[idx] = selectedCustomer;
+
+        try {
+          await fetch('/api/db?coll=customers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify([selectedCustomer])
+          });
+        } catch(e) {
+          console.warn("Could not sync customer update to server, running offline");
+        }
+      }
+
+      // Add cash part of sale to register session expectedCash
+      if (activeRegisterSession && paymentDetails.cash > 0) {
+        activeRegisterSession.expectedCash = (activeRegisterSession.expectedCash || 0) + paymentDetails.cash;
+        localStorage.setItem('ag_active_register_' + selectedBranch, JSON.stringify(activeRegisterSession));
+        try {
+          await fetch('/api/db?coll=register_sessions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify([activeRegisterSession])
+          });
+        } catch(e) {}
+      }
 
       try {
         const res = await fetch('/api/db?coll=orders&branchId=' + selectedBranch, {
@@ -866,11 +1291,17 @@
         sound.cash();
       } catch(e) {
         sound.error();
-        alert(`Sipariş offline moda kaydedildi: ${e.message}`);
+        alert(`Sipariş offline kaydedildi: ${e.message}`);
         const offline = JSON.parse(localStorage.getItem(OFFLINE_ORDERS_KEY) || '[]');
         offline.push(payload);
         localStorage.setItem(OFFLINE_ORDERS_KEY, JSON.stringify(offline));
       }
+
+      // Add to recently sold track
+      cart.forEach(item => {
+        const fullProd = productsList.find(p => p.id === item.id);
+        if (fullProd) trackRecentlySold(fullProd);
+      });
 
       cart = [];
       selectCustomer(null);
@@ -886,9 +1317,12 @@
       const total = Number(totalStr.replace(' TL', ''));
       const cash = Number(document.getElementById('multiCashPay').value || 0);
       const card = Number(document.getElementById('multiCardPay').value || 0);
+      const gift = Number(document.getElementById('multiGiftPay').value || 0);
+      const points = Number(document.getElementById('multiPointsPay').value || 0);
       const veresiye = Number(document.getElementById('multiVeresiyePay').value || 0);
 
-      if (cash + card + veresiye < total) {
+      const sum = cash + card + gift + points + veresiye;
+      if (sum < total) {
         alert("Girilen ödeme tutarları genel toplamı karşılamıyor!");
         return;
       }
@@ -917,28 +1351,49 @@
     function printThermalReceipt(order, method) {
       const area = document.getElementById('print-receipt-area');
       const date = new Date(order.ts).toLocaleString();
+      const widthVal = document.getElementById('receiptWidthSelect')?.value || '80mm';
       
-      let itemsLines = order.items.map(i => `
-${i.name.slice(0, 20).padEnd(20)} ${i.quantity.toString().padEnd(4)} ${(i.price * i.quantity).toFixed(2).padStart(8)}
-      `).join('');
+      // Set width dynamically for 58mm/80mm printing compatibility
+      area.style.width = widthVal === '58mm' ? '220px' : '300px';
+      area.style.fontFamily = 'Courier New, Courier, monospace';
+      area.style.fontSize = '12px';
+      area.style.color = '#000';
+      area.style.backgroundColor = '#fff';
+
+      let itemsLines = order.items.map(i => {
+        const itemLineTotal = i.price * i.quantity;
+        return `
+${i.name.slice(0, 16).padEnd(16)} ${i.quantity.toString().padEnd(4)} ${itemLineTotal.toFixed(2).padStart(8)}
+        `;
+      }).join('');
 
       area.innerHTML = `
-========================================
-             AYDIN GROS
-         Alışveriş Makbuzu
+<div style="text-align:center;font-weight:bold;font-size:14px;margin-bottom:4px;">
+  🍏 AYDIN GROS MARKET
+</div>
+<div style="text-align:center;font-size:10px;margin-bottom:8px;line-height:1.2;">
+  Merkez Şube - Satış Fişi<br>
+  Destek: 444 0 586
+</div>
 ========================================
 Tarih: ${date}
 Fiş No: ${order.no}
 Ödeme: ${method.toUpperCase()}
 Müşteri: ${order.name}
 ----------------------------------------
-Ürün Adı             Adet    Tutar (TL)
+Ürün Adı         Adet    Tutar (TL)
 ----------------------------------------
 ${itemsLines}
 ----------------------------------------
 Genel Toplam:              ${order.total.toFixed(2)} TL
 ========================================
-      Teşekkür Ederiz, Yine Bekleriz.
+<div style="text-align:center;margin-top:10px;margin-bottom:10px;">
+  <img src="https://api.qrserver.com/v1/create-qr-code/?size=90x90&data=https://aydingros.com/receipt/${order.no}" style="display:inline-block;width:80px;height:80px;" alt="QR Code">
+  <div style="font-size:9px;margin-top:4px;color:#555;">Fişinizi Sorgulamak İçin Tarayın</div>
+</div>
+<div style="text-align:center;font-weight:bold;font-size:10px;margin-top:4px;">
+  Bizi Tercih Ettiğiniz İçin<br>Teşekkür Ederiz!
+</div>
 ========================================
       `;
 
@@ -1007,6 +1462,659 @@ Genel Toplam:              ${order.total.toFixed(2)} TL
       } catch(e) {
         console.error("Sync failed, will retry later", e);
       }
+    }
+
+    // --- SPRINT 10 - PROFESSIONAL SUPERMARKET POS JS ---
+
+    // Simple string escape helper
+    function esc(str) {
+      if (!str) return '';
+      return str.toString()
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Auth JWT claims helper for audit logs
+    async function getAuthHeader() {
+      try {
+        if (supabaseClient) {
+          const { data } = await supabaseClient.auth.getSession();
+          if (data && data.session) {
+            return { 'Authorization': `Bearer ${data.session.access_token}` };
+          }
+        }
+      } catch(e) {
+        console.error("Error in getAuthHeader:", e);
+      }
+      return {};
+    }
+
+    // Quick customer registration
+    function toggleQuickCustomerForm() {
+      const form = document.getElementById('quickCustomerForm');
+      form.classList.toggle('hidden');
+    }
+
+    async function saveQuickCustomer() {
+      const nameInput = document.getElementById('newCustName');
+      const phoneInput = document.getElementById('newCustPhone');
+      
+      const name = nameInput.value.trim();
+      const phone = phoneInput.value.trim();
+      
+      if (!name || !phone) {
+        alert("Lütfen ad ve telefon bilgilerini eksiksiz doldurun!");
+        return;
+      }
+      
+      const newCust = {
+        id: crypto.randomUUID(),
+        name: name,
+        phone: phone,
+        balance: 0,
+        metadata: { points: 0, created_at: new Date().toISOString() }
+      };
+      
+      try {
+        const res = await fetch('/api/db?coll=customers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify([newCust])
+        });
+        if (!res.ok) throw new Error("Cari veritabanına kaydedilemedi");
+        
+        // Select this customer
+        selectCustomer(newCust);
+        // Reload lists
+        await loadBackendData();
+        nameInput.value = '';
+        phoneInput.value = '';
+        toggleQuickCustomerForm();
+        sound.beep();
+      } catch(e) {
+        alert("Müşteri oluşturulamadı: " + e.message);
+      }
+    }
+
+    // Multi Payment cash suggest buttons & change calculator helpers
+    function setQuickCash(amount) {
+      const cashInput = document.getElementById('multiCashPay');
+      cashInput.value = amount;
+      calcMultiPay();
+    }
+
+    function setExactCash() {
+      const totalStr = document.getElementById('posTotal').innerText;
+      const total = Number(totalStr.replace(' TL', ''));
+      const card = Number(document.getElementById('multiCardPay').value || 0);
+      const gift = Number(document.getElementById('multiGiftPay').value || 0);
+      const points = Number(document.getElementById('multiPointsPay').value || 0);
+      
+      const remaining = Math.max(0, total - (card + gift + points));
+      document.getElementById('multiCashPay').value = remaining.toFixed(2);
+      calcMultiPay();
+    }
+
+    function setExactCard() {
+      const totalStr = document.getElementById('posTotal').innerText;
+      const total = Number(totalStr.replace(' TL', ''));
+      const cash = Number(document.getElementById('multiCashPay').value || 0);
+      const gift = Number(document.getElementById('multiGiftPay').value || 0);
+      const points = Number(document.getElementById('multiPointsPay').value || 0);
+      
+      const remaining = Math.max(0, total - (cash + gift + points));
+      document.getElementById('multiCardPay').value = remaining.toFixed(2);
+      calcMultiPay();
+    }
+
+    function clearCash() {
+      document.getElementById('multiCashPay').value = 0;
+      calcMultiPay();
+    }
+
+    function calcMultiPay() {
+      const totalStr = document.getElementById('posTotal').innerText;
+      const total = Number(totalStr.replace(' TL', ''));
+      
+      const cash = Number(document.getElementById('multiCashPay').value || 0);
+      const card = Number(document.getElementById('multiCardPay').value || 0);
+      const gift = Number(document.getElementById('multiGiftPay').value || 0);
+      const points = Number(document.getElementById('multiPointsPay').value || 0);
+      
+      const paidSum = cash + card + gift + points;
+      const remaining = Math.max(0, total - paidSum);
+      
+      const remainingText = document.getElementById('multiPaymentRemaining');
+      
+      if (paidSum > total) {
+        const change = paidSum - total;
+        remainingText.innerText = `Para Üstü: ${change.toFixed(2)} TL`;
+        remainingText.className = "text-lg text-emerald-400 font-extrabold";
+        if (selectedCustomer) {
+          document.getElementById('multiVeresiyePay').value = 0;
+        }
+      } else {
+        remainingText.innerText = remaining.toFixed(2) + ' TL';
+        remainingText.className = "text-lg text-red-400 font-extrabold";
+        if (selectedCustomer) {
+          document.getElementById('multiVeresiyePay').value = remaining.toFixed(2);
+        }
+      }
+    }
+
+    // Hold & Recall (Askıya Alma)
+    function updateHeldCountBadge() {
+      const badge = document.getElementById('heldCountBadge');
+      if (badge) badge.innerText = heldSales.length;
+    }
+
+    function holdCurrentSale() {
+      if (cart.length === 0) {
+        alert("Askıya alınacak boş sepet!");
+        return;
+      }
+      
+      const holdItem = {
+        id: crypto.randomUUID(),
+        cart: cart,
+        selectedCustomer: selectedCustomer,
+        currentDiscount: currentDiscount,
+        isPercentageDiscount: isPercentageDiscount,
+        ts: Date.now()
+      };
+      
+      heldSales.push(holdItem);
+      localStorage.setItem('ag_held_sales', JSON.stringify(heldSales));
+      
+      // Clear cart
+      cart = [];
+      selectCustomer(null);
+      currentDiscount = 0;
+      isPercentageDiscount = false;
+      document.getElementById('discountInput').value = '';
+      updateCartUI();
+      updateHeldCountBadge();
+      sound.beep();
+      alert("Sepet başarıyla askıya alındı.");
+    }
+
+    function openRecallSaleModal() {
+      const modal = document.getElementById('recallSaleModal');
+      const list = document.getElementById('heldSalesList');
+      modal.classList.remove('hidden');
+      
+      if (heldSales.length === 0) {
+        list.innerHTML = `<div class="text-center text-slate-500 py-6">Askıda bekleyen satış bulunmamaktadır.</div>`;
+        return;
+      }
+      
+      list.innerHTML = heldSales.map((h, idx) => {
+        const itemsCount = h.cart.reduce((sum, item) => sum + item.quantity, 0);
+        const dateStr = new Date(h.ts).toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+        const custName = h.selectedCustomer ? h.selectedCustomer.name : 'Perakende Müşteri';
+        return `
+          <div class="p-3 bg-slate-800 rounded border border-slate-700 flex justify-between items-center text-sm">
+            <div>
+              <span class="font-bold text-slate-200 block">${esc(custName)}</span>
+              <span class="text-xs text-slate-400">Saat: ${dateStr} | Ürün Sayısı: ${itemsCount} adet</span>
+            </div>
+            <button onclick="recallSale(${idx})" class="bg-emerald-600 hover:bg-emerald-500 text-slate-100 text-xs px-3 py-1.5 rounded font-bold transition">Geri Çağır</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function closeRecallSaleModal() {
+      document.getElementById('recallSaleModal').classList.add('hidden');
+    }
+
+    function recallSale(index) {
+      const holdItem = heldSales[index];
+      if (!holdItem) return;
+      
+      cart = holdItem.cart;
+      selectedCustomer = holdItem.selectedCustomer;
+      currentDiscount = holdItem.currentDiscount;
+      isPercentageDiscount = holdItem.isPercentageDiscount;
+      
+      // Select customer
+      selectCustomer(selectedCustomer);
+      if (currentDiscount > 0) {
+        document.getElementById('discountInput').value = isPercentageDiscount ? (currentDiscount * 100) + '%' : currentDiscount;
+      }
+      
+      // Remove from heldSales list
+      heldSales.splice(index, 1);
+      localStorage.setItem('ag_held_sales', JSON.stringify(heldSales));
+      
+      updateCartUI();
+      updateHeldCountBadge();
+      closeRecallSaleModal();
+      sound.beep();
+    }
+
+    // Cash Drawer Nakit Ekle/Çıkar
+    function openCashInOutModal() {
+      if (!activeRegisterSession) {
+        alert("Kasa hareketi girebilmek için kasa oturumunun açık olması gerekir!");
+        return;
+      }
+      document.getElementById('cashInOutModal').classList.remove('hidden');
+    }
+
+    function closeCashInOutModal() {
+      document.getElementById('cashInOutModal').classList.add('hidden');
+    }
+
+    async function saveCashInOut() {
+      const type = document.getElementById('cashInOutType').value;
+      const amount = parseFloat(document.getElementById('cashInOutAmount').value || 0);
+      const notes = document.getElementById('cashInOutNotes').value.trim();
+      
+      if (amount <= 0) {
+        alert("Geçersiz tutar!");
+        return;
+      }
+      
+      const payload = {
+        id: crypto.randomUUID(),
+        register_id: activeRegisterSession.id,
+        branch_id: selectedBranch,
+        type: type,
+        amount: amount,
+        notes: notes || 'Kasa işlemi',
+        ts: Date.now()
+      };
+      
+      try {
+        await fetch('/api/db?coll=register_transactions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify([payload])
+        });
+        
+        // Update expected cash locally
+        if (type === 'in') {
+          activeRegisterSession.expectedCash += amount;
+        } else {
+          activeRegisterSession.expectedCash -= amount;
+        }
+        
+        // Re-save session
+        localStorage.setItem('ag_active_register_' + selectedBranch, JSON.stringify(activeRegisterSession));
+        await fetch('/api/db?coll=register_sessions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify([activeRegisterSession])
+        });
+        
+        sound.beep();
+        alert("Kasa hareketi başarıyla kaydedildi.");
+        closeCashInOutModal();
+      } catch(e) {
+        alert("Kasa hareketi kaydedilemedi: " + e.message);
+      }
+    }
+
+    // Kasa Kapat & Z-Report
+    function closeRegisterCloseModal() {
+      document.getElementById('registerCloseModal').classList.add('hidden');
+    }
+
+    async function openCloseRegisterModal() {
+      if (!activeRegisterSession) {
+        alert("Kasa oturumu zaten kapalı!");
+        return;
+      }
+      
+      try {
+        const ordersRes = await fetch(`/api/db?coll=orders&branchId=${selectedBranch}`);
+        const ordersData = ordersRes.ok ? (await ordersRes.json() || []) : [];
+        
+        const txRes = await fetch(`/api/db?coll=register_transactions`);
+        const txData = txRes.ok ? (await txRes.json() || []) : [];
+        
+        const sessionOrders = ordersData.filter(o => o.registerId === activeRegisterSession.id);
+        const sessionTx = txData.filter(t => t.register_id === activeRegisterSession.id);
+        
+        const opening = activeRegisterSession.openingCash || 0;
+        let cashSales = 0;
+        let cardSales = 0;
+        
+        sessionOrders.forEach(o => {
+          if (o.paymentMethod === 'cash') {
+            cashSales += o.total || 0;
+          } else if (o.paymentMethod === 'card') {
+            cardSales += o.total || 0;
+          } else {
+            if (o.paymentDetails) {
+              cashSales += o.paymentDetails.cash || 0;
+              cardSales += o.paymentDetails.card || 0;
+            } else {
+              cashSales += o.total || 0;
+            }
+          }
+        });
+        
+        let cashIn = 0;
+        let cashOut = 0;
+        sessionTx.forEach(t => {
+          if (t.type === 'in') cashIn += t.amount || 0;
+          else cashOut += t.amount || 0;
+        });
+        
+        const expected = opening + cashSales + cashIn - cashOut;
+        
+        document.getElementById('closeOpeningCash').innerText = opening.toFixed(2) + ' TL';
+        document.getElementById('closeSalesCash').innerText = cashSales.toFixed(2) + ' TL';
+        document.getElementById('closeSalesCard').innerText = cardSales.toFixed(2) + ' TL';
+        document.getElementById('closeExpectedCash').innerText = expected.toFixed(2) + ' TL';
+        document.getElementById('actualCashInput').value = expected; // default fill
+        
+        document.getElementById('registerCloseModal').classList.remove('hidden');
+        calcRegisterDiff();
+      } catch(e) {
+        alert("Kasa kapatma verileri toplanamadı: " + e.message);
+      }
+    }
+
+    function calcRegisterDiff() {
+      const expectedStr = document.getElementById('closeExpectedCash').innerText;
+      const expected = Number(expectedStr.replace(' TL', ''));
+      const actual = Number(document.getElementById('actualCashInput').value || 0);
+      
+      const diff = actual - expected;
+      const display = document.getElementById('registerDiffDisplay');
+      
+      if (diff > 0) {
+        display.innerText = `+${diff.toFixed(2)} TL (Kasa Fazlası)`;
+        display.className = "font-bold text-emerald-400";
+      } else if (diff < 0) {
+        display.innerText = `${diff.toFixed(2)} TL (Kasa Açığı)`;
+        display.className = "font-bold text-red-400";
+      } else {
+        display.innerText = "0.00 TL (Eşit)";
+        display.className = "font-bold text-slate-200";
+      }
+    }
+
+    async function closeRegisterSessionSubmit() {
+      const actual = Number(document.getElementById('actualCashInput').value || 0);
+      const expectedStr = document.getElementById('closeExpectedCash').innerText;
+      const expected = Number(expectedStr.replace(' TL', ''));
+      
+      if (!confirm("Kasa oturumunu Z-Raporu alarak kapatmak istediğinize emin misiniz?")) return;
+      
+      activeRegisterSession.actualCash = actual;
+      activeRegisterSession.expectedCash = expected;
+      activeRegisterSession.status = 'closed';
+      activeRegisterSession.closedAt = Date.now();
+      
+      // Z-Report document payload
+      const zReport = {
+        id: crypto.randomUUID(),
+        report_no: 'Z-' + Date.now().toString().slice(-6),
+        register_id: activeRegisterSession.id,
+        branch_id: selectedBranch,
+        opening_cash: activeRegisterSession.openingCash,
+        expected_cash: expected,
+        actual_cash: actual,
+        difference: actual - expected,
+        closed_at: new Date().toISOString()
+      };
+      
+      try {
+        // Save closed register session & create Z-report entry
+        await fetch('/api/db?coll=register_sessions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify([activeRegisterSession])
+        });
+        
+        await fetch('/api/db?coll=z_reports', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify([zReport])
+        });
+        
+        // Logs audit logs
+        try {
+          const authHeader = await getAuthHeader().catch(() => ({}));
+          fetch('/api/audit-log', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...authHeader },
+            body: JSON.stringify({
+              action: 'POS_Z_REPORT',
+              details: `POS Kasa kapatıldı. Z-Raporu: ${zReport.report_no}, Fark: ${zReport.difference} TL`
+            })
+          }).catch(() => {});
+        } catch(e) {}
+        
+        // Simulate Z-Report thermal printing
+        const win = window.open('', '_blank');
+        win.document.write(`
+          <html><head><title>Z Raporu</title><style>body{font-family:monospace;padding:30px;color:#000;}</style></head>
+          <body onload="window.print()">
+            <h2 style="text-align:center;">🍏 AYDIN GROS - Z RAPORU</h2>
+            <div style="text-align:center;">Mali Kasa Kapatış Belgesi</div>
+            <hr>
+            <p>Rapor No: ${zReport.report_no}</p>
+            <p>Tarih: ${new Date(zReport.closed_at).toLocaleString()}</p>
+            <p>Kasa Oturum ID: ${zReport.register_id}</p>
+            <hr>
+            <p>Açılış Tutar: ${zReport.opening_cash.toFixed(2)} TL</p>
+            <p>Beklenen Nakit: ${zReport.expected_cash.toFixed(2)} TL</p>
+            <p>Sayılan Nakit: ${zReport.actual_cash.toFixed(2)} TL</p>
+            <p>Kasa Farkı: ${zReport.difference.toFixed(2)} TL</p>
+            <hr>
+            <h3 style="text-align:center;">Z Oturumu Başarıyla Kapatıldı.</h3>
+          </body></html>
+        `);
+        win.document.close();
+      } catch(e) {
+        // Offline queue fallback
+        const offlineRegs = JSON.parse(localStorage.getItem(OFFLINE_REGISTERS_KEY) || '[]');
+        offlineRegs.push(activeRegisterSession);
+        localStorage.setItem(OFFLINE_REGISTERS_KEY, JSON.stringify(offlineRegs));
+      }
+      
+      // Clean active session
+      localStorage.removeItem('ag_active_register_' + selectedBranch);
+      activeRegisterSession = null;
+      
+      document.getElementById('registerCloseModal').classList.add('hidden');
+      document.getElementById('registerStatusBadge').innerText = 'Kapalı';
+      document.getElementById('registerStatusBadge').className = 'text-xs bg-red-500/20 text-red-400 px-2 py-0.5 rounded font-medium';
+      
+      checkAuthAndRegister();
+      sound.beep();
+    }
+
+    // X-Report (Kasa Ara Raporu)
+    async function showXReport() {
+      if (!activeRegisterSession) {
+        alert("Kasa oturumu açık değil!");
+        return;
+      }
+      
+      try {
+        const ordersRes = await fetch(`/api/db?coll=orders&branchId=${selectedBranch}`);
+        const ordersData = ordersRes.ok ? (await ordersRes.json() || []) : [];
+        
+        const txRes = await fetch(`/api/db?coll=register_transactions`);
+        const txData = txRes.ok ? (await txRes.json() || []) : [];
+        
+        const sessionOrders = ordersData.filter(o => o.registerId === activeRegisterSession.id);
+        const sessionTx = txData.filter(t => t.register_id === activeRegisterSession.id);
+        
+        const opening = activeRegisterSession.openingCash || 0;
+        
+        let cashSales = 0;
+        let cardSales = 0;
+        let mixedSales = 0;
+        let totalSales = 0;
+        
+        sessionOrders.forEach(o => {
+          totalSales += o.total || 0;
+          if (o.paymentMethod === 'cash') {
+            cashSales += o.total || 0;
+          } else if (o.paymentMethod === 'card') {
+            cardSales += o.total || 0;
+          } else {
+            if (o.paymentDetails) {
+              cashSales += o.paymentDetails.cash || 0;
+              cardSales += o.paymentDetails.card || 0;
+              mixedSales += (o.paymentDetails.gift || 0) + (o.paymentDetails.points || 0) + (o.paymentDetails.veresiye || 0);
+            } else {
+              cashSales += o.total || 0;
+            }
+          }
+        });
+        
+        let cashIn = 0;
+        let cashOut = 0;
+        sessionTx.forEach(t => {
+          if (t.type === 'in') cashIn += t.amount || 0;
+          else cashOut += t.amount || 0;
+        });
+        
+        const expected = opening + cashSales + cashIn - cashOut;
+        
+        const reportHtml = `
+          <div class="bg-slate-950 p-4 border border-slate-800 rounded-lg space-y-2">
+            <div class="flex justify-between"><span>Açılış Nakit:</span><span class="font-bold">${opening.toFixed(2)} TL</span></div>
+            <div class="flex justify-between"><span>Toplam Nakit Satış:</span><span class="font-bold text-emerald-400">+${cashSales.toFixed(2)} TL</span></div>
+            <div class="flex justify-between"><span>Toplam Kart Satış:</span><span class="font-bold text-sky-400">+${cardSales.toFixed(2)} TL</span></div>
+            <div class="flex justify-between"><span>Diğer Paylar (Mixed):</span><span class="font-bold text-slate-400">+${mixedSales.toFixed(2)} TL</span></div>
+            <div class="flex justify-between text-xs text-slate-400"><span>Kasaya Nakit Ekleme:</span><span>+${cashIn.toFixed(2)} TL</span></div>
+            <div class="flex justify-between text-xs text-slate-400"><span>Kasadan Para Çıkarma:</span><span>-${cashOut.toFixed(2)} TL</span></div>
+            <hr class="border-slate-800 my-2">
+            <div class="flex justify-between font-bold text-base text-slate-200">
+              <span>Kasadaki Beklenen Nakit:</span>
+              <span class="text-emerald-400">${expected.toFixed(2)} TL</span>
+            </div>
+          </div>
+          <p class="text-[10px] text-slate-500 text-center">X Raporu, kasa oturumunu kapatmadan ara rapor almanızı sağlar.</p>
+        `;
+        
+        document.getElementById('xReportContent').innerHTML = reportHtml;
+        document.getElementById('xReportModal').classList.remove('hidden');
+      } catch(e) {
+        alert("X Raporu oluşturulamadı: " + e.message);
+      }
+    }
+
+    function closeXReportModal() {
+      document.getElementById('xReportModal').classList.add('hidden');
+    }
+
+    function printXReport() {
+      const content = document.getElementById('xReportContent').innerHTML;
+      const win = window.open('', '_blank');
+      win.document.write(`
+        <html><head><title>X Raporu</title><style>body{font-family:monospace;padding:20px;color:#000;}</style></head>
+        <body onload="window.print()">
+          <h2>🍏 AYDIN GROS - X RAPORU</h2>
+          <hr>
+          ${content}
+          <hr>
+          <div style="text-align:center;margin-top:20px;">Yalnızca Bilgilendirme Amaçlıdır.</div>
+        </body></html>
+      `);
+      win.document.close();
+    }
+
+    // Completed Sales History & Reprint
+    let sessionOrdersList = [];
+    async function openSalesHistoryModal() {
+      if (!activeRegisterSession) {
+        alert("Kasa oturumu kapalı!");
+        return;
+      }
+      
+      const modal = document.getElementById('salesHistoryModal');
+      const list = document.getElementById('salesHistoryList');
+      modal.classList.remove('hidden');
+      
+      list.innerHTML = `<div class="text-center text-slate-500 py-6">⏳ Satış geçmişi yükleniyor...</div>`;
+      
+      try {
+        const res = await fetch(`/api/db?coll=orders&branchId=${selectedBranch}`);
+        const data = res.ok ? (await res.json() || []) : [];
+        sessionOrdersList = data.filter(o => o.registerId === activeRegisterSession.id).reverse();
+        
+        if (sessionOrdersList.length === 0) {
+          list.innerHTML = `<div class="text-center text-slate-500 py-6">Bugün henüz satış yapılmadı.</div>`;
+          return;
+        }
+        
+        list.innerHTML = sessionOrdersList.map((o, idx) => {
+          const dateStr = new Date(o.ts).toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' });
+          return `
+            <div class="p-3 bg-slate-800 rounded border border-slate-700 flex justify-between items-center text-sm">
+              <div>
+                <span class="font-bold text-slate-200 block">Fiş No: ${o.no}</span>
+                <span class="text-xs text-slate-400">Müşteri: ${esc(o.name)} | Saat: ${dateStr} | Toplam: ${o.total.toFixed(2)} TL</span>
+              </div>
+              <button onclick="reprintReceipt(${idx})" class="bg-sky-600 hover:bg-sky-500 text-slate-100 text-xs px-3 py-1.5 rounded font-bold transition">📄 Yeniden Yazdır</button>
+            </div>
+          `;
+        }).join('');
+      } catch(e) {
+        list.innerHTML = `<div class="text-center text-red-400 py-6">Hata: Geçmiş yüklenemedi.</div>`;
+      }
+    }
+
+    function closeSalesHistoryModal() {
+      document.getElementById('salesHistoryModal').classList.add('hidden');
+    }
+
+    function reprintReceipt(idx) {
+      const order = sessionOrdersList[idx];
+      if (order) {
+        printThermalReceipt(order, order.paymentMethod);
+        sound.beep();
+      }
+    }
+
+    // Role restrictions checking
+    async function checkPOSRolePermissions() {
+      try {
+        if (supabaseClient) {
+          const { data } = await supabaseClient.auth.getSession();
+          const session = data?.session;
+          if (session) {
+            const parts = session.access_token.split('.');
+            if (parts[1]) {
+              const claims = JSON.parse(atob(parts[1]));
+              const role = claims.user_metadata?.role || 'cashier';
+              if (role === 'cashier') {
+                document.querySelectorAll('a[href="/admin.html"]').forEach(btn => btn.style.display = 'none');
+              }
+            }
+          }
+        }
+      } catch(e) {}
+    }
+
+    window.addEventListener('DOMContentLoaded', checkPOSRolePermissions);
+
+    // Recently sold items dynamic UI helper
+    function renderRecentlySoldUI() {
+      const container = document.getElementById('recentlySoldItems');
+      if (!container) return;
+      if (recentlySoldList.length === 0) {
+        container.innerHTML = `<span class="text-slate-500 italic">Henüz ürün satılmadı</span>`;
+        return;
+      }
+      container.innerHTML = recentlySoldList.map(p => `
+        <button onclick="addToCart(${p.id})" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-0.5 rounded text-[11px] font-medium shrink-0 transition">
+          ${p.emoji || '📦'} ${esc(p.name)}
+        </button>
+      `).join('');
     }
   </script>
 </body>

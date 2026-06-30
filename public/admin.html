@@ -2319,9 +2319,9 @@ function renderDash(){
     </tr>`).join('')}</tbody></table></div>`:
     '<p style="color:var(--gray400);font-size:13px;text-align:center;padding:20px">Henüz sipariş yok</p>';
 
-  const salesMap={};
-  orders.forEach(o=>(o.items||[]).forEach(i=>{salesMap[i.name]=(salesMap[i.name]||0)+i.quantity;}));
-  const top=Object.entries(salesMap).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const salesMapBest={};
+  orders.forEach(o=>(o.items||[]).forEach(i=>{salesMapBest[i.name]=(salesMapBest[i.name]||0)+i.quantity;}));
+  const top=Object.entries(salesMapBest).sort((a,b)=>b[1]-a[1]).slice(0,5);
   document.getElementById('dashBestSellers').innerHTML=top.length?
     top.map(([name,qty],i)=>`<div class="bestseller-row"><div class="bs-rank">${i+1}</div><div style="flex:1;font-size:13px;font-weight:500">${esc(name)}</div><div style="font-size:12px;color:var(--gray500)">${qty} adet</div></div>`).join(''):
     '<p style="color:var(--gray400);font-size:13px;text-align:center;padding:20px">Sipariş verisi yok</p>';
