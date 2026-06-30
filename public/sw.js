@@ -1,6 +1,7 @@
 const CACHE = 'aydin-gros-v6';
 const OFFLINE_ASSETS = [
   '/pos-mobile.html',
+  '/mobile.html',
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js',
   'https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js',
 ];

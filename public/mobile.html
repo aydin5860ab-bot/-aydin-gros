@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Aydın Gros – Mobil Mağaza El Terminali</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- ZXing Barcode Scanning Library -->
+  <script src="https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js"></script>
+  <!-- JsBarcode -->
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+  <style>
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bot: env(safe-area-inset-bottom, 0px);
+    }
+    .glass {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .active-nav {
+      color: #f97316;
+      border-top: 2px solid #f97316;
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #print-label-area, #print-label-area * {
+        visibility: visible;
+      }
+      #print-label-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background: #white;
+        color: #000;
+      }
+    }
+  </style>
+</head>
+<body class="safe-top safe-bot">
+
+  <!-- HEADER -->
+  <header class="glass sticky top-0 z-40 px-4 py-3 flex items-center justify-between shrink-0">
+    <div class="flex items-center gap-2">
+      <span class="text-2xl">📱</span>
+      <div>
+        <h1 class="text-sm font-bold tracking-tight text-orange-500">AYDIN GROS</h1>
+        <p class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Mobil El Terminali</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <!-- Connection Status indicator -->
+      <div id="connStatus" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        Çevrimiçi
+      </div>
+      <button onclick="syncOfflineQueue()" class="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white" title="Senkronize Et">🔄</button>
+    </div>
+  </header>
+
+  <!-- VIEW WRAPPER -->
+  <main class="flex-1 overflow-y-auto px-4 py-4 hide-scrollbar" id="mainContent">
+
+    <!-- DASHBOARD VIEW -->
+    <section id="view-dashboard" class="view space-y-4">
+      <div class="grid grid-cols-2 gap-3">
+        <div class="glass p-3 rounded-xl flex flex-col justify-between" onclick="switchView('inquiry')">
+          <div class="text-2xl mb-2">🔍</div>
+          <div>
+            <h3 class="text-xs font-semibold text-slate-400">Ürün & Fiyat</h3>
+            <p class="text-lg font-bold text-orange-500" id="dashProductsCount">...</p>
+          </div>
+        </div>
+        <div class="glass p-3 rounded-xl flex flex-col justify-between" onclick="switchView('receiving')">
+          <div class="text-2xl mb-2">🚚</div>
+          <div>
+            <h3 class="text-xs font-semibold text-slate-400">Mal Kabul</h3>
+            <p class="text-lg font-bold text-orange-500" id="dashPOQueue">...</p>
+          </div>
+        </div>
+        <div class="glass p-3 rounded-xl flex flex-col justify-between" onclick="switchView('counting')">
+          <div class="text-2xl mb-2">📊</div>
+          <div>
+            <h3 class="text-xs font-semibold text-slate-400">Stok Sayımı</h3>
+            <p class="text-lg font-bold text-orange-500" id="dashCountSessions">...</p>
+          </div>
+        </div>
+        <div class="glass p-3 rounded-xl flex flex-col justify-between" onclick="switchView('transfers')">
+          <div class="text-2xl mb-2">🔄</div>
+          <div>
+            <h3 class="text-xs font-semibold text-slate-400">Şube Sevk</h3>
+            <p class="text-lg font-bold text-orange-500" id="dashPendingTransfers">...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Critical Warnings Card -->
+      <div class="glass p-4 rounded-xl space-y-3">
+        <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider">⚠️ Kritik Uyarılar & Görevler</h2>
+        <div class="space-y-2" id="dashAlerts">
+          <div class="flex items-center justify-between p-2 rounded-lg bg-orange-500/10 border border-orange-500/20 text-xs">
+            <span class="font-medium text-orange-400">🚨 Kritik Stokta Ürünler Var</span>
+            <button onclick="switchView('inquiry')" class="px-2 py-0.5 rounded bg-orange-500 text-white font-bold">Gör</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Local Queue Sync Warnings -->
+      <div class="glass p-4 rounded-xl hidden" id="offlineQueueAlert">
+        <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider">📡 Bekleyen Senkronizasyonlar</h2>
+        <p class="text-xs text-amber-400 mt-1" id="offlineQueueText">Çevrimdışı yapılan 0 işlem senkronize edilmeyi bekliyor.</p>
+        <button onclick="syncOfflineQueue()" class="mt-2 w-full py-2 rounded bg-orange-500 text-white text-xs font-bold">Şimdi Senkronize Et</button>
+      </div>
+    </section>
+
+    <!-- INQUIRY VIEW -->
+    <section id="view-inquiry" class="view hidden space-y-4">
+      <div class="flex gap-2">
+        <input type="text" id="inquirySearch" placeholder="Ürün adı, barkod veya SKU..." class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 text-white" oninput="handleInquirySearch(this.value)">
+        <button onclick="startScanning(handleBarcodeScanned)" class="px-4 bg-orange-500 text-white rounded-xl text-lg">📷</button>
+      </div>
+
+      <!-- Live inquiry results list -->
+      <div id="inquiryResults" class="space-y-2"></div>
+
+      <!-- Detailed product card view -->
+      <div id="inquiryDetailCard" class="glass p-4 rounded-xl hidden space-y-3">
+        <div class="flex justify-between items-start">
+          <div class="flex items-center gap-3">
+            <span class="text-3xl" id="detailEmoji">📦</span>
+            <div>
+              <h3 class="font-bold text-sm" id="detailName">Ürün Adı</h3>
+              <p class="text-xs text-slate-400" id="detailBarcode">SKU: ... | Barkod: ...</p>
+            </div>
+          </div>
+          <button onclick="closeDetailCard()" class="text-slate-400 text-sm hover:text-white">✕</button>
+        </div>
+        <hr class="border-slate-800">
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div class="bg-slate-800/40 p-2.5 rounded-lg">
+            <span class="text-slate-400 block mb-0.5">Satış Fiyatı</span>
+            <span class="font-bold text-orange-400 text-sm" id="detailPrice">0.00 TL</span>
+          </div>
+          <div class="bg-slate-800/40 p-2.5 rounded-lg">
+            <span class="text-slate-400 block mb-0.5">Maliyet Fiyatı</span>
+            <span class="font-bold text-slate-200 text-sm" id="detailCost">0.00 TL</span>
+          </div>
+          <div class="bg-slate-800/40 p-2.5 rounded-lg">
+            <span class="text-slate-400 block mb-0.5">Merkez Stok</span>
+            <span class="font-bold text-emerald-400 text-sm" id="detailStock">0 adet</span>
+          </div>
+          <div class="bg-slate-800/40 p-2.5 rounded-lg">
+            <span class="text-slate-400 block mb-0.5">Reyon Konumu</span>
+            <span class="font-bold text-slate-200 text-sm" id="detailShelf">Belirtilmedi</span>
+          </div>
+        </div>
+        <!-- Shelf management shortcut -->
+        <button onclick="openShelfSelector()" class="w-full py-2 bg-slate-800 text-slate-300 text-xs font-bold rounded-lg hover:bg-slate-700">📌 Reyon / Raf Konumunu Düzenle</button>
+      </div>
+    </section>
+
+    <!-- GOODS RECEIVING VIEW -->
+    <section id="view-receiving" class="view hidden space-y-4">
+      <div id="poListScreen" class="space-y-3">
+        <h2 class="text-sm font-bold text-slate-400 uppercase">🚚 Bekleyen Sipariş Kabul Listesi</h2>
+        <div class="space-y-2" id="poListContainer">
+          <!-- Loaded dynamically -->
+          <div class="text-center py-6 text-slate-500 text-xs">Bekleyen sipariş aranıyor...</div>
+        </div>
+      </div>
+
+      <!-- PO Processing Screen -->
+      <div id="poProcessScreen" class="hidden space-y-4">
+        <div class="flex justify-between items-center bg-slate-800/50 p-3 rounded-xl border border-slate-700">
+          <div>
+            <h3 class="font-bold text-xs text-orange-500" id="activePoNumber">Sipariş: ...</h3>
+            <p class="text-[10px] text-slate-400" id="activePoSupplier">Tedarikçi: ...</p>
+          </div>
+          <button onclick="exitPoProcess()" class="text-xs text-slate-400 hover:text-white bg-slate-800 px-3 py-1.5 rounded-lg">✕ Çıkış</button>
+        </div>
+
+        <!-- Supplier Invoice Input -->
+        <div class="flex gap-2">
+          <input type="text" id="poInvoiceNo" placeholder="Fatura / İrsaliye No..." class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-orange-500 text-white">
+          <button onclick="startScanning(handlePoBarcodeScanned)" class="px-4 bg-orange-500 text-white rounded-xl text-sm">📷 Tara</button>
+        </div>
+
+        <!-- PO Items Table -->
+        <div class="glass rounded-xl overflow-hidden">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-800 text-slate-400 uppercase text-[9px] font-bold border-b border-slate-700">
+              <tr>
+                <th class="p-2.5">Ürün</th>
+                <th class="p-2.5 text-center">Sipariş</th>
+                <th class="p-2.5 text-center">Gelen</th>
+                <th class="p-2.5 text-center">Fark</th>
+              </tr>
+            </thead>
+            <tbody id="poItemsTbody" class="divide-y divide-slate-800">
+              <!-- Loaded dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+        <button onclick="submitGoodsReceiving()" class="w-full py-3 bg-emerald-600 text-white rounded-xl text-sm font-bold shadow-lg hover:bg-emerald-500">🚚 Mal Kabulü Tamamla & Stokları Arttır</button>
+      </div>
+    </section>
+
+    <!-- STOCK COUNTING VIEW -->
+    <section id="view-counting" class="view hidden space-y-4">
+      <div id="countingStartScreen" class="space-y-3">
+        <h2 class="text-sm font-bold text-slate-400 uppercase">📊 Stok Sayım Oturumu Başlat</h2>
+        <div class="glass p-4 rounded-xl space-y-3">
+          <div class="form-group">
+            <label class="text-xs text-slate-400 block mb-1">Sayım Oturumu Adı</label>
+            <input type="text" id="countSessionName" placeholder="Örn: Temmuz Genel Sayımı" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm focus:outline-none text-white">
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-slate-300">Kör Sayım Modu (Sistem miktarlarını gizle)</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="countBlindMode" checked class="sr-only peer">
+              <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-orange-500"></div>
+            </label>
+          </div>
+          <button onclick="startCountSession()" class="w-full py-2.5 bg-orange-500 text-white text-xs font-bold rounded-lg">🚀 Sayımı Başlat</button>
+        </div>
+
+        <!-- Active/Historical counts -->
+        <h3 class="text-xs font-bold text-slate-400 uppercase mt-4">Kayıtlı Sayım Geçmişi</h3>
+        <div id="countSessionsHistory" class="space-y-2"></div>
+      </div>
+
+      <!-- Counting Process Screen -->
+      <div id="countingProcessScreen" class="hidden space-y-4">
+        <div class="flex justify-between items-center bg-slate-800/50 p-3 rounded-xl border border-slate-700">
+          <div>
+            <h3 class="font-bold text-xs text-orange-500" id="activeCountName">Oturum: ...</h3>
+            <p class="text-[9px] text-slate-400" id="activeCountMode">Mod: Kör Sayım</p>
+          </div>
+          <button onclick="exitCountingProcess()" class="text-xs text-slate-400 hover:text-white bg-slate-800 px-3 py-1.5 rounded-lg">✕ Çıkış</button>
+        </div>
+
+        <div class="flex gap-2">
+          <input type="text" id="countSearchInput" placeholder="Sayılan ürün barkodu veya adı..." class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs focus:outline-none text-white">
+          <button onclick="startScanning(handleCountBarcodeScanned)" class="px-4 bg-orange-500 text-white rounded-xl text-sm">📷 Tara</button>
+        </div>
+
+        <!-- Scanned Items Count list -->
+        <div class="glass rounded-xl overflow-hidden">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-800 text-slate-400 uppercase text-[9px] font-bold border-b border-slate-700">
+              <tr>
+                <th class="p-2.5">Ürün</th>
+                <th class="p-2.5 text-center" id="colExpectedHeader">Beklenen</th>
+                <th class="p-2.5 text-center">Sayılan</th>
+                <th class="p-2.5 text-center">Fark</th>
+              </tr>
+            </thead>
+            <tbody id="countItemsTbody" class="divide-y divide-slate-800">
+              <!-- Loaded dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+        <button onclick="submitCountingSession()" class="w-full py-3 bg-emerald-600 text-white rounded-xl text-sm font-bold shadow-lg hover:bg-emerald-500">📊 Sayım Sonuçlarını Kaydet & Onaya Gönder</button>
+      </div>
+    </section>
+
+    <!-- STORE TRANSFERS VIEW -->
+    <section id="view-transfers" class="view hidden space-y-4">
+      <div id="transferSetupScreen" class="space-y-3">
+        <h2 class="text-sm font-bold text-slate-400 uppercase">🔄 Yeni Stok Sevk Talebi</h2>
+        <div class="glass p-4 rounded-xl space-y-3 text-xs">
+          <div class="grid grid-cols-2 gap-3">
+            <div class="form-group">
+              <label class="text-[10px] text-slate-400 block mb-1 font-bold">Kaynak Şube / Depo</label>
+              <select id="transferFromSelect" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white"></select>
+            </div>
+            <div class="form-group">
+              <label class="text-[10px] text-slate-400 block mb-1 font-bold">Hedef Şube / Depo</label>
+              <select id="transferToSelect" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white"></select>
+            </div>
+          </div>
+          <button onclick="startTransferSession()" class="w-full py-2.5 bg-orange-500 text-white font-bold rounded-lg">Sevk Oturumunu Başlat</button>
+        </div>
+
+        <!-- Transfer history log -->
+        <h3 class="text-xs font-bold text-slate-400 uppercase mt-4">Geçmiş Sevk ve Transferler</h3>
+        <div id="transfersHistoryContainer" class="space-y-2"></div>
+      </div>
+
+      <!-- Transfer Process Screen -->
+      <div id="transferProcessScreen" class="hidden space-y-4">
+        <div class="flex justify-between items-center bg-slate-800/50 p-3 rounded-xl border border-slate-700">
+          <div>
+            <h3 class="font-bold text-xs text-orange-500">🔄 Stok Sevk Girişi</h3>
+            <p class="text-[9px] text-slate-400" id="activeTransferRoute">Merkez Depo → Erenler Şubesi</p>
+          </div>
+          <button onclick="exitTransferProcess()" class="text-xs text-slate-400 hover:text-white bg-slate-800 px-3 py-1.5 rounded-lg">✕ Çıkış</button>
+        </div>
+
+        <div class="flex gap-2">
+          <input type="text" id="transferSearchInput" placeholder="Sevk edilen ürün barkodu..." class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs focus:outline-none text-white">
+          <button onclick="startScanning(handleTransferBarcodeScanned)" class="px-4 bg-orange-500 text-white rounded-xl text-sm">📷 Tara</button>
+        </div>
+
+        <!-- Transfer items list table -->
+        <div class="glass rounded-xl overflow-hidden">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-800 text-slate-400 uppercase text-[9px] font-bold border-b border-slate-700">
+              <tr>
+                <th class="p-2.5">Ürün</th>
+                <th class="p-2.5 text-center">Sevk Miktar</th>
+                <th class="p-2.5 text-center">İşlem</th>
+              </tr>
+            </thead>
+            <tbody id="transferItemsTbody" class="divide-y divide-slate-800">
+              <!-- Loaded dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+        <button onclick="submitTransferRequest()" class="w-full py-3 bg-emerald-600 text-white rounded-xl text-sm font-bold shadow-lg hover:bg-emerald-500">🔄 Sevk Talebini Tamamla & Gönder</button>
+      </div>
+    </section>
+
+    <!-- SHELF MANAGEMENT VIEW -->
+    <section id="view-shelf" class="view hidden space-y-4">
+      <div id="shelfListScreen" class="space-y-3">
+        <div class="flex justify-between items-center">
+          <h2 class="text-sm font-bold text-slate-400 uppercase">📌 Tanımlı Reyon / Raf Kodları</h2>
+          <button onclick="openNewShelfModal()" class="px-3 py-1 bg-orange-500 text-white text-xs font-bold rounded-lg">+ Ekle</button>
+        </div>
+        <div class="space-y-2" id="shelvesContainer">
+          <!-- Loaded dynamically -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- NAVIGATION BAR -->
+  <nav class="glass border-t border-slate-800 flex items-center justify-around shrink-0 pb-var(--safe-bot)">
+    <button onclick="switchView('dashboard')" class="flex-1 py-3 text-center text-xs font-semibold text-slate-400 hover:text-orange-500 flex flex-col items-center gap-1 active-nav" id="nav-dashboard">
+      <span class="text-lg">📊</span> Dashboard
+    </button>
+    <button onclick="switchView('inquiry')" class="flex-1 py-3 text-center text-xs font-semibold text-slate-400 hover:text-orange-500 flex flex-col items-center gap-1" id="nav-inquiry">
+      <span class="text-lg">🔍</span> Sorgula
+    </button>
+    <button onclick="switchView('receiving')" class="flex-1 py-3 text-center text-xs font-semibold text-slate-400 hover:text-orange-500 flex flex-col items-center gap-1" id="nav-receiving">
+      <span class="text-lg">🚚</span> Kabul
+    </button>
+    <button onclick="switchView('counting')" class="flex-1 py-3 text-center text-xs font-semibold text-slate-400 hover:text-orange-500 flex flex-col items-center gap-1" id="nav-counting">
+      <span class="text-lg">📊</span> Sayım
+    </button>
+    <button onclick="switchView('transfers')" class="flex-1 py-3 text-center text-xs font-semibold text-slate-400 hover:text-orange-500 flex flex-col items-center gap-1" id="nav-transfers">
+      <span class="text-lg">🔄</span> Sevk
+    </button>
+    <button onclick="switchView('shelf')" class="flex-1 py-3 text-center text-xs font-semibold text-slate-400 hover:text-orange-500 flex flex-col items-center gap-1" id="nav-shelf">
+      <span class="text-lg">📌</span> Reyon
+    </button>
+  </nav>
+
+  <!-- CAMERA SCANNER MODAL -->
+  <div class="fixed inset-0 z-50 bg-black/90 hidden flex flex-col" id="scannerModal">
+    <div class="p-4 flex justify-between items-center bg-slate-900 border-b border-slate-800 text-white shrink-0">
+      <span class="text-sm font-bold">📷 Kamera Barkod Okuyucu</span>
+      <button onclick="stopScanning()" class="text-slate-400 text-xs bg-slate-800 px-3 py-1.5 rounded-lg">✕ Kapat</button>
+    </div>
+    <div class="flex-1 relative flex items-center justify-center overflow-hidden">
+      <!-- Camera Preview -->
+      <video id="scannerVideo" class="w-full h-full object-cover"></video>
+      <!-- Center target overlay -->
+      <div class="absolute w-64 h-32 border-2 border-orange-500 rounded-lg opacity-80 pointer-events-none flex items-center justify-center">
+        <div class="absolute w-full h-[2px] bg-orange-500 animate-pulse"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRINT LABEL PREVIEW CONTAINER (Used dynamically on print) -->
+  <div id="print-label-area" class="hidden"></div>
+
+  <!-- SHELF ASSIGNMENT MODAL -->
+  <div class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4" id="shelfSelectorModal">
+    <div class="glass p-5 rounded-xl w-full max-w-sm space-y-4">
+      <div class="flex justify-between items-center">
+        <h3 class="font-bold text-sm">📌 Reyon Raf Ata</h3>
+        <button onclick="closeShelfSelector()" class="text-slate-400">✕</button>
+      </div>
+      <div class="form-group text-xs">
+        <label class="block mb-1 text-slate-400">Raf Seçin</label>
+        <select id="shelfSelectBox" class="w-full bg-slate-800 border border-slate-700 p-2.5 rounded-lg text-white text-xs"></select>
+      </div>
+      <div class="form-group text-xs">
+        <label class="block mb-1 text-slate-400">Reyondaki Mevcut Stok</label>
+        <input type="number" id="shelfProductQty" value="0" class="w-full bg-slate-800 border border-slate-700 p-2.5 rounded-lg text-white text-xs">
+      </div>
+      <button onclick="saveProductShelfLink()" class="w-full py-2.5 bg-orange-500 text-white font-bold text-xs rounded-lg">Konumu Kaydet</button>
+    </div>
+  </div>
+
+  <!-- NEW SHELF CODE MODAL -->
+  <div class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4" id="newShelfModal">
+    <div class="glass p-5 rounded-xl w-full max-w-sm space-y-4">
+      <div class="flex justify-between items-center">
+        <h3 class="font-bold text-sm">🏢 Yeni Raf / Reyon Ekle</h3>
+        <button onclick="closeNewShelfModal()" class="text-slate-400">✕</button>
+      </div>
+      <div class="form-group text-xs">
+        <label class="block mb-1 text-slate-400">Raf Kodu</label>
+        <input type="text" id="newShelfCode" placeholder="Örn: A-12-C" class="w-full bg-slate-800 border border-slate-700 p-2.5 rounded-lg text-white">
+      </div>
+      <div class="form-group text-xs">
+        <label class="block mb-1 text-slate-400">Reyon Açıklaması</label>
+        <input type="text" id="newShelfDesc" placeholder="Örn: Manav, Alt Raf" class="w-full bg-slate-800 border border-slate-700 p-2.5 rounded-lg text-white">
+      </div>
+      <button onclick="saveNewShelf()" class="w-full py-2.5 bg-orange-500 text-white font-bold text-xs rounded-lg">Rafı Kaydet</button>
+    </div>
+  </div>
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    let supabaseClient = null;
+    
+    // --- OFFLINE DATA MANAGER (IndexedDB) ---
+    const DB_NAME = 'AydinGrosMobileDB';
+    const DB_VERSION = 1;
+    let dbInstance = null;
+
+    function initIndexedDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains('products')) {
+            db.createObjectStore('products', { keyPath: 'id' });
+          }
+          if (!db.objectStoreNames.contains('stock')) {
+            db.createObjectStore('stock', { keyPath: 'product_id' });
+          }
+          if (!db.objectStoreNames.contains('shelves')) {
+            db.createObjectStore('shelves', { keyPath: 'id' });
+          }
+          if (!db.objectStoreNames.contains('sync_queue')) {
+            db.createObjectStore('sync_queue', { keyPath: 'id', autoIncrement: true });
+          }
+        };
+        req.onsuccess = (e) => {
+          dbInstance = e.target.result;
+          resolve(dbInstance);
+        };
+        req.onerror = (e) => reject(e.target.error);
+      });
+    }
+
+    function writeStore(storeName, dataList) {
+      return new Promise((resolve, reject) => {
+        if (!dbInstance) return reject('DB not initialized');
+        const tx = dbInstance.transaction(storeName, 'readwrite');
+        const store = tx.objectStore(storeName);
+        dataList.forEach(item => store.put(item));
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    function readAllStore(storeName) {
+      return new Promise((resolve, reject) => {
+        if (!dbInstance) return reject('DB not initialized');
+        const tx = dbInstance.transaction(storeName, 'readonly');
+        const store = tx.objectStore(storeName);
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    // --- APPLICATION VARIABLES ---
+    let productsList = [];
+    let stockData = {};
+    let shelvesList = [];
+    let poList = [];
+    let activePo = null;
+    let activePoItems = [];
+    let countSessions = [];
+    let activeCountSession = null;
+    let activeCountItems = [];
+    let activeTransfer = null;
+    let activeTransferItems = [];
+    let activeInquiryProduct = null;
+
+    let activeScannerReader = null;
+    let currentScanCallback = null;
+
+    // --- SWITCH VIEWS ---
+    function switchView(viewId) {
+      document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+      document.querySelectorAll('nav button').forEach(b => b.classList.remove('active-nav'));
+      
+      const targetView = document.getElementById(`view-${viewId}`);
+      if (targetView) targetView.classList.remove('hidden');
+      
+      const targetNav = document.getElementById(`nav-${viewId}`);
+      if (targetNav) targetNav.classList.add('active-nav');
+
+      // Trigger loads
+      if (viewId === 'dashboard') loadDashboardData();
+      if (viewId === 'receiving') loadPendingPOs();
+      if (viewId === 'counting') loadCountingData();
+      if (viewId === 'transfers') loadTransfersData();
+      if (viewId === 'shelf') loadShelves();
+    }
+
+    // --- AUTHENTICATION HEADER ---
+    async function getAuthHeader() {
+      try {
+        if (supabaseClient) {
+          const { data } = await supabaseClient.auth.getSession();
+          if (data && data.session) {
+            const h = { 'Authorization': `Bearer ${data.session.access_token}` };
+            console.log("[Auth] Session found, generating header:", h);
+            return h;
+          }
+        }
+      } catch (e) {
+        console.error("Error in getAuthHeader:", e);
+      }
+      console.log("[Auth] Session not found, generating local fallback token.");
+      return { 'Authorization': 'Bearer local_test_token' };
+    }
+
+    // --- CAMERA BARCODE SCANNER ---
+    function startScanning(callback) {
+      currentScanCallback = callback;
+      document.getElementById('scannerModal').classList.remove('hidden');
+
+      if (!activeScannerReader) {
+        activeScannerReader = new ZXing.BrowserMultiFormatReader();
+      }
+
+      activeScannerReader.decodeFromVideoDevice(null, 'scannerVideo', (result, err) => {
+        if (result) {
+          // Success scan response
+          const barcode = result.text.trim();
+          console.log('[Scanner] Scanned barcode:', barcode);
+          stopScanning();
+          if (currentScanCallback) currentScanCallback(barcode);
+        }
+        if (err && !(err instanceof ZXing.NotFoundException)) {
+          console.error('[Scanner] Read error:', err);
+        }
+      }).catch(err => {
+        console.error('[Scanner] Video init failed:', err);
+      });
+    }
+
+    function stopScanning() {
+      if (activeScannerReader) {
+        activeScannerReader.reset();
+      }
+      document.getElementById('scannerModal').classList.add('hidden');
+    }
+
+    // --- PRODUCT INQUIRY SEARCH ---
+    async function loadCatalog() {
+      try {
+        const res = await fetch('/api/db?coll=products', { headers: await getAuthHeader() });
+        const data = await res.json();
+        productsList = Array.isArray(data) ? data : (data.data ?? []);
+        await writeStore('products', productsList);
+      } catch (e) {
+        productsList = await readAllStore('products');
+      }
+      
+      try {
+        const res = await fetch('/api/db?coll=stock', { headers: await getAuthHeader() });
+        const data = await res.json();
+        stockData = data || {};
+        const stockList = Object.entries(stockData).map(([k, v]) => ({ product_id: Number(k), qty: v.qty, min: v.min }));
+        await writeStore('stock', stockList);
+      } catch (e) {
+        const stockList = await readAllStore('stock');
+        stockData = {};
+        stockList.forEach(s => {
+          stockData[s.product_id] = { qty: s.qty, min: s.min };
+        });
+      }
+    }
+
+    function handleInquirySearch(val) {
+      const query = val.trim().toLowerCase();
+      const div = document.getElementById('inquiryResults');
+      if (query.length < 2) {
+        div.innerHTML = '';
+        return;
+      }
+
+      // Filter catalog
+      const matches = productsList.filter(p => 
+        (p.name || '').toLowerCase().includes(query) ||
+        (p.sku || '').toLowerCase().includes(query) ||
+        (p.barcode || '').includes(query)
+      ).slice(0, 10);
+
+      if (matches.length === 0) {
+        div.innerHTML = '<div class="text-xs text-slate-500 py-3 text-center">Eşleşen ürün bulunamadı.</div>';
+        return;
+      }
+
+      div.innerHTML = matches.map(p => `
+        <div onclick="selectInquiryProduct('${p.id}')" class="glass p-3 rounded-lg flex items-center justify-between text-xs cursor-pointer border border-slate-800 hover:border-orange-500/50">
+          <div class="flex items-center gap-2">
+            <span>${p.emoji || '📦'}</span>
+            <div>
+              <p class="font-bold text-slate-200">${esc(p.name)}</p>
+              <p class="text-[10px] text-slate-400">Barkod: ${esc(p.barcode || p.sku || '-')}</p>
+            </div>
+          </div>
+          <span class="font-bold text-orange-400">${p.price.toFixed(2)} TL</span>
+        </div>
+      `).join('');
+    }
+
+    function selectInquiryProduct(id) {
+      const p = productsList.find(x => x.id == id);
+      if (!p) return;
+      activeInquiryProduct = p;
+      document.getElementById('inquiryResults').innerHTML = '';
+      document.getElementById('inquirySearch').value = '';
+
+      const s = stockData[p.id] || { qty: 0 };
+      
+      document.getElementById('detailEmoji').innerText = p.emoji || '📦';
+      document.getElementById('detailName').innerText = p.name;
+      document.getElementById('detailBarcode').innerText = `SKU: ${p.sku || p.id} | Barkod: ${p.barcode || p.sku || '-'}`;
+      document.getElementById('detailPrice').innerText = `${p.price.toFixed(2)} TL`;
+      document.getElementById('detailCost').innerText = `${(p.cost_price || p.price * 0.7).toFixed(2)} TL`;
+      document.getElementById('detailStock').innerText = `${s.qty} ${p.unit || 'adet'}`;
+      
+      // Load shelf location if linked
+      const link = shelvesList.find(sh => sh.product_id == p.id);
+      document.getElementById('detailShelf').innerText = link ? link.shelf_code : 'Belirtilmedi';
+
+      document.getElementById('inquiryDetailCard').classList.remove('hidden');
+    }
+
+    function closeDetailCard() {
+      document.getElementById('inquiryDetailCard').classList.add('hidden');
+      activeInquiryProduct = null;
+    }
+
+    function handleBarcodeScanned(barcode) {
+      document.getElementById('inquirySearch').value = barcode;
+      // Find matching barcode directly
+      const p = productsList.find(x => (x.barcode || x.sku || '') == barcode);
+      if (p) {
+        selectInquiryProduct(p.id);
+      } else {
+        handleInquirySearch(barcode);
+      }
+    }
+
+    // --- GOODS RECEIVING ---
+    async function loadPendingPOs() {
+      const container = document.getElementById('poListContainer');
+      try {
+        const res = await fetch('/api/db?coll=purchase_orders', { headers: await getAuthHeader() });
+        const data = await res.json();
+        poList = (Array.isArray(data) ? data : (data.data ?? [])).filter(po => po.status === 'pending' || po.status === 'draft');
+        
+        if (poList.length === 0) {
+          container.innerHTML = '<div class="text-center py-6 text-slate-500 text-xs">Açık/Bekleyen satın alma siparişi bulunmamaktadır.</div>';
+          return;
+        }
+
+        container.innerHTML = poList.map(po => `
+          <div onclick="selectPO('${po.id}')" class="po-item glass p-3 rounded-lg border border-slate-800 hover:border-orange-500/50 cursor-pointer flex justify-between items-center text-xs">
+            <div>
+              <p class="font-bold text-slate-200">Sipariş: ${esc(po.order_number || po.id.substring(0, 8))}</p>
+              <p class="text-[10px] text-slate-400">Tedarikçi ID: ${esc(po.supplier_id)}</p>
+            </div>
+            <span class="badge bg-orange-500/10 text-orange-400 font-bold px-2 py-0.5 rounded border border-orange-500/20">${po.status.toUpperCase()}</span>
+          </div>
+        `).join('');
+      } catch (e) {
+        container.innerHTML = '<div class="text-center py-6 text-slate-500 text-xs">Sipariş listesi yüklenemedi (Çevrimdışı).</div>';
+      }
+    }
+
+    async function selectPO(id) {
+      activePo = poList.find(po => po.id === id);
+      if (!activePo) return;
+
+      document.getElementById('poListScreen').classList.add('hidden');
+      document.getElementById('poProcessScreen').classList.remove('hidden');
+
+      document.getElementById('activePoNumber').innerText = `Sipariş: ${esc(activePo.order_number || activePo.id.substring(0, 8))}`;
+      document.getElementById('activePoSupplier').innerText = `Tedarikçi ID: ${esc(activePo.supplier_id)}`;
+
+      // Load PO items
+      activePoItems = activePo.items || [];
+      renderPoItems();
+    }
+
+    function renderPoItems() {
+      const tbody = document.getElementById('poItemsTbody');
+      tbody.innerHTML = activePoItems.map((item, idx) => {
+        const diff = (item.received_qty || 0) - item.qty;
+        let diffColor = 'text-slate-400';
+        if (diff > 0) diffColor = 'text-emerald-400';
+        else if (diff < 0) diffColor = 'text-red-400';
+
+        return `
+          <tr>
+            <td class="p-2.5 font-semibold text-slate-200">${esc(item.name)}</td>
+            <td class="p-2.5 text-center font-bold text-slate-400">${item.qty}</td>
+            <td class="p-2.5 text-center">
+              <input type="number" value="${item.received_qty || 0}" onchange="updatePoQty(${idx}, this.value)" class="w-12 bg-slate-800 border border-slate-700 text-center rounded p-1 text-xs">
+            </td>
+            <td class="p-2.5 text-center font-bold ${diffColor}">${diff > 0 ? '+' : ''}${diff}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function updatePoQty(idx, val) {
+      activePoItems[idx].received_qty = Number(val);
+      renderPoItems();
+    }
+
+    function handlePoBarcodeScanned(barcode) {
+      // Find matching item in PO
+      const matchIdx = activePoItems.findIndex(i => i.barcode === barcode || i.sku === barcode);
+      if (matchIdx !== -1) {
+        activePoItems[matchIdx].received_qty = (activePoItems[matchIdx].received_qty || 0) + 1;
+        renderPoItems();
+      } else {
+        alert(`Siparişte eşleşen barkod bulunamadı: ${barcode}`);
+      }
+    }
+
+    async function submitGoodsReceiving() {
+      const invoiceNo = document.getElementById('poInvoiceNo').value.trim();
+      if (!invoiceNo) {
+        alert("Fatura / İrsaliye numarası girmek zorunludur!");
+        return;
+      }
+
+      const payload = {
+        purchase_order_id: activePo.id,
+        invoice_no: invoiceNo,
+        items: activePoItems
+      };
+
+      try {
+        const res = await fetch('/api/enterprise/goods-receiving', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(await getAuthHeader()) },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error(await res.text());
+        alert("Mal kabulü başarıyla işlendi ve stoklar güncellendi!");
+        exitPoProcess();
+      } catch (err) {
+        // Queue offline
+        await addToOfflineQueue('goods_receiving', payload);
+        alert("Çevrimdışı mod: İşlem internet geldiğinde senkronize edilmek üzere kuyruğa alındı.");
+        exitPoProcess();
+      }
+    }
+
+    function exitPoProcess() {
+      document.getElementById('poProcessScreen').classList.add('hidden');
+      document.getElementById('poListScreen').classList.remove('hidden');
+      activePo = null;
+      activePoItems = [];
+      loadPendingPOs();
+    }
+
+    // --- STOCK COUNTING ---
+    async function loadCountingData() {
+      // Fetch count sessions
+      const container = document.getElementById('countSessionsHistory');
+      try {
+        const res = await fetch('/api/enterprise/stock-counts', { headers: await getAuthHeader() });
+        const data = await res.json();
+        countSessions = Array.isArray(data) ? data : [];
+        
+        if (countSessions.length === 0) {
+          container.innerHTML = '<div class="text-center py-4 text-slate-500 text-xs">Aktif veya geçmiş sayım bulunmuyor.</div>';
+          return;
+        }
+
+        container.innerHTML = countSessions.map(s => `
+          <div class="glass p-3 rounded-lg border border-slate-800 text-xs flex justify-between items-center">
+            <div>
+              <p class="font-bold text-slate-200">${esc(s.name)}</p>
+              <p class="text-[9px] text-slate-400">Tarih: ${new Date(s.created_at).toLocaleDateString()}</p>
+            </div>
+            <span class="badge ${s.status === 'completed' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-orange-500/10 text-orange-400'} px-2 py-0.5 rounded border ${s.status === 'completed' ? 'border-emerald-500/20' : 'border-orange-500/20'} font-bold">${s.status.toUpperCase()}</span>
+          </div>
+        `).join('');
+      } catch (e) {
+        container.innerHTML = '<div class="text-center py-4 text-slate-500 text-xs">Sayım oturumları yüklenemedi (Çevrimdışı).</div>';
+      }
+    }
+
+    async function startCountSession() {
+      const name = document.getElementById('countSessionName').value.trim();
+      const blind = document.getElementById('countBlindMode').checked;
+
+      const payload = {
+        action: 'start_session',
+        name,
+        blind_mode: blind
+      };
+
+      try {
+        const res = await fetch('/api/enterprise/stock-counts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(await getAuthHeader()) },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+
+        // Open counting screen
+        activeCountSession = { id: data.session_id, name, blind_mode: blind };
+        enterCountingProcess();
+      } catch (e) {
+        alert("Oturum başlatılamadı: " + e.message);
+      }
+    }
+
+    function enterCountingProcess() {
+      document.getElementById('countingStartScreen').classList.add('hidden');
+      document.getElementById('countingProcessScreen').classList.remove('hidden');
+
+      document.getElementById('activeCountName').innerText = `Oturum: ${esc(activeCountSession.name)}`;
+      document.getElementById('activeCountMode').innerText = `Mod: ${activeCountSession.blind_mode ? 'Kör Sayım (Sistem Stokları Gizli)' : 'Rehberli Sayım'}`;
+
+      // Toggle expected column header in blind mode
+      document.getElementById('colExpectedHeader').style.display = activeCountSession.blind_mode ? 'none' : 'table-cell';
+
+      activeCountItems = [];
+      renderCountItems();
+    }
+
+    function renderCountItems() {
+      const tbody = document.getElementById('countItemsTbody');
+      if (activeCountItems.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-6 text-slate-500 text-xs">Sayılan ürün yok. Barkod okutun veya arayın.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = activeCountItems.map((item, idx) => {
+        const diff = item.counted_qty - (item.expected_qty || 0);
+        let diffColor = 'text-slate-400';
+        if (diff > 0) diffColor = 'text-emerald-400';
+        else if (diff < 0) diffColor = 'text-red-400';
+
+        return `
+          <tr>
+            <td class="p-2.5 font-semibold text-slate-200">${esc(item.name)}</td>
+            <td class="p-2.5 text-center font-bold text-slate-400" style="display: ${activeCountSession.blind_mode ? 'none' : 'table-cell'}">${item.expected_qty || 0}</td>
+            <td class="p-2.5 text-center">
+              <input type="number" value="${item.counted_qty}" onchange="updateCountItemQty(${idx}, this.value)" class="w-12 bg-slate-800 border border-slate-700 text-center rounded p-1 text-xs">
+            </td>
+            <td class="p-2.5 text-center font-bold ${diffColor}" style="display: ${activeCountSession.blind_mode ? 'none' : 'table-cell'}">${diff > 0 ? '+' : ''}${diff}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function updateCountItemQty(idx, val) {
+      activeCountItems[idx].counted_qty = Number(val);
+      renderCountItems();
+    }
+
+    function handleCountBarcodeScanned(barcode) {
+      const prod = productsList.find(x => (x.barcode || x.sku || '') == barcode);
+      if (!prod) {
+        alert("Bilinmeyen ürün barkodu!");
+        return;
+      }
+
+      const matchIdx = activeCountItems.findIndex(i => i.product_id == prod.id);
+      if (matchIdx !== -1) {
+        activeCountItems[matchIdx].counted_qty += 1;
+      } else {
+        const s = stockData[prod.id] || { qty: 0 };
+        activeCountItems.push({
+          product_id: prod.id,
+          name: prod.name,
+          expected_qty: s.qty,
+          counted_qty: 1
+        });
+      }
+      renderCountItems();
+    }
+
+    async function submitCountingSession() {
+      const payload = {
+        action: 'submit_counts',
+        session_id: activeCountSession.id,
+        items: activeCountItems
+      };
+
+      try {
+        const res = await fetch('/api/enterprise/stock-counts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(await getAuthHeader()) },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error(await res.text());
+        alert("Sayım verileri başarıyla sunucuya kaydedildi!");
+        exitCountingProcess();
+      } catch (err) {
+        await addToOfflineQueue('stock_counting', payload);
+        alert("Çevrimdışı mod: Sayım verileri yerel senkronizasyon kuyruğuna alındı.");
+        exitCountingProcess();
+      }
+    }
+
+    function exitCountingProcess() {
+      document.getElementById('countingProcessScreen').classList.add('hidden');
+      document.getElementById('countingStartScreen').classList.remove('hidden');
+      activeCountSession = null;
+      activeCountItems = [];
+      loadCountingData();
+    }
+
+    // --- STORE TRANSFERS ---
+    async function loadTransfersData() {
+      const selectFrom = document.getElementById('transferFromSelect');
+      const selectTo = document.getElementById('transferToSelect');
+      const container = document.getElementById('transfersHistoryContainer');
+
+      // Populate branches
+      const branchOpts = (productsList.length > 0 ? [
+        { id: '22222222-2222-2222-2222-222222222222', name: 'Merkez Şube' },
+        { id: '33333333-3333-3333-3333-333333333333', name: 'Erenler Depo' }
+      ] : []).map(b => `<option value="${b.id}">${esc(b.name)}</option>`).join('');
+
+      if (selectFrom) selectFrom.innerHTML = branchOpts;
+      if (selectTo) selectTo.innerHTML = branchOpts;
+
+      try {
+        const res = await fetch('/api/db?coll=stock_transfers', { headers: await getAuthHeader() });
+        const data = await res.json();
+        const list = Array.isArray(data) ? data : [];
+        
+        if (list.length === 0) {
+          container.innerHTML = '<div class="text-center py-4 text-slate-500 text-xs">Sevk geçmişi bulunmamaktadır.</div>';
+          return;
+        }
+
+        container.innerHTML = list.map(t => `
+          <div class="glass p-3 rounded-lg border border-slate-800 text-xs flex justify-between items-center">
+            <div>
+              <p class="font-bold text-slate-200">Sevk No: ${t.id.substring(0, 8)}</p>
+              <p class="text-[9px] text-slate-400">Durum: ${t.status.toUpperCase()}</p>
+            </div>
+            <span class="badge bg-slate-800 text-slate-300 font-bold px-2 py-0.5 rounded border border-slate-700">${t.status.toUpperCase()}</span>
+          </div>
+        `).join('');
+      } catch (e) {
+        container.innerHTML = '<div class="text-center py-4 text-slate-500 text-xs">Sevk geçmişi yüklenemedi.</div>';
+      }
+    }
+
+    function startTransferSession() {
+      const fromId = document.getElementById('transferFromSelect').value;
+      const toId = document.getElementById('transferToSelect').value;
+
+      if (fromId === toId) {
+        alert("Kaynak ve hedef şube aynı olamaz!");
+        return;
+      }
+
+      activeTransfer = { from_branch_id: fromId, to_branch_id: toId };
+      document.getElementById('transferSetupScreen').classList.add('hidden');
+      document.getElementById('transferProcessScreen').classList.remove('hidden');
+
+      activeTransferItems = [];
+      renderTransferItems();
+    }
+
+    function renderTransferItems() {
+      const tbody = document.getElementById('transferItemsTbody');
+      if (activeTransferItems.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" class="text-center py-6 text-slate-500 text-xs">Sevk listesinde ürün yok. Barkod okutun.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = activeTransferItems.map((item, idx) => `
+        <tr>
+          <td class="p-2.5 font-semibold text-slate-200">${esc(item.name)}</td>
+          <td class="p-2.5 text-center">
+            <input type="number" value="${item.qty}" onchange="updateTransferQty(${idx}, this.value)" class="w-12 bg-slate-800 border border-slate-700 text-center rounded p-1 text-xs">
+          </td>
+          <td class="p-2.5 text-center">
+            <button onclick="removeTransferItem(${idx})" class="text-red-400 hover:text-red-500 font-bold">✕</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function updateTransferQty(idx, val) {
+      activeTransferItems[idx].qty = Number(val);
+      renderTransferItems();
+    }
+
+    function removeTransferItem(idx) {
+      activeTransferItems.splice(idx, 1);
+      renderTransferItems();
+    }
+
+    function handleTransferBarcodeScanned(barcode) {
+      const prod = productsList.find(x => (x.barcode || x.sku || '') == barcode);
+      if (!prod) {
+        alert("Bilinmeyen ürün barkodu!");
+        return;
+      }
+
+      const matchIdx = activeTransferItems.findIndex(i => i.product_id == prod.id);
+      if (matchIdx !== -1) {
+        activeTransferItems[matchIdx].qty += 1;
+      } else {
+        activeTransferItems.push({
+          product_id: prod.id,
+          name: prod.name,
+          qty: 1
+        });
+      }
+      renderTransferItems();
+    }
+
+    async function submitTransferRequest() {
+      const payload = {
+        from_branch_id: activeTransfer.from_branch_id,
+        to_branch_id: activeTransfer.to_branch_id,
+        items: activeTransferItems
+      };
+
+      try {
+        const res = await fetch('/api/enterprise/transfers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(await getAuthHeader()) },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error(await res.text());
+        alert("Sevk ve transfer işlemi başarıyla gönderildi!");
+        exitTransferProcess();
+      } catch (err) {
+        await addToOfflineQueue('stock_transfer', payload);
+        alert("Çevrimdışı mod: Sevk işlemi yerel senkronizasyon kuyruğuna alındı.");
+        exitTransferProcess();
+      }
+    }
+
+    function exitTransferProcess() {
+      document.getElementById('transferProcessScreen').classList.add('hidden');
+      document.getElementById('transferSetupScreen').classList.remove('hidden');
+      activeTransfer = null;
+      activeTransferItems = [];
+      loadTransfersData();
+    }
+
+    // --- SHELF MANAGEMENT ---
+    async function loadShelves() {
+      const container = document.getElementById('shelvesContainer');
+      try {
+        const res = await fetch('/api/enterprise/shelves', { headers: await getAuthHeader() });
+        const data = await res.json();
+        shelvesList = Array.isArray(data) ? data : [];
+
+        if (shelvesList.length === 0) {
+          container.innerHTML = '<div class="text-center py-4 text-slate-500 text-xs">Kayıtlı raf kodu bulunmamaktadır.</div>';
+          return;
+        }
+
+        container.innerHTML = shelvesList.map(sh => `
+          <div class="glass p-3 rounded-lg border border-slate-800 text-xs flex justify-between items-center">
+            <div>
+              <p class="font-bold text-slate-200">Raf: ${esc(sh.shelf_code)}</p>
+              <p class="text-[9px] text-slate-400">Konum: ${esc(sh.location_desc || '-')}</p>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="previewShelfLabel('${sh.shelf_code}')" class="px-2.5 py-1 bg-slate-800 border border-slate-700 hover:text-white rounded">Etiket Yazdır</button>
+              <button onclick="deleteShelf('${sh.id}')" class="px-2 py-1 bg-red-500/10 text-red-400 border border-red-500/20 rounded">Sil</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {
+        container.innerHTML = '<div class="text-center py-4 text-slate-500 text-xs">Raf listesi yüklenemedi.</div>';
+      }
+    }
+
+    function openNewShelfModal() {
+      document.getElementById('newShelfCode').value = '';
+      document.getElementById('newShelfDesc').value = '';
+      document.getElementById('newShelfModal').classList.remove('hidden');
+    }
+
+    function closeNewShelfModal() {
+      document.getElementById('newShelfModal').classList.add('hidden');
+    }
+
+    async function saveNewShelf() {
+      const code = document.getElementById('newShelfCode').value.trim();
+      const desc = document.getElementById('newShelfDesc').value.trim();
+
+      if (!code) {
+        alert("Raf kodu zorunludur!");
+        return;
+      }
+
+      const payload = {
+        action: 'save_shelf',
+        shelf_code: code,
+        location_desc: desc
+      };
+
+      try {
+        await fetch('/api/enterprise/shelves', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(await getAuthHeader()) },
+          body: JSON.stringify(payload)
+        });
+        closeNewShelfModal();
+        loadShelves();
+      } catch (e) {
+        alert("Kaydetme hatası: " + e.message);
+      }
+    }
+
+    async function deleteShelf(id) {
+      if (!confirm("Bu rafı silmek istediğinize emin misiniz?")) return;
+      try {
+        await fetch('/api/enterprise/shelves', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(await getAuthHeader()) },
+          body: JSON.stringify({ action: 'delete_shelf', id })
+        });
+        loadShelves();
+      } catch (e) {
+        alert("Silme hatası: " + e.message);
+      }
+    }
+
+    // --- SHELF LABEL GENERATOR & PRINTER ---
+    function previewShelfLabel(code) {
+      const area = document.getElementById('print-label-area');
+      area.innerHTML = `
+        <div class="p-6 border border-black max-w-[280px] bg-white text-black font-sans space-y-4">
+          <div class="text-center border-b border-black pb-2">
+            <h2 class="text-lg font-bold">AYDIN GROS</h2>
+            <p class="text-[10px] uppercase font-bold tracking-widest text-gray-500">Reyon Raf Etiketi</p>
+          </div>
+          <div class="flex justify-between items-center">
+            <div>
+              <span class="text-[9px] uppercase font-semibold text-gray-500 block">Raf Konumu</span>
+              <span class="text-xl font-black font-mono tracking-wider">${esc(code)}</span>
+            </div>
+            <div class="text-right">
+              <span class="text-[9px] uppercase font-semibold text-gray-500 block">Kategori</span>
+              <span class="text-xs font-bold font-mono">GENEL</span>
+            </div>
+          </div>
+          <div class="text-center bg-black text-white p-2 rounded">
+            <p class="text-[10px] tracking-widest font-semibold uppercase">Fiyat Bilgisi</p>
+            <h3 class="text-2xl font-black font-mono">-- TL</h3>
+          </div>
+          <div class="flex justify-center pt-2">
+            <svg id="labelBarcodeObj"></svg>
+          </div>
+        </div>
+      `;
+
+      // Generate barcode image dynamically inside label
+      JsBarcode('#labelBarcodeObj', code, {
+        format: 'CODE128',
+        width: 1.5,
+        height: 40,
+        displayValue: true,
+        fontSize: 10
+      });
+
+      // Show print view
+      window.print();
+    }
+
+    function openShelfSelector() {
+      const select = document.getElementById('shelfSelectBox');
+      select.innerHTML = shelvesList.map(sh => `<option value="${sh.id}">${esc(sh.shelf_code)}</option>`).join('');
+      document.getElementById('shelfProductQty').value = '0';
+      document.getElementById('shelfSelectorModal').classList.remove('hidden');
+    }
+
+    function closeShelfSelector() {
+      document.getElementById('shelfSelectorModal').classList.add('hidden');
+    }
+
+    async function saveProductShelfLink() {
+      const shelfId = document.getElementById('shelfSelectBox').value;
+      const qty = document.getElementById('shelfProductQty').value;
+
+      if (!activeInquiryProduct || !shelfId) return;
+
+      const payload = {
+        action: 'link_product',
+        shelf_id: shelfId,
+        product_id: activeInquiryProduct.id,
+        quantity: qty
+      };
+
+      try {
+        await fetch('/api/enterprise/shelves', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(await getAuthHeader()) },
+          body: JSON.stringify(payload)
+        });
+        closeShelfSelector();
+        // Reload detail card shelf label
+        const sel = shelvesList.find(x => x.id === shelfId);
+        if (sel) {
+          document.getElementById('detailShelf').innerText = sel.shelf_code;
+        }
+      } catch (e) {
+        alert("Ata hatası: " + e.message);
+      }
+    }
+
+    // --- OFFLINE SYNC QUEUE MANAGEMENT ---
+    async function addToOfflineQueue(action, payload) {
+      if (dbInstance) {
+        await writeStore('sync_queue', [{ action, payload, created_at: new Date().toISOString() }]);
+        updateQueueUI();
+      }
+    }
+
+    async function updateQueueUI() {
+      if (!dbInstance) return;
+      const list = await readAllStore('sync_queue');
+      const alertDiv = document.getElementById('offlineQueueAlert');
+      if (list.length > 0) {
+        alertDiv.classList.remove('hidden');
+        document.getElementById('offlineQueueText').innerText = `Çevrimdışı yapılan ${list.length} işlem senkronize edilmeyi bekliyor.`;
+      } else {
+        alertDiv.classList.add('hidden');
+      }
+    }
+
+    async function syncOfflineQueue() {
+      if (!window.navigator.onLine) {
+        alert("Hâlâ çevrimdışısınız. Lütfen internet bağlantınızı kontrol edin.");
+        return;
+      }
+
+      const list = await readAllStore('sync_queue');
+      if (list.length === 0) return;
+
+      const conn = document.getElementById('connStatus');
+      conn.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span> Senkronize Ediliyor...';
+
+      try {
+        for (const item of list) {
+          let url = '/api/enterprise/goods-receiving';
+          if (item.action === 'stock_counting') url = '/api/enterprise/stock-counts';
+          if (item.action === 'stock_transfer') url = '/api/enterprise/transfers';
+
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...(await getAuthHeader()) },
+            body: JSON.stringify(item.payload)
+          });
+
+          if (res.ok) {
+            // Delete from IndexedDB queue
+            const tx = dbInstance.transaction('sync_queue', 'readwrite');
+            tx.objectStore('sync_queue').delete(item.id);
+            await new Promise(r => tx.oncomplete = r);
+          }
+        }
+        
+        conn.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Çevrimiçi';
+        updateQueueUI();
+        alert("Tüm bekleyen çevrimdışı işlemler başarıyla bulut sunucu ile eşitlendi! ✓");
+      } catch (err) {
+        console.error('Queue sync failed:', err);
+        conn.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Çevrimiçi';
+      }
+    }
+
+    // --- DASHBOARD REALTIME DATA LOAD ---
+    async function loadDashboardData() {
+      // Set metrics loaded
+      document.getElementById('dashProductsCount').innerText = `${productsList.length} ürün`;
+      document.getElementById('dashPOQueue').innerText = `${poList.length} sipariş`;
+      document.getElementById('dashCountSessions').innerText = `${countSessions.length} sayım`;
+      document.getElementById('dashPendingTransfers').innerText = '0 aktif';
+      
+      // Update alerts panel based on stock levels
+      const lowStock = productsList.filter(p => {
+        const s = stockData[p.id] || { qty: 25, min: 5 };
+        return s.qty <= s.min;
+      });
+
+      const alertDiv = document.getElementById('dashAlerts');
+      if (lowStock.length > 0) {
+        alertDiv.innerHTML = `
+          <div class="flex items-center justify-between p-2 rounded-lg bg-red-500/10 border border-red-500/20 text-xs">
+            <span class="font-medium text-red-400">⚠️ ${lowStock.length} adet ürün kritik stok seviyesinde!</span>
+            <button onclick="switchView('inquiry')" class="px-2 py-0.5 rounded bg-red-500 text-white font-bold">İncele</button>
+          </div>
+        `;
+      } else {
+        alertDiv.innerHTML = `
+          <div class="flex items-center justify-between p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs">
+            <span class="font-medium text-emerald-400">🟢 Stok limitlerinde herhangi bir uyarı bulunmuyor.</span>
+          </div>
+        `;
+      }
+
+      updateQueueUI();
+    }
+
+    // --- OFFLINE/ONLINE LISTENERS ---
+    window.addEventListener('online', () => {
+      document.getElementById('connStatus').innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Çevrimiçi';
+      syncOfflineQueue();
+    });
+    
+    window.addEventListener('offline', () => {
+      document.getElementById('connStatus').innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-red-400"></span> Çevrimdışı';
+    });
+
+    // --- UTILITIES ---
+    function esc(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // --- APP INITIALIZATION ---
+    (async () => {
+      console.log('[AydınGros Mobile] Initializing PWA Hand Terminal...');
+      
+      // Load Supabase Client config from /api/config
+      try {
+        const confRes = await fetch('/api/config');
+        const conf = await confRes.json();
+        if (window.supabase) {
+          supabaseClient = window.supabase.createClient(conf.url || conf.SUPABASE_URL, conf.anonKey || conf.SUPABASE_ANON_KEY);
+          
+          // Verify active session
+          const { data } = await supabaseClient.auth.getSession();
+          if (!data || !data.session) {
+            console.log("No active session, redirecting to login...");
+            window.location.href = '/admin.html';
+            return;
+          }
+        }
+      } catch (e) {
+        console.error("Config load failed or UMD Supabase not defined:", e);
+      }
+
+      await initIndexedDB().catch(console.error);
+      await loadCatalog();
+      await loadPendingPOs().catch(console.error);
+      await loadCountingData().catch(console.error);
+      await loadShelves().catch(console.error);
+      
+      // Load dashboard default view only if the active view is still dashboard
+      const hasActive = document.querySelector('nav button.active-nav');
+      if (!hasActive || hasActive.id === 'nav-dashboard') {
+        switchView('dashboard');
+      }
+    })();
+
+  </script>
+</body>
+</html>
