@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aydın Gros — İlk Açılış Sihirbazı</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      color: #f1f5f9;
+    }
+    .glass {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .step-active {
+      border-color: #10b981;
+      color: #10b981;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+  <div class="w-full max-w-2xl glass rounded-2xl shadow-2xl p-8 space-y-8 relative overflow-hidden">
+    <!-- Header -->
+    <div class="text-center space-y-2">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 text-3xl mb-2">
+        🍏
+      </div>
+      <h1 class="text-3xl font-extrabold tracking-tight text-white">Aydın Gros Kurulum Sihirbazı</h1>
+      <p class="text-sm text-slate-400">Marketinizi 1 dakikada satışa hazır hale getirin</p>
+    </div>
+
+    <!-- Stepper Progress -->
+    <div class="flex items-center justify-between border-b border-slate-800 pb-6">
+      <div class="flex items-center space-x-2 text-sm font-semibold step-node" id="step-1-indicator">
+        <span class="w-7 h-7 rounded-full flex items-center justify-center border-2 border-emerald-500 text-emerald-500">1</span>
+        <span>Market Profil</span>
+      </div>
+      <div class="w-12 h-0.5 bg-slate-800" id="line-1"></div>
+      <div class="flex items-center space-x-2 text-sm font-semibold text-slate-500 step-node" id="step-2-indicator">
+        <span class="w-7 h-7 rounded-full flex items-center justify-center border-2 border-slate-700">2</span>
+        <span>Şube & Kasa</span>
+      </div>
+      <div class="w-12 h-0.5 bg-slate-800" id="line-2"></div>
+      <div class="flex items-center space-x-2 text-sm font-semibold text-slate-500 step-node" id="step-3-indicator">
+        <span class="w-7 h-7 rounded-full flex items-center justify-center border-2 border-slate-700">3</span>
+        <span>Kasiyer Kayıt</span>
+      </div>
+    </div>
+
+    <!-- Error/Warning Alerts -->
+    <div id="errorAlert" class="hidden bg-red-500/10 border border-red-500/30 text-red-400 p-4 rounded-lg text-sm"></div>
+    <div id="infoAlert" class="hidden bg-blue-500/10 border border-blue-500/30 text-blue-400 p-4 rounded-lg text-sm"></div>
+
+    <!-- Form Steps -->
+    <form id="setupForm" onsubmit="handleFormSubmit(event)" class="space-y-6">
+      
+      <!-- STEP 1: Market Profile -->
+      <div id="step-1-content" class="space-y-4">
+        <h3 class="text-lg font-bold text-white">Adım 1: Market Profili Bilgileri</h3>
+        
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Market Adı</label>
+          <input type="text" id="marketName" required placeholder="Aydın Gros Mega Market" 
+                 class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Telefon</label>
+            <input type="text" id="marketPhone" placeholder="0212XXXXXXX" 
+                   class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Vergi No / TCKN</label>
+            <input type="text" id="marketTax" placeholder="9876543210" 
+                   class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Adres</label>
+          <textarea id="marketAddress" rows="2" placeholder="Merkez Mah. Atatürk Cad. No:5 İSTANBUL" 
+                    class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+        </div>
+      </div>
+
+      <!-- STEP 2: Branch & Registers -->
+      <div id="step-2-content" class="space-y-4 hidden">
+        <h3 class="text-lg font-bold text-white">Adım 2: İlk Şube ve Kasa Ayarları</h3>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">İlk Şube Adı</label>
+          <input type="text" id="branchName" required placeholder="Merkez Şube" 
+                 class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">İlk Kasa Tanımı</label>
+            <input type="text" id="registerName" required placeholder="Kasa 1" 
+                   class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Kasa Başlangıç Nakiti (₺)</label>
+            <input type="number" id="openingCash" required value="500" 
+                   class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-3 p-4 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+          <input type="checkbox" id="seedProducts" checked class="w-4 h-4 text-emerald-600 border-slate-700 bg-slate-900 rounded focus:ring-emerald-500">
+          <div>
+            <label class="text-sm font-semibold text-slate-200" for="seedProducts">Hazır Ürün Kataloğunu Yükle</label>
+            <p class="text-xs text-slate-400">Temel market ürünleri, barkodları ve stokları ile otomatik olarak kurulur.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3: Cashier Setup -->
+      <div id="step-3-content" class="space-y-4 hidden">
+        <h3 class="text-lg font-bold text-white">Adım 3: Yönetici / Kasiyer Hesabı</h3>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Tam İsim</label>
+          <input type="text" id="cashierName" required placeholder="Ahmet Aydın" 
+                 class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">E-posta Adresi (Giriş için)</label>
+          <input type="email" id="cashierEmail" required placeholder="ahmet@aydingros.com" 
+                 class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Parola</label>
+          <input type="password" id="cashierPassword" required placeholder="••••••••" 
+                 class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
+      </div>
+
+      <!-- Footer Buttons -->
+      <div class="flex items-center justify-between border-t border-slate-800 pt-6">
+        <button type="button" id="prevBtn" onclick="navigateStep(-1)" class="hidden bg-slate-800 hover:bg-slate-700 text-slate-300 px-6 py-2.5 rounded-lg transition font-medium">
+          Geri
+        </button>
+        <div class="flex-1"></div>
+        <button type="button" id="nextBtn" onclick="navigateStep(1)" class="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-2.5 rounded-lg transition font-medium">
+          İleri
+        </button>
+        <button type="submit" id="submitBtn" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-2.5 rounded-lg transition font-medium">
+          Kurulumu Tamamla
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+  <script>
+    let currentStep = 1;
+    let config = null;
+    let supabaseClient = null;
+
+    async function initSupabase() {
+      try {
+        const res = await fetch('/api/config');
+        config = await res.json();
+        supabaseClient = window.supabase.createClient(config.url, config.anonKey);
+      } catch (e) {
+        showError("Supabase yapılandırma dosyası yüklenemedi: " + e.message);
+      }
+    }
+    initSupabase();
+
+    function navigateStep(direction) {
+      // Validate active step inputs
+      if (direction === 1) {
+        if (!validateActiveStep()) return;
+      }
+
+      currentStep += direction;
+      updateStepUI();
+    }
+
+    function validateActiveStep() {
+      const activeDiv = document.getElementById(`step-${currentStep}-content`);
+      const inputs = activeDiv.querySelectorAll('input[required], textarea[required]');
+      for (const input of inputs) {
+        if (!input.value.trim()) {
+          showError("Lütfen tüm zorunlu alanları doldurun!");
+          input.focus();
+          return false;
+        }
+      }
+      hideError();
+      return true;
+    }
+
+    function updateStepUI() {
+      // Hide all steps
+      for (let s = 1; s <= 3; s++) {
+        document.getElementById(`step-${s}-content`).classList.add('hidden');
+        const indicator = document.getElementById(`step-${s}-indicator`);
+        indicator.classList.remove('step-active');
+        indicator.querySelector('span').classList.remove('border-emerald-500', 'text-emerald-500');
+        indicator.querySelector('span').classList.add('border-slate-700', 'text-slate-500');
+      }
+
+      // Show active step
+      document.getElementById(`step-${currentStep}-content`).classList.remove('hidden');
+      const activeIndicator = document.getElementById(`step-${currentStep}-indicator`);
+      activeIndicator.classList.add('step-active');
+      activeIndicator.querySelector('span').classList.remove('border-slate-700', 'text-slate-500');
+      activeIndicator.querySelector('span').classList.add('border-emerald-500', 'text-emerald-500');
+
+      // Update lines
+      if (currentStep > 1) {
+        document.getElementById('line-1').classList.remove('bg-slate-800');
+        document.getElementById('line-1').classList.add('bg-emerald-500');
+      } else {
+        document.getElementById('line-1').classList.remove('bg-emerald-500');
+        document.getElementById('line-1').classList.add('bg-slate-800');
+      }
+      if (currentStep > 2) {
+        document.getElementById('line-2').classList.remove('bg-slate-800');
+        document.getElementById('line-2').classList.add('bg-emerald-500');
+      } else {
+        document.getElementById('line-2').classList.remove('bg-emerald-500');
+        document.getElementById('line-2').classList.add('bg-slate-800');
+      }
+
+      // Show/Hide buttons
+      document.getElementById('prevBtn').classList.toggle('hidden', currentStep === 1);
+      document.getElementById('nextBtn').classList.toggle('hidden', currentStep === 3);
+      document.getElementById('submitBtn').classList.toggle('hidden', currentStep !== 3);
+    }
+
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+      if (!validateActiveStep()) return;
+
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Kurulum Yapılıyor...";
+
+      try {
+        const tenantName = document.getElementById('marketName').value;
+        const tenantPhone = document.getElementById('marketPhone').value;
+        const tenantTax = document.getElementById('marketTax').value;
+        const tenantAddress = document.getElementById('marketAddress').value;
+
+        const branchName = document.getElementById('branchName').value;
+        const registerName = document.getElementById('registerName').value;
+        const openingCash = Number(document.getElementById('openingCash').value);
+        const shouldSeed = document.getElementById('seedProducts').checked;
+
+        const cashierName = document.getElementById('cashierName').value;
+        const cashierEmail = document.getElementById('cashierEmail').value;
+        const cashierPassword = document.getElementById('cashierPassword').value;
+
+        // 1. Sign up admin user via supabase auth
+        showInfo("Kasiyer kullanıcı hesabı oluşturuluyor...");
+        const { data: authData, error: authError } = await supabaseClient.auth.signUp({
+          email: cashierEmail,
+          password: cashierPassword,
+          options: {
+            data: {
+              name: cashierName,
+              role: 'admin'
+            }
+          }
+        });
+        if (authError) throw new Error("Auth hatası: " + authError.message);
+
+        const userId = authData.user.id;
+        const tenantId = crypto.randomUUID();
+
+        // Generate a clean unique slug
+        const tenantSlug = tenantName
+          .toString()
+          .toLowerCase()
+          .trim()
+          .replace(/[çÇ]/g, 'c')
+          .replace(/[ğĞ]/g, 'g')
+          .replace(/[ıİ]/g, 'i')
+          .replace(/[öÖ]/g, 'o')
+          .replace(/[şŞ]/g, 's')
+          .replace(/[üÜ]/g, 'u')
+          .replace(/[^a-z0-9\-]/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-+|-+$/g, '') || 'market';
+
+        // 2. Insert tenant profile
+        showInfo("Market profili kaydediliyor...");
+        const { error: tErr } = await supabaseClient.from('tenants').insert({
+          id: tenantId,
+          name: tenantName,
+          slug: tenantSlug + '-' + Math.floor(Math.random() * 10000),
+          plan_id: '00000000-0000-0000-0000-000000000001',
+          status: 'active',
+          settings: {
+            phone: tenantPhone,
+            address: tenantAddress,
+            tax_no: tenantTax
+          }
+        });
+        if (tErr) throw new Error("Tenant hatası: " + tErr.message);
+
+        // Update user metadata with tenant id
+        // In real setup this is done via trigger or metadata endpoint
+
+        // 3. Insert Branch
+        showInfo("Şube oluşturuluyor...");
+        const branchId = crypto.randomUUID();
+        const { error: bErr } = await supabaseClient.from('branches').insert({
+          id: branchId,
+          tenant_id: tenantId,
+          name: branchName,
+          address: tenantAddress,
+          is_active: true
+        });
+        if (bErr) throw new Error("Branch hatası: " + bErr.message);
+
+        // 4. Insert Register
+        showInfo("POS kasası oluşturuluyor...");
+        const registerId = crypto.randomUUID();
+        const { error: rErr } = await supabaseClient.from('registers').insert({
+          id: registerId,
+          tenant_id: tenantId,
+          branch_id: branchId,
+          name: registerName,
+          type: 'pos',
+          is_active: true
+        });
+        if (rErr) throw new Error("Register hatası: " + rErr.message);
+
+        // 5. Seed initial products if selected
+        if (shouldSeed) {
+          showInfo("Temel ürün kataloğu yükleniyor...");
+          // We call database seed API
+          const seedRes = await fetch('/api/db?coll=seed', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tenant_id: tenantId, branch_id: branchId })
+          });
+          if (!seedRes.ok) {
+            console.warn("Product seeding failed, continuing anyway...");
+          }
+        }
+
+        showInfo("Kurulum tamamlandı! Yönlendiriliyorsunuz...");
+        setTimeout(() => {
+          window.location.href = "/admin.html";
+        }, 1500);
+
+      } catch (err) {
+        showError(err.message);
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Kurulumu Tamamla";
+      }
+    }
+
+    function showError(msg) {
+      const errAlert = document.getElementById('errorAlert');
+      errAlert.innerText = msg;
+      errAlert.classList.remove('hidden');
+      window.scrollTo(0, 0);
+    }
+
+    function hideError() {
+      document.getElementById('errorAlert').classList.add('hidden');
+    }
+
+    function showInfo(msg) {
+      const infoAlert = document.getElementById('infoAlert');
+      infoAlert.innerText = msg;
+      infoAlert.classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>

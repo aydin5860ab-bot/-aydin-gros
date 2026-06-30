@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient, createAdminClient } from '@/lib/supabase/server';
 import crypto from 'crypto';
+import { stockLock } from '@/lib/lock';
+import { isLicenseActive } from '@/lib/auth';
 
 const TENANT_ID =
   process.env.SUPABASE_TENANT_ID ||
@@ -67,7 +69,23 @@ async function supabaseRead(coll: string, supabase: any, tenantId: string, branc
         .select('id, name, slug, is_main, is_active')
         .eq('tenant_id', tenantId)
         .is('deleted_at', null);
-      if (error) return [];
+      
+      if (error) {
+        const { data: fData, error: fErr } = await supabase
+          .from('branches')
+          .select('id, name, is_active')
+          .eq('tenant_id', tenantId)
+          .is('deleted_at', null);
+        if (fErr) return [];
+        return (fData || []).map((b: any, idx: number) => ({
+          id: b.id,
+          name: b.name,
+          slug: 'sube-' + (idx + 1),
+          isMain: idx === 0,
+          isActive: b.is_active
+        }));
+      }
+      
       return (data || []).map((b: any) => ({
         id: b.id,
         name: b.name,
@@ -341,19 +359,162 @@ async function supabaseRead(coll: string, supabase: any, tenantId: string, branc
       return (data || []).map((r: any) => r.data);
     }
 
-    default:
-      throw new Error(`Bilinmeyen koleksiyon: ${coll}`);
+    default: {
+      const { data, error } = await supabase
+        .from(coll)
+        .select('*')
+        .eq('tenant_id', tenantId);
+      if (error) {
+        if (error.code === '42P01' || error.message.includes('relation') || error.message.includes('does not exist')) {
+          const fs = require('fs');
+          const dbFile = `c:/AYDIN GROS/db_${coll}.json`;
+          if (fs.existsSync(dbFile)) {
+            try {
+              return JSON.parse(fs.readFileSync(dbFile, 'utf8'));
+            } catch(e) {
+              return [];
+            }
+          }
+          return [];
+        }
+        throw new Error(`${coll}: ` + error.message);
+      }
+      return data || [];
+    }
   }
 }
+
+const DEMO_CATEGORIES = [
+  { slug: 'manav', name: 'Manav', display_order: 1 },
+  { slug: 'temel-gida', name: 'Temel Gıda', display_order: 2 },
+  { slug: 'sut-sarkuteri', name: 'Süt & Şarküteri', display_order: 3 },
+  { slug: 'icecek', name: 'İçecek', display_order: 4 },
+  { slug: 'temizlik', name: 'Temizlik', display_order: 5 }
+];
+
+const DEMO_PRODUCTS = [
+  { legacy_id: 101, name: 'Salkım Domates', cat: 'manav', price: 29.90, unit: 'kg', emoji: '🍅', barcode: '8690000000101' },
+  { legacy_id: 102, name: 'Amasya Elması', cat: 'manav', price: 34.50, unit: 'kg', emoji: '🍎', barcode: '8690000000102' },
+  { legacy_id: 103, name: 'Yerli Muz', cat: 'manav', price: 48.00, unit: 'kg', emoji: '🍌', barcode: '8690000000103' },
+  { legacy_id: 104, name: 'Ekmek 200g', cat: 'temel-gida', price: 10.00, unit: 'adet', emoji: '🍞', barcode: '8690000000104' },
+  { legacy_id: 105, name: 'Filiz Çay 500g', cat: 'temel-gida', price: 85.00, unit: 'adet', emoji: '☕', barcode: '8690000000105' },
+  { legacy_id: 106, name: 'Pilavlık Pirinç 1kg', cat: 'temel-gida', price: 62.00, unit: 'adet', emoji: '🌾', barcode: '8690000000106' },
+  { legacy_id: 107, name: 'Yarım Yağlı Süt 1L', cat: 'sut-sarkuteri', price: 28.50, unit: 'adet', emoji: '🥛', barcode: '8690000000107' },
+  { legacy_id: 108, name: 'Klasik Peynir 500g', cat: 'sut-sarkuteri', price: 145.00, unit: 'adet', emoji: '🧀', barcode: '8690000000108' },
+  { legacy_id: 109, name: 'Tava Yoğurt 1.5kg', cat: 'sut-sarkuteri', price: 78.00, unit: 'adet', emoji: '🥛', barcode: '8690000000109' },
+  { legacy_id: 110, name: 'Doğal Kaynak Suyu 5L', cat: 'icecek', price: 18.00, unit: 'adet', emoji: '💧', barcode: '8690000000110' },
+  { legacy_id: 111, name: 'Kola 1.5L', cat: 'icecek', price: 42.00, unit: 'adet', emoji: '🥤', barcode: '8690000000111' },
+  { legacy_id: 112, name: 'Bulaşık Deterjanı 750ml', cat: 'temizlik', price: 54.00, unit: 'adet', emoji: '🧼', barcode: '8690000000112' }
+];
 
 async function supabaseWrite(coll: string, body: any, supabase: any, tenantId: string, branchId?: string) {
   const activeBranch = branchId || '22222222-2222-2222-2222-222222222222';
   switch (coll) {
+    case 'seed': {
+      const tenantToUse = body.tenant_id || tenantId;
+      const branchToUse = body.branch_id || activeBranch;
+
+      for (const cat of DEMO_CATEGORIES) {
+        const { data: existingCat } = await supabase
+          .from('categories')
+          .select('id')
+          .eq('tenant_id', tenantToUse)
+          .eq('name', cat.name)
+          .maybeSingle();
+
+        let catId;
+        if (existingCat) {
+          catId = existingCat.id;
+        } else {
+          const { data: newCat } = await supabase
+            .from('categories')
+            .insert({
+              tenant_id: tenantToUse,
+              name: cat.name,
+              sort_order: cat.display_order
+            })
+            .select('id')
+            .single();
+          catId = newCat?.id;
+        }
+
+        const catProducts = DEMO_PRODUCTS.filter(p => p.cat === cat.slug);
+        for (const prod of catProducts) {
+          const { data: existingProd } = await supabase
+            .from('products')
+            .select('id')
+            .eq('tenant_id', tenantToUse)
+            .eq('legacy_id', prod.legacy_id)
+            .maybeSingle();
+
+          let productId;
+          if (existingProd) {
+            productId = existingProd.id;
+          } else {
+            const { data: newProd } = await supabase
+              .from('products')
+              .insert({
+                tenant_id: tenantToUse,
+                category_id: catId || null,
+                name: prod.name,
+                price: prod.price,
+                unit: prod.unit,
+                legacy_id: prod.legacy_id,
+                is_active: true
+              })
+              .select('id')
+              .single();
+            productId = newProd?.id;
+          }
+
+          if (productId) {
+            const { data: existingBarcode } = await supabase
+              .from('product_barcodes')
+              .select('id')
+              .eq('tenant_id', tenantToUse)
+              .eq('barcode', prod.barcode)
+              .maybeSingle();
+
+            if (!existingBarcode) {
+              await supabase.from('product_barcodes').insert({
+                tenant_id: tenantToUse,
+                product_legacy_id: prod.legacy_id,
+                product_id: productId,
+                barcode: prod.barcode,
+                is_active: true
+              });
+            }
+
+            const { data: existingStock } = await supabase
+              .from('product_stock')
+              .select('product_legacy_id')
+              .eq('tenant_id', tenantToUse)
+              .eq('branch_id', branchToUse)
+              .eq('product_legacy_id', prod.legacy_id)
+              .maybeSingle();
+
+            if (!existingStock) {
+              await supabase.from('product_stock').insert({
+                tenant_id: tenantToUse,
+                branch_id: branchToUse,
+                product_legacy_id: prod.legacy_id,
+                product_id: productId,
+                qty: 100,
+                min_qty: 5
+              });
+            }
+          }
+        }
+      }
+      return;
+    }
+
     case 'orders': {
       const rows = (Array.isArray(body) ? body : []).map(o => ({
         tenant_id:        tenantId,
         branch_id:        o.branchId || activeBranch,
-        register_id:      o.registerId || null,
+        register_id:      null,
+        session_id:       o.registerId || o.sessionId || null,
         customer_id:      o.customerId || null,
         order_number:     o.no,
         customer_name:    o.name || '',
@@ -399,62 +560,67 @@ async function supabaseWrite(coll: string, body: any, supabase: any, tenantId: s
 
         const productIds = Object.keys(demands).map(Number);
         if (productIds.length > 0) {
-          const { data: stocks, error: stockError } = await supabase
-            .from('product_stock')
-            .select('product_legacy_id, qty')
-            .eq('tenant_id', tenantId)
-            .eq('branch_id', activeBranch)
-            .in('product_legacy_id', productIds);
-          
-          let stockMap: Record<number, number> = {};
-          if (stockError) {
-            if (stockError.code === '42703' || stockError.message.includes('column "branch_id"')) {
-              const { data: fallbackStocks, error: fbErr } = await supabase
-                .from('product_stock')
-                .select('product_legacy_id, qty')
-                .eq('tenant_id', tenantId)
-                .in('product_legacy_id', productIds);
-              if (fbErr) throw new Error('Stok sorgulama hatası: ' + fbErr.message);
-              (fallbackStocks || []).forEach((s: any) => {
-                stockMap[s.product_legacy_id] = s.qty || 0;
-              });
-            } else {
-              throw new Error('Stok sorgulama hatası: ' + stockError.message);
-            }
-          } else {
-            (stocks || []).forEach((s: any) => {
-              stockMap[s.product_legacy_id] = s.qty || 0;
-            });
-          }
-
-          for (const pid of productIds) {
-            const demand = demands[pid];
-            const currentStock = stockMap[pid] ?? 0;
-            if (currentStock < demand) {
-              throw new Error(`Stok yetersiz: ${itemNames[pid]} (Talep: ${demand}, Mevcut Stok: ${currentStock})`);
-            }
-          }
-
-          for (const pid of productIds) {
-            const demand = demands[pid];
-            const currentStock = stockMap[pid] ?? 0;
-            const newStock = currentStock - demand;
-            
-            const { error: updateError } = await supabase
+          const release = await stockLock.acquire();
+          try {
+            const { data: stocks, error: stockError } = await supabase
               .from('product_stock')
-              .update({ qty: newStock, updated_at: new Date().toISOString() })
+              .select('product_legacy_id, qty')
               .eq('tenant_id', tenantId)
               .eq('branch_id', activeBranch)
-              .eq('product_legacy_id', pid);
+              .in('product_legacy_id', productIds);
             
-            if (updateError) {
-              const { error: fbErr } = await supabase
+            let stockMap: Record<number, number> = {};
+            if (stockError) {
+              if (stockError.code === '42703' || stockError.message.includes('column "branch_id"')) {
+                const { data: fallbackStocks, error: fbErr } = await supabase
+                  .from('product_stock')
+                  .select('product_legacy_id, qty')
+                  .eq('tenant_id', tenantId)
+                  .in('product_legacy_id', productIds);
+                if (fbErr) throw new Error('Stok sorgulama hatası: ' + fbErr.message);
+                (fallbackStocks || []).forEach((s: any) => {
+                  stockMap[s.product_legacy_id] = s.qty || 0;
+                });
+              } else {
+                throw new Error('Stok sorgulama hatası: ' + stockError.message);
+              }
+            } else {
+              (stocks || []).forEach((s: any) => {
+                stockMap[s.product_legacy_id] = s.qty || 0;
+              });
+            }
+
+            for (const pid of productIds) {
+              const demand = demands[pid];
+              const currentStock = stockMap[pid] ?? 0;
+              if (currentStock < demand) {
+                throw new Error(`Stok yetersiz: ${itemNames[pid]} (Talep: ${demand}, Mevcut Stok: ${currentStock})`);
+              }
+            }
+
+            for (const pid of productIds) {
+              const demand = demands[pid];
+              const currentStock = stockMap[pid] ?? 0;
+              const newStock = currentStock - demand;
+              
+              const { error: updateError } = await supabase
                 .from('product_stock')
                 .update({ qty: newStock, updated_at: new Date().toISOString() })
                 .eq('tenant_id', tenantId)
+                .eq('branch_id', activeBranch)
                 .eq('product_legacy_id', pid);
-              if (fbErr) throw new Error(`Stok düşme hatası (${itemNames[pid]}): ` + fbErr.message);
+              
+              if (updateError) {
+                const { error: fbErr } = await supabase
+                  .from('product_stock')
+                  .update({ qty: newStock, updated_at: new Date().toISOString() })
+                  .eq('tenant_id', tenantId)
+                  .eq('product_legacy_id', pid);
+                if (fbErr) throw new Error(`Stok düşme hatası (${itemNames[pid]}): ` + fbErr.message);
+              }
             }
+          } finally {
+            release();
           }
         }
 
@@ -688,6 +854,50 @@ async function supabaseWrite(coll: string, body: any, supabase: any, tenantId: s
       return;
     }
 
+    case 'branches': {
+      const items = Array.isArray(body) ? body : [body];
+      const rows = items.map(b => ({
+        id: b.id || crypto.randomUUID(),
+        tenant_id: tenantId,
+        name: b.name,
+        slug: (b.slug || b.name || '')
+          .toString()
+          .toLowerCase()
+          .trim()
+          .replace(/[çÇ]/g, 'c')
+          .replace(/[ğĞ]/g, 'g')
+          .replace(/[ıİ]/g, 'i')
+          .replace(/[öÖ]/g, 'o')
+          .replace(/[şŞ]/g, 's')
+          .replace(/[üÜ]/g, 'u')
+          .replace(/[^a-z0-9\-]/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-+|-+$/g, '') || 'sube',
+        address: b.address || null,
+        phone: b.phone || null,
+        is_active: b.is_active ?? b.isActive ?? true
+      }));
+      if (!rows.length) return;
+      const { error } = await supabase.from('branches').upsert(rows, { onConflict: 'id' });
+      if (error) {
+        if (error.message.includes('slug') || error.message.includes('column') || error.message.includes('schema cache')) {
+          const fallbackRows = rows.map(r => ({
+            id: r.id,
+            tenant_id: r.tenant_id,
+            name: r.name,
+            address: r.address,
+            phone: r.phone,
+            is_active: r.is_active
+          }));
+          const { error: fErr } = await supabase.from('branches').upsert(fallbackRows, { onConflict: 'id' });
+          if (fErr) throw new Error('branches write fallback: ' + fErr.message);
+          return;
+        }
+        throw new Error('branches write: ' + error.message);
+      }
+      return;
+    }
+
     case 'products': {
       const { data: categories, error: catError } = await supabase
         .from('categories')
@@ -906,8 +1116,28 @@ async function supabaseWrite(coll: string, body: any, supabase: any, tenantId: s
       return;
     }
 
-    default:
-      throw new Error(`Bilinmeyen koleksiyon: ${coll}`);
+    default: {
+      const items = Array.isArray(body) ? body : [body];
+      const rows = items.map((row: any) => ({
+        ...row,
+        tenant_id: tenantId,
+        updated_at: new Date().toISOString()
+      }));
+      
+      const { error } = await supabase
+        .from(coll)
+        .upsert(rows);
+      if (error) {
+        if (error.code === '42P01' || error.message.includes('relation') || error.message.includes('does not exist')) {
+          const fs = require('fs');
+          const dbFile = `c:/AYDIN GROS/db_${coll}.json`;
+          fs.writeFileSync(dbFile, JSON.stringify(body));
+          return;
+        }
+        throw new Error(`${coll} write: ` + error.message);
+      }
+      return;
+    }
   }
 }
 
@@ -931,7 +1161,12 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Supabase yapılandırılmamış' }, { status: 503 });
   }
 
-  const tenantIdToUse = auth.tenantId || TENANT_ID;
+  let tenantIdToUse = auth.tenantId || TENANT_ID;
+  if (auth.role === 'admin') {
+    const override = req.nextUrl.searchParams.get('tenantId') || req.nextUrl.searchParams.get('tenant_id') || req.headers.get('x-tenant-id');
+    if (override) tenantIdToUse = override;
+  }
+  console.log('[api/db] GET request:', { coll, role: auth.role, tenantIdToUse });
   const branchId = req.nextUrl.searchParams.get('branchId') || req.nextUrl.searchParams.get('branch_id') || '22222222-2222-2222-2222-222222222222';
 
   try {
@@ -975,8 +1210,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Supabase yapılandırılmamış' }, { status: 503 });
   }
 
-  const tenantIdToUse = auth.tenantId || TENANT_ID;
+  let tenantIdToUse = auth.tenantId || TENANT_ID;
+  if (auth.role === 'admin') {
+    const override = req.nextUrl.searchParams.get('tenantId') || req.nextUrl.searchParams.get('tenant_id') || req.headers.get('x-tenant-id');
+    if (override) tenantIdToUse = override;
+  }
   const branchId = req.nextUrl.searchParams.get('branchId') || req.nextUrl.searchParams.get('branch_id') || '22222222-2222-2222-2222-222222222222';
+  if (coll !== 'seed') {
+    const license = await isLicenseActive(tenantIdToUse);
+    if (!license.active) {
+      return NextResponse.json({ error: license.reason }, { status: 403 });
+    }
+  }
 
   try {
     const body = await req.json();
