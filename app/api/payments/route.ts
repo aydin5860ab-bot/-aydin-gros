@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { checkAuth } from '@/lib/auth';
+import { stockLock } from '@/lib/lock';
 
 const TENANT = process.env.DEFAULT_TENANT_ID ?? '11111111-1111-1111-1111-111111111111';
 
@@ -65,6 +66,83 @@ export async function POST(req: NextRequest) {
   }
 
   const change = Math.max(0, totalPaid - orderTotal);
+
+  // Stok kontrol et ve düş
+  if (items?.length) {
+    const release = await stockLock.acquire();
+    try {
+      const demands: Record<number, number> = {};
+      const itemNames: Record<number, string> = {};
+      for (const item of items) {
+        const pid = Number(item.id || item.product_legacy_id);
+        const quantity = Number(item.qty || item.quantity || 1);
+        if (!isNaN(pid) && pid > 0) {
+          demands[pid] = (demands[pid] || 0) + quantity;
+          itemNames[pid] = item.name || `Ürün #${pid}`;
+        }
+      }
+
+      const productIds = Object.keys(demands).map(Number);
+      if (productIds.length > 0) {
+        // 1. Stokları sorgula
+        const activeBranch = '22222222-2222-2222-2222-222222222222';
+        const { data: stocks, error: stockError } = await db
+          .from('product_stock')
+          .select('product_legacy_id, qty')
+          .eq('tenant_id', tenantId)
+          .in('product_legacy_id', productIds);
+
+        if (stockError) {
+          return NextResponse.json({ error: 'Stok sorgulama hatası: ' + stockError.message }, { status: 500 });
+        }
+
+        const stockMap: Record<number, number> = {};
+        (stocks || []).forEach((s: any) => {
+          stockMap[s.product_legacy_id] = s.qty || 0;
+        });
+
+        // 2. Yetersiz stok kontrolü
+        for (const pid of productIds) {
+          const demand = demands[pid];
+          const currentStock = stockMap[pid] ?? 0;
+          if (currentStock < demand) {
+            return NextResponse.json(
+              { error: `Stok yetersiz: ${itemNames[pid]} (Talep: ${demand}, Mevcut Stok: ${currentStock})` },
+              { status: 400 }
+            );
+          }
+        }
+
+        // 3. Stokları düş
+        for (const pid of productIds) {
+          const demand = demands[pid];
+          const currentStock = stockMap[pid] ?? 0;
+          const newStock = currentStock - demand;
+
+          const { error: updateError } = await db
+            .from('product_stock')
+            .update({ qty: newStock, updated_at: new Date().toISOString() })
+            .eq('tenant_id', tenantId)
+            .eq('branch_id', activeBranch)
+            .eq('product_legacy_id', pid);
+
+          if (updateError) {
+            // Fallback: branch_id olmadan dene
+            const { error: fbErr } = await db
+              .from('product_stock')
+              .update({ qty: newStock, updated_at: new Date().toISOString() })
+              .eq('tenant_id', tenantId)
+              .eq('product_legacy_id', pid);
+            if (fbErr) {
+              return NextResponse.json({ error: `Stok güncelleme hatası (${itemNames[pid]}): ` + fbErr.message }, { status: 500 });
+            }
+          }
+        }
+      }
+    } finally {
+      release();
+    }
+  }
 
   // Order'ı kaydet
   const orderNumber = `POS-${Date.now().toString().slice(-8)}`;

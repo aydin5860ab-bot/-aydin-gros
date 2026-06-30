@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
+import { isLicenseActive } from '@/lib/auth';
 import fs from 'fs';
 
 const TENANT_ID = process.env.SUPABASE_TENANT_ID || '11111111-1111-1111-1111-111111111111';
@@ -103,12 +104,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
   }
 
+  const tenantId = auth.tenantId || TENANT_ID;
+  const license = await isLicenseActive(tenantId);
+  if (!license.active) {
+    return NextResponse.json({ error: license.reason }, { status: 403 });
+  }
+  const planName = license.plan || 'starter';
+  if (planName !== 'enterprise') {
+    return NextResponse.json({ error: 'AI Asistan özelliği yalnızca Enterprise abonelik planında kullanılabilir. Mevcut planınız: ' + planName.toUpperCase() }, { status: 403 });
+  }
+
   try {
     const body = await req.json();
     const message = (body.message || '').trim().toLowerCase();
 
     const supabase = createServerClient();
-    const tenantId = auth.tenantId || TENANT_ID;
 
     // Fetch live ERP data
     const rawProducts = await safeReadCollection('products', supabase, tenantId);

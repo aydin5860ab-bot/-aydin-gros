@@ -30,18 +30,26 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const auth = await checkAuth(req);
-  if (!auth.isAuthenticated) {
-    return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
-  }
-  if (!isAuthorized(auth.role, ['admin', 'manager'])) {
-    return NextResponse.json({ error: 'Bu işlemi yapmaya yetkiniz yok' }, { status: 403 });
+  const cronSecret = process.env.CRON_SECRET;
+  const authHeader = req.headers.get('Authorization');
+  const isCron = !!(cronSecret && authHeader === `Bearer ${cronSecret}`);
+
+  let tenantId = TENANT;
+
+  if (!isCron) {
+    const auth = await checkAuth(req);
+    if (!auth.isAuthenticated) {
+      return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+    }
+    if (!isAuthorized(auth.role, ['admin', 'manager'])) {
+      return NextResponse.json({ error: 'Bu işlemi yapmaya yetkiniz yok' }, { status: 403 });
+    }
+    tenantId = auth.tenantId || TENANT;
   }
 
   const db = createAdminClient();
   if (!db) return NextResponse.json({ error: 'DB bağlantısı yok' }, { status: 500 });
 
-  const tenantId = auth.tenantId || TENANT;
   const body = await req.json().catch(() => ({}));
   const type = body.type ?? 'full';
 

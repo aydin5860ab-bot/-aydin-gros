@@ -99,8 +99,8 @@ export async function POST(req: NextRequest) {
       await db.from('register_sessions').update({
         status: 'closed',
         closing_cash: closing_cash ?? 0,
-        expected_cash: data.opening_balance + data.cash_total,
-        cash_difference: (closing_cash ?? 0) - (data.opening_balance + data.cash_total),
+        expected_cash: data.opening_balance + data.cash_total - data.total_returns_amount,
+        cash_difference: (closing_cash ?? 0) - (data.opening_balance + data.cash_total - data.total_returns_amount),
         total_sales: data.total_sales_amount,
         total_returns: data.total_returns_amount,
         transaction_count: data.total_sales_count,
@@ -143,21 +143,21 @@ async function buildReportData(
   if (sessionId) {
     const { data: session } = await db!
       .from('register_sessions')
-      .select('opened_at, opening_balance')
+      .select('opened_at, opening_cash')
       .eq('id', sessionId)
       .maybeSingle();
     if (session) {
       shiftStart = session.opened_at ?? shiftStart;
-      openingBalance = session.opening_balance ?? 0;
+      openingBalance = Number(session.opening_cash ?? 0);
     }
   }
 
-  const shiftEnd = now.toISOString();
+  const shiftEnd = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 
   // Siparişleri çek
   let ordersQuery = db!
     .from('orders')
-    .select('id, total, payment_method, is_cancelled, items, created_at')
+    .select('id, total, payment_method, is_cancelled, items_data, created_at')
     .eq('tenant_id', tenantId)
     .gte('created_at', shiftStart)
     .lte('created_at', shiftEnd);
@@ -171,51 +171,69 @@ async function buildReportData(
   const cancelledOrders = allOrders.filter((o) => o.is_cancelled);
 
   const totalSalesAmount = activeOrders.reduce((s, o) => s + (o.total ?? 0), 0);
-  const cashOrders = activeOrders.filter((o) => o.payment_method === 'cash');
-  const cardOrders = activeOrders.filter((o) => o.payment_method === 'card');
 
-  const cashTotal = cashOrders.reduce((s, o) => s + (o.total ?? 0), 0);
-  const cardTotal = cardOrders.reduce((s, o) => s + (o.total ?? 0), 0);
-
-  // Karma ödemeler (sale_payments tablosundan)
+  let cashTotal = 0;
+  let cardTotal = 0;
   let loyaltyTotal = 0;
   let otherTotal = 0;
-  const { data: payments } = await db!
+
+  // Ödemeleri çek (karma ödemeler dahil tüm ödemeler buradan toplanır)
+  let paymentsQuery = db!
     .from('sale_payments')
     .select('payment_method, amount')
-    .eq('tenant_id', tenantId)
-    .gte('created_at', shiftStart)
-    .lte('created_at', shiftEnd);
+    .eq('tenant_id', tenantId);
+
+  if (sessionId) {
+    paymentsQuery = paymentsQuery.eq('session_id', sessionId);
+  } else {
+    paymentsQuery = paymentsQuery.gte('created_at', shiftStart).lte('created_at', shiftEnd);
+  }
+
+  const { data: payments } = await paymentsQuery;
 
   (payments ?? []).forEach((p) => {
-    if (p.payment_method === 'loyalty_points') loyaltyTotal += p.amount;
-    else if (!['cash', 'card'].includes(p.payment_method)) otherTotal += p.amount;
+    const amt = Number(p.amount ?? 0);
+    if (p.payment_method === 'cash') cashTotal += amt;
+    else if (p.payment_method === 'card') cardTotal += amt;
+    else if (p.payment_method === 'loyalty_points') loyaltyTotal += amt;
+    else otherTotal += amt;
   });
 
-  // İadeler
-  const { data: returns } = await db!
+  // İadeleri çek
+  let returnsQuery = db!
     .from('sale_returns')
     .select('total_refund')
     .eq('tenant_id', tenantId)
-    .gte('created_at', shiftStart)
-    .lte('created_at', shiftEnd)
     .eq('status', 'completed');
 
-  const totalReturnsAmount = (returns ?? []).reduce((s, r) => s + (r.total_refund ?? 0), 0);
+  if (sessionId) {
+    returnsQuery = returnsQuery.eq('session_id', sessionId);
+  } else {
+    returnsQuery = returnsQuery.gte('created_at', shiftStart).lte('created_at', shiftEnd);
+  }
+
+  const { data: returns } = await returnsQuery;
+  const totalReturnsAmount = (returns ?? []).reduce((s, r) => s + Number(r.total_refund ?? 0), 0);
 
   // Değişimler
-  const { data: exchanges } = await db!
+  let exchangesQuery = db!
     .from('sale_exchanges')
     .select('id')
     .eq('tenant_id', tenantId)
-    .gte('created_at', shiftStart)
-    .lte('created_at', shiftEnd)
     .eq('status', 'completed');
+
+  if (sessionId) {
+    exchangesQuery = exchangesQuery.eq('session_id', sessionId);
+  } else {
+    exchangesQuery = exchangesQuery.gte('created_at', shiftStart).lte('created_at', shiftEnd);
+  }
+
+  const { data: exchanges } = await exchangesQuery;
 
   // En çok satılan 10 ürün
   const productMap: Record<string, number> = {};
-  activeOrders.forEach((o) => {
-    (o.items ?? []).forEach((i: { name: string; qty: number }) => {
+  activeOrders.forEach((o: any) => {
+    (o.items_data ?? o.items ?? []).forEach((i: { name: string; qty: number }) => {
       productMap[i.name] = (productMap[i.name] ?? 0) + i.qty;
     });
   });

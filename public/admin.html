@@ -972,26 +972,53 @@ body.dark-theme .ai-msg.assistant {
     <!-- STOCK TRANSFERS -->
     <div id="page-transfers" class="page">
       <div class="page-header">
-        <div><div class="page-title">Şubeler & Stok Transferleri</div><div class="page-subtitle">Şubeler arası ürün sevk ve transfer yönetimi</div></div>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-ghost" onclick="openModal('branchModal')">+ Yeni Şube Ekle</button>
-          <button class="btn btn-primary" onclick="openTransferModal()">+ Yeni Transfer Talebi</button>
+        <div><div class="page-title">Şubeler, Depolar & Transfer</div><div class="page-subtitle">Şubeler arası ürün sevk, depo ve transfer yönetimi</div></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-ghost" onclick="openModal('branchModal')">🏢 Yeni Şube Ekle</button>
+          <button class="btn btn-ghost" onclick="openWarehouseModal()">📦 Yeni Depo Ekle</button>
+          <button class="btn btn-primary" onclick="openTransferModal()">🔄 Yeni Transfer Talebi</button>
         </div>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Kaynak Şube</th>
-              <th>Hedef Şube</th>
-              <th>Statü</th>
-              <th>Ürün Detayları</th>
-              <th>Oluşturma</th>
-              <th>İşlemler</th>
-            </tr>
-          </thead>
-          <tbody id="transfersTableBody"></tbody>
-        </table>
+
+      <!-- Şubeler & Depolar Listesi -->
+      <div class="card" style="margin-bottom:24px">
+        <div class="dash-card-title" style="margin-bottom:12px">🏢 Tanımlı Şubeler & Bağlı Depolar</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Şube Adı</th>
+                <th>Adres & Telefon</th>
+                <th>Şube Müdürü</th>
+                <th>Bağlı Depolar</th>
+                <th>İşlem</th>
+              </tr>
+            </thead>
+            <tbody id="branchesAndWarehousesTableBody">
+              <tr><td colspan="5" style="text-align:center;color:var(--gray500)">Yükleniyor...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Transfer Talepleri -->
+      <div class="card">
+        <div class="dash-card-title" style="margin-bottom:12px">🔄 Stok Sevk & Transfer Talepleri</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Kaynak Şube</th>
+                <th>Hedef Şube</th>
+                <th>Statü</th>
+                <th>Ürün Detayları</th>
+                <th>Oluşturma</th>
+                <th>İşlemler</th>
+              </tr>
+            </thead>
+            <tbody id="transfersTableBody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -1224,7 +1251,40 @@ body.dark-theme .ai-msg.assistant {
         <label>Telefon Numarası</label>
         <input type="text" id="branchPhoneInput" placeholder="05XX XXX XX XX">
       </div>
+      <div class="form-group">
+        <label>Şube Müdürü (E-posta)</label>
+        <input type="email" id="branchManagerEmailInput" placeholder="mudur@aydingros.com">
+      </div>
       <button class="btn btn-primary" onclick="saveBranch()" style="width:100%;padding:12px;font-weight:bold">Şubeyi Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Warehouse Modal -->
+<div class="modal-overlay" id="warehouseModal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <div class="modal-title">📦 Yeni Depo Ekle</div>
+      <button class="modal-close" onclick="closeModal('warehouseModal')">✕</button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
+      <div class="form-group">
+        <label>Depo Adı</label>
+        <input type="text" id="whNameInput" placeholder="Örn: Erenler Deposu">
+      </div>
+      <div class="form-group">
+        <label>İlişkili Şube</label>
+        <select id="whBranchSelect" style="width:100%;padding:8px;border:1.5px solid var(--gray200);border-radius:6px;background:var(--white)"></select>
+      </div>
+      <div class="form-group">
+        <label>Depo Adresi</label>
+        <input type="text" id="whAddrInput" placeholder="Açık adres...">
+      </div>
+      <div class="form-group">
+        <label>Depo Sorumlusu (E-posta)</label>
+        <input type="email" id="whManagerEmailInput" placeholder="depo@aydingros.com">
+      </div>
+      <button class="btn btn-primary" onclick="saveWarehouse()" style="width:100%;padding:12px;font-weight:bold">Depoyu Kaydet</button>
     </div>
   </div>
 </div>
@@ -4002,6 +4062,7 @@ async function renderRegisters() {
 let transferItems = [];
 let branchesList = [];
 let branchesMap = new Map();
+let warehousesList = [];
 
 async function loadBranchesData() {
   try {
@@ -4017,16 +4078,135 @@ async function loadBranchesData() {
   }
 }
 
+async function loadWarehousesData() {
+  try {
+    const res = await fetch('/api/db?coll=warehouses', { headers: await getAuthHeader() });
+    const data = await res.json();
+    warehousesList = Array.isArray(data) ? data : (data.data ?? []);
+  } catch (e) {
+    console.error('Error loading warehouses:', e);
+  }
+}
+
+function openWarehouseModal() {
+  const select = document.getElementById('whBranchSelect');
+  if (select) {
+    select.innerHTML = branchesList.map(b => `<option value="${b.id}">${esc(b.name)}</option>`).join('');
+  }
+  document.getElementById('whNameInput').value = '';
+  document.getElementById('whAddrInput').value = '';
+  document.getElementById('whManagerEmailInput').value = '';
+  openModal('warehouseModal');
+}
+
+async function saveWarehouse() {
+  const name = document.getElementById('whNameInput').value.trim();
+  const branchId = document.getElementById('whBranchSelect').value;
+  const address = document.getElementById('whAddrInput').value.trim();
+  const managerEmail = document.getElementById('whManagerEmailInput').value.trim();
+
+  if (!name || !branchId) {
+    alert("Depo adı ve ilişkili şube seçimi zorunludur!");
+    return;
+  }
+
+  const payload = {
+    id: genUUID(),
+    name,
+    branch_id: branchId,
+    address,
+    manager_email: managerEmail,
+    is_active: true
+  };
+
+  try {
+    const res = await fetch('/api/db?coll=warehouses', {
+      method: 'POST',
+      headers: { ...(await getAuthHeader()), 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error("Depo kaydedilemedi.");
+    alert("Yeni depo başarıyla eklendi!");
+    closeModal('warehouseModal');
+    renderTransfers();
+  } catch (e) {
+    alert("Hata: " + e.message);
+  }
+}
+
+async function deleteBranch(id) {
+  if (!confirm("Bu şubeyi silmek istediğinize emin misiniz?")) return;
+  try {
+    const res = await fetch(`/api/db?coll=branches&id=${id}`, {
+      method: 'DELETE',
+      headers: await getAuthHeader()
+    });
+    if (!res.ok) throw new Error("Şube silinemedi.");
+    toast("Şube silindi");
+    renderTransfers();
+  } catch (e) {
+    alert("Hata: " + e.message);
+  }
+}
+
+async function deleteWarehouse(id) {
+  if (!confirm("Bu depoyu silmek istediğinize emin misiniz?")) return;
+  try {
+    const res = await fetch(`/api/db?coll=warehouses&id=${id}`, {
+      method: 'DELETE',
+      headers: await getAuthHeader()
+    });
+    if (!res.ok) throw new Error("Depo silinemedi.");
+    toast("Depo silindi");
+    renderTransfers();
+  } catch (e) {
+    alert("Hata: " + e.message);
+  }
+}
+
+async function renderBranchesAndWarehouses() {
+  const tbody = document.getElementById('branchesAndWarehousesTableBody');
+  if (!tbody) return;
+
+  if (branchesList.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray500)">Kayıtlı şube bulunamadı.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = branchesList.map(b => {
+    // Filter warehouses belonging to this branch
+    const branchWhs = warehousesList.filter(w => w.branch_id === b.id);
+    const whsHtml = branchWhs.length > 0 
+      ? branchWhs.map(w => `<div style="margin-bottom:4px; font-size:12px;">📦 <strong>${esc(w.name)}</strong> (${esc(w.manager_email || 'Sorumlu yok')}) <button class="btn btn-danger btn-xs" onclick="deleteWarehouse('${w.id}')" style="padding:1px 4px;font-size:9px;margin-left:4px;">Sil</button></div>`).join('')
+      : '<span style="color:var(--gray400);font-size:12px;">Depo bağlı değil</span>';
+
+    return `
+      <tr>
+        <td><strong>${esc(b.name)}</strong></td>
+        <td style="font-size:12px;">${esc(b.address || '-')}<br>${esc(b.phone || '-')}</td>
+        <td><span class="badge badge-blue">${esc(b.manager_email || 'Müdür Atanmadı')}</span></td>
+        <td>${whsHtml}</td>
+        <td>
+          <button class="btn btn-danger btn-xs" onclick="deleteBranch('${b.id}')">Sil</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
 async function renderTransfers() {
   const tbody = document.getElementById('transfersTableBody');
   if (!tbody) return;
   tbody.innerHTML = '<tr><td colspan="6" class="loading">Yükleniyor...</td></tr>';
   
   try {
-    // 1. Fetch active branches first
-    await loadBranchesData();
+    // 1. Fetch active branches & warehouses first
+    await Promise.all([loadBranchesData(), loadWarehousesData()]);
     
-    // 2. Populate Branch selection dropdowns in Transfer Modal
+    // 2. Render the Branch & Warehouse list
+    await renderBranchesAndWarehouses();
+
+    // 3. Populate Branch selection dropdowns in Transfer Modal
     const fromSelect = document.getElementById('transferFromBranch');
     const toSelect = document.getElementById('transferToBranch');
     if (fromSelect && toSelect) {
@@ -4040,7 +4220,7 @@ async function renderTransfers() {
       }
     }
 
-    // 3. Fetch Transfers
+    // 4. Fetch Transfers
     const res = await fetch('/api/db?coll=stock_transfers', { headers: await getAuthHeader() });
     const data = await res.json();
     
@@ -4171,6 +4351,7 @@ async function saveBranch() {
   const name = document.getElementById('branchNameInput').value.trim();
   const address = document.getElementById('branchAddrInput').value.trim();
   const phone = document.getElementById('branchPhoneInput').value.trim();
+  const managerEmail = document.getElementById('branchManagerEmailInput').value.trim();
   
   if (!name) {
     alert("Şube adı zorunludur!");
@@ -4182,6 +4363,7 @@ async function saveBranch() {
     name,
     address,
     phone,
+    manager_email: managerEmail,
     is_active: true
   };
   
@@ -4198,6 +4380,7 @@ async function saveBranch() {
     document.getElementById('branchNameInput').value = '';
     document.getElementById('branchAddrInput').value = '';
     document.getElementById('branchPhoneInput').value = '';
+    document.getElementById('branchManagerEmailInput').value = '';
     
     renderTransfers();
   } catch(e) {
@@ -4762,11 +4945,17 @@ async function renderReports() {
           <div class="form-group"><label>Kullanıcı E-posta</label><input type="email" id="staffEmail"></div>
           <div class="form-group"><label>Rol</label>
             <select id="staffRole">
+              <option value="owner">Kurucu (Owner)</option>
+              <option value="general_manager">Genel Müdür (General Manager)</option>
+              <option value="branch_manager">Şube Müdürü (Branch Manager)</option>
+              <option value="cashier">Kasiyer (Cashier)</option>
+              <option value="warehouse_staff">Depo Görevlisi (Warehouse Staff)</option>
+              <option value="purchasing_staff">Satın Alma Görevlisi (Purchasing Staff)</option>
+              <option value="accountant">Muhasebeci (Accountant)</option>
+              <option value="auditor">Denetçi (Auditor)</option>
               <option value="admin">Yönetici (Admin)</option>
               <option value="manager">Müdür (Manager)</option>
-              <option value="cashier">Kasiyer (Cashier)</option>
-              <option value="warehouse_person">Depo (Warehouse)</option>
-              <option value="accountant">Muhasebe (Accountant)</option>
+              <option value="warehouse_person">Depo (Warehouse - Legacy)</option>
             </select>
           </div>
         </div>

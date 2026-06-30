@@ -84,12 +84,13 @@ export async function POST(req: NextRequest) {
 
     // İade kaydı oluştur
     const returnNo = `IAD-${Date.now().toString().slice(-6)}`;
-    const items: { name: string; qty: number; price: number }[] = order.items_data ?? order.items ?? [];
+    const items: any[] = order.items_data ?? order.items ?? [];
     const totalRefund = order.total ?? 0;
 
     const { data: returnRecord } = await db.from('sale_returns').insert({
       tenant_id: tenantId,
       original_order_id: order_id,
+      session_id: order.session_id ?? null,
       return_no: returnNo,
       return_reason: reason ?? 'Kasiyer iptali — tam iade',
       refund_method: order.payment_method === 'card' ? 'card' : 'cash',
@@ -111,6 +112,44 @@ export async function POST(req: NextRequest) {
           restock: true,
         }))
       );
+    }
+
+    // Stok geri gelsin
+    if (items.length > 0) {
+      const activeBranch = '22222222-2222-2222-2222-222222222222';
+      for (const i of items) {
+        const pid = Number(i.id || i.product_legacy_id);
+        const qty = Number(i.qty || i.quantity || 1);
+        if (!isNaN(pid) && pid > 0) {
+          // 1. Mevcut stoğu çek
+          const { data: stockRecord } = await db
+            .from('product_stock')
+            .select('qty')
+            .eq('tenant_id', tenantId)
+            .eq('product_legacy_id', pid)
+            .maybeSingle();
+
+          const currentStock = stockRecord ? Number(stockRecord.qty) : 0;
+          const newStock = currentStock + qty;
+
+          // 2. Güncelle
+          const { error: updateError } = await db
+            .from('product_stock')
+            .update({ qty: newStock, updated_at: new Date().toISOString() })
+            .eq('tenant_id', tenantId)
+            .eq('branch_id', activeBranch)
+            .eq('product_legacy_id', pid);
+
+          if (updateError) {
+            // Fallback: branch_id olmadan dene
+            await db
+              .from('product_stock')
+              .update({ qty: newStock, updated_at: new Date().toISOString() })
+              .eq('tenant_id', tenantId)
+              .eq('product_legacy_id', pid);
+          }
+        }
+      }
     }
 
     try {
@@ -145,9 +184,18 @@ export async function POST(req: NextRequest) {
 
     const returnNo = `IAD-${Date.now().toString().slice(-6)}`;
 
+    // Siparişi bulup session_id'sini al
+    const { data: order } = await db
+      .from('orders')
+      .select('session_id')
+      .eq('tenant_id', tenantId)
+      .eq('id', order_id)
+      .maybeSingle();
+
     const { data: returnRecord } = await db.from('sale_returns').insert({
       tenant_id: tenantId,
       original_order_id: order_id,
+      session_id: order?.session_id ?? null,
       return_no: returnNo,
       return_reason: reason ?? 'Kısmi iade',
       refund_method: refund_method ?? 'cash',
@@ -169,6 +217,44 @@ export async function POST(req: NextRequest) {
           restock: true,
         }))
       );
+    }
+
+    // Stok geri gelsin
+    if (items.length > 0) {
+      const activeBranch = '22222222-2222-2222-2222-222222222222';
+      for (const i of items) {
+        const pid = Number(i.product_id || i.id || i.product_legacy_id);
+        const qty = Number(i.qty || i.quantity || 1);
+        if (!isNaN(pid) && pid > 0) {
+          // 1. Mevcut stoğu çek
+          const { data: stockRecord } = await db
+            .from('product_stock')
+            .select('qty')
+            .eq('tenant_id', tenantId)
+            .eq('product_legacy_id', pid)
+            .maybeSingle();
+
+          const currentStock = stockRecord ? Number(stockRecord.qty) : 0;
+          const newStock = currentStock + qty;
+
+          // 2. Güncelle
+          const { error: updateError } = await db
+            .from('product_stock')
+            .update({ qty: newStock, updated_at: new Date().toISOString() })
+            .eq('tenant_id', tenantId)
+            .eq('branch_id', activeBranch)
+            .eq('product_legacy_id', pid);
+
+          if (updateError) {
+            // Fallback: branch_id olmadan dene
+            await db
+              .from('product_stock')
+              .update({ qty: newStock, updated_at: new Date().toISOString() })
+              .eq('tenant_id', tenantId)
+              .eq('product_legacy_id', pid);
+          }
+        }
+      }
     }
 
     try {

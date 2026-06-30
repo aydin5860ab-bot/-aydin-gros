@@ -407,7 +407,25 @@ const DEMO_PRODUCTS = [
   { legacy_id: 112, name: 'Bulaşık Deterjanı 750ml', cat: 'temizlik', price: 54.00, unit: 'adet', emoji: '🧼', barcode: '8690000000112' }
 ];
 
-async function supabaseWrite(coll: string, body: any, supabase: any, tenantId: string, branchId?: string) {
+async function logAudit(supabase: any, tenantId: string, userId: string | null, email: string | null, action: string, entity: string, entityId: string | null, oldData: any = null, newData: any = null) {
+  try {
+    await supabase.from('audit_logs').insert({
+      tenant_id: tenantId,
+      user_id: userId,
+      user_email: email || 'system',
+      action,
+      entity,
+      entity_id: entityId,
+      old_data: oldData,
+      new_data: newData,
+      created_at: new Date().toISOString()
+    });
+  } catch (e) {
+    console.error('[logAudit] failed:', e);
+  }
+}
+
+async function supabaseWrite(coll: string, body: any, supabase: any, tenantId: string, branchId?: string, auth?: any) {
   const activeBranch = branchId || '22222222-2222-2222-2222-222222222222';
   switch (coll) {
     case 'seed': {
@@ -770,6 +788,24 @@ async function supabaseWrite(coll: string, body: any, supabase: any, tenantId: s
         .from('register_sessions')
         .upsert(rows, { onConflict: 'id' });
       if (error) throw new Error('register_sessions write: ' + error.message);
+
+      // Audit logs
+      for (const row of rows) {
+        if (row.id) {
+          const action = row.status === 'closed' ? 'cash_drawer_close' : 'cash_drawer_open';
+          await logAudit(
+            supabase, 
+            tenantId, 
+            auth?.user?.id || null, 
+            auth?.user?.email || null, 
+            action, 
+            'register_session', 
+            row.id, 
+            null, 
+            row
+          );
+        }
+      }
       return;
     }
 
@@ -912,15 +948,17 @@ async function supabaseWrite(coll: string, body: any, supabase: any, tenantId: s
 
       const { data: existing, error: fetchErr } = await supabase
         .from('products')
-        .select('id, legacy_id')
+        .select('id, legacy_id, price')
         .eq('tenant_id', tenantId)
         .is('deleted_at', null);
       if (fetchErr) throw new Error('Ürünler sorgulanamadı: ' + fetchErr.message);
 
       const uuidMap: Record<number, string> = {};
+      const oldPricesMap: Record<number, number> = {};
       (existing || []).forEach((r: any) => {
         if (r.legacy_id !== null) {
           uuidMap[r.legacy_id] = r.id;
+          oldPricesMap[r.legacy_id] = Number(r.price || 0);
         }
       });
 
@@ -937,17 +975,48 @@ async function supabaseWrite(coll: string, body: any, supabase: any, tenantId: s
           .update({ deleted_at: new Date().toISOString(), is_active: false })
           .in('id', deletedUuids);
         if (deleteErr) throw new Error('Ürün silme hatası: ' + deleteErr.message);
+
+        // Audit deletion log
+        for (const uid of deletedUuids) {
+          await logAudit(
+            supabase,
+            tenantId,
+            auth?.user?.id || null,
+            auth?.user?.email || null,
+            'product_delete',
+            'product',
+            uid
+          );
+        }
       }
 
       const rows = incomingProducts.map(p => {
         const catId = categoryMap[p.cat] || null;
         const resolvedUuid = uuidMap[Number(p.id)] || crypto.randomUUID();
+        
+        // Log price changes
+        const oldPrice = oldPricesMap[Number(p.id)];
+        const newPrice = Number(p.price || 0);
+        if (oldPrice !== undefined && oldPrice !== newPrice) {
+          logAudit(
+            supabase,
+            tenantId,
+            auth?.user?.id || null,
+            auth?.user?.email || null,
+            'price_change',
+            'product',
+            resolvedUuid,
+            { price: oldPrice },
+            { price: newPrice }
+          );
+        }
+
         return {
           id:          resolvedUuid,
           tenant_id:   tenantId,
           legacy_id:   Number(p.id),
           name:        p.name || '',
-          price:       Number(p.price || 0),
+          price:       newPrice,
           category_id: catId,
           unit:        p.unit || 'adet',
           image_url:   p.img || '',
@@ -1225,7 +1294,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    await supabaseWrite(coll, body, supabase, tenantIdToUse, branchId);
+    await supabaseWrite(coll, body, supabase, tenantIdToUse, branchId, auth);
     return NextResponse.json({ success: true }, {
       headers: {
         'X-Backend': 'supabase',
