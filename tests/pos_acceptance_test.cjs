@@ -15,7 +15,7 @@ const path = require('path');
     const t = Date.now();
     console.log("Navigating to http://localhost:3001/pos.html");
     await page.goto("http://localhost:3001/pos.html?t=" + t);
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(4000);
 
     // If redirected to admin login
     if (page.url().includes("admin.html")) {
