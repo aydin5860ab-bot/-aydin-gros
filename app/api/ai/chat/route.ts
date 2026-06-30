@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { createServerClient, createAdminClient } from '@/lib/supabase/server';
 import { isLicenseActive } from '@/lib/auth';
 import fs from 'fs';
+import Anthropic from '@anthropic-ai/sdk';
 
 const TENANT_ID = process.env.SUPABASE_TENANT_ID || '11111111-1111-1111-1111-111111111111';
 
@@ -96,6 +97,58 @@ async function logAiRequest(supabase: any, tenantId: string, userId: string | un
       fs.writeFileSync(logFile, JSON.stringify(logsList, null, 2), 'utf8');
     } catch (err) {}
   }
+}
+
+// ── Claude AI call with market context ──────────────────────────────────────
+async function callClaudeWithContext(userMessage: string, context: ClaudeMarketContext): Promise<string | null> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return null;
+
+  try {
+    const client = new Anthropic({ apiKey });
+
+    const systemPrompt = `Sen Aydın GROS süpermarketinin AI pazar yöneticisisin. Adın Hermes. Türkçe yanıt ver.
+Aşağıdaki gerçek zamanlı verilerle analiz yap ve pratik öneriler sun:
+
+BUGÜNKÜ VERİLER:
+- Toplam satış: ${context.todaySales.toLocaleString('tr-TR')} TL (${context.orderCount} işlem)
+- Net kâr tahmini: ${context.netProfit.toLocaleString('tr-TR')} TL (Marj: %${context.margin})
+- Kritik stokta ürün sayısı: ${context.criticalStockCount}
+- Fire/kayıp maliyeti: ${context.wastageCost.toLocaleString('tr-TR')} TL
+- İade sayısı: ${context.refundCount}
+- En çok satan: ${context.topProduct}
+- Kritik stok listesi (ilk 5): ${context.criticalStockList}
+
+Yanıtlarında:
+- Markdown kullan (### başlık, **kalın**, - liste)
+- Somut sayısal öneriler ver
+- Her yanıtın sonuna 💡 "Yapay Zekâ Önerisi" ekle
+- Türkçe pazar terimleri kullan`;
+
+    const msg = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 800,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userMessage }],
+    });
+
+    const block = msg.content[0];
+    return block.type === 'text' ? block.text : null;
+  } catch {
+    return null;
+  }
+}
+
+interface ClaudeMarketContext {
+  todaySales: number;
+  orderCount: number;
+  netProfit: number;
+  margin: string;
+  criticalStockCount: number;
+  wastageCost: number;
+  refundCount: number;
+  topProduct: string;
+  criticalStockList: string;
 }
 
 export async function POST(req: NextRequest) {
@@ -278,9 +331,29 @@ export async function POST(req: NextRequest) {
 
     let aiResponse = '';
     let reqType = 'executive_summary';
+    let modelUsed = 'HermesHeuristicAI-v9';
 
-    // 1. Keyword-based NLP routing
-    if (message.includes('ciro') || message.includes('satış') || message.includes('satis') || message.includes('hasılat')) {
+    // 0. Try Claude API first (if ANTHROPIC_API_KEY is set)
+    const claudeContext: ClaudeMarketContext = {
+      todaySales,
+      orderCount: todaySalesCount,
+      netProfit,
+      margin: (todaySales > 0 ? (netProfit / todaySales * 100) : 0).toFixed(1),
+      criticalStockCount: criticalStocks.length,
+      wastageCost: totalWastageCost,
+      refundCount: refundsList.length,
+      topProduct: Object.values(topProductsMap).sort((a: any, b: any) => b.qty - a.qty)[0]?.name || 'Yok',
+      criticalStockList: criticalStocks.slice(0, 5).map((c: any) => c.name).join(', ') || 'Yok',
+    };
+    const claudeResponse = await callClaudeWithContext(body.message, claudeContext);
+    if (claudeResponse) {
+      aiResponse = claudeResponse;
+      modelUsed = 'claude-haiku-4-5';
+      reqType = 'claude_response';
+    }
+
+    // 1. Keyword-based NLP routing (Hermes fallback when Claude unavailable)
+    if (!aiResponse && (message.includes('ciro') || message.includes('satış') || message.includes('satis') || message.includes('hasılat'))) {
       reqType = 'revenue_analysis';
       aiResponse = `### 📊 Ciro & Satış Analiz Raporu
 
@@ -298,7 +371,7 @@ ${Object.values(topProductsMap)
 
 > 💡 **Yapay Zekâ Önerisi:** Sepet ortalamasını artırmak amacıyla en çok satan ilk 3 ürüne yönelik ikili çapraz promosyon paketleri (Örn: Domates + Makarna sosu) oluşturmanız ciro artışını tetikleyecektir.`;
 
-    } else if (message.includes('kar') || message.includes('kâr') || message.includes('kazanç') || message.includes('karlılık')) {
+    } else if (message.includes('kar') || message.includes('kâr') || message.includes('kazanç') || message.includes('karlılık') || message.includes('zarar')) {
       reqType = 'profit_analysis';
       aiResponse = `### 📈 Kârlılık & Marj Analiz Raporu
 
@@ -414,7 +487,22 @@ Merhaba! Aydın Gros Süpermarket ERP verilerini gerçek zamanlı analiz ettim. 
     // Save to AI Request Log
     await logAiRequest(supabase, tenantId, auth.user?.id, reqType, { message }, { response: aiResponse });
 
-    return NextResponse.json({ ok: true, response: aiResponse });
+    // Persist to DB log with model info (best-effort)
+    const adminDb = createAdminClient();
+    if (adminDb) {
+      adminDb.from('ai_request_logs').insert({
+        id: crypto.randomUUID(),
+        tenant_id: tenantId,
+        user_id: auth.user?.id || null,
+        request_type: reqType,
+        input_payload: { message: body.message },
+        output_payload: { length: aiResponse.length },
+        model_used: modelUsed,
+        status: 'completed',
+      }).then(() => {}, () => {});
+    }
+
+    return NextResponse.json({ ok: true, response: aiResponse, model: modelUsed });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
