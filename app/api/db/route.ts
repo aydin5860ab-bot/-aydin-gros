@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient, createAdminClient } from '@/lib/supabase/server';
 import crypto from 'crypto';
 import { stockLock } from '@/lib/lock';
-import { isLicenseActive } from '@/lib/auth';
+import { isLicenseActive, checkAuth, checkRateLimit, isAuthorized } from '@/lib/auth';
 
 const TENANT_ID =
   process.env.SUPABASE_TENANT_ID ||
@@ -28,37 +28,113 @@ const SETTINGS_KEY_REVERSE = Object.fromEntries(
 );
 
 // Helper function to check JWT authentication and role claims
-async function checkAuth(req: NextRequest) {
-  const authHeader = req.headers.get('authorization') || '';
-  if (!authHeader.startsWith('Bearer ')) {
-    return { isAuthenticated: false, role: 'anon', tenantId: null };
-  }
-  const token = authHeader.substring(7);
-  if (!token) {
-    return { isAuthenticated: false, role: 'anon', tenantId: null };
-  }
 
-  const anonClient = createServerClient();
-  if (!anonClient) {
-    return { isAuthenticated: false, role: 'anon', tenantId: null };
+function createMockSupabaseClient(tenantId: string) {
+  if (process.env.NODE_ENV === 'production' && process.env.FORCE_JSON_DB !== 'true') {
+    throw new Error("Mock database driver is not allowed in production");
   }
+  return {
+    from: (coll: string) => {
+      const fs = require('fs');
+      const dbFile = `c:/AYDIN GROS/db_${coll}.json`;
+      let data: any[] = [];
+      const readData = () => {
+        if (fs.existsSync(dbFile)) {
+          try {
+            data = JSON.parse(fs.readFileSync(dbFile, 'utf8')) || [];
+          } catch (_) {
+            data = [];
+          }
+        } else {
+          data = [];
+        }
+      };
 
-  try {
-    const { data: { user }, error } = await anonClient.auth.getUser(token);
-    if (error || !user) {
-      return { isAuthenticated: false, role: 'anon', tenantId: null };
+      const writeData = (newData: any[]) => {
+        try {
+          fs.writeFileSync(dbFile, JSON.stringify(newData, null, 2), 'utf8');
+        } catch (e: any) {
+          console.error(`[Mock Write Error] File: ${dbFile}`, e.message);
+        }
+      };
+
+      readData();
+      const tenantData = data.filter((x: any) => x && x.tenant_id === tenantId);
+
+      let rangeFrom = 0;
+      let rangeTo = Infinity;
+
+      const builder: any = {
+        then: (onfulfilled: any) => {
+          const sliced = tenantData.slice(rangeFrom, rangeTo + 1);
+          return Promise.resolve(onfulfilled({ data: sliced, error: null }));
+        },
+        select: () => builder,
+        eq: () => builder,
+        is: () => builder,
+        not: () => builder,
+        in: () => builder,
+        order: () => builder,
+        limit: () => builder,
+        range: (from: number, to: number) => {
+          rangeFrom = from;
+          rangeTo = to;
+          return builder;
+        },
+        maybeSingle: () => {
+          builder.then = (onfulfilled: any) => {
+            return Promise.resolve(onfulfilled({ data: tenantData[0] || null, error: null }));
+          };
+          return builder;
+        },
+        insert: (rows: any) => {
+          const arr = Array.isArray(rows) ? rows : [rows];
+          const newRows = arr.map(r => ({ ...r, tenant_id: tenantId }));
+          data.push(...newRows);
+          writeData(data);
+          builder.then = (onfulfilled: any) => Promise.resolve(onfulfilled({ data: newRows, error: null }));
+          return builder;
+        },
+        upsert: (rows: any) => {
+          const arr = Array.isArray(rows) ? rows : [rows];
+          arr.forEach(r => {
+            const idx = data.findIndex(x => x.id === r.id);
+            const rowWithTenant = { ...r, tenant_id: tenantId };
+            if (idx > -1) {
+              data[idx] = { ...data[idx], ...rowWithTenant };
+            } else {
+              data.push(rowWithTenant);
+            }
+          });
+          writeData(data);
+          builder.then = (onfulfilled: any) => Promise.resolve(onfulfilled({ data: arr, error: null }));
+          return builder;
+        },
+        update: (fields: any) => {
+          tenantData.forEach(row => {
+            Object.assign(row, fields);
+            const idx = data.findIndex(x => x.id === row.id);
+            if (idx > -1) data[idx] = row;
+          });
+          writeData(data);
+          builder.then = (onfulfilled: any) => Promise.resolve(onfulfilled({ data: tenantData, error: null }));
+          return builder;
+        },
+        delete: () => {
+          // Remove tenantData items from global data array
+          const remaining = data.filter(row => !tenantData.some(tr => tr.id === row.id));
+          data.length = 0;
+          data.push(...remaining);
+          writeData(data);
+          builder.then = (onfulfilled: any) => Promise.resolve(onfulfilled({ data: tenantData, error: null }));
+          return builder;
+        }
+      };
+      return builder;
     }
-
-    const meta = user.user_metadata || {};
-    const appMeta = user.app_metadata || {};
-    const role = meta.role || appMeta.role || 'viewer';
-    const tenantId = meta.tenant_id || appMeta.tenant_id || null;
-
-    return { isAuthenticated: true, role, tenantId, user };
-  } catch (e) {
-    return { isAuthenticated: false, role: 'anon', tenantId: null };
-  }
+  };
 }
+
 
 async function supabaseRead(coll: string, supabase: any, tenantId: string, branchId?: string) {
   const activeBranch = branchId || '22222222-2222-2222-2222-222222222222';
@@ -365,6 +441,9 @@ async function supabaseRead(coll: string, supabase: any, tenantId: string, branc
         .select('*')
         .eq('tenant_id', tenantId);
       if (error) {
+        if (process.env.NODE_ENV === 'production') {
+          throw new Error(`${coll}: ` + error.message);
+        }
         if (error.code === '42P01' || error.message.includes('relation') || error.message.includes('does not exist')) {
           const fs = require('fs');
           const dbFile = `c:/AYDIN GROS/db_${coll}.json`;
@@ -1197,6 +1276,9 @@ async function supabaseWrite(coll: string, body: any, supabase: any, tenantId: s
         .from(coll)
         .upsert(rows);
       if (error) {
+        if (process.env.NODE_ENV === 'production') {
+          throw new Error(`${coll} write: ` + error.message);
+        }
         if (error.code === '42P01' || error.message.includes('relation') || error.message.includes('does not exist')) {
           const fs = require('fs');
           const dbFile = `c:/AYDIN GROS/db_${coll}.json`;
@@ -1218,22 +1300,25 @@ export async function GET(req: NextRequest) {
   }
 
   const auth = await checkAuth(req);
-  const isStaff = auth.isAuthenticated && ['admin', 'manager', 'branch_manager', 'cashier', 'warehouse_person'].includes(auth.role);
+  const isStaff = auth.isAuthenticated && isAuthorized(auth.role, ['admin', 'manager', 'branch_manager', 'cashier', 'warehouse_person']);
 
   const publicReadCollections = ['products', 'categories', 'campaigns', 'promos', 'settings', 'stock'];
   if (!isStaff && !publicReadCollections.includes(coll)) {
     return NextResponse.json({ error: 'Bu koleksiyonu okumak için yetkiniz yok' }, { status: 403 });
   }
 
-  const supabase = createAdminClient();
-  if (!supabase) {
-    return NextResponse.json({ error: 'Supabase yapılandırılmamış' }, { status: 503 });
-  }
-
   let tenantIdToUse = auth.tenantId || TENANT_ID;
   if (auth.role === 'admin') {
     const override = req.nextUrl.searchParams.get('tenantId') || req.nextUrl.searchParams.get('tenant_id') || req.headers.get('x-tenant-id');
     if (override) tenantIdToUse = override;
+  }
+
+  let supabase: any = createAdminClient();
+  if (process.env.FORCE_JSON_DB === 'true') {
+    supabase = createMockSupabaseClient(tenantIdToUse);
+  }
+  if (!supabase) {
+    return NextResponse.json({ error: 'Supabase yapılandırılmamış' }, { status: 503 });
   }
   console.log('[api/db] GET request:', { coll, role: auth.role, tenantIdToUse });
   const branchId = req.nextUrl.searchParams.get('branchId') || req.nextUrl.searchParams.get('branch_id') || '22222222-2222-2222-2222-222222222222';
@@ -1266,23 +1351,42 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Geçersiz koleksiyon adı' }, { status: 400 });
   }
 
-  const auth = await checkAuth(req);
-  const isStaff = auth.isAuthenticated && ['admin', 'manager', 'branch_manager', 'cashier', 'warehouse_person'].includes(auth.role);
-
-  const publicWriteCollections = ['orders'];
-  if (!isStaff && !publicWriteCollections.includes(coll)) {
-    return NextResponse.json({ error: 'Bu koleksiyonu yazmak için yetkiniz yok' }, { status: 403 });
+  // IP-based Rate Limiting on DB mutation operations
+  const forwarded = req.headers.get('x-forwarded-for');
+  const ip = forwarded ? forwarded.split(',')[0] : '127.0.0.1';
+  const rateLimit = checkRateLimit(ip, 60, 60000); // 60 updates/min max
+  if (!rateLimit.allowed) {
+    return NextResponse.json({ error: 'Çok fazla yazma isteği gönderildi. Lütfen bekleyin.' }, { status: 429 });
   }
 
-  const supabase = createAdminClient();
-  if (!supabase) {
-    return NextResponse.json({ error: 'Supabase yapılandırılmamış' }, { status: 503 });
+  const auth = await checkAuth(req);
+  const isStaff = auth.isAuthenticated && isAuthorized(auth.role, ['admin', 'manager', 'branch_manager', 'cashier', 'warehouse_person']);
+  const isManager = auth.isAuthenticated && isAuthorized(auth.role, ['admin', 'manager', 'branch_manager', 'owner']);
+
+  if (!isStaff) {
+    const publicWriteCollections = ['orders'];
+    if (!publicWriteCollections.includes(coll)) {
+      return NextResponse.json({ error: 'Bu koleksiyonu yazmak için yetkiniz yok' }, { status: 403 });
+    }
+  } else {
+    const managerWriteOnlyCollections = ['products', 'categories', 'campaigns', 'promos', 'settings', 'branches', 'registers'];
+    if (managerWriteOnlyCollections.includes(coll) && !isManager) {
+      return NextResponse.json({ error: 'Bu koleksiyonu değiştirmek için yönetici yetkiniz olmalıdır' }, { status: 403 });
+    }
   }
 
   let tenantIdToUse = auth.tenantId || TENANT_ID;
   if (auth.role === 'admin') {
     const override = req.nextUrl.searchParams.get('tenantId') || req.nextUrl.searchParams.get('tenant_id') || req.headers.get('x-tenant-id');
     if (override) tenantIdToUse = override;
+  }
+
+  let supabase: any = createAdminClient();
+  if (process.env.FORCE_JSON_DB === 'true') {
+    supabase = createMockSupabaseClient(tenantIdToUse);
+  }
+  if (!supabase) {
+    return NextResponse.json({ error: 'Supabase yapılandırılmamış' }, { status: 503 });
   }
   const branchId = req.nextUrl.searchParams.get('branchId') || req.nextUrl.searchParams.get('branch_id') || '22222222-2222-2222-2222-222222222222';
   if (coll !== 'seed') {

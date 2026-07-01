@@ -13,8 +13,8 @@ const path = require('path');
   try {
     // 1. Load login page (pos.html redirects if not logged in)
     const t = Date.now();
-    console.log("Navigating to http://localhost:3001/pos.html");
-    await page.goto("http://localhost:3001/pos.html?t=" + t);
+    console.log("Navigating to http://127.0.0.1:3001/pos.html");
+    await page.goto("http://127.0.0.1:3001/pos.html?t=" + t);
     await page.waitForTimeout(4000);
 
     // If redirected to admin login
@@ -37,7 +37,7 @@ const path = require('path');
       console.log(`Saved debug login screenshot to: ${screenshotPath}`);
 
       console.log("Logged in. Navigating back to pos.html");
-      await page.goto("http://localhost:3001/pos.html?t=" + (t + 1));
+      await page.goto("http://127.0.0.1:3001/pos.html?t=" + (t + 1));
       await page.waitForTimeout(2000);
     }
 
@@ -72,8 +72,8 @@ const path = require('path');
     if (badgeText !== 'Açık') throw new Error("Kasa durumu 'Açık' olmalıydı!");
 
     // 3. Search and Add products
-    console.log("Searching for product: 'Sütaş'...");
-    await page.fill("#posSearchInput", "Sütaş");
+    console.log("Searching for product: 'Bulk'...");
+    await page.fill("#posSearchInput", "Bulk");
     await page.waitForTimeout(1000);
     await page.click("#searchSuggestions div:first-child"); // select match
     await page.waitForTimeout(500);

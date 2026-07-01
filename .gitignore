@@ -3,6 +3,7 @@ node_modules/
 .env
 .env.local
 .env.*.local
+.env.production
 scripts/.migrate_progress.json
 
 # Next.js build output
@@ -13,6 +14,12 @@ erenler-products.json
 new-products.json
 db_test.json
 erenler_urunler.csv
+db_*.json
+local_store.db
+
+# Debug/test artifacts
+*_test_failed.png
+*_debug.png
 
 # Server state
 server.err
@@ -36,3 +43,26 @@ restore_emojis3.js
 generate_rls.js
 generate_schema.js
 generate_supabase_rls.js
+scripts/check_ai_insights.js
+scripts/check_constraints.js
+scripts/check_port.js
+scripts/check_products_tenants.js
+scripts/check_stock_table.js
+scripts/check_user_role.js
+scripts/debug_insights.js
+scripts/debug_insights_tenant.js
+scripts/deduplicate_products.js
+scripts/find_esc_definition.js
+scripts/get_loyalty_spec.js
+scripts/get_openapi_spec.js
+scripts/inspect_env.js
+scripts/inspect_loyalty_schema.js
+scripts/inspect_tables.js
+scripts/query_insights_endpoint.js
+scripts/run_browser_test.js
+scripts/run_browser_test_3.js
+scripts/search_esc.js
+scripts/search_esc_def.js
+scripts/seed_crm_data.js
+scripts/test_auth_func.js
+scripts/test_upsert_stock.js

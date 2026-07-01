@@ -50,11 +50,11 @@ export async function GET(req: NextRequest) {
     if (listErr) throw listErr;
     return NextResponse.json(shelves || []);
   } catch (err: any) {
-    // Return empty array on database missing fallback
-    if (err.message.includes('relation') || err.message.includes('does not exist')) {
+    const msg = err.message || String(err);
+    if (err.code === '42P01' || msg.includes('relation') || msg.includes('does not exist')) {
       return NextResponse.json([]);
     }
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
 
@@ -166,9 +166,10 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ error: 'Bilinmeyen action' }, { status: 400 });
   } catch (err: any) {
-    if (err.message.includes('relation') || err.message.includes('does not exist')) {
+    const msg = err.message || String(err);
+    if (err.code === '42P01' || msg.includes('relation') || msg.includes('does not exist')) {
       return NextResponse.json({ success: true, warning: 'Simulated action due to missing schema' });
     }
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

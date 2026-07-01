@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { checkAuth } from '@/lib/auth';
 import fs from 'fs';
 import path from 'path';
 
 export async function POST(req: NextRequest) {
+  const auth = await checkAuth(req);
+  if (!auth.isAuthenticated || auth.role !== 'admin') {
+    return NextResponse.json({ error: 'Bu debug işlemine yetkiniz yok' }, { status: 403 });
+  }
   const baseDir = process.cwd();
   const filePath = path.join(baseDir, 'erenler-products.json');
 

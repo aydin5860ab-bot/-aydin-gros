@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { checkAuth } from '@/lib/auth';
 
 export async function GET(req: NextRequest) {
+  const auth = await checkAuth(req);
+  if (!auth.isAuthenticated || auth.role !== 'admin') {
+    return NextResponse.json({ error: 'Bu debug işlemine yetkiniz yok' }, { status: 403 });
+  }
+
   const slug = req.nextUrl.searchParams.get('slug') || 'meyve-sebze';
   const url = `https://www.erenlercep.com/${encodeURIComponent(slug)}`;
   

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { checkAuth } from '@/lib/auth';
 import { stockLock } from '@/lib/lock';
+import { createMockSupabaseClient } from '@/lib/db';
 
 const TENANT = process.env.DEFAULT_TENANT_ID ?? '11111111-1111-1111-1111-111111111111';
 
@@ -11,10 +12,11 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
   }
 
-  const db = createAdminClient();
-  if (!db) return NextResponse.json({ error: 'DB bağlantısı yok' }, { status: 500 });
-
   const tenantId = auth.tenantId || TENANT;
+  let db: any = createAdminClient();
+  if (process.env.FORCE_JSON_DB === 'true') {
+    db = createMockSupabaseClient(tenantId);
+  }
   const { searchParams } = new URL(req.url);
   const orderId = searchParams.get('order_id');
 
@@ -38,10 +40,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
   }
 
-  const db = createAdminClient();
-  if (!db) return NextResponse.json({ error: 'DB bağlantısı yok' }, { status: 500 });
-
   const tenantId = auth.tenantId || TENANT;
+  let db: any = createAdminClient();
+  if (process.env.FORCE_JSON_DB === 'true') {
+    db = createMockSupabaseClient(tenantId);
+  }
   const body = await req.json();
 
   // ── Karma ödeme kaydet ──────────────────────────────────────────────────

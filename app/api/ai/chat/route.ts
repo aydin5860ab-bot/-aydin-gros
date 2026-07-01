@@ -52,6 +52,9 @@ async function safeReadCollection(coll: string, supabase: any, tenantId: string)
     }
     return data || [];
   } catch (error: any) {
+    if (process.env.NODE_ENV === 'production') {
+      return [];
+    }
     // Check if table doesn't exist (42P01 error code)
     if (error.code === '42P01' || (error.message && (error.message.includes('relation') || error.message.includes('does not exist')))) {
       const dbFile = `c:/AYDIN GROS/db_${coll}.json`;
@@ -86,6 +89,10 @@ async function logAiRequest(supabase: any, tenantId: string, userId: string | un
     const { error } = await supabase.from('ai_request_logs').insert(logRecord);
     if (error) throw error;
   } catch (e: any) {
+    if (process.env.NODE_ENV === 'production') {
+      console.error("[logAiRequest] Database write error:", e.message);
+      return;
+    }
     // Fallback to local append-only log file
     const logFile = 'c:/AYDIN GROS/db_ai_request_logs.json';
     try {

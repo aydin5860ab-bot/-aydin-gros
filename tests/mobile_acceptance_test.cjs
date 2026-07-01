@@ -17,15 +17,15 @@ const path = require('path');
   try {
     const t = Date.now();
     console.log("1. Logging in via admin.html...");
-    await page.goto("http://localhost:3001/admin.html?t=" + t);
+    await page.goto("http://127.0.0.1:3001/admin.html?t=" + t);
     await page.waitForTimeout(2000);
     await page.fill("#loginUser", "admin@aydingros.com");
     await page.fill("#loginPass", "adminPassword123");
     await page.click("#loginBtn");
     await page.waitForTimeout(3000);
 
-    console.log("2. Navigating to http://localhost:3001/mobile.html");
-    await page.goto("http://localhost:3001/mobile.html?t=" + (t + 1));
+    console.log("2. Navigating to http://127.0.0.1:3001/mobile.html");
+    await page.goto("http://127.0.0.1:3001/mobile.html?t=" + (t + 1));
     await page.waitForTimeout(4000);
 
     // Verify main views loaded
@@ -37,7 +37,7 @@ const path = require('path');
     console.log("2. Testing Product / Price Inquiry...");
     await page.click("#nav-inquiry");
     await page.waitForTimeout(1000);
-    await page.fill("#inquirySearch", "Domates");
+    await page.fill("#inquirySearch", "Bulk");
     await page.waitForTimeout(2000);
     
     // Check results list

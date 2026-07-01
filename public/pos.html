@@ -6,8 +6,8 @@
   <title>Aydın Gros — Kasiyer POS</title>
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <!-- Tailwind CSS via CDN for rapid utility styling -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Compiled Tailwind CSS -->
+  <link rel="stylesheet" href="tailwind.css">
   <!-- Supabase JS Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- JsBarcode CDN for printing barcodes -->
@@ -199,6 +199,8 @@
             <span id="posTotal" class="text-emerald-400">0.00 TL</span>
           </div>
         </div>
+        <!-- APPLIED CAMPAIGNS & PROMOTIONS (Sprint 17) -->
+        <div id="appliedPromosList" class="flex flex-wrap gap-1 mt-2 mb-2"></div>
 
         <!-- Payment Calculations -->
         <div id="changeCalcArea" class="hidden space-y-3 p-3 bg-slate-800/40 rounded-lg border border-slate-800">
@@ -452,6 +454,22 @@
       </div>
     </div>
   </div>
+  
+  <!-- AI FRAUD DETECTOR / MANAGER OVERRIDE LOCK MODAL (Sprint 17) -->
+  <div id="fraudVerificationModal" class="fixed inset-0 bg-black/90 flex items-center justify-center hidden z-50">
+    <div class="bg-slate-900 border border-red-500/30 rounded-xl p-6 max-w-md w-full text-center space-y-4 shadow-2xl">
+      <div class="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto text-3xl">⚠️</div>
+      <h3 class="text-xl font-bold text-slate-100">ŞÜPHELİ KASA İŞLEMİ KİLİDİ</h3>
+      <p id="fraudAnomalyDescription" class="text-sm text-slate-400">Reyon ağırlık-fiyat tutarsızlığı ve şüpheli kasa tarama hız düşüşü saptandı.</p>
+      <div class="space-y-2">
+        <label class="block text-left text-xs font-semibold text-slate-400">Yönetici Yetkilendirme Şifresi</label>
+        <input type="password" id="managerOverridePass" class="w-full bg-slate-950 border border-slate-800 rounded p-2 text-sm text-slate-100 focus:outline-none focus:border-red-500 text-center" placeholder="••••">
+      </div>
+      <div class="flex gap-2">
+        <button onclick="overrideFraudLock()" class="w-full bg-red-600 hover:bg-red-500 text-slate-100 p-2.5 rounded font-bold transition text-sm">Yetkili Kilidini Kaldır</button>
+      </div>
+    </div>
+  </div>
 
   <!-- REGISTER CLOSE / Z-REPORT MODAL (Sprint 10) -->
   <div id="registerCloseModal" class="fixed inset-0 bg-black/85 flex items-center justify-center z-50 hidden">
@@ -581,6 +599,8 @@
     let customersList = [];
     let cart = [];
     let selectedCustomer = null;
+    let customerLoyaltyAccount = null;
+    let customerWallet = null;
     let selectedBranch = '22222222-2222-2222-2222-222222222222';
     let activeRegisterSession = null;
     let categoryFilter = '';
@@ -673,7 +693,7 @@
 
       // Fetch customers
       try {
-        const res = await fetch('/api/db?coll=customers', { headers });
+        const res = await fetch('/api/enterprise/crm', { headers });
         customersList = await res.json();
       } catch(e){}
 
@@ -784,6 +804,9 @@
       const prod = productsById[productId] || productsList.find(p => p.id === productId);
       if (!prod) return;
 
+      const cat = (categoriesList || []).find(c => c.id === prod.category_id);
+      const categorySlug = cat ? cat.slug : 'genel';
+
       const existing = cart.find(i => i.id === productId);
       if (existing) {
         existing.quantity += 1;
@@ -794,14 +817,25 @@
           price: prod.price,
           quantity: 1,
           unit: prod.unit,
+          category: categorySlug,
           discountAmount: 0,
           isPercent: false,
           note: ''
         });
       }
 
+      window.scanHistory = window.scanHistory || [];
+      window.scanHistory.push({
+        timestamp: Date.now(),
+        product_id: prod.id,
+        price: prod.price,
+        weight: prod.name.toLowerCase().includes('bulk') ? 1.5 : 0.2
+      });
+
       sound.beep();
       updateCartUI();
+
+      checkScanAnomalies();
     }
 
     function changeQty(idx, delta) {
@@ -938,6 +972,116 @@
       document.getElementById('posTotal').innerText = total.toFixed(2) + ' TL';
 
       calcChange();
+      recalculateBasketCampaigns();
+    }
+
+    async function recalculateBasketCampaigns() {
+      const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      let lineDiscounts = 0;
+      cart.forEach(item => {
+        let lineDisc = 0;
+        if (item.discountAmount > 0) {
+          if (item.isPercent) {
+            lineDisc = (item.price * item.quantity) * item.discountAmount;
+          } else {
+            lineDisc = item.discountAmount;
+          }
+        }
+        if (lineDisc > item.price * item.quantity) lineDisc = item.price * item.quantity;
+        lineDiscounts += lineDisc;
+      });
+
+      const orderTotal = subtotal - lineDiscounts;
+
+      try {
+        const authHeaders = await getAuthHeader();
+        const res = await fetch('/api/campaigns', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...authHeaders
+          },
+          body: JSON.stringify({
+            action: 'calculate',
+            items: cart.map(item => ({
+              id: item.id,
+              category: item.category || 'genel',
+              price: item.price,
+              qty: item.quantity
+            })),
+            order_total: orderTotal,
+            customer_id: selectedCustomer ? selectedCustomer.id : null,
+            branch_id: selectedBranch
+          })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const campaignDiscount = data.total_discount || 0;
+          
+          document.getElementById('posSubtotal').innerText = subtotal.toFixed(2) + ' TL';
+          document.getElementById('posDiscount').innerText = (lineDiscounts + campaignDiscount).toFixed(2) + ' TL';
+          
+          const grandTotal = Math.max(0, orderTotal - campaignDiscount);
+          document.getElementById('posTotal').innerText = grandTotal.toFixed(2) + ' TL';
+
+          const promoContainer = document.getElementById('appliedPromosList');
+          if (promoContainer) {
+            if (data.applied_campaigns && data.applied_campaigns.length > 0) {
+              promoContainer.innerHTML = data.applied_campaigns.map(c => `
+                <span class="inline-block bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded">
+                  🏷️ ${c.name} (-${c.discount.toFixed(2)} TL)
+                </span>
+              `).join(' ');
+            } else {
+              promoContainer.innerHTML = '';
+            }
+          }
+        }
+      } catch (err) {
+        console.error('[Campaign Calculation Error]', err);
+      }
+    }
+
+    async function checkScanAnomalies() {
+      try {
+        const authHeaders = await getAuthHeader();
+        const res = await fetch('/api/enterprise/ai/fraud', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...authHeaders
+          },
+          body: JSON.stringify({
+            scan_history: window.scanHistory,
+            cashier_email: activeRegisterSession?.cashier_email || 'merve@aydingros.com',
+            register_id: activeRegisterSession?.register_id || 'reg-01'
+          })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.fraud_alert) {
+            document.getElementById('fraudVerificationModal').classList.remove('hidden');
+            document.getElementById('fraudAnomalyDescription').textContent = data.description;
+            sound.beep();
+            console.warn('[AI Fraud Lock] Activated due to: ' + data.description);
+          }
+        }
+      } catch (err) {
+        console.error('[AI Fraud Check Error]', err);
+      }
+    }
+
+    function overrideFraudLock() {
+      const pass = document.getElementById('managerOverridePass').value;
+      if (pass === 'admin' || pass === '1234') {
+        document.getElementById('fraudVerificationModal').classList.add('hidden');
+        document.getElementById('managerOverridePass').value = '';
+        window.scanHistory = []; // Reset history
+        toast('Kasa kilidi yetkili tarafından kaldırıldı.');
+      } else {
+        alert('Geçersiz yönetici şifresi!');
+      }
     }
 
     function applyDiscount() {
@@ -1110,36 +1254,71 @@
     function searchCustomers(val) {
       const clean = val.toLowerCase();
       const grid = document.getElementById('custSelectGrid');
-      const filtered = customersList.filter(c => c.name.toLowerCase().includes(clean) || c.phone.includes(clean));
+      const filtered = customersList.filter(c => {
+        const name = (c.full_name || c.name || '').toLowerCase();
+        const phone = c.phone || '';
+        return name.includes(clean) || phone.includes(clean);
+      });
 
       grid.innerHTML = `
         <div onclick="selectCustomer(null)" class="p-3 bg-slate-800/50 hover:bg-slate-800 rounded border border-slate-700 cursor-pointer text-xs font-semibold text-slate-400">
           ❌ Perakende Müşteri (Cari Yok)
         </div>
-      ` + filtered.map(c => `
-        <div onclick="selectCustomer(${JSON.stringify(c).replace(/"/g, '&quot;')})" class="p-3 bg-slate-800 hover:bg-slate-700 rounded border border-slate-700 cursor-pointer flex justify-between items-center">
-          <div>
-            <span class="font-bold text-slate-200 block">${c.name}</span>
-            <span class="text-xs text-slate-400">${c.phone}</span>
+      ` + filtered.map(c => {
+        const name = c.full_name || c.name || 'Müşteri';
+        const bal = parseFloat(c.balance || 0);
+        return `
+          <div onclick="selectCustomer(${JSON.stringify(c).replace(/"/g, '&quot;')})" class="p-3 bg-slate-800 hover:bg-slate-700 rounded border border-slate-700 cursor-pointer flex justify-between items-center">
+            <div>
+              <span class="font-bold text-slate-200 block">${esc(name)}</span>
+              <span class="text-xs text-slate-400">${esc(c.phone)}</span>
+            </div>
+            <div class="text-right">
+              <span class="text-xs text-slate-400 block">Cari Bakiye</span>
+              <span class="font-semibold ${bal > 0 ? 'text-red-400':'text-emerald-400'}">${bal.toFixed(2)} TL</span>
+            </div>
           </div>
-          <div class="text-right">
-            <span class="text-xs text-slate-400 block">Cari Bakiye</span>
-            <span class="font-semibold ${c.balance > 0 ? 'text-red-400':'text-emerald-400'}">${c.balance.toFixed(2)} TL</span>
-          </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
-    function selectCustomer(cust) {
+    async function selectCustomer(cust) {
       selectedCustomer = cust;
       const display = document.getElementById('selectedCustomerDisplay');
       if (cust) {
         display.innerHTML = `
-          <span class="text-sm font-semibold text-emerald-400">${cust.name}</span>
-          <span class="block text-xs text-slate-300">Borç Bakiyesi: ${cust.balance.toFixed(2)} TL</span>
+          <span class="text-sm font-semibold text-emerald-400">${cust.full_name || cust.name}</span>
+          <span class="block text-xs text-slate-350">Yükleniyor...</span>
         `;
         document.getElementById('veresiyeSplitRow').classList.remove('hidden');
+        
+        try {
+          const headers = await getAuthHeader().catch(() => ({}));
+          // Fetch loyalty account details
+          const lRes = await fetch(`/api/loyalty?action=account&customer_id=${cust.id}`, { headers });
+          if (lRes.ok) {
+            customerLoyaltyAccount = await lRes.json();
+          }
+          // Fetch wallet balance
+          const wRes = await fetch(`/api/enterprise/wallet?customer_id=${cust.id}`, { headers });
+          if (wRes.ok) {
+            customerWallet = await wRes.json();
+          }
+        } catch(e) {
+          console.warn("CRM Fetch Error", e);
+        }
+
+        const tier = (customerLoyaltyAccount?.tier || 'bronze').toUpperCase();
+        const pts = customerLoyaltyAccount?.current_points ?? customerLoyaltyAccount?.points_balance ?? 0;
+        const walletBal = (customerWallet?.store_credit || 0) + (customerWallet?.refund_credit || 0);
+
+        display.innerHTML = `
+          <span class="text-sm font-semibold text-emerald-400"><span class="bg-emerald-950 text-emerald-300 text-[10px] px-1.5 py-0.5 rounded font-bold mr-1">${tier}</span> ${cust.full_name || cust.name}</span>
+          <span class="block text-xs text-slate-350">Sadakat: ${pts} Puan | Cüzdan: ₺${walletBal.toFixed(2)} | Borç: ${Number(cust.balance || 0).toFixed(2)} TL</span>
+        `;
       } else {
+        customerLoyaltyAccount = null;
+        customerWallet = null;
         display.innerHTML = `
           <span class="text-sm font-medium text-slate-300">Perakende Müşteri</span>
           <span class="block text-xs text-slate-500">Cari Bakiye: 0.00 TL</span>
@@ -1162,12 +1341,22 @@
       document.getElementById('multiVeresiyePay').value = 0;
       
       const ptsDisplay = document.getElementById('customerPointsDisplay');
-      if (selectedCustomer) {
-        const pts = (selectedCustomer.metadata && selectedCustomer.metadata.points) || 0;
-        ptsDisplay.innerText = `Cari Puan: ${pts.toFixed(2)}₺`;
+      if (selectedCustomer && customerLoyaltyAccount) {
+        const pts = customerLoyaltyAccount.current_points ?? customerLoyaltyAccount.points_balance ?? 0;
+        const ptsVal = pts * 0.10; // 1 point = 0.10 TL
+        ptsDisplay.innerText = `Cari Puan: ${pts} Puan (₺${ptsVal.toFixed(2)})`;
         ptsDisplay.style.display = 'block';
       } else {
         ptsDisplay.style.display = 'none';
+      }
+
+      // Digital Wallet Balance label under gift check input (multiGiftPay)
+      const giftLabel = document.querySelector('label[for="multiGiftPay"]') || document.getElementById('multiGiftPay').previousElementSibling;
+      if (selectedCustomer && customerWallet) {
+        const walletBal = (customerWallet.store_credit || 0) + (customerWallet.refund_credit || 0);
+        if (giftLabel) giftLabel.innerHTML = `🎁 Hediye / Cüzdan <span class="text-[10px] text-emerald-400 font-bold ml-1">(Bakiye: ₺${walletBal.toFixed(2)})</span>`;
+      } else {
+        if (giftLabel) giftLabel.innerHTML = `🎁 Hediye Çeki`;
       }
       
       document.getElementById('paymentModal').classList.remove('hidden');
@@ -1243,23 +1432,69 @@
 
       // Update customer balance & loyalty points if selected
       if (selectedCustomer) {
-        const pointsEarned = total * 0.01; // Earn 1% points
-        const originalPoints = (selectedCustomer.metadata && selectedCustomer.metadata.points) || 0;
-        
         selectedCustomer.balance = (selectedCustomer.balance || 0) + paymentDetails.veresiye;
-        selectedCustomer.metadata = selectedCustomer.metadata || {};
-        selectedCustomer.metadata.points = Math.max(0, originalPoints - paymentDetails.points + pointsEarned);
 
-        // Update local list
-        const idx = customersList.findIndex(c => c.id === selectedCustomer.id);
-        if (idx !== -1) customersList[idx] = selectedCustomer;
-
+        // Perform async server CRM, Loyalty & Wallet updates
         try {
-          await fetch('/api/db?coll=customers', {
+          const authHeader = await getAuthHeader().catch(() => ({}));
+
+          // 1. If points were spent -> call redeem API
+          if (paymentDetails.points > 0) {
+            await fetch('/api/loyalty', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', ...authHeader },
+              body: JSON.stringify({
+                action: 'redeem',
+                customer_id: selectedCustomer.id,
+                points_to_spend: paymentDetails.points
+              })
+            }).catch(e => console.error("Points redeem call error", e));
+          }
+
+          // 2. If wallet credits used -> debit store credit wallet
+          if (paymentDetails.gift > 0) {
+            await fetch('/api/enterprise/wallet', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', ...authHeader },
+              body: JSON.stringify({
+                customer_id: selectedCustomer.id,
+                amount: paymentDetails.gift,
+                type: 'debit',
+                source: 'store_credit',
+                notes: `POS Satış ödemesi — Sipariş #${orderNo}`
+              })
+            }).catch(e => console.error("Wallet debit call error", e));
+          }
+
+          // 3. Earn points on order
+          const earnRes = await fetch('/api/loyalty', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify([selectedCustomer])
+            headers: { 'Content-Type': 'application/json', ...authHeader },
+            body: JSON.stringify({
+              action: 'earn',
+              customer_id: selectedCustomer.id,
+              order_total: total,
+              order_id: orderNo
+            })
           });
+
+          // 4. Update customer balance (veresiye)
+          await fetch('/api/enterprise/crm', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...authHeader },
+            body: JSON.stringify(selectedCustomer)
+          });
+          
+          // Trigger automated 'thank_you' message notification
+          await fetch('/api/enterprise/messaging', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...authHeader },
+            body: JSON.stringify({
+              event: 'thank_you',
+              customer_id: selectedCustomer.id
+            })
+          }).catch(() => {});
+
         } catch(e) {
           console.warn("Could not sync customer update to server, running offline");
         }
@@ -1486,9 +1721,22 @@ Genel Toplam:              ${order.total.toFixed(2)} TL
             return { 'Authorization': `Bearer ${data.session.access_token}` };
           }
         }
-      } catch(e) {
-        console.error("Error in getAuthHeader:", e);
-      }
+      } catch(e) {}
+      // Robust fallback: search localStorage for Supabase token
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.includes('-auth-token')) {
+            const val = localStorage.getItem(key);
+            if (val) {
+              const data = JSON.parse(val);
+              if (data && data.session && data.session.access_token) {
+                return { 'Authorization': `Bearer ${data.session.access_token}` };
+              }
+            }
+          }
+        }
+      } catch(e) {}
       return {};
     }
 
@@ -1511,23 +1759,29 @@ Genel Toplam:              ${order.total.toFixed(2)} TL
       }
       
       const newCust = {
-        id: crypto.randomUUID(),
-        name: name,
+        full_name: name,
         phone: phone,
-        balance: 0,
-        metadata: { points: 0, created_at: new Date().toISOString() }
+        customer_type: 'individual',
+        consent_marketing: true,
+        balance: 0
       };
       
       try {
-        const res = await fetch('/api/db?coll=customers', {
+        const headers = await getAuthHeader().catch(() => ({}));
+        const res = await fetch('/api/enterprise/crm', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify([newCust])
+          headers: { 'Content-Type': 'application/json', ...headers },
+          body: JSON.stringify(newCust)
         });
-        if (!res.ok) throw new Error("Cari veritabanına kaydedilemedi");
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.error || "CRM veritabanına kaydedilemedi");
+        }
         
+        const createdCustomer = await res.json();
+
         // Select this customer
-        selectCustomer(newCust);
+        selectCustomer(createdCustomer);
         // Reload lists
         await loadBackendData();
         nameInput.value = '';

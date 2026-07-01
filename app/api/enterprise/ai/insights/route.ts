@@ -15,6 +15,9 @@ async function safeReadCollection(coll: string, supabase: any, tenantId: string)
     if (error) throw error;
     return data || [];
   } catch (error: any) {
+    if (process.env.NODE_ENV === 'production') {
+      return [];
+    }
     if (error.code === '42P01' || (error.message && (error.message.includes('relation') || error.message.includes('does not exist')))) {
       const dbFile = `c:/AYDIN GROS/db_${coll}.json`;
       if (fs.existsSync(dbFile)) {
