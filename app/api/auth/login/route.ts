@@ -22,33 +22,41 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'E-posta ve şifre gereklidir' }, { status: 400 });
     }
 
+    if (process.env.FORCE_JSON_DB === 'true') {
+      const crypto = require('crypto');
+      const secret = process.env.JWT_SECRET || 'aydingros-offline-secret-key-12345';
+      const headerB64 = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64')
+        .replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+      const payloadB64 = Buffer.from(JSON.stringify({
+        sub: 'dummy-uuid',
+        email,
+        user_metadata: { role: 'admin', tenant_id: '11111111-1111-1111-1111-111111111111' }
+      })).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+      
+      const hmac = crypto.createHmac('sha256', secret);
+      hmac.update(`${headerB64}.${payloadB64}`);
+      const sig = hmac.digest('base64url');
+      const token = `${headerB64}.${payloadB64}.${sig}`;
+
+      const response = NextResponse.json({
+        user: { email, id: 'dummy-uuid' },
+        role: 'admin',
+        token
+      });
+
+      response.cookies.set('sb-access-token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 60 * 60 * 24, // 1 day
+        path: '/'
+      });
+
+      return response;
+    }
+
     const client = createServerClient();
     if (!client) {
-      // Local development fallback if supabase is not initialized
-      if (process.env.FORCE_JSON_DB === 'true') {
-        const dummyToken = Buffer.from(JSON.stringify({
-          sub: 'dummy-uuid',
-          email,
-          user_metadata: { role: 'admin', tenant_id: '11111111-1111-1111-1111-111111111111' }
-        })).toString('base64');
-        const token = `hdr.${dummyToken}.sig`;
-
-        const response = NextResponse.json({
-          user: { email, id: 'dummy-uuid' },
-          role: 'admin',
-          token
-        });
-
-        response.cookies.set('sb-access-token', token, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict',
-          maxAge: 60 * 60 * 24, // 1 day
-          path: '/'
-        });
-
-        return response;
-      }
       return NextResponse.json({ error: 'Veritabanı bağlantısı kurulamadı' }, { status: 500 });
     }
 
