@@ -2059,9 +2059,16 @@ Genel Toplam:              ${order.total.toFixed(2)} TL
           if (t.type === 'in') cashIn += t.amount || 0;
           else cashOut += t.amount || 0;
         });
-        
-        const expected = opening + cashSales + cashIn - cashOut;
-        
+
+        // Beklenen nakit, satış anında oturumda biriken değerdir (karma ödemelerin yalnız
+        // nakit payı dahildir ve her satışta sunucuya yazılır). Sipariş kayıtları ödeme
+        // kırılımını taşımadığından aşağıdaki yeniden hesap sadece oturum verisi yoksa
+        // kullanılan yedektir — karma satışların tamamını nakit sayarak kasayı şişirir.
+        const maintainedExpected = Number(activeRegisterSession.expectedCash);
+        const expected = Number.isFinite(maintainedExpected) && maintainedExpected > 0
+          ? maintainedExpected
+          : (opening + cashSales + cashIn - cashOut);
+
         document.getElementById('closeOpeningCash').innerText = opening.toFixed(2) + ' TL';
         document.getElementById('closeSalesCash').innerText = cashSales.toFixed(2) + ' TL';
         document.getElementById('closeSalesCard').innerText = cardSales.toFixed(2) + ' TL';
@@ -2234,9 +2241,13 @@ Genel Toplam:              ${order.total.toFixed(2)} TL
           if (t.type === 'in') cashIn += t.amount || 0;
           else cashOut += t.amount || 0;
         });
-        
-        const expected = opening + cashSales + cashIn - cashOut;
-        
+
+        // Kapanış modalıyla aynı kural: oturumda biriken beklenen nakit esastır (bkz. openCloseRegisterModal).
+        const maintainedExpectedX = Number(activeRegisterSession.expectedCash);
+        const expected = Number.isFinite(maintainedExpectedX) && maintainedExpectedX > 0
+          ? maintainedExpectedX
+          : (opening + cashSales + cashIn - cashOut);
+
         const reportHtml = `
           <div class="bg-slate-950 p-4 border border-slate-800 rounded-lg space-y-2">
             <div class="flex justify-between"><span>Açılış Nakit:</span><span class="font-bold">${opening.toFixed(2)} TL</span></div>

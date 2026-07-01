@@ -63,14 +63,50 @@ function createMockSupabaseClient(tenantId: string) {
 
       let rangeFrom = 0;
       let rangeTo = Infinity;
+      let singleMode = false;
+      const filters: { col: string; val: any }[] = [];
+      let pendingOp: { type: 'update' | 'delete'; fields?: any } | null = null;
+
+      // Reads: a row missing the filtered column passes (tolerant — preserves legacy row shapes).
+      const matchesRead = (row: any) =>
+        filters.every(f => row[f.col] === undefined || String(row[f.col]) === String(f.val));
+      // Mutations: a row missing the filtered column is NEVER touched (unidentifiable rows must not be mutated).
+      const matchesWrite = (row: any) =>
+        filters.every(f => row[f.col] !== undefined && String(row[f.col]) === String(f.val));
 
       const builder: any = {
         then: (onfulfilled: any) => {
-          const sliced = tenantData.slice(rangeFrom, rangeTo + 1);
+          if (pendingOp) {
+            const op = pendingOp;
+            pendingOp = null;
+            if (op.type === 'update') {
+              // Rows in tenantData are references into `data` — mutating them mutates `data`.
+              const targets = tenantData.filter(matchesWrite);
+              targets.forEach(row => Object.assign(row, op.fields));
+              writeData(data);
+              return Promise.resolve(onfulfilled({ data: targets, error: null }));
+            }
+            if (op.type === 'delete') {
+              const targets = tenantData.filter(matchesWrite);
+              const remaining = data.filter(row => !targets.includes(row));
+              data.length = 0;
+              data.push(...remaining);
+              writeData(data);
+              return Promise.resolve(onfulfilled({ data: targets, error: null }));
+            }
+          }
+          const filtered = tenantData.filter(matchesRead);
+          if (singleMode) {
+            return Promise.resolve(onfulfilled({ data: filtered[0] || null, error: null }));
+          }
+          const sliced = filtered.slice(rangeFrom, rangeTo + 1);
           return Promise.resolve(onfulfilled({ data: sliced, error: null }));
         },
         select: () => builder,
-        eq: () => builder,
+        eq: (col: string, val: any) => {
+          filters.push({ col, val });
+          return builder;
+        },
         is: () => builder,
         not: () => builder,
         in: () => builder,
@@ -82,51 +118,57 @@ function createMockSupabaseClient(tenantId: string) {
           return builder;
         },
         maybeSingle: () => {
-          builder.then = (onfulfilled: any) => {
-            return Promise.resolve(onfulfilled({ data: tenantData[0] || null, error: null }));
-          };
+          singleMode = true;
+          return builder;
+        },
+        single: () => {
+          singleMode = true;
           return builder;
         },
         insert: (rows: any) => {
           const arr = Array.isArray(rows) ? rows : [rows];
-          const newRows = arr.map(r => ({ ...r, tenant_id: tenantId }));
+          const newRows = arr.map(r => ({
+            ...r,
+            id: r.id || crypto.randomUUID(),
+            tenant_id: tenantId
+          }));
           data.push(...newRows);
           writeData(data);
           builder.then = (onfulfilled: any) => Promise.resolve(onfulfilled({ data: newRows, error: null }));
           return builder;
         },
-        upsert: (rows: any) => {
+        upsert: (rows: any, opts?: { onConflict?: string }) => {
           const arr = Array.isArray(rows) ? rows : [rows];
+          const conflictCols = (opts?.onConflict || 'id').split(',').map(c => c.trim()).filter(Boolean);
+          const savedRows: any[] = [];
           arr.forEach(r => {
-            const idx = data.findIndex(x => x.id === r.id);
             const rowWithTenant = { ...r, tenant_id: tenantId };
+            // Match an existing row only when every conflict-key value is present on the incoming row.
+            const keysUsable = conflictCols.every(c => rowWithTenant[c] !== undefined && rowWithTenant[c] !== null);
+            const idx = keysUsable
+              ? data.findIndex(x =>
+                  x && x.tenant_id === tenantId &&
+                  conflictCols.every(c => String(x[c]) === String(rowWithTenant[c])))
+              : -1;
             if (idx > -1) {
               data[idx] = { ...data[idx], ...rowWithTenant };
+              savedRows.push(data[idx]);
             } else {
-              data.push(rowWithTenant);
+              const newRow = { ...rowWithTenant, id: rowWithTenant.id || crypto.randomUUID() };
+              data.push(newRow);
+              savedRows.push(newRow);
             }
           });
           writeData(data);
-          builder.then = (onfulfilled: any) => Promise.resolve(onfulfilled({ data: arr, error: null }));
+          builder.then = (onfulfilled: any) => Promise.resolve(onfulfilled({ data: savedRows, error: null }));
           return builder;
         },
         update: (fields: any) => {
-          tenantData.forEach(row => {
-            Object.assign(row, fields);
-            const idx = data.findIndex(x => x.id === row.id);
-            if (idx > -1) data[idx] = row;
-          });
-          writeData(data);
-          builder.then = (onfulfilled: any) => Promise.resolve(onfulfilled({ data: tenantData, error: null }));
+          pendingOp = { type: 'update', fields };
           return builder;
         },
         delete: () => {
-          // Remove tenantData items from global data array
-          const remaining = data.filter(row => !tenantData.some(tr => tr.id === row.id));
-          data.length = 0;
-          data.push(...remaining);
-          writeData(data);
-          builder.then = (onfulfilled: any) => Promise.resolve(onfulfilled({ data: tenantData, error: null }));
+          pendingOp = { type: 'delete' };
           return builder;
         }
       };
@@ -310,7 +352,7 @@ async function supabaseRead(coll: string, supabase: any, tenantId: string, branc
     case 'orders': {
       const { data, error } = await supabase
         .from('orders')
-        .select('id, order_number, customer_name, customer_phone, delivery_address, total, status, items_data, created_at, payment_method, customer_id, register_id, branch_id')
+        .select('id, order_number, customer_name, customer_phone, delivery_address, total, status, items_data, created_at, payment_method, customer_id, register_id, session_id, branch_id')
         .eq('tenant_id', tenantId)
         .is('deleted_at', null)
         .order('created_at', { ascending: false });
@@ -332,7 +374,9 @@ async function supabaseRead(coll: string, supabase: any, tenantId: string, branc
         status:        ORDER_STATUS[r.status] ?? 0,
         paymentMethod: r.payment_method || 'cash',
         customerId:    r.customer_id || '',
-        registerId:    r.register_id || '',
+        // POS writes its shift/session id into session_id (register_id is the physical
+        // register and is always null on POS orders) — mirror the write mapping on read.
+        registerId:    r.session_id || r.register_id || '',
         branchId:      r.branch_id || ''
       }));
     }

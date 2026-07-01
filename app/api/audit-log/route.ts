@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { checkAuth, isAuthorized } from '@/lib/auth';
+import { createMockSupabaseClient } from '@/lib/db';
 
 const TENANT = process.env.DEFAULT_TENANT_ID ?? '11111111-1111-1111-1111-111111111111';
 
@@ -13,7 +14,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Bu işlemi yapmaya yetkiniz yok' }, { status: 403 });
   }
 
-  const db = createAdminClient();
+  let db: any = createAdminClient();
+  if (process.env.FORCE_JSON_DB === 'true') {
+    db = createMockSupabaseClient(auth.tenantId || TENANT);
+  }
   if (!db) return NextResponse.json({ error: 'DB bağlantısı yok' }, { status: 500 });
 
   const { searchParams } = new URL(req.url);
@@ -41,7 +45,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
   }
 
-  const db = createAdminClient();
+  let db: any = createAdminClient();
+  if (process.env.FORCE_JSON_DB === 'true') {
+    db = createMockSupabaseClient(auth.tenantId || TENANT);
+  }
   if (!db) return NextResponse.json({ error: 'DB bağlantısı yok' }, { status: 500 });
 
   const body = await req.json();

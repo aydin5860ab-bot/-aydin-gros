@@ -51,7 +51,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(shelves || []);
   } catch (err: any) {
     const msg = err.message || String(err);
-    if (err.code === '42P01' || msg.includes('relation') || msg.includes('does not exist')) {
+    // PostgREST reports a missing table as "Could not find the table ... in the schema cache"
+    // (code PGRST205) — cover it alongside the Postgres 42P01 wording.
+    if (err.code === '42P01' || msg.includes('relation') || msg.includes('does not exist') || msg.includes('Could not find')) {
       return NextResponse.json([]);
     }
     return NextResponse.json({ error: msg }, { status: 500 });
@@ -167,7 +169,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Bilinmeyen action' }, { status: 400 });
   } catch (err: any) {
     const msg = err.message || String(err);
-    if (err.code === '42P01' || msg.includes('relation') || msg.includes('does not exist')) {
+    if (err.code === '42P01' || msg.includes('relation') || msg.includes('does not exist') || msg.includes('Could not find')) {
       return NextResponse.json({ success: true, warning: 'Simulated action due to missing schema' });
     }
     return NextResponse.json({ error: msg }, { status: 500 });

@@ -41,10 +41,10 @@ function writeJsonFallback<T>(coll: string, data: T[], tenantId: string): void {
 }
 
 export async function readCollection<T>(coll: string, tenantId: string, supabase: any): Promise<T[]> {
+  // FORCE_JSON_DB is an explicit operator opt-in (store node / offline mode) and is
+  // honored in every NODE_ENV — same policy as the mock client guard in app/api/db/route.ts.
+  // Only the *implicit* fallback below (Supabase error path) stays disabled in production.
   if (process.env.FORCE_JSON_DB === 'true') {
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error("Direct JSON Database filesystem access is disabled in production environments");
-    }
     return readJsonFallback<T>(coll, tenantId);
   }
 
@@ -67,10 +67,8 @@ export async function readCollection<T>(coll: string, tenantId: string, supabase
 }
 
 export async function writeCollection<T>(coll: string, data: T[], tenantId: string, supabase: any): Promise<void> {
+  // Explicit operator opt-in — honored in every NODE_ENV (see readCollection note).
   if (process.env.FORCE_JSON_DB === 'true') {
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error("Direct JSON Database filesystem access is disabled in production environments");
-    }
     writeJsonFallback<T>(coll, data, tenantId);
     return;
   }
@@ -182,6 +180,12 @@ export function createMockSupabaseClient(tenantId: string) {
         },
         order: () => builder,
         limit: () => builder,
+        range: (from: number, to: number) => {
+          if (Array.isArray(lastResult)) {
+            lastResult = lastResult.slice(from, to + 1);
+          }
+          return builder;
+        },
         gte: (col: string, val: any) => {
           if (Array.isArray(lastResult)) {
             lastResult = lastResult.filter((x: any) => {
